@@ -1,0 +1,1 @@
+load("/Users/simondi/PROJECTS/sysvirdrug_project/svd/inst/extdata/denv_druggable_target_relation_matrix.rds")

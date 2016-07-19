@@ -1,0 +1,30 @@
+Package: svd
+Type: Package
+Title: What the Package does
+Version: 0.1
+Date: 2015-12-10
+Author: Simon Dirmeier
+Maintainer: Who to complain to <simon.dirmeier@bsse.ethz.ch>
+Description: asdasdn asdasdhjalsd asjd asjld asd ajld asdj .
+License: GPL-3
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Dependency: R (>= 3.0.1)
+Imports: dplyr,
+    ggplot2,
+    limma,
+    data.table,
+    gespeR,
+    tidyr,
+    assertthat,
+    lme4,
+    locfdr,
+    splines,
+    reshape2,
+    AnnotationDbi,
+    GOstats,
+    Matrix,
+    RColorBrewer,
+    org.Hs.eg.db,
+    magrittr
+Suggests: testthat
