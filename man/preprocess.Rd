@@ -5,8 +5,8 @@
 \title{Pre-processing routine for data normalization, summarization and removal of low viability siRNAs.}
 \usage{
 preprocess(obj, normalize = c("log", "robust-z.score"),
-  normalize.viability = F, rm.cytotoxic = "Scrambled",
-  rm.outlier.cells = c(NA, "quantile"), ...)
+  normalize.viability = F, rm.cytotoxic = NULL, rm.outlier.cells = c(NA,
+  "quantile"), ...)
 }
 \arguments{
 \item{obj}{the data.table to be analysed}

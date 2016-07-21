@@ -11,9 +11,9 @@ function
   if (!is.null(rm.cytotoxic) & "Viability" %in% colnames(obj))
   {
     message(paste("Removing un-viable genes by comparing to ",
-                  comp.to, " viability.", sep=""))
+                  rm.cytotoxic, " viability.", sep=""))
     message(paste("\tUsing t-test with mu=85*mean(viability(",
-                  comp.to ,")) and alternative=less", sep=""))
+                  rm.cytotoxic ,")) and alternative=less", sep=""))
     obj <-
       dplyr::group_by(obj, Virus, Screen, Library,
                       InfectionType, ReadoutType,
@@ -22,7 +22,7 @@ function
       dplyr::mutate(Remove=.set.cytotoxic(Readout, Viability, siRNAIDs,
                                           Control, GeneSymbol,
                                           Plate, RowIdx, ColIdx,
-                                          comp.to)) %>%
+                                          rm.cytotoxic)) %>%
       ungroup
   }
   invisible(obj)
