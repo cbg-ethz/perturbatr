@@ -40,7 +40,7 @@ function
   background.column <- ifelse(hasArg(background.column),
                               params$background.column,
                               NA)
-  background.row <- ifelse(hasArg(background.row),params$background.row,NA)
+  background.row <- ifelse(hasArg(background.row), params$background.row, NA)
   # normalize the readout
   message("Normalizing readout")
   read.dat <- .do.normalize.within(obj=read.dat,

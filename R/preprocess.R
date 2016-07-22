@@ -74,7 +74,7 @@ preprocess.svd.raw <-
   # do outlier removal
   res <- .remove.outliers(obj, rm.outlier.wells, outlier.well.range)
   # do normalization
-  res <- .normalize(res, normalize, normalize.viability)
+  res <- .normalize(res, normalize, normalize.viability, ...)
   # remove outliers
   res <- .rm.cytotoxic(res, rm.cytotoxic)
   res <- .drop(res, drop)
