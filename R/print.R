@@ -9,6 +9,7 @@ print.svd.plates    <- function(x, ...) .print.svd.list(x, ...)
 print.svd.replicates <- function(x, ...) .print.svd.list(x, ...)
 
 #' @noRd
+#' @export
 #' @import data.table
 .print.svd.list <-
   function

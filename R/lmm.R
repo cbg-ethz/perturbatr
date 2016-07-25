@@ -7,17 +7,9 @@
 #' @param obj  an svd.data object
 #' @param th  the threshold for the local false discovery rate
 #' @param ...  additional parameters
-lmm <-
-function
-(
-  obj,
-  th=.1,
-  ...
-)
-{
-  UseMethod("lmm", obj)
-}
+lmm <- function(obj, th=.1, ...) UseMethod("lmm", obj)
 
+#' @export
 #' @noRd
 #' @import data.table
 lmm.svd.data <-
@@ -28,20 +20,20 @@ function
   ...
 )
 {
-  lf <- .lmm(obj, ...)
+  lf  <- .lmm(obj, ...)
   tlf <- .thresh(lf, th, ...)
   res <- list(model=lf, res=tlf)
-  class(res) <- append(class(res), c("svd.analysed", "svd.analysed.pmm"))
+  class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   mat <- .set.gene.matrices(res)
   res$result.matrices <- mat
   invisible(res)
 }
 
+lmm.model.data <- function(obj, ...) UseMethod("lmm")
+
 #' @noRd
-#'
 #' @import data.table
 #' @import lme4
-#'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 .lmm <-
@@ -51,8 +43,9 @@ function
   ...
 )
 {
-  params <- list(...)
-  ignore <- ifelse(hasArg(ignore) && is.numeric(params$ignore), params$ignore, 1)
+  params <- base::list(...)
+  ignore <- base::ifelse(hasArg(ignore) &&
+                           is.numeric(params$ignore), params$ignore, 1)
   # init the data table for the LMM
   model.data <- .set.lmm.matrix(obj, ignore)
   # save gene control mappings
@@ -79,15 +72,10 @@ function
   # calculate fdrs
   res <- .fdr(ccg)
   # finalize output and return as list
-  ret <- list()
-  ret$gene.effects <-
-    data.table::as.data.table(base::merge(
-      ag, gene.control.map, by="GeneSymbol"))
+  ret <- base::list(gene.effects=data.table::as.data.table(base::merge(ag, gene.control.map, by="GeneSymbol")),
+                    gene.pathogen.effects=data.table::as.data.table(base::merge(res$ccg.matrix, gene.control.map, by="GeneSymbol")))
   colnames(ret$gene.effects) <- c("GeneSymbol", "Effect", "Control")
-  ret$gene.pathogen.effects <-
-    data.table::as.data.table(base::merge(res$ccg.matrix,
-                                          gene.control.map,
-                                          by="GeneSymbol"))
+
   ret$ag <- ag
   ret$bcg <- bcg
   ret$ccg <- ccg
@@ -98,9 +86,7 @@ function
 }
 
 #' @noRd
-#'
 #' @import data.table
-#'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_by
@@ -113,16 +99,16 @@ function
 )
 {
   pmm.mat <-
-    dplyr::select(obj, Entrez, GeneSymbol, Virus, siRNAIDs, Readout) %>%
+    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control) %>%
     dplyr::filter(!is.na(GeneSymbol))
   data.table::setDT(pmm.mat)[, Weight := 1]
   data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
   pmm.mat$Entrez     <- as.integer(pmm.mat$Entrez)
   pmm.mat$Virus      <- as.factor(pmm.mat$Virus)
-  pmm.mat$siRNA      <- as.factor(pmm.mat$siRNA)
   pmm.mat$VG         <- as.factor(pmm.mat$VG)
   pmm.mat$GeneSymbol <- as.factor(pmm.mat$GeneSymbol)
   pmm.mat$Weight     <- as.integer(pmm.mat$Weight)
+  pmm.mat$Control    <- as.integer(pmm.mat$Control)
   pmm.mat <-
     dplyr::filter(pmm.mat, !is.na(Readout)) %>%
     dplyr::group_by(VG) %>%
@@ -135,7 +121,6 @@ function
 }
 
 #' @noRd
-#'
 #' @importFrom stats reshape
 #' @importFrom stats na.omit
 .fdr <-
@@ -147,14 +132,14 @@ function
 {
   ccg.matrix <-
     stats::reshape(as.data.frame(obj),
-                               direction = "wide", timevar = "Virus",
-                               idvar = "GeneSymbol")
+                   direction = "wide", timevar = "Virus",
+                   idvar = "GeneSymbol")
   fdrs <- list()
   for (i in unique(obj$Virus))
   {
     cl <- paste("GeneVirusEffect", i, sep = ".")
     fr <- paste("fdr", i, sep = ".")
-    sub.ccg.matrix <- na.omit(ccg.matrix[, c("GeneSymbol",cl) ])
+    sub.ccg.matrix <- stats::na.omit(ccg.matrix[, c("GeneSymbol",cl) ])
     locf <- .localfdr(sub.ccg.matrix[, cl])
     fdrs[[i]] <- locf
     sub.ccg.matrix <- cbind(sub.ccg.matrix, fdr = locf$fdr)
@@ -171,9 +156,7 @@ function
 #' This is the implementation of Efron local fdr with some additions regarding the return values
 #'
 #' @noRd
-#'
 #' @import locfdr
-#'
 #' @importFrom splines ns
 #' @importFrom stats glm quantile poly lm approx poisson qnorm
 .localfdr <-
@@ -532,40 +515,39 @@ function
   ...
 )
 {
-  params <- list(...)
-  m <- tlf$gene.pathogen.effects
+  params       <- list(...)
+  m            <- tlf$gene.pathogen.effects
   gene.effects <- tlf$gene.effects
-  col.names <- colnames(m)
+  col.names   <- colnames(m)
   ccg.idx <- grep("ccg", col.names)
   fdr.idx <- grep("fdr", col.names)
   res <- list()
+  row.m <- rownames(m[,1])
   for (i in seq_along(ccg.idx))
   {
     vir <- sub("ccg.", "",col.names[ccg.idx[i]])
     fdrs <- m[, fdr.idx[i]]
-    idx <- which(fdrs <= th & !is.na(fdrs))
+    idx <- base::which(fdrs <= th & !is.na(fdrs))
     v.r <- m[idx, c(1, ccg.idx[i], fdr.idx[i])]
     colnames(v.r) <- c("Gene", "Effect", "FDR")
     res[[vir]] <- v.r
   }
-  narm = ifelse(hasArg(na.rm), params$na.rm, T)
-  mat <- as.matrix(m[,fdr.idx])
-  rownames(mat) <- m[,1]
-  fdr.mins <- as.matrix(apply(mat, 1, function(e)
+  narm <- base::ifelse(hasArg(na.rm), params$na.rm, T)
+  mat  <- base::as.matrix(m[,fdr.idx])
+  rownames(mat) <- row.m
+  fdr.mins <-   base::as.matrix(apply(mat, 1, function(e)
   {
     c(min(e, na.rm=narm))
   }), ncol=1)
-  res.mat <- data.frame(GeneSymbol=names(fdr.mins[,1]),  FDR=as.vector(fdr.mins[,1]))
-  gene.matrix <-  merge(res.mat, gene.effects,by="GeneSymbol")
+  res.mat     <- base::data.frame(GeneSymbol=names(fdr.mins[,1]),  FDR=as.vector(fdr.mins[,1]))
+  gene.matrix <- base::merge(res.mat, gene.effects,by="GeneSymbol")
   list(all.virus.screen=gene.matrix,
        all.virus.results=gene.matrix[gene.matrix$FDR <= th,],
        single.virus.results=res)
 }
 
 #' @noRd
-#'
 #' @import data.table
-#'
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
 .set.gene.matrices <-
@@ -578,22 +560,22 @@ function
   gene.hits <- data.table::as.data.table(obj$res$all.virus.results) %>%
     .[order(abs(Effect), decreasing=T)]
   pathogen.gene.hits <-
-    do.call("rbind",
-            lapply(obj$res$single.virus.results , function(i) i))
+    base::do.call("rbind",
+            base::lapply(obj$res$single.virus.results , function(i) i))
   pathogen.gene.hits$Virus <-
-    unname(unlist(sapply(rownames(pathogen.gene.hits),
+    base::unname(unlist(sapply(rownames(pathogen.gene.hits),
                          function(e) sub(".[[:digit:]]+", "", e))))
   cpgs <- data.table::as.data.table(obj$model$gene.pathogen.effects)
 
   cpg.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
     dplyr::select(GeneID, grep("GenePathogenEffect", colnames(cpgs)))
-  colnames(cpg.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
+  base::colnames(cpg.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
 
   fdr.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
     dplyr::select(GeneID, grep("fdr", colnames(cpgs)))
-  colnames(fdr.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
+  base::colnames(fdr.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
 
-  res <- list(cpg.mat=cpg.mat, fdr.mat=fdr.mat)
+  res        <- base::list(cpg.mat=cpg.mat, fdr.mat=fdr.mat)
   class(res) <- "svd.pmm.single.gene.matrices"
   res
 }
