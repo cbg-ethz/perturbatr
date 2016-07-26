@@ -290,6 +290,8 @@ function
   ctrl.gene
 )
 {
+  genes <- tolower(genes)
+  ctrl.gene <- tolower(ctrl.gene)
   cont.idx <- which(control == -1)
   if (!is.na(ctrl.gene)) {
       cont.idx <- which(control == -1 & genes == ctrl.gene)

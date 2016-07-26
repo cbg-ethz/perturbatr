@@ -59,7 +59,7 @@ function
   {
     cont.idx <- which(ctrl == -1 & genes == comp.to)
     if (is.na(cont.idx[1])) stop("No control index found! Change gene names")
-    assertthat::assert_that(length(cont.idx) == length(which(tolower(genes) == comp.to)))
+    assertthat::assert_that(length(cont.idx) == length(which(genes == comp.to)))
     # get mean readout and  viability of scrambled siRNAs
     cont.vial.thresh <- base::mean(val[cont.idx], na.rm=T) * .85
     cont.re   <- base::mean(re [cont.idx], na.rm=T)

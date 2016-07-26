@@ -231,7 +231,6 @@ function
     f
 }
 
-
 #' Calculate the concordance between the vectorial elements of a list.
 #'
 #' @export

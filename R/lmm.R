@@ -6,8 +6,12 @@
 #'
 #' @param obj  an svd.data object
 #' @param th  the threshold for the local false discovery rate
+#' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param ...  additional parameters
-lmm <- function(obj, th=.1, ...) UseMethod("lmm", obj)
+#' \itemize{
+#'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
+#' }
+lmm <- function(obj, th=.1, drop=T, ...) UseMethod("lmm", obj)
 
 #' @export
 #' @noRd
@@ -17,19 +21,18 @@ function
 (
   obj,
   th=.1,
+  drop=T,
   ...
 )
 {
-  lf  <- .lmm(obj, ...)
-  tlf <- .thresh(lf, th, ...)
+  lf  <- .lmm(obj, drop)
+  tlf <- .thresh(lf, th)
   res <- list(model=lf, res=tlf)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   mat <- .set.gene.matrices(res)
   res$result.matrices <- mat
   invisible(res)
 }
-
-lmm.model.data <- function(obj, ...) UseMethod("lmm")
 
 #' @noRd
 #' @import data.table
@@ -40,14 +43,14 @@ lmm.model.data <- function(obj, ...) UseMethod("lmm")
 function
 (
   obj,
+  drop,
   ...
 )
 {
   params <- base::list(...)
-  ignore <- base::ifelse(hasArg(ignore) &&
-                           is.numeric(params$ignore), params$ignore, 1)
+  ignore <- base::ifelse(hasArg(ignore) && is.numeric(params$ignore), params$ignore, 1)
   # init the data table for the LMM
-  model.data <- .set.lmm.matrix(obj, ignore)
+  model.data <- .set.lmm.matrix(obj, drop, ignore)
   # save gene control mappings
   gene.control.map <-
     dplyr::select(model.data, GeneSymbol, Control) %>%
@@ -70,10 +73,13 @@ function
     dplyr::mutate(Virus = sub(":.+$", "", GenePathID), GeneVirusEffect = ag + bcg) %>%
     dplyr::select(-GenePathID, -bcg, -ag)
   # calculate fdrs
-  res <- .fdr(ccg)
+  fdrs <- .fdr(ccg)
   # finalize output and return as list
-  ret <- base::list(gene.effects=data.table::as.data.table(base::merge(ag, gene.control.map, by="GeneSymbol")),
-                    gene.pathogen.effects=data.table::as.data.table(base::merge(res$ccg.matrix, gene.control.map, by="GeneSymbol")))
+  ret <- base::list(
+    gene.effects=data.table::as.data.table(
+      base::merge(ag, gene.control.map, by="GeneSymbol")),
+    gene.pathogen.effects=data.table::as.data.table(
+      base::merge(fdrs$ccg.matrix, gene.control.map, by="GeneSymbol")))
   colnames(ret$gene.effects) <- c("GeneSymbol", "Effect", "Control")
 
   ret$ag <- ag
@@ -81,7 +87,7 @@ function
   ret$ccg <- ccg
   ret$model.data <- model.data
   ret$fit <- fit.lmm
-  ret$fdrs <- res$fdrs
+  ret$fdrs <- fdrs$fdrs
   invisible(ret)
 }
 
@@ -95,6 +101,7 @@ function
 function
 (
   obj,
+  drop,
   ignore
 )
 {
@@ -116,6 +123,15 @@ function
     ungroup %>%
     dplyr::filter(cnt >= ignore) %>%
     dplyr::select(-cnt)
+  if (drop)
+  {
+    vir.cnt <- length(unique(pmm.mat$Virus))
+    pmm.mat <- dplyr::group_by(pmm.mat, GeneSymbol) %>%
+      dplyr::mutate(drop=(length(unique(Virus)) != vir.cnt)) %>%
+      ungroup %>%
+      dplyr::filter(!drop) %>%
+      dplyr::select(-drop)
+  }
   pmm.mat <- droplevels(pmm.mat)
   invisible(pmm.mat)
 }
