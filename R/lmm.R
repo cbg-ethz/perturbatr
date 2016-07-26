@@ -526,23 +526,23 @@ function
 .thresh <-
 function
 (
-  tlf,
+  lf,
   th,
   ...
 )
 {
   params       <- list(...)
-  m            <- tlf$gene.pathogen.effects
-  gene.effects <- tlf$gene.effects
+  m            <- lf$gene.pathogen.effects
+  gene.effects <- lf$gene.effects
   col.names   <- colnames(m)
-  ccg.idx <- grep("ccg", col.names)
+  ccg.idx <- grep("GeneVirusEffect", col.names)
   fdr.idx <- grep("fdr", col.names)
   res <- list()
-  row.m <- rownames(m[,1])
+  genes <- m$GeneSymbol
   for (i in seq_along(ccg.idx))
   {
     vir <- sub("ccg.", "",col.names[ccg.idx[i]])
-    fdrs <- m[, fdr.idx[i]]
+    fdrs <- filter(m, , fdr.idx[i])
     idx <- base::which(fdrs <= th & !is.na(fdrs))
     v.r <- m[idx, c(1, ccg.idx[i], fdr.idx[i])]
     colnames(v.r) <- c("Gene", "Effect", "FDR")
