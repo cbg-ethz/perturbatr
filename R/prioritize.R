@@ -39,7 +39,7 @@ function
 #' @export
 #' @import data.table
 prioritize.svd.analysed.hyper <-
-  function
+function
 (
   obj,
   ...
@@ -47,6 +47,21 @@ prioritize.svd.analysed.hyper <-
 {
   res <- .select.hits.hyper(obj, ...)
   class(res) <- c("svd.prioritized.hyper", "svd.prioritized", class(res))
+  invisible(res)
+}
+
+#' @noRd
+#' @export
+#' @import data.table
+prioritize.svd.analysed.pmm <-
+function
+(
+  obj,
+  ...
+)
+{
+  res <- .select.hits.pmm(obj, ...)
+  class(res) <- c("svd.prioritized.pmm", "svd.prioritized", class(res))
   invisible(res)
 }
 
@@ -109,5 +124,35 @@ function
                      MeanPvalue          = base::mean(Pval)) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.rat)
+  res
+}
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr filter select group_by mutate summarize full_join
+.select.hits.pmm <-
+function
+(
+  obj,
+  ...
+)
+{
+  params <- list(...)
+  fdr.threshold <- ifelse(hasArg(fdr.threshold), params$fdr.threshold, 0.2)
+  message(paste("Prioritizing on fdr.threshold ", fdr.threshold, sep=""))
+  gpes <- obj$gene.pathogen.matrix
+  gene.pathogen.results <- gpes %>%
+    dplyr::filter(FDR <= th)
+  gene.results   <- gpes %>%
+    dplyr::select(GeneSymbol, FDR) %>%
+    dplyr::group_by(GeneSymbol) %>%
+    dplyr::summarize(FDR=base::min(FDR)) %>%
+    ungroup %>%
+    dplyr::filter(FDR <= th)
+  gene.effect.results <- dplyr::full_join(gene.results,
+                                          obj$gene.effects,
+                                          by="GeneSymbol")
+  res <- list(gene.pathogen.results=gene.pathogen.results,
+              gene.effect.results=gene.effect.results)
   res
 }

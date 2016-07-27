@@ -25,9 +25,7 @@ function
   ...
 )
 {
-  lf  <- .lmm(obj, drop)
-  tlf <- .thresh(lf, th)
-  res <- list(model=lf, res=tlf)
+  res  <- .lmm(obj, drop)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   mat <- .set.gene.matrices(res)
   res$result.matrices <- mat
@@ -81,13 +79,13 @@ function
     gene.pathogen.effects=data.table::as.data.table(
       base::merge(fdrs$ccg.matrix, gene.control.map, by="GeneSymbol")))
   colnames(ret$gene.effects) <- c("GeneSymbol", "Effect", "Control")
-
   ret$ag <- ag
   ret$bcg <- bcg
   ret$ccg <- ccg
   ret$model.data <- model.data
   ret$fit <- fit.lmm
   ret$fdrs <- fdrs$fdrs
+  ret$gene.pathogen.matrix <- fdrs$gene.pathogen.matrix
   invisible(ret)
 }
 
@@ -166,7 +164,18 @@ function
     ccg.matrix <- merge(ccg.matrix, sub.ccg.matrix[, c("GeneSymbol", fr)],
                         by = "GeneSymbol")
   }
-  list(ccg.matrix=ccg.matrix, fdrs=fdrs)
+  gene.effect.mat <- ccg.matrix[,c(1, grep("GeneVirusEffect", colnames(ccg.matrix)))]
+  colnames(gene.effect.mat) <- sub("GeneVirusEffect.", "", colnames(gene.effect.mat))
+  gene.effect.mat <- gene.effect.mat %>%
+    tidyr::gather(Virus, Effect, 2:ncol(gene.effect.mat)) %>%
+    as.data.table
+  fdr.mat         <- ccg.matrix[,c(1, grep("fdr", colnames(ccg.matrix)))]
+  colnames(fdr.mat) <- sub("fdr.", "", colnames(fdr.mat))
+  fdr.mat <- fdr.mat %>%
+    tidyr::gather(Virus, FDR, 2:ncol(fdr.mat)) %>%
+    as.data.table
+  gene.pathogen.matrix <- dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Virus"))
+  list(ccg.matrix=ccg.matrix, fdrs=fdrs, gene.pathogen.matrix=gene.pathogen.matrix )
 }
 
 #' This is the implementation of Efron local fdr with some additions regarding the return values
@@ -176,7 +185,7 @@ function
 #' @importFrom splines ns
 #' @importFrom stats glm quantile poly lm approx poisson qnorm
 .localfdr <-
-  function
+function
 (
   zz,
   bre = 120,
@@ -521,77 +530,4 @@ function
   invisible(vl)
 }
 
-#' @noRd
-#' @import data.table
-.thresh <-
-function
-(
-  lf,
-  th,
-  ...
-)
-{
-  params       <- list(...)
-  m            <- lf$gene.pathogen.effects
-  gene.effects <- lf$gene.effects
-  col.names   <- colnames(m)
-  ccg.idx <- grep("GeneVirusEffect", col.names)
-  fdr.idx <- grep("fdr", col.names)
-  res <- list()
-  genes <- m$GeneSymbol
-  for (i in seq_along(ccg.idx))
-  {
-    vir <- sub("ccg.", "",col.names[ccg.idx[i]])
-    fdrs <- filter(m, , fdr.idx[i])
-    idx <- base::which(fdrs <= th & !is.na(fdrs))
-    v.r <- m[idx, c(1, ccg.idx[i], fdr.idx[i])]
-    colnames(v.r) <- c("Gene", "Effect", "FDR")
-    res[[vir]] <- v.r
-  }
-  narm <- base::ifelse(hasArg(na.rm), params$na.rm, T)
-  mat  <- base::as.matrix(m[,fdr.idx])
-  rownames(mat) <- row.m
-  fdr.mins <-   base::as.matrix(apply(mat, 1, function(e)
-  {
-    c(min(e, na.rm=narm))
-  }), ncol=1)
-  res.mat     <- base::data.frame(GeneSymbol=names(fdr.mins[,1]),  FDR=as.vector(fdr.mins[,1]))
-  gene.matrix <- base::merge(res.mat, gene.effects,by="GeneSymbol")
-  list(all.virus.screen=gene.matrix,
-       all.virus.results=gene.matrix[gene.matrix$FDR <= th,],
-       single.virus.results=res)
-}
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-.set.gene.matrices <-
-  function
-(
-  obj,
-  ...
-)
-{
-  gene.hits <- data.table::as.data.table(obj$res$all.virus.results) %>%
-    .[order(abs(Effect), decreasing=T)]
-  pathogen.gene.hits <-
-    base::do.call("rbind",
-            base::lapply(obj$res$single.virus.results , function(i) i))
-  pathogen.gene.hits$Virus <-
-    base::unname(unlist(sapply(rownames(pathogen.gene.hits),
-                         function(e) sub(".[[:digit:]]+", "", e))))
-  cpgs <- data.table::as.data.table(obj$model$gene.pathogen.effects)
-
-  cpg.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
-    dplyr::select(GeneID, grep("GenePathogenEffect", colnames(cpgs)))
-  base::colnames(cpg.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
-
-  fdr.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
-    dplyr::select(GeneID, grep("fdr", colnames(cpgs)))
-  base::colnames(fdr.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
-
-  res        <- base::list(cpg.mat=cpg.mat, fdr.mat=fdr.mat)
-  class(res) <- "svd.pmm.single.gene.matrices"
-  res
-}

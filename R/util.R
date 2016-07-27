@@ -372,3 +372,51 @@ function
   colnames(ret) <- rownames(ret) <- paste("Replicate", 1:len, sep="_")
   ret
 }
+
+
+#' Calculcate the I-dont-know-how-to-call-them
+#'
+#' @export
+#' @import data.table
+#' @param obj  the object to calculate the ffect matrices for
+#' @param ...  additional parameters
+effect.matrices <- function(obj, ...) UseMethod("effect.matrices")
+
+#' @noRd
+#' @export
+#' @import data.table
+#' @importFrom dplyr filter select
+effect.matrices.svd.prioritized.pmm <-
+  function
+(
+  obj,
+  ...
+)
+  {
+  gene.hits <- data.table::as.data.table(obj$res$all.virus.results) %>%
+    .[order(abs(Effect), decreasing=T)]
+  pathogen.gene.hits <-
+    base::do.call("rbind",
+                  base::lapply(obj$res$single.virus.results , function(i) i))
+  pathogen.gene.hits$Virus <-
+    base::unname(unlist(sapply(rownames(pathogen.gene.hits),
+                               function(e) sub(".[[:digit:]]+", "", e))))
+  cpgs <- data.table::as.data.table(obj$model$gene.pathogen.effects)
+
+  cpg.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
+    dplyr::select(GeneID, grep("GenePathogenEffect", colnames(cpgs)))
+  base::colnames(cpg.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
+
+  fdr.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
+    dplyr::select(GeneID, grep("fdr", colnames(cpgs)))
+  base::colnames(fdr.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
+
+  res        <- base::list(cpg.mat=cpg.mat, fdr.mat=fdr.mat)
+  class(res) <- "svd.pmm.single.gene.matrices"
+  res
+}
+
+
+
+
+
