@@ -93,12 +93,58 @@ function
 #' @noRd
 #' @export
 #' @import data.table
+#' @importFrom dplyr group_by summarize as.tbl
+print.svd.analysed.pmm <-
+function
+(
+  x,
+  ...
+)
+{
+  ret <- x$gene.pathogen.effects %>%
+    dplyr::group_by(Virus) %>%
+    dplyr::summarize(GenesCount=n()) %>%
+    ungroup
+  cat("Printing data overview for gene-pathogen effects!\n")
+  print(data.table:::print.data.table(ret))
+  cat("\n\nPrinting data for gene-pathogen effects!\n")
+  print(data.table:::print.data.table(x$gene.pathogen.effects))
+}
+
+#' @noRd
+#' @export
+#' @import data.table
 print.svd.prioritized.hyper <- function(x, ...) .print.svd.prioritized(x, ...)
 
 #' @noRd
 #' @export
 #' @import data.table
 print.svd.prioritized.tt <- function(x, ...) .print.svd.prioritized(x, ...)
+
+#' @noRd
+#' @export
+#' @import data.table
+#' @importFrom dplyr filter
+print.svd.prioritized.pmm <-
+function
+(
+  x,
+ ...
+)
+{
+  ret <-
+    x$gene.pathogen.effect.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]],
+      by=c("Virus")] %>%
+    dplyr::filter(!is.na(GeneSymbol))
+  cat("Printing data overview for virus-gene effects!\n")
+  print(data.table:::print.data.table(ret))
+  ret <-
+    x$gene.effect.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]]] %>%
+    dplyr::filter(!is.na(GeneSymbol))
+  cat("Printing data overview for gene effects!\n")
+  print(data.table:::print.data.table(ret))
+  return
+}
 
 #' @noRd
 #' @import data.table
@@ -115,7 +161,7 @@ function
       by=c("Virus", "Screen", "ReadoutType", "InfectionType",
            "Library", "Design", "Cell")] %>%
     dplyr::filter(!is.na(GeneSymbol))
-  cat("Printing data overview!\n")
+  cat("Printing data overview for!\n")
   print(data.table:::print.data.table(ret))
   return
 }

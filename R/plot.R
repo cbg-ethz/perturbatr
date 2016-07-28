@@ -467,7 +467,9 @@ function
 #'
 #' @noRd
 #' @export
+#' @import ggplot2
 #' @import data.table
+#' @importFrom dplyr filter
 plot.svd.prioritized.pmm <-
 function
 (
@@ -475,7 +477,35 @@ function
   ...
 )
 {
-  .plot.svd.prioritized(x, ...)
+  pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects")
+  pl2 <- .plot.svd.prioritized.pmm(x$gene.pathogen.effect.hits, main="Gene-virus effects") +
+    ggplot2::facet_wrap( ~ Virus, ncol=length(unique(x$gene.pathogen.effect.hits$Virus))/2)
+  pl3 <- .multiplot(pl, pl2, cols=2)
+  pl3
+}
+
+#' @noRd
+#' @import data.table
+#' @import ggplot2
+#' @importFrom dplyr filter
+.plot.svd.prioritized.pmm <- function(x, main, ...)
+{
+  x <- x[order(abs(Effect), decreasing=T), .SD[1:25]] %>%
+    dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
+  x.pos.range <- max(abs(x$Effect))
+  x.lim  <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
+  pl <-
+    ggplot2::ggplot(x) +
+    ggplot2::geom_bar(aes(x=GeneSymbol,y=abs(Effect), fill=Effect),
+                      stat="identity") +
+    ggplot2::scale_fill_distiller(palette="Spectral", limits=x.lim) +
+    ylab("Effect") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(axis.text.y=element_blank(),
+                   axis.ticks=element_blank()) +
+    ggplot2::coord_polar() +
+    ggplot2::ggtitle(main)
+  pl
 }
 
 #' Plot a barplot showing the first 25 hits of the hypergeometric prioritization
@@ -522,7 +552,7 @@ function
   x <- x[order(abs(MeanEffect), decreasing=T), .SD[1:25]] %>%
     dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect))
   x.pos.range <- max(abs(x$MeanEffect))
-  x.lim  <- c(-x.pos.range, x.pos.range) + c(-.5,.5)
+  x.lim  <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
   pl <-
     ggplot2::ggplot(x) +
     ggplot2::geom_bar(aes(x=GeneSymbol,y=abs(MeanEffect), fill=MeanEffect),
@@ -625,10 +655,10 @@ function
 {
   params  <- list(...)
   sig.thresh     <- ifelse(hasArg(sig.thresh), params$fdr.thresh, .2)
-  readout.thresh <- ifelse(hasArg(readout.thresh), params$readout.thresh, 0.0)
+  effect.thresh <- ifelse(hasArg(effect.thresh), params$effect.thresh, 0.0)
   log.scale      <- ifelse(hasArg(log.scale), params$log.scale, F)
   gpes <-
-    data.table::as.data.table(x$all.virus.screen) %>%
+    x$gene.pathogen.effects %>%
     dplyr::filter(!is.na(FDR))
   y <- gpes$FDR + 0.0001
   if (log.scale)
@@ -641,8 +671,8 @@ function
   .plot.svd.analysed(x=gpes$Effect,
                      y=y,
                      ctrls=gpes$Control,
-                     genes=gpes$GeneSymbol,
-                     readout.thresh=readout.thresh,
+                     genes=paste(gpes$Virus, gpes$GeneSymbol, sep=":"),
+                     readout.thresh=effect.thresh,
                      sig.thresh=sig.thresh,
                      xl=xl,
                      yl=yl)
@@ -733,7 +763,7 @@ function
     pl <- pl +
       ggplot2::geom_vline(xintercept=readout.thresh,  alpha=.75, linetype="dotdash") +
       ggplot2::geom_vline(xintercept=-readout.thresh, alpha=.75, linetype="dotdash") +
-      ggplot2::geom_text(aes(readout.thresh, ylim[2], label = paste("Readout threshold:", readout.thresh),vjust = 0, hjust=-.01), size = 4)
+      ggplot2::geom_text(aes(readout.thresh, ylim[2], label = paste("Effect threshold:", readout.thresh),vjust = 0, hjust=-.01), size = 4)
   if (length(pos.ctrls$Effect) != 0) pl <- pl +
       ggplot2::geom_point(aes(x=pos.ctrls$Effect, y=pos.ctrls$sig, col="Positive control"), size=1.5, alpha=.75)
   if (length(neg.ctrls$Effect) != 0) pl <- pl +
@@ -813,7 +843,7 @@ plot.svd.analysed.pmm.model.data <-
                      ncol = cols, nrow = ceiling(numPlots/cols))
   }
   if (numPlots==1) {
-    print(plots[[1]])
+    return(plots[[1]])
   } else {
     grid::grid.newpage()
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(nrow(layout), ncol(layout))))

@@ -217,6 +217,7 @@ function(arr, sep, col)
 }
 
 #' @noRd
+#' @importFrom stats median
 .summarization.method <-
 function
 (
@@ -224,8 +225,9 @@ function
 )
 {
     f <- switch(as.character(summ.method),
-                "mean"=mean,
-                "median"=median,
+                "mean"=base::mean,
+                "median"=stats::median,
+                "min"=base::min,
                 `NA`=NA,
                 stop("wrong method given"))
     f

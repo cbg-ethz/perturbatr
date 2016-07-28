@@ -4,12 +4,10 @@
 \alias{lmm}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
-lmm(obj, th = 0.1, drop = T, ...)
+lmm(obj, drop = T, ...)
 }
 \arguments{
 \item{obj}{an svd.data object}
-
-\item{th}{the threshold for the local false discovery rate}
 
 \item{drop}{boolean flag if all entries should be dropped that are not found in every virus}
 

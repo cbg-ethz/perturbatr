@@ -5,30 +5,26 @@
 #' @import data.table
 #'
 #' @param obj  an svd.data object
-#' @param th  the threshold for the local false discovery rate
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param ...  additional parameters
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj, th=.1, drop=T, ...) UseMethod("lmm", obj)
+lmm <- function(obj, drop=T, ...) UseMethod("lmm", obj)
 
-#' @export
 #' @noRd
+#' @export
 #' @import data.table
 lmm.svd.data <-
 function
 (
   obj,
-  th=.1,
   drop=T,
   ...
 )
 {
   res  <- .lmm(obj, drop)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
-  mat <- .set.gene.matrices(res)
-  res$result.matrices <- mat
   invisible(res)
 }
 
@@ -52,15 +48,15 @@ function
   # save gene control mappings
   gene.control.map <-
     dplyr::select(model.data, GeneSymbol, Control) %>%
-    unique
-  gene.control.map$GeneSymbol <- as.character(gene.control.map$GeneSymbol)
+    unique %>%
+    dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   # fit the LMM
   fit.lmm <- lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol),
                         data = model.data, weights = model.data$Weight,
                         verbose = FALSE)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
-  ag <- data.table::data.table(ag = random.effects[["GeneSymbol"]][,1],
+  ag <- data.table::data.table(Effect = random.effects[["GeneSymbol"]][,1],
                    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
   # create the data.table with pathogen effects
   bcg <- data.table::data.table(bcg = random.effects[["Virus:GeneSymbol"]][,1],
@@ -68,24 +64,22 @@ function
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
   # create the table with gene-pathogen effects
   ccg <- base::merge(bcg, ag, by = "GeneSymbol") %>%
-    dplyr::mutate(Virus = sub(":.+$", "", GenePathID), GeneVirusEffect = ag + bcg) %>%
-    dplyr::select(-GenePathID, -bcg, -ag)
+    dplyr::mutate(Virus = sub(":.+$", "", GenePathID), GeneVirusEffect = Effect + bcg) %>%
+    dplyr::select(-GenePathID, -bcg, -Effect)
   # calculate fdrs
   fdrs <- .fdr(ccg)
   # finalize output and return as list
+  gene.effects <- dplyr::full_join(ag, gene.control.map,  by="GeneSymbol")
+  gene.pathogen.effects <- dplyr::full_join(
+    fdrs$gene.pathogen.matrix,
+    gene.control.map,
+    by="GeneSymbol"
+  )
   ret <- base::list(
-    gene.effects=data.table::as.data.table(
-      base::merge(ag, gene.control.map, by="GeneSymbol")),
-    gene.pathogen.effects=data.table::as.data.table(
-      base::merge(fdrs$ccg.matrix, gene.control.map, by="GeneSymbol")))
-  colnames(ret$gene.effects) <- c("GeneSymbol", "Effect", "Control")
-  ret$ag <- ag
-  ret$bcg <- bcg
-  ret$ccg <- ccg
-  ret$model.data <- model.data
-  ret$fit <- fit.lmm
-  ret$fdrs <- fdrs$fdrs
-  ret$gene.pathogen.matrix <- fdrs$gene.pathogen.matrix
+    gene.effects=gene.effects,
+    gene.pathogen.effects=gene.pathogen.effects,
+    model.data=model.data,
+    fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
   invisible(ret)
 }
 

@@ -60,7 +60,9 @@ function
   ...
 )
 {
-  res <- .select.hits.pmm(obj, ...)
+  pars <- list(...)
+  hit.meth <- ifelse(hasArg(method), pars$method, "min")
+  res <- .select.hits.pmm(obj, hit.meth, ...)
   class(res) <- c("svd.prioritized.pmm", "svd.prioritized", class(res))
   invisible(res)
 }
@@ -134,25 +136,28 @@ function
 function
 (
   obj,
+  method=c("min"),
   ...
 )
 {
   params <- list(...)
   fdr.threshold <- ifelse(hasArg(fdr.threshold), params$fdr.threshold, 0.2)
-  message(paste("Prioritizing on fdr.threshold ", fdr.threshold, sep=""))
-  gpes <- obj$gene.pathogen.matrix
+  method <- match.arg(method)
+  message(paste("Prioritizing on fdr.threshold ", fdr.threshold,
+                " and method ", method, sep=""))
+  f <- .summarization.method(method)
+  gpes <- obj$gene.pathogen.effects
   gene.pathogen.results <- gpes %>%
     dplyr::filter(FDR <= th)
   gene.results   <- gpes %>%
     dplyr::select(GeneSymbol, FDR) %>%
     dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarize(FDR=base::min(FDR)) %>%
-    ungroup %>%
+    dplyr::summarize(FDR=f(FDR)) %>%
+    ungroup
+  gene.effect.results <-
+    dplyr::full_join(gene.results, obj$gene.effects, by="GeneSymbol") %>%
     dplyr::filter(FDR <= th)
-  gene.effect.results <- dplyr::full_join(gene.results,
-                                          obj$gene.effects,
-                                          by="GeneSymbol")
-  res <- list(gene.pathogen.results=gene.pathogen.results,
-              gene.effect.results=gene.effect.results)
+  res <- list(gene.pathogen.effect.hits=gene.pathogen.results,
+              gene.effect.hits=gene.effect.results)
   res
 }
