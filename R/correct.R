@@ -4,12 +4,15 @@
 #' @import data.table
 #'
 #' @param obj  a summarized data.table
+#' @param path  path (or file) to the target-relation matrices
 #' @param do.pooled  boolean flag whether pooled libraries should also be corrected
 #' @param ... additional arguments
 correct <-
 function
 (
   obj,
+  path,
+  single=F,
   do.pooled=F,
   ...
 )
@@ -23,12 +26,16 @@ correct.svd.data <-
 function
 (
   obj,
+  path,
+  single=F,
   do.pooled=F,
   ...
 )
 {
-  res <-  .off.target.correct(obj, do.pooled, ...)
-  class(res) <- append(class(res), c("svd.analysed", "svd.analysed.offtc"))
+  if (missing(path)) stop("Please provide the path to your target-relation matrices
+                          (or one of the files, wel'll parse it for you)!")
+  res <-  .off.target.correct(obj, path, do.pooled,...)
+  class(res) <- c("svd.analysed.offtc", "svd.analysed", class(res))
   invisible(res)
 }
 
@@ -43,35 +50,42 @@ function
 function
 (
  obj,
+ path,
+ single,
  do.pooled,
  ...
 )
 {
-  #TODO: do all at once!!! dont split up matrices, but combine them to have more samples9gag.com
-  #
-  cordat <-
-    dplyr::select(obj, Virus, Replicate, Plate, GeneSymbol, Entrez,
-                  Readout, siRNAIDs,
-                  ReadoutType, InfectionType, Library, Screen) %>%
-    dplyr::filter(!is.na(Entrez), !is.na(GeneSymbol)) %>%
-    dplyr::group_by(Virus, Library, Screen, ReadoutType, InfectionType) %>%
-    dplyr::mutate(Grp = .GRP)
-  grps <- unique(cordat$Grp)
-  # TODO: exclude dharmacon
-  new.dat <- do.call(
-    "rbind",
-    lapply
-    (
-      grps,
-      function(grp)
-      {
-        print(paste("Doing grp: ", grp))
-        curr.dat <- dplyr::filter(cordat, Grp==grp)
-        fr <- do.correct(curr.dat)
-        fr
-      }
-    )
-  )
+  #TODO: do all at once!!! dont split up matrices, but combine them to have more samples
+  if (single)
+  {
+    stop("Single analysis not yet supported!")
+      cordat <-
+        dplyr::select(obj, Virus, Replicate, Plate, GeneSymbol, Entrez,
+                      Readout, siRNAIDs,
+                      ReadoutType, InfectionType, Library, Screen) %>%
+        dplyr::filter(!is.na(Entrez), !is.na(GeneSymbol)) %>%
+        dplyr::group_by(Virus, Library, Screen, ReadoutType, InfectionType) %>%
+        dplyr::mutate(Grp = .GRP)
+      grps <- unique(cordat$Grp)
+      # TODO: exclude dharmacon
+      new.dat <- do.call(
+        "rbind",
+        lapply
+        (
+          grps,
+          function(grp)
+          {
+            print(paste("Doing grp: ", grp))
+            curr.dat <- dplyr::filter(cordat, Grp==grp)
+            fr <- do.correct(curr.dat)
+            fr
+          }
+        )
+      )
+  } else {
+    do.correct.all(obj, path, single)
+  }
   invisible(new.dat)
 }
 
@@ -272,7 +286,7 @@ init.frames <-
 #' @noRd
 #' @importFrom gespeR TargetRelations
 load.rel.mat <-
-  function
+function
 (
   lib,
   screen
