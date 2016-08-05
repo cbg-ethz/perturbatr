@@ -5,6 +5,7 @@
 #'
 #' @param obj  a summarized data.table
 #' @param path  path (or file) to the target-relation matrices
+#' @param single  boolean flag if data should be analysed one virus at a time or integratively
 #' @param do.pooled  boolean flag whether pooled libraries should also be corrected
 #' @param ... additional arguments
 correct <-

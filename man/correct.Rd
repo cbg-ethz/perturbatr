@@ -4,10 +4,14 @@
 \alias{correct}
 \title{Off-target correct and rank by hit magnitude}
 \usage{
-correct(obj, do.pooled = F, ...)
+correct(obj, path, single = F, do.pooled = F, ...)
 }
 \arguments{
 \item{obj}{a summarized data.table}
+
+\item{path}{path (or file) to the target-relation matrices}
+
+\item{single}{boolean flag if data should be analysed one virus at a time or integratively}
 
 \item{do.pooled}{boolean flag whether pooled libraries should also be corrected}
 
