@@ -85,9 +85,36 @@ function
         )
       )
   } else {
-    do.correct.all(obj, path, single)
+    do.correct.all(obj, path, do.pooled)
   }
   invisible(new.dat)
+}
+
+#' @noRd
+#' @importFrom gespeR Phenotypes
+#' @importFrom gespeR gespeR
+#' @import Matrix
+.gespeR <-
+function
+(
+  rel.mat,
+  pheno.frame,
+  screen,
+  vir
+)
+{
+  phenos <- gespeR::Phenotypes(Matrix::Matrix(pheno.frame$readout, ncol=1),
+                               ids=as.character(pheno.frame$sirnas),
+                               pnames="pheno",
+                               type="SSP")
+  # fit a model using gesper
+  gesper.fit <- gespeR::gespeR(phenotypes=phenos,
+                               target.relations=rel.mat,
+                               mode = "cv")
+  gsps  <- as.vector(gesper.fit@GSP@values)
+  genes <- as.vector(gesper.fit@GSP@ids)
+  # todo what do which other siRNAS that have not been corrected
+  invisible(data.frame(Readout=gsps, Entrez=genes))
 }
 
 #' @noRd
@@ -99,7 +126,128 @@ function
 #' @importFrom dplyr filter
 #' @importFrom dplyr left_join
 #' @importFrom dplyr summarize
-do.correct <-
+.do.correct.all <-
+function
+(
+  obj,
+  path,
+  do.pooled,
+  ...
+)
+{
+  nor <- nrow(obj)
+  obj <-
+    dplyr::filter(obj, !is.na(Entrez), !is.na(siRNAIDs)) %>% ungroup
+  if (nrow(obj) < nor) message("Rows with is.na(Entrez) have been removed!")
+  ofc <- .off.target.correct.all(obj, path, do.pooled)
+  ofc
+}
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr group_by
+#' @importFrom dplyr mutate
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr left_join
+#' @importFrom dplyr summarize
+.off.target.correct.all <- function(obj, path, do.pooled)
+{
+  rel.mat <- .load.rds(path)
+  mats <- .init.frames(pheno.mat=obj, rel.mat=rel.mat)
+  # do magic
+}
+
+
+#' @import data.table
+#' @importFrom asserthat assert_that
+.init.frames <- function(pheno.mat, rel.mat)
+{
+  # unnest dharmacon entries
+  pheno.mat <- .preprocess.dharmacon.entries(pheno.mat) %>%
+    select(Virus, GeneSymbol, Entrez, siRNAIDs, Readout)
+  # get names of sirnas and entrez ids
+  pheno.readout  <- pheno.mat$Readout
+  pheno.sirnas   <- as.character(pheno.mat$siRNAIDs)
+  pheno.entrez   <- as.integer(pheno.mat$Entrez)
+  rel.mat.sirnas <- as.character(rel.mat@siRNAs)
+  rel.mat.entrez <- as.integer(rel.mat@genes)
+  # check if matrix has correct names
+  assertthat::assert_that(all(rel.mat.entrez == colnames(rel.mat@values)))
+  assertthat::assert_that(all(rel.mat.sirnas == rownames(rel.mat@values)))
+  # intercept of pheno and relmat sirna
+  intr.sirnas        <- unique(intersect(pheno.sirnas, rel.mat.sirnas))
+  # indexes if the relation matrix sirnas that we want to use
+  rel.sirna.idxs     <- which(rel.mat.sirnas %in% intr.sirnas)
+  pheno.sirna.idxs   <- which(pheno.sirnas %in% intr.sirnas)
+  # remove indexes that are not found
+  pheno.readout  <- pheno.readout[pheno.sirna.idxs]
+  pheno.sirnas   <- pheno.sirnas[pheno.sirna.idxs]
+  rel.mat.sirnas <- rel.mat.sirnas[rel.sirna.idxs]
+  vals           <- rel.mat@values[rel.sirna.idxs, ]
+  # order the pheno sirnas according to the ordering of the rel.matrix sirnas
+  # what and why:
+  # 1) first check that the rel.mat.sirnas are UNIQUE
+  # 2) match the pheno.sirnas to the rel.mat sirnas (i.e. which index has a pheno sirnas in the rel.mat array, these are M:1 mappings)
+  # 3) get the indexes (order is need)
+  assertthat::assert_that(length(rel.mat.sirnas) == length(unique(rel.mat.sirnas)))
+  ord <- order(match(pheno.sirnas, rel.mat.sirnas))
+  pheno.ordered <- pheno.sirnas[ord]
+  pheno.count   <- table(pheno.ordered)
+  # add redundant siRNAs to the target relation matrix
+  vals <- vals[rep(1:nrow(vals), pheno.count), ]
+  # assign to matrix
+  rel.mat@siRNAs <- rownames(vals) <- pheno.ordered
+  rel.mat@values <- vals
+  # create phenotype frame
+  pheno.frame <- data.frame(sirnas=siRNAIDs, readout=readout, entrez=entrez)
+  #remove not found ids
+  pheno.frame <- pheno.frame[pheno.sirna.idxs, ]
+  pheno.frame <- pheno.frame[ord, ]
+  #check if dimensions are so are right
+  assertthat::assert_that(all(pheno.frame$sirnas == rel.mat@siRNAs))
+  assertthat::assert_that(all(pheno.frame$sirnas == rownames(rel.mat@values)))
+  list(pheno.frame=pheno.frame,
+       rel.mat=rel.mat)
+
+}
+
+#' @import data.table
+#' @importFrom dplyr select filter
+#' @importFrom tidyr mutate unnest
+.preprocess.dharmacon.entries <- function(obj)
+{
+
+  obj.unnest <-
+    obj %>%
+    dplyr::mutate(siRNAIDs=strsplit(as.character(siRNAIDs), ",")) %>%
+    tidyr::unnest(siRNAIDs)
+  obj.unnest
+}
+
+
+#' @noRd
+#' @importFrom gespeR TargetRelations
+.load.rds <- function(path)
+{
+  rel.mat <- gespeR::TargetRelations(path)
+  invisible(rel.mat)
+}
+
+##############################################################################
+# single virus analysis
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr group_by
+#' @importFrom dplyr mutate
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr left_join
+#' @importFrom dplyr summarize
+.do.correct <-
 function
 (
   obj,
@@ -110,7 +258,7 @@ function
   nor <- nrow(obj)
   obj <- dplyr::filter(dat, !is.na(Entrez), !is.na(siRNAIDs)) %>% ungroup
   if (nrow(obj) < nor) message("Rows with is.na(Entrez) have been removed!")
-  ofc <- off.target.correct.grp(obj)
+  ofc <- .off.target.correct.grp(obj)
   nr <- nrow(ofc)
   fr <- data.table::data.table(Virus=dat$Virus[1],
                                Replicate=dat$Replicate[1],
@@ -133,10 +281,10 @@ function
 }
 
 #' @noRd
-off.target.correct.grp <-
-function
+.off.target.correct.grp <-
+  function
 (
- dat
+  dat
 )
 {
   siRNAIDs <- dat$siRNAIDs
@@ -161,35 +309,9 @@ function
                  Entrez=as.integer(levels(gesp$Entrez))[gesp$Entrez]))
 }
 
-#' @noRd
-#' @importFrom gespeR Phenotypes
-#' @importFrom gespeR gespeR
-#' @import Matrix
-gespeR <-
-function
-(
- rel.mat,
- pheno.frame,
- screen,
- vir
-)
-{
-  phenos <- gespeR::Phenotypes(Matrix::Matrix(pheno.frame$readout, ncol=1),
-                       ids=as.character(pheno.frame$sirnas),
-                       pnames="pheno",
-                       type="SSP")
-  # fit a model using gesper
-  gesper.fit <- gespeR::gespeR(phenotypes=phenos,
-                               target.relations=rel.mat,
-                               mode = "cv")
-  gsps  <- as.vector(gesper.fit@GSP@values)
-  genes <- as.vector(gesper.fit@GSP@ids)
-  # todo what do which other siRNAS that have not been corrected
-  invisible(data.frame(Readout=gsps, Entrez=genes))
-}
 
 #' @noRd
-get.data.ambion <-
+.get.data.ambion <-
 function
 (
  siRNAIDs,
@@ -201,15 +323,14 @@ function
 )
 {
   # get the relations and parse the cols and rows
-  rel.mat <- load.rel.mat(lib, screen)
+  rel.mat <- .load.rel.mat(lib, screen)
   # create phenotype frame and remove non-intersecting siRNAs
-  pheno.list <- init.frames(siRNAIDs, entrez, readout,
-                            screen, vir, rel.mat)
+  pheno.list <- .init.frames.single(siRNAIDs, entrez, readout,screen, vir, rel.mat)
   pheno.list
 }
 
 #' @noRd
-get.data.dharmacon <-
+.get.data.dharmacon <-
 function
 (
  siRNAIDs,
@@ -240,8 +361,8 @@ function
 }
 
 #' @noRd
-init.frames <-
-  function
+.init.frames.single <-
+function
 (
   siRNAIDs,
   entrez,
@@ -286,7 +407,7 @@ init.frames <-
 
 #' @noRd
 #' @importFrom gespeR TargetRelations
-load.rel.mat <-
+.load.rel.mat <-
 function
 (
   lib,
@@ -304,3 +425,4 @@ function
   rel.mat <- gespeR::TargetRelations(res.file)
   invisible(rel.mat)
 }
+
