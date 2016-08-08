@@ -182,7 +182,6 @@ function
   rel.sirna.idxs     <- which(rel.mat.sirnas %in% intr.sirnas)
   pheno.sirna.idxs   <- which(pheno.sirnas %in% intr.sirnas)
   # remove indexes that are not found
-  pheno.readout  <- pheno.readout[pheno.sirna.idxs]
   pheno.sirnas   <- pheno.sirnas[pheno.sirna.idxs]
   rel.mat.sirnas <- rel.mat.sirnas[rel.sirna.idxs]
   vals           <- rel.mat@values[rel.sirna.idxs, ]
@@ -193,7 +192,9 @@ function
   # 3) get the indexes (order is need)
   assertthat::assert_that(length(rel.mat.sirnas) == length(unique(rel.mat.sirnas)))
   ord <- order(match(pheno.sirnas, rel.mat.sirnas))
+  # rearrane the pheno.mat sirnas
   pheno.ordered <- pheno.sirnas[ord]
+  #count how often th sirnas are availabel
   pheno.count   <- table(pheno.ordered)
   # add redundant siRNAs to the target relation matrix
   vals <- vals[rep(1:nrow(vals), pheno.count), ]
@@ -201,15 +202,19 @@ function
   rel.mat@siRNAs <- rownames(vals) <- pheno.ordered
   rel.mat@values <- vals
   # create phenotype frame
-  pheno.frame <- data.frame(sirnas=siRNAIDs, readout=readout, entrez=entrez)
-  #remove not found ids
-  pheno.frame <- pheno.frame[pheno.sirna.idxs, ]
-  pheno.frame <- pheno.frame[ord, ]
+  pheno.frame <- data.table(Entrez= pheno.mat$Entrez,
+                            siRNAIDs=pheno.mat$siRNAIDs,
+                            Readout=pheno.mat$Readout) %>%
+    # take only sirnas that have been found
+    .[pheno.sirna.idxs] %>%
+    # reorder
+    .[ord]
   #check if dimensions are so are right
   assertthat::assert_that(all(pheno.frame$sirnas == rel.mat@siRNAs))
   assertthat::assert_that(all(pheno.frame$sirnas == rownames(rel.mat@values)))
-  list(pheno.frame=pheno.frame,
-       rel.mat=rel.mat)
+  # todo some asserts
+  # THE VALUES ARE FALSE WHAT THE HELL
+  list(pheno.frame=pheno.frame, rel.mat=rel.mat)
 
 }
 
@@ -231,6 +236,7 @@ function
 #' @importFrom gespeR TargetRelations
 .load.rds <- function(path)
 {
+  s <- readRDS(path)
   rel.mat <- gespeR::TargetRelations(path)
   invisible(rel.mat)
 }
