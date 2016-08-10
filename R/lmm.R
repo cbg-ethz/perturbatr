@@ -42,7 +42,8 @@ function
 )
 {
   params <- base::list(...)
-  ignore <- base::ifelse(hasArg(ignore) && is.numeric(params$ignore), params$ignore, 1)
+  ignore <- base::ifelse(hasArg(ignore) &&
+                           is.numeric(params$ignore), params$ignore, 1)
   # init the data table for the LMM
   model.data <- .set.lmm.matrix(obj, drop, ignore)
   # save gene control mappings

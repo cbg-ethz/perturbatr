@@ -84,8 +84,10 @@ function
           }
         )
       )
-  } else {
-    do.correct.all(obj, path, do.pooled)
+  }
+  else
+  {
+    .do.correct.all(obj, path, do.pooled)
   }
   invisible(new.dat)
 }
@@ -137,7 +139,8 @@ function
 {
   nor <- nrow(obj)
   obj <-
-    dplyr::filter(obj, !is.na(Entrez), !is.na(siRNAIDs)) %>% ungroup
+    dplyr::filter(obj, !is.na(Entrez), !is.na(siRNAIDs)) %>%
+    ungroup
   if (nrow(obj) < nor) message("Rows with is.na(Entrez) have been removed!")
   ofc <- .off.target.correct.all(obj, path, do.pooled)
   ofc
