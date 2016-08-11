@@ -198,11 +198,12 @@ function
   # rearrane the pheno.mat sirnas
   pheno.ordered <- pheno.sirnas[ord]
   #count how often th sirnas are availabel
+  # ERROR: TABLE SORTS ALPHABETICALLY: REARRANGE HERE!!!!!!
   pheno.count   <- table(pheno.ordered)
   # add redundant siRNAs to the target relation matrix
   vals <- vals[rep(1:nrow(vals), pheno.count), ]
   # assign to matrix
-  rel.mat@siRNAs <- rownames(vals) <- pheno.ordered
+  rel.mat@siRNAs <- rownames(vals)
   rel.mat@values <- vals
   # create phenotype frame
   pheno.frame <- data.table(Entrez= pheno.mat$Entrez,
@@ -213,8 +214,8 @@ function
     # reorder
     .[ord]
   #check if dimensions are so are right
-  assertthat::assert_that(all(pheno.frame$sirnas == rel.mat@siRNAs))
-  assertthat::assert_that(all(pheno.frame$sirnas == rownames(rel.mat@values)))
+  assertthat::assert_that(all(pheno.frame$siRNAIDs == rel.mat@siRNAs))
+  assertthat::assert_that(all(pheno.frame$siRNAIDs == rownames(rel.mat@values)))
   # todo some asserts
   # THE VALUES ARE FALSE WHAT THE HELL
   list(pheno.frame=pheno.frame, rel.mat=rel.mat)
