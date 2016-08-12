@@ -105,7 +105,7 @@ function
   vir
 )
 {
-  phenos <- gespeR::Phenotypes(Matrix::Matrix(pheno.frame$readout, ncol=1),
+  phenos <- gespeR::Phenotypes(Matrix::Matrix(pheno.frame$Readout, ncol=1),
                                ids=as.character(pheno.frame$sirnas),
                                pnames="pheno",
                                type="SSP")
@@ -148,28 +148,39 @@ function
 
 #' @noRd
 #' @import data.table
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr left_join
-#' @importFrom dplyr summarize
+#' @import gespeR
 .off.target.correct.all <- function(obj, path, do.pooled)
 {
   rel.mat <- .load.rds(path)
-  mats <- .init.frames(pheno.mat=obj, rel.mat=rel.mat)
-  # do magic
+  gesp.dat <- .init.frames(pheno.mat=obj, rel.mat=rel.mat)
+  pheno.frame <- gesp.dat$pheno.frame
+  rel.mat <- gesp.dat$rel.mat
+  phenos <- gespeR::Phenotypes(Matrix::Matrix(pheno.frame$Readout, ncol=1),
+                               ids=as.character(pheno.frame$siRNAIDs),
+                               pnames="pheno",
+                               type="SSP")
+  # fit a model using gesper
+  gesper.fit <- gespeR::gespeR(phenotypes=phenos,
+                               target.relations=rel.mat,
+                               mode = "cv")
+  # check relmat again
+  # check pheno matrix again!
+  gsps  <- as.vector(gesper.fit@GSP@values)
+  genes <- as.vector(gesper.fit@GSP@ids)
+  # todo what do which other siRNAS that have not been corrected
+  invisible(data.frame(Readout=gsps, Entrez=genes))
 }
 
 
 #' @import data.table
+#' @importFrom dplyr select
 #' @importFrom asserthat assert_that
 .init.frames <- function(pheno.mat, rel.mat)
 {
   # unnest dharmacon entries
   pheno.mat <- .preprocess.dharmacon.entries(pheno.mat) %>%
-    select(Virus, GeneSymbol, Entrez, siRNAIDs, Readout)
+    dplyr::select(Virus, GeneSymbol, Entrez, siRNAIDs, Readout) %>%
+    .[order(siRNAIDs)]
   # get names of sirnas and entrez ids
   pheno.readout  <- pheno.mat$Readout
   pheno.sirnas   <- as.character(pheno.mat$siRNAIDs)
@@ -188,18 +199,27 @@ function
   pheno.sirnas   <- pheno.sirnas[pheno.sirna.idxs]
   rel.mat.sirnas <- rel.mat.sirnas[rel.sirna.idxs]
   vals           <- rel.mat@values[rel.sirna.idxs, ]
+  vals           <- vals[order(rownames(vals)), ]
+  rel.mat.sirnas <- rownames(vals)
   # order the pheno sirnas according to the ordering of the rel.matrix sirnas
   # what and why:
   # 1) first check that the rel.mat.sirnas are UNIQUE
-  # 2) match the pheno.sirnas to the rel.mat sirnas (i.e. which index has a pheno sirnas in the rel.mat array, these are M:1 mappings)
+  # 2) match the pheno.sirnas to the rel.mat sirnas
+  # (i.e. which index has a pheno sirnas in the rel.mat array, these are M:1 mappings)
   # 3) get the indexes (order is need)
   assertthat::assert_that(length(rel.mat.sirnas) == length(unique(rel.mat.sirnas)))
+  assertthat::assert_that(!is.unsorted(row.names(vals)))
+  assertthat::assert_that(!is.unsorted(rel.mat.sirnas))
+  assertthat::assert_that(!is.unsorted(pheno.sirnas))
   ord <- order(match(pheno.sirnas, rel.mat.sirnas))
   # rearrane the pheno.mat sirnas
   pheno.ordered <- pheno.sirnas[ord]
   #count how often th sirnas are availabel
   # ERROR: TABLE SORTS ALPHABETICALLY: REARRANGE HERE!!!!!!
   pheno.count   <- table(pheno.ordered)
+  assertthat::assert_that(!is.unsorted(names(pheno.count)))
+  assertthat::assert_that(!is.unsorted(names(pheno.count)))
+  assertthat::assert_that(all(names(pheno.count) == rownames(vals)))
   # add redundant siRNAs to the target relation matrix
   vals <- vals[rep(1:nrow(vals), pheno.count), ]
   # assign to matrix
@@ -219,7 +239,6 @@ function
   # todo some asserts
   # THE VALUES ARE FALSE WHAT THE HELL
   list(pheno.frame=pheno.frame, rel.mat=rel.mat)
-
 }
 
 #' @import data.table
