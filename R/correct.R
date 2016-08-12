@@ -57,50 +57,19 @@ function
  ...
 )
 {
-  #TODO: do all at once!!! dont split up matrices, but combine them to have more samples
-  if (single)
-  {
-    stop("Single analysis not yet supported!")
-      cordat <-
-        dplyr::select(obj, Virus, Replicate, Plate, GeneSymbol, Entrez,
-                      Readout, siRNAIDs,
-                      ReadoutType, InfectionType, Library, Screen) %>%
-        dplyr::filter(!is.na(Entrez), !is.na(GeneSymbol)) %>%
-        dplyr::group_by(Virus, Library, Screen, ReadoutType, InfectionType) %>%
-        dplyr::mutate(Grp = .GRP)
-      grps <- unique(cordat$Grp)
-      # TODO: exclude dharmacon
-      res <- do.call(
-        "rbind",
-        lapply
-        (
-          grps,
-          function(grp)
-          {
-            print(paste("Doing grp: ", grp))
-            curr.dat <- dplyr::filter(cordat, Grp==grp)
-            fr <- do.correct(curr.dat)
-            fr
-          }
-        )
-      )
-  }
-  else
-  {
-    nor <- nrow(obj)
-    obj <-
-      dplyr::filter(obj, !is.na(Entrez), !is.na(siRNAIDs)) %>%
-      ungroup
-    if (nrow(obj) < nor) message("Rows with is.na(Entrez) have been removed!")
-    res <- .off.target.correct.all(obj, path, do.pooled)
-  }
+  nor <- nrow(obj)
+  obj <-
+    dplyr::filter(obj, !is.na(Entrez), !is.na(siRNAIDs)) %>%
+    ungroup
+  if (nrow(obj) < nor) message("Rows with is.na(Entrez) have been removed!")
+  res <- .gespeR(obj, path, do.pooled)
   invisible(res)
 }
 
 #' @noRd
 #' @import data.table
 #' @import gespeR
-.off.target.correct.all <- function(obj, path, do.pooled)
+.gespeR <- function(obj, path, do.pooled)
 {
   rel.mat <- .load.rds(path)
   gesp.dat <- .init.frames(pheno.mat=obj, rel.mat=rel.mat)
@@ -123,8 +92,9 @@ function
 }
 
 #' @import data.table
+#' @import dtplyr
 #' @importFrom dplyr select
-#' @importFrom asserthat assert_that
+#' @importFrom assertthat assert_that
 .init.frames <- function(pheno.mat, rel.mat)
 {
   # unnest dharmacon entries
@@ -193,7 +163,7 @@ function
 
 #' @import data.table
 #' @importFrom dplyr select filter
-#' @importFrom tidyr mutate unnest
+#' @importFrom tidyr unnest
 .preprocess.dharmacon.entries <- function(obj)
 {
 
