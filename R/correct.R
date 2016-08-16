@@ -22,6 +22,7 @@ function
 }
 
 #' @noRd
+#' @export
 #' @import data.table
 correct.svd.data <-
 function
