@@ -2,6 +2,7 @@
 
 S3method(as.svd.data,data.table)
 S3method(cor,svd.replicates)
+S3method(correct,svd.data)
 S3method(drop,svd.data)
 S3method(effect.matrices,svd.prioritized.pmm)
 S3method(hist,svd.data)

@@ -11,6 +11,7 @@ print.svd.replicates <- function(x, ...) .print.svd.list(x, ...)
 #' @noRd
 #' @export
 #' @import data.table
+#' @importFrom utils str
 .print.svd.list <-
   function
 (
@@ -18,10 +19,11 @@ print.svd.replicates <- function(x, ...) .print.svd.list(x, ...)
   ...
 )
 {
-  if (length(x) != 0)
+  if (base::length(x) != 0)
   {
-    cat(paste("List of", length(x), "replicates! Showing structure of plates.\n\n"))
-    return(str(x[[1]]))
+    cat(base::paste("List of", base::length(x),
+                    "replicates! Showing structure of plates.\n\n"))
+    return(utils::str(x[[1]]))
   }
   else return("Empty list!\n")
 }
@@ -44,11 +46,11 @@ function
                       InfectionType, ReadoutType, Design, Cell, Library) %>%
       dplyr::summarize(Plates=max(Plate), Wells=(max(ColIdx)*max(RowIdx))) %>%
       ungroup
-    cat("Printing data overview!\n")
-    print(data.table:::print.data.table(ret))
+    base::cat("Printing data overview!\n")
+    base::print(data.table:::print.data.table(ret))
   }
-  cat("\n\nPrinting data!\n")
-  print(data.table:::print.data.table(x))
+  base::cat("\n\nPrinting data!\n")
+  base::print(data.table:::print.data.table(x))
 }
 
 #' @noRd
@@ -84,10 +86,10 @@ function
                     Design, Cell, Library, GeneSymbol) %>%
     dplyr::summarize(siRNAIDs=n()) %>%
     ungroup
-  cat("Printing data overview!\n")
-  print(data.table:::print.data.table(ret))
+  base::cat("Printing data overview!\n")
+  base::print(data.table:::print.data.table(ret))
   cat("\n\nPrinting data!\n")
-  print(data.table:::print.data.table(x))
+  base::print(data.table:::print.data.table(x))
 }
 
 #' @noRd
