@@ -26,7 +26,6 @@ function
 {
   if (outlier.wells == "quantile")
   {
-
     probs<- c(.05, .95)
     if (all(!is.na(outlier.well.range)))
       probs <- outlier.well.range

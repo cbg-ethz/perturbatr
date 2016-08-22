@@ -40,7 +40,7 @@ function
   rm.outlier.cells=c(NA, "quantile"),
   ...
 )
-  {
+{
   UseMethod("preprocess", obj)
 }
 
