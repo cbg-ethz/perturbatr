@@ -27,5 +27,6 @@ Imports: dplyr,
     RColorBrewer,
     org.Hs.eg.db,
     magrittr,
-    dtplyr
+    dtplyr,
+    glmnet
 Suggests: testthat

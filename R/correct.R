@@ -5,16 +5,14 @@
 #'
 #' @param obj  a summarized data.table
 #' @param path  path (or file) to the target-relation matrices
-#' @param single  boolean flag if data should be analysed one virus at a time or integratively
-#' @param do.pooled  boolean flag whether pooled libraries should also be corrected
+#' @param drop  drops all genes that are not found in ervery screen
 #' @param ... additional arguments
 correct <-
 function
 (
   obj,
   path,
-  single=F,
-  do.pooled=F,
+  drop,
   ...
 )
 {
@@ -29,14 +27,13 @@ function
 (
   obj,
   path,
-  single=F,
-  do.pooled=F,
+  drop,
   ...
 )
 {
   if (missing(path)) stop("Please provide the path to your target-relation matrices
                           (or one of the files, wel'll parse it for you)!")
-  res <-  .off.target.correct(obj, path, do.pooled,...)
+  res <-  .off.target.correct(obj, path, drop, ...)
   class(res) <- c("svd.analysed.offtc", "svd.analysed", class(res))
   invisible(res)
 }
@@ -53,29 +50,38 @@ function
 (
  obj,
  path,
- single,
- do.pooled,
+ drop,
  ...
 )
 {
   nor <- nrow(obj)
-  obj <-
+  res <-
     dplyr::filter(obj, !is.na(Entrez), !is.na(siRNAIDs)) %>%
     ungroup
-  if (nrow(obj) < nor) message("Rows with is.na(Entrez) have been removed!")
-  res <- .gespeR(obj, path, do.pooled)
+  if (drop)
+  {
+    vir.cnt <- length(unique(res$Virus))
+    res <- dplyr::group_by(res, GeneSymbol) %>%
+      dplyr::mutate(drop=(length(unique(Virus)) != vir.cnt)) %>%
+      ungroup %>%
+      dplyr::filter(!drop) %>%
+      dplyr::select(-drop)
+  }
+  if (nrow(res) < nor) message("Rows with is.na(Entrez) have been removed!")
+  res <- .gespeR(res, path)
   invisible(res)
 }
 
 #' @noRd
 #' @import data.table
-#' @import gespeR
-.gespeR <- function(obj, path, do.pooled)
+#' @import gespeR glmnet parallel doParallel Matrix
+.gespeR <- function(obj, path)
 {
   rel.mat <- .load.rds(path)
   gesp.dat <- .init.frames(pheno.mat=obj, rel.mat=rel.mat)
   pheno.frame <- gesp.dat$pheno.frame
   rel.mat <- gesp.dat$rel.mat
+  rm(gesp.dat)
   phenos <- gespeR::Phenotypes(Matrix::Matrix(pheno.frame$Readout, ncol=1),
                                ids=as.character(pheno.frame$siRNAIDs),
                                pnames="pheno",
@@ -84,6 +90,15 @@ function
   gesper.fit <- gespeR::gespeR(phenotypes=phenos,
                                target.relations=rel.mat,
                                mode = "cv")
+  # cl <- parallel::makeCluster(parallel::detectCores() - 1)
+  # doParallel::registerDoParallel(cl)
+  # model <- glmnet::cv.glmnet(y = pheno.frame$Readout,
+  #                            x = rel.mat@values, family ="gaussian",
+  #                            alpha = 0.5, type.measure = "mse",
+  #                            standardize = T, intercept = FALSE, keep = TRUE,
+  #                            parallel = ifelse(ncores > 1, TRUE, FALSE))
+  # parallel::stopCluster(cl)
+
   # check relmat again
   # check pheno matrix again!
   gsps  <- as.vector(gesper.fit@GSP@values)
@@ -157,7 +172,7 @@ function
   #check if dimensions are so are right
   assertthat::assert_that(all(pheno.frame$siRNAIDs == rel.mat@siRNAs))
   assertthat::assert_that(all(pheno.frame$siRNAIDs == rownames(rel.mat@values)))
-  # todo some asserts
+  # TODO some asserts if values are correct
   # THE VALUES ARE FALSE WHAT THE HELL
   list(pheno.frame=pheno.frame, rel.mat=rel.mat)
 }
