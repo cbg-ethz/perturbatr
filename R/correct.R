@@ -66,6 +66,7 @@ function
       ungroup %>%
       dplyr::filter(!drop) %>%
       dplyr::select(-drop)
+    message("Dropped rows with genes not found in everz virus-screen!")
   }
   if (nrow(res) < nor) message("Rows with is.na(Entrez) have been removed!")
   res <- .gespeR(res, path)
@@ -90,21 +91,16 @@ function
   gesper.fit <- gespeR::gespeR(phenotypes=phenos,
                                target.relations=rel.mat,
                                mode = "cv")
-  # cl <- parallel::makeCluster(parallel::detectCores() - 1)
-  # doParallel::registerDoParallel(cl)
-  # model <- glmnet::cv.glmnet(y = pheno.frame$Readout,
-  #                            x = rel.mat@values, family ="gaussian",
-  #                            alpha = 0.5, type.measure = "mse",
-  #                            standardize = T, intercept = FALSE, keep = TRUE,
-  #                            parallel = ifelse(ncores > 1, TRUE, FALSE))
-  # parallel::stopCluster(cl)
-
-  # check relmat again
-  # check pheno matrix again!
   gsps  <- as.vector(gesper.fit@GSP@values)
-  genes <- as.vector(gesper.fit@GSP@ids)
-  # todo what do which other siRNAS that have not been corrected
-  invisible(data.frame(Readout=gsps, Entrez=genes))
+  gsp.idx <- which(!is.na(gsps))
+  genes.g <- as.vector(gesper.fit@GSP@ids[gsp.idx])
+  gps.g <- gsps[gsp.idx]
+
+  fr <- dplyr::left_join(data.table(Entrez=as.integer(genes.g),Effect=gps.g),
+                         dplyr::select(obj, GeneSymbol, Entrez) %>% unique,
+                         by="Entrez") %>%
+    dplyr::filter(!is.na(GeneSymbol))
+  invisible(fr)
 }
 
 #' @import data.table

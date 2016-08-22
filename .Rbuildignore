@@ -5,4 +5,11 @@
 ^NEWS\.md$          # A news file written in Markdown
 ^\.travis\.yml$     # Used for continuous integration testing with travis
 ^\.git*
-
+\.travis\.yml
+^\.Rproj\.user$
+.git
+.gitignore
+.Rproj.user
+\.tar.gz$
+README.md
+VERSIONS.md
