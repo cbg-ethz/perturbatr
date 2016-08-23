@@ -394,7 +394,7 @@ effect.matrices.svd.prioritized.pmm <-
   obj,
   ...
 )
-  {
+{
   gene.hits <- data.table::as.data.table(obj$res$all.virus.results) %>%
     .[order(abs(Effect), decreasing=T)]
   pathogen.gene.hits <-

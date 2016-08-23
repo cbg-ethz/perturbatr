@@ -100,13 +100,14 @@ function
 {
   pmm.mat <-
     dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control) %>%
-    dplyr::filter(!is.na(GeneSymbol))
+    dplyr::filter(!is.na(GeneSymbol)) %>%
+    dplyr::filter(Control != 1)
   data.table::setDT(pmm.mat)[, Weight := 1]
   data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
   pmm.mat$Entrez     <- as.integer(pmm.mat$Entrez)
-  pmm.mat$Virus      <- as.factor(pmm.mat$Virus)
-  pmm.mat$VG         <- as.factor(pmm.mat$VG)
-  pmm.mat$GeneSymbol <- as.factor(pmm.mat$GeneSymbol)
+  pmm.mat$Virus      <- as.factor( pmm.mat$Virus)
+  pmm.mat$VG         <- as.factor( pmm.mat$VG)
+  pmm.mat$GeneSymbol <- as.factor( pmm.mat$GeneSymbol)
   pmm.mat$Weight     <- as.integer(pmm.mat$Weight)
   pmm.mat$Control    <- as.integer(pmm.mat$Control)
   pmm.mat <-
