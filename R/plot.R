@@ -613,7 +613,7 @@ function
 #' @export
 #'
 #' @import ggplot2
-plot.svd.analysed.pmm.localfdr <-
+plot.svd.pmm.fdr <-
 function
 (
   x, y,

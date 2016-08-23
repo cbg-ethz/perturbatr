@@ -91,7 +91,7 @@ function
   gesper.fit <- gespeR::gespeR(phenotypes=phenos,
                                target.relations=rel.mat,
                                mode = "cv",
-                               ncores=8)
+                               ncores=1)
   gsps  <- as.vector(gesper.fit@GSP@values)
   gsp.idx <- which(!is.na(gsps))
   genes.g <- as.vector(gesper.fit@GSP@ids[gsp.idx])
