@@ -176,13 +176,13 @@ function
     as.data.table
   plate.frame <- obj
   plate.frame$grp <- g
-    #
-    # TODO change back
-    # dplyr::group_by(obj, Virus, Screen, Replicate, Plate,
-    #                ReadoutType, InfectionType) %>%
-    # dplyr::mutate(grp = .GRP) %>%
-#    dplyr::mutate(obj, ) %>%
- #   ungroup
+  #
+  # TODO change back
+  # dplyr::group_by(obj, Virus, Screen, Replicate, Plate,
+  #                ReadoutType, InfectionType) %>%
+  # dplyr::mutate(grp = .GRP) %>%
+  # dplyr::mutate(obj, ) %>%
+  # ungroup
   grps <- unique(plate.frame$grp)
   plates <- lapply(grps, function(i)
   {
@@ -418,7 +418,10 @@ effect.matrices.svd.prioritized.pmm <-
   res
 }
 
+#' @noRd
+.read.graph <- function(pth)
+{
 
-
+}
 
 
