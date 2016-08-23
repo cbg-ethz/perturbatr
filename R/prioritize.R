@@ -157,14 +157,8 @@ function
   gpes <- obj$gene.pathogen.effects
   gene.pathogen.results <- gpes %>%
     dplyr::filter(FDR <= fdr.threshold)
-  gene.results   <- gpes %>%
-    dplyr::select(GeneSymbol, FDR) %>%
-    dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarize(FDR=f(FDR)) %>%
-    ungroup
-  gene.effect.results <-
-    dplyr::full_join(gene.results, obj$gene.effects, by="GeneSymbol") %>%
-    dplyr::filter(FDR <= th)
+  gene.effect.results <- obj$gene.effects %>%
+    .[order(-abs(Effect))]
   res <- list(gene.pathogen.effect.hits=gene.pathogen.results,
               gene.effect.hits=gene.effect.results)
   res
