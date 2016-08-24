@@ -793,7 +793,7 @@ function
 #'
 #' @importFrom RColorBrewer brewer.pal
 plot.svd.analysed.pmm.model.data <-
-  function
+function
 (
   x, y,
   ...

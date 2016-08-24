@@ -20,7 +20,7 @@ diffuse <- function(obj, method=c("neighbors", "mrw"), path, ...) UseMethod("dif
 diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path, ...)
 {
   if (!file.exists(path)) stop(paste("Can't find: ", path, "! Yieks!", sep=""))
-  graph <- .read.graph(file)
+  graph <- .read.graph(path)
   res  <- .diffuse.lmm(obj, match.arg(method), graph)
   class(res) <- c("svd.diffused.pmm","svd.diffused", class(res))
   invisible(res)
@@ -39,7 +39,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
 #' @import data.table
 .diffuse.lmm.neighbors <- function(obj, graph)
 {
-  dnp <- .diffuse.lmm.neighbors.pathogen.wise(obj, graph)
+  .diffuse.lmm.neighbors.pathogen.wise(obj, graph)
 }
 
 #' @import data.table igraph
