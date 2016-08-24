@@ -419,9 +419,14 @@ effect.matrices.svd.prioritized.pmm <-
 }
 
 #' @noRd
+#' @importFrom igraph graph.data.frame
 .read.graph <- function(pth)
 {
-
+  tab <- read.csv(pth, sep="\t", header=T)
+  if (ncol(tab) == 2)
+    gra <- igraph::graph.data.frame(tab, directed=F)
+  else stop("Not implemented yet")
+  gra
 }
 
 

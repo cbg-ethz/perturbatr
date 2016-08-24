@@ -28,5 +28,10 @@ Imports: dplyr,
     org.Hs.eg.db,
     magrittr,
     dtplyr,
-    glmnet
+    glmnet,
+    igraph,
+    iterators,
+    foreach,
+    parallel,
+    doParallel
 Suggests: testthat

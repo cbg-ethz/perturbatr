@@ -823,6 +823,23 @@ plot.svd.analysed.pmm.model.data <-
   .multiplot(p1, p2)
 }
 
+#' Plots the graph of network diffusion using 1-NN
+#'
+#' @noRd
+#' @export
+#'
+#' @import data.table
+#' @import igraph
+#'
+#' @importFrom RColorBrewer brewer.pal
+plot.svd.diffused.pmm <- function(x, y, ...)
+{
+   obj <- x$graph.info$graph
+   plot(obj, main="1-NN 'network diffusion' (thresh >=2)")
+   legend("topright", legend=x$graph.info$legend, col=x$graph.info$colors,
+          pch=19)
+}
+
 #' Plots several plots in one
 #'
 #' @noRd
