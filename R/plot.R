@@ -343,6 +343,7 @@ function
 
 #' Plot the quality scores
 #'
+#' @noRd
 #' @export
 #' @import data.table
 #' @import ggplot2
