@@ -8,6 +8,8 @@ as.svd.data(obj, ...)
 }
 \arguments{
 \item{obj}{the object to be converted}
+
+\item{...}{additional params}
 }
 \description{
 Converts an object to an svd.data object
