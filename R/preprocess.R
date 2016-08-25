@@ -56,7 +56,7 @@ preprocess.svd.raw <-
   normalize=c("log", "robust-z.score"),
   normalize.viability=F,
   rm.cytotoxic=NULL,
-  rm.outlier.wells=c(NA, "quantile"),
+  rm.outlier.cells=c(NA, "quantile"),
   ...
 )
 {
