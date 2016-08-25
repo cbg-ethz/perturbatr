@@ -423,9 +423,11 @@ effect.matrices.svd.prioritized.pmm <-
 .read.graph <- function(pth)
 {
   tab <- read.csv(pth, sep="\t", header=T)
-  if (ncol(tab) == 2)
-    gra <- igraph::graph.data.frame(tab, directed=F)
-  else stop("Not implemented yet")
+  gra <- igraph::graph.data.frame( read.csv(pth, sep="\t", header=T), directed=F)
+  if (ncol(tab) == 3) {
+    if (is.null(E(gra)$weight))
+      stop("Third column sould be 'weight'")
+  }
   gra
 }
 
