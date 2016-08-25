@@ -389,7 +389,7 @@ effect.matrices <- function(obj, ...) UseMethod("effect.matrices")
 #' @import data.table
 #' @importFrom dplyr filter select
 effect.matrices.svd.prioritized.pmm <-
-  function
+function
 (
   obj,
   ...
@@ -419,10 +419,12 @@ effect.matrices.svd.prioritized.pmm <-
 }
 
 #' @noRd
+#' @import igraph
 #' @importFrom igraph graph.data.frame
+#' @importFrom utils read.csv
 .read.graph <- function(pth)
 {
-  tab <- read.csv(pth, sep="\t", header=T)
+  tab <- utils::read.csv(pth, sep="\t", header=T)
   gra <- igraph::graph.data.frame( read.csv(pth, sep="\t", header=T), directed=F)
   if (ncol(tab) == 3) {
     if (is.null(E(gra)$weight))

@@ -250,6 +250,7 @@ function
 #' @export
 #'
 #' @import data.table
+#' @importFrom graphics par
 plot.svd.plates <-
 function
 (
@@ -263,7 +264,7 @@ function
                   params$show.controls, T)
   show.gene.names <- ifelse(hasArg(show.gene.names) & is.logical(params$show.gene.names),
                             params$show.gene.names, T)
-  par(ask=T)
+  graphics::par(ask=T)
   obj.len <- length(x)
   if (is.na(count)) count <- obj.len
   if (obj.len == count) { plates <- seq(obj.len) }
@@ -283,7 +284,7 @@ function
                          show.controls=show.controls,
                          show.gene.names=show.gene.names))
   }
-  par(ask=F)
+  graphics::par(ask=F)
 }
 
 #' @noRd
@@ -830,13 +831,12 @@ function
 #'
 #' @import data.table
 #' @import igraph
-#'
-#' @importFrom RColorBrewer brewer.pal
+#' @importFrom graphics plot legend
 plot.svd.diffused.pmm <- function(x, y, ...)
 {
    obj <- x$graph.info$graph
-   plot(obj, main="1-NN 'network diffusion' (thresh >=2)")
-   legend("topright", legend=x$graph.info$legend, col=x$graph.info$colors,
+   grapics::plot(obj, main="1-NN 'network diffusion' (thresh >=2)")
+   grapics::legend("topright", legend=x$graph.info$legend, col=x$graph.info$colors,
           pch=19)
 }
 

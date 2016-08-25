@@ -3,9 +3,11 @@
 #' @export
 #' @import data.table
 #' @param obj  the object to be converted
+#' @param ...  additional params
 as.svd.data <- function(obj, ...) UseMethod("as.svd.data")
 
 #' @export
+#' @noRd
 as.svd.data.data.table <-
 function
 (
