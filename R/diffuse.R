@@ -44,6 +44,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
 
 #' @import data.table igraph
 #' @import foreach parallel doParallel
+#' @import Matrix
 #' @importFrom iterators iter
 #' @importFrom dplyr filter
 #' @importFrom assertthat assert_that
@@ -53,22 +54,26 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
   vir <- unique(phs$Virus)
   adj.mat <-  igraph::get.adjacency(gra, attr="weight")
   W <- .stoch.col.norm(adj.mat)
-  assertthat::assert_that(unique(unname(unlist(colSums(W)))) == 1)
-  assertthat::assert_that(all(W >= 0))
   cl <- parallel::makeCluster(parallel::detectCores() - 2)
   doParallel::registerDoParallel(cl)
-  neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=rbind) %do%
+  len <- nrow(W)
+  neighbors <- foreach::foreach(v=iterators::iter(vir),
+                                .combine=cbind,
+                                n=vir) %dopar%
   {
     flt <- dplyr::filter(phs, Virus==v)
     vir.gen <- flt$GeneSymbol
-    vir.eff <- flt$Effect %>% abs
-    idxs   <- which(colnames(adj.mat) %in% vir.gen)
-    p0 <- rep(0, dim(adj.mat)[1])
-    p0[idxs] <- vir.eff/sum(vir.eff)
-    p.inf <- solve(diag(length(p0)) -.5 * A) %*% ((1-r)*a)
-
+    vir.eff <- abs(flt$Effect)
+    intr.gen <- intersect(colnames(adj.mat), vir.gen)
+    idxs.com   <- which(colnames(adj.mat) %in% intr.gen)
+    idxs.set   <- which(vir.gen %in% intr.gen)
+    p0 <- rep(0, len)
+    p0[idxs.com] <- vir.eff[idxs.set]/sum(vir.eff[idxs.set])
+    p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
+    p.inf@x
   }
   parallel::stopCluster(cl)
+  neighbors <- as.data.table(neighbors)
 }
 
 

@@ -436,6 +436,7 @@ function
 
 #' @noRd
 #' @import Matrix
+#' @importFrom assertthat assert_that
 .stoch.col.norm <- function(m)
 {
     col.sums  <- Matrix::colSums(m)
@@ -445,5 +446,10 @@ function
       m[,zero.cols]       <- 1
       col.sums[zero.cols] <- nrow(m)
     }
-    invisible(sweep(m, 2L, col.sums, "/", check.margin = FALSE))
+    ret <- sweep(m, 2L, col.sums, "/", check.margin = FALSE)
+    ret.col.sums <- unname(Matrix::colSums(ret))
+    assertthat::assert_that(all(ret.col.sums <= 1.001))
+    assertthat::assert_that(all(ret.col.sums >= 0.999))
+    assertthat::assert_that(all(ret >= 0) & all(!is.nan(ret@x)))
+    invisible(ret)
 }
