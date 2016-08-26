@@ -52,28 +52,27 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
 {
   phs <- obj$gene.pathogen.effect.hits
   vir <- unique(phs$Virus)
-  adj.mat <-  igraph::get.adjacency(gra, attr="weight")
+  adj.mat <-  igraph::get.adjacency(gra, attr="weight")[1:100, 1:100]
   W <- .stoch.col.norm(adj.mat)
   cl <- parallel::makeCluster(parallel::detectCores() - 2)
   doParallel::registerDoParallel(cl)
   len <- nrow(W)
-  neighbors <- foreach::foreach(v=iterators::iter(vir),
-                                .combine=cbind,
-                                n=vir) %dopar%
-  {
+  adj.mat.genes <- colnames(adj.mat)
+  neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=cbind) %dopar% {
     flt <- dplyr::filter(phs, Virus==v)
     vir.gen <- flt$GeneSymbol
     vir.eff <- abs(flt$Effect)
-    intr.gen <- intersect(colnames(adj.mat), vir.gen)
-    idxs.com   <- which(colnames(adj.mat) %in% intr.gen)
+    intr.gen <- intersect(adj.mat.genes, vir.gen)
+    idxs.com   <- which(adj.mat.genes %in% intr.gen)
     idxs.set   <- which(vir.gen %in% intr.gen)
     p0 <- rep(0, len)
     p0[idxs.com] <- vir.eff[idxs.set]/sum(vir.eff[idxs.set])
     p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
-    p.inf@x
+    p.inf
   }
   parallel::stopCluster(cl)
-  neighbors <- as.data.table(neighbors)
+  nei.tab <- data.table::data.table(Gene=adj.mat.genes, Mean=rowMeans(neighbors))
+  invisible(nei.tab)
 }
 
 
@@ -112,8 +111,8 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
     dplyr::filter(Count > 1) %>%
     as.data.frame
   li <- unique(c(rel$Gene1, rel$Gene2))
-  res <- dplyr::filter(neighbors, Gene1 %in% li | Gene2 %in% li ) %>% as.data.frame
-
+  res <- dplyr::filter(neighbors, Gene1 %in% li | Gene2 %in% li ) %>%
+    as.data.frame
   nodes <- data.table(Node=unique(c(res[,2], res[,3]))) %>%
     dplyr::mutate(Color=ifelse(Node %in% phs$GeneSymbol, "lightblue", "orange")) %>%
     dplyr::mutate(FromLMM=ifelse(Node %in% phs$GeneSymbol, 1, 0)) %>%
