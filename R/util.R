@@ -426,11 +426,24 @@ function
 {
   tab <- utils::read.csv(pth, sep="\t", header=T)
   gra <- igraph::graph.data.frame( read.csv(pth, sep="\t", header=T), directed=F)
-  if (ncol(tab) == 3) {
+  if (ncol(tab) == 3)
+  {
     if (is.null(E(gra)$weight))
       stop("Third column sould be 'weight'")
   }
   gra
 }
 
-
+#' @noRd
+#' @import Matrix
+.stoch.col.norm <- function(m)
+{
+    col.sums  <- Matrix::colSums(m)
+    zero.cols <- Matrix::which(col.sums == 0)
+    if (length(zero.cols) != 0)
+    {
+      m[,zero.cols]       <- 1
+      col.sums[zero.cols] <- nrow(m)
+    }
+    invisible(sweep(m, 2L, col.sums, "/", check.margin = FALSE))
+}

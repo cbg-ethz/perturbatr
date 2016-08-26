@@ -21,45 +21,51 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
 {
   if (!file.exists(path)) stop(paste("Can't find: ", path, "! Yieks!", sep=""))
   graph <- .read.graph(path)
-  res  <- .diffuse.lmm(obj, match.arg(method), graph)
+  res  <- .diffuse.lmm(obj, match.arg(method), graph, ...)
   class(res) <- c("svd.diffused.pmm","svd.diffused", class(res))
   invisible(res)
 }
 
 #' @noRd
 #' @import data.table igraph
-.diffuse.lmm <- function(obj, method, graph)
+.diffuse.lmm <- function(obj, method, graph, ...)
 {
   switch(method,
-         "neighbors"= .diffuse.lmm.neighbors(obj, graph),
-         "mrw"      = .diffuse.lmm.mrw(obj, graph),
+         "neighbors"= .diffuse.lmm.knn(obj, graph, ...),
+         "mrw"      = .diffuse.lmm.mrw(obj, graph, ...),
          stop("No suitable method found"))
 }
 
 #' @import data.table
-.diffuse.lmm.mrw <- function(obj, graph)
+.diffuse.lmm.mrw <- function(obj, graph, ...)
 {
-  .diffuse.lmm.mrw.pathogen.wise(obj, graph)
+  .diffuse.lmm.mrw.pathogen.wise(obj, graph, ...)
 }
 
 #' @import data.table igraph
 #' @import foreach parallel doParallel
 #' @importFrom iterators iter
 #' @importFrom dplyr filter
-.diffuse.lmm.mrw.pathogen.wise <- function(obj, gra)
+#' @importFrom assertthat assert_that
+.diffuse.lmm.mrw.pathogen.wise <- function(obj, gra, ...)
 {
   phs <- obj$gene.pathogen.effect.hits
   vir <- unique(phs$Virus)
   adj.mat <-  igraph::get.adjacency(gra, attr="weight")
+  W <- .stoch.col.norm(adj.mat)
+  assertthat::assert_that(unique(unname(unlist(colSums(W)))) == 1)
+  assertthat::assert_that(all(W >= 0))
   cl <- parallel::makeCluster(parallel::detectCores() - 2)
   doParallel::registerDoParallel(cl)
   neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=rbind) %do%
   {
-    vir.gen <- dplyr::filter(phs, Virus==v)$GeneSymbol
-    vir.eff <- dplyr::filter(phs, Virus==v)$Effect %>% abs
+    flt <- dplyr::filter(phs, Virus==v)
+    vir.gen <- flt$GeneSymbol
+    vir.eff <- flt$Effect %>% abs
     idxs   <- which(colnames(adj.mat) %in% vir.gen)
     p0 <- rep(0, dim(adj.mat)[1])
     p0[idxs] <- vir.eff/sum(vir.eff)
+    p.inf <- solve(diag(length(p0)) -.5 * A) %*% ((1-r)*a)
 
   }
   parallel::stopCluster(cl)
@@ -68,16 +74,16 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
 
 
 #' @import data.table
-.diffuse.lmm.neighbors <- function(obj, graph)
+.diffuse.lmm.knn <- function(obj, graph, ...)
 {
-  .diffuse.lmm.neighbors.pathogen.wise(obj, graph)
+  .diffuse.lmm.knn.pathogen.wise(obj, graph, ...)
 }
 
 #' @import data.table igraph
 #' @import foreach parallel doParallel
 #' @importFrom iterators iter
 #' @importFrom dplyr filter
-.diffuse.lmm.neighbors.pathogen.wise <- function(obj, gra)
+.diffuse.lmm.knn.pathogen.wise <- function(obj, gra, ...)
 {
   phs <- obj$gene.pathogen.effect.hits
   vir <- unique(phs$Virus)
