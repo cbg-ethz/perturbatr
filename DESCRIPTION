@@ -34,5 +34,6 @@ Imports: dplyr,
     foreach,
     parallel,
     doParallel,
-    methods
+    methods,
+    RankAggreg
 Suggests: testthat

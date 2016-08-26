@@ -52,13 +52,11 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
 {
   phs <- obj$gene.pathogen.effect.hits
   vir <- unique(phs$Virus)
-  adj.mat <-  igraph::get.adjacency(gra, attr="weight")[1:100, 1:100]
+  adj.mat <-  igraph::get.adjacency(gra, attr="weight")
   W <- .stoch.col.norm(adj.mat)
-  cl <- parallel::makeCluster(parallel::detectCores() - 2)
-  doParallel::registerDoParallel(cl)
   len <- nrow(W)
   adj.mat.genes <- colnames(adj.mat)
-  neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=cbind) %dopar% {
+  neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=cbind) %do% {
     flt <- dplyr::filter(phs, Virus==v)
     vir.gen <- flt$GeneSymbol
     vir.eff <- abs(flt$Effect)
@@ -70,8 +68,24 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
     p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
     p.inf
   }
-  parallel::stopCluster(cl)
-  nei.tab <- data.table::data.table(Gene=adj.mat.genes, Mean=rowMeans(neighbors))
+  mat <- .rankaggreg(neighbors, adj.mat.genes)
+  colnames(mat) <- adj.mat.genes
+  nei.tab <- data.table::data.table(Gene=adj.mat.genes,
+                                    Mean=rowMeans(neighbors)) %>%
+      .[order(Mean, decreasing=T)] %>% .[1:25]
+
+  new.gen.idx <- which(adj.mat.genes %in% nei.tab$Gene)
+  new.adj.mat <- adj.mat[new.gen.idx,new.gen.idx]
+  nodes <- colnames(new.adj.mat)
+  res.gr <- igraph::graph.adjacency(new.adj.mat,mode="undirected")
+  igraph::V(res.gr)$color <- igraph::V(res.gr)$Color
+  graph.info <- list(graph=res.gr,
+                     colors=c("lightblue", "orange"),
+                     legend=c("LMM", "'Diffusion'"),
+                     type="1-NN",
+                     tresh=2)
+  list(hits=res, graph.info=graph.info)
+
   invisible(nei.tab)
 }
 
