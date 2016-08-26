@@ -37,7 +37,7 @@ function
   normalize=c("log", "robust-z.score"),
   normalize.viability=F,
   rm.cytotoxic=NULL,
-  rm.outlier.cells=c(NA, "quantile"),
+  rm.outlier.wells=c(NA, "quantile"),
   ...
 )
 {
@@ -50,13 +50,13 @@ function
 #' @importFrom dplyr group_by mutate filter select
 #' @importFrom tidyr spread
 preprocess.svd.raw <-
-  function
+function
 (
   obj,
   normalize=c("log", "robust-z.score"),
   normalize.viability=F,
   rm.cytotoxic=NULL,
-  rm.outlier.cells=c(NA, "quantile"),
+  rm.outlier.wells=c(NA, "quantile"),
   ...
 )
 {

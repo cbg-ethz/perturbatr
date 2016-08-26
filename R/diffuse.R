@@ -68,7 +68,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
     p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
     p.inf
   }
-  mat <- .rankaggreg(neighbors, adj.mat.genes)
+  mat <- .rankaggreg(neighbors, adj.mat.genes, k=25)
   colnames(mat) <- adj.mat.genes
   nei.tab <- data.table::data.table(Gene=adj.mat.genes,
                                     Mean=rowMeans(neighbors)) %>%

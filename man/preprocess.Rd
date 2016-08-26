@@ -5,7 +5,7 @@
 \title{Pre-processing routine for data normalization, summarization and removal of low viability siRNAs.}
 \usage{
 preprocess(obj, normalize = c("log", "robust-z.score"),
-  normalize.viability = F, rm.cytotoxic = NULL, rm.outlier.cells = c(NA,
+  normalize.viability = F, rm.cytotoxic = NULL, rm.outlier.wells = c(NA,
   "quantile"), ...)
 }
 \arguments{
@@ -27,6 +27,8 @@ preprocess(obj, normalize = c("log", "robust-z.score"),
 
 \item{rm.cytotoxic}{gene name of neutral gene against which viability is testet (e.g. \emph{Scrambled} or \emph{PIK3CA})}
 
+\item{rm.outlier.wells}{remove wells that have a extreme number of cells (outliers)}
+
 \item{...}{additional parameters
 \itemize{
  \item{\emph{method} }{ either \emph{mean} or \emph{median} for diverse summarizations/..}
@@ -38,8 +40,6 @@ preprocess(obj, normalize = c("log", "robust-z.score"),
  \item{\emph{background.column} }{ column idx that is used for background correction}
  \item{\emph{outlier.well.range} }{ vector of lower and upper bound for excluded cells (e.g.: c(150,500) or c(.05, .95) depending on your choice of rm.outlier.wells) }
 }}
-
-\item{rm.outlier.wells}{remove wells that have a extreme number of cells (outliers)}
 }
 \description{
 Pre-processing routine for data normalization, summarization and removal of low viability siRNAs.

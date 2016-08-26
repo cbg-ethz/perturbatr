@@ -1,6 +1,7 @@
 #' @noRd
 #' @export
 #' @import data.table
+#' @importFrom graphics hist
 hist.svd.plate <-
 function
 (
