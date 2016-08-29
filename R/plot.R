@@ -837,9 +837,19 @@ function
 plot.svd.diffused.pmm <- function(x, y, ...)
 {
    obj <- x$graph.info$graph
-   grapics::plot(obj, main="1-NN 'network diffusion' (thresh >=2)")
-   grapics::legend("topright", legend=x$graph.info$legend, col=x$graph.info$colors,
-          pch=19)
+   graphics::plot.new()
+   V(obj)$size = igraph::degree(obj)
+   deg <- igraph::degree(obj)
+   size <- deg
+   size[deg < 3] <- 15
+   size[deg >= 3] <- 20
+   size[deg > 5] <- 25
+   ad <- igraph::get.adjacency(obj)
+   ad[adj >= 1] <- 1
+   obj <- igraph::graph_from_adj_list(ad)
+   graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai, vertex.label.family="Helvetica")
+   graphics::legend("topright", legend=x$graph.info$legend, col=x$graph.info$colors,
+          pch=19, cex=1.05)
 }
 
 #' Plots several plots in one

@@ -6,11 +6,12 @@
 #'
 #' @param obj  an svd.data object
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
+#' @param weights a list of weights
 #' @param ...  additional parameters
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj, drop=T, ...) UseMethod("lmm", obj)
+lmm <- function(obj, drop=T, weights=NULL, ...) UseMethod("lmm", obj)
 
 #' @noRd
 #' @export
@@ -20,10 +21,11 @@ function
 (
   obj,
   drop=T,
+  weights=NULL,
   ...
 )
 {
-  res  <- .lmm(obj, drop)
+  res  <- .lmm(obj, drop, weights)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -38,6 +40,7 @@ function
 (
   obj,
   drop,
+  weights=NULL,
   ...
 )
 {
@@ -45,7 +48,7 @@ function
   ignore <- base::ifelse(hasArg(ignore) &&
                            is.numeric(params$ignore), params$ignore, 1)
   # init the data table for the LMM
-  model.data <- .set.lmm.matrix(obj, drop, ignore)
+  model.data <- .set.lmm.matrix(obj, drop, ignore, weights)
   # save gene control mappings
   gene.control.map <-
     dplyr::select(model.data, GeneSymbol, Control) %>%
@@ -95,15 +98,34 @@ function
 (
   obj,
   drop,
-  ignore
+  ignore,
+  weights=NULL
 )
 {
+  wei.dhar <- wei.am <- 1
+  if (!is.null(weights))
+  {
+    if (!is.null(weights$dharmacon))
+    {
+      wei.dhar <- weights$dharmacon
+      cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
+    }
+    if (!is.null(weights$ambion))
+    {
+      wei.am <- weights$ambion
+      cat(paste("Setting weights for Ambion library to", wei.am,"\n"))
+    }
+  }
+
+
   pmm.mat <-
-    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control) %>%
+    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library) %>%
     dplyr::filter(!is.na(GeneSymbol)) %>%
     dplyr::filter(Control != 1)
-  data.table::setDT(pmm.mat)[, Weight := 1]
+  data.table::setDT(pmm.mat)[Library == "Dharmacon", Weight := wei.dhar]
+  data.table::setDT(pmm.mat)[Library == "Ambion",    Weight := wei.am]
   data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
+  data.table::setDT(pmm.mat)[, Library := NULL]
   pmm.mat$Entrez     <- as.integer(pmm.mat$Entrez)
   pmm.mat$Virus      <- as.factor( pmm.mat$Virus)
   pmm.mat$VG         <- as.factor( pmm.mat$VG)
