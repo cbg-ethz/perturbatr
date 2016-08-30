@@ -124,6 +124,7 @@ function
   {
     cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
     rel.mat <- .load.rds(path)
+
   }
 
 
