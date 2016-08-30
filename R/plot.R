@@ -847,12 +847,14 @@ plot.svd.diffused.pmm <- function(x, y, ...)
    ad <- igraph::get.adjacency(obj)
    ad[ad >= 1] <- 1
    obj <- igraph::graph_from_adjacency_matrix(ad, mode="undirected")
-
    blue.genes <- V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "lightblue")]
    orange.genes <- V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "orange")]
    V(obj)$color[V(obj) %in% blue.genes] <- "lightblue"
-   V(obj)$color[(obj) %in% orange.genes] <- "orange"
-   graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai, vertex.label.family="Helvetica", cex=2)
+   V(obj)$color[V(obj) %in% orange.genes] <- "orange"
+   E(obj)$width <- 2
+   graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
+                  vertex.label.family="Helvetica",
+                  edge.curved=-.01)
    graphics::legend("topright", legend=x$graph.info$legend, col=x$graph.info$colors,
           pch=19, cex=1.05)
 }

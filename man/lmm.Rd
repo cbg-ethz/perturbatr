@@ -4,7 +4,7 @@
 \alias{lmm}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
-lmm(obj, drop = T, weights = NULL, ...)
+lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL, ...)
 }
 \arguments{
 \item{obj}{an svd.data object}
@@ -12,6 +12,8 @@ lmm(obj, drop = T, weights = NULL, ...)
 \item{drop}{boolean flag if all entries should be dropped that are not found in every virus}
 
 \item{weights}{a list of weights}
+
+\item{rel.mat.path}{the (optional) path to a target relation matrix that is going to be used for}
 
 \item{...}{additional parameters
 \itemize{

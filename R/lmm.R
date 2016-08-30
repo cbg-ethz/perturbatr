@@ -7,11 +7,12 @@
 #' @param obj  an svd.data object
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param weights a list of weights
+#' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
 #' @param ...  additional parameters
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj, drop=T, weights=NULL, ...) UseMethod("lmm", obj)
+lmm <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...) UseMethod("lmm", obj)
 
 #' @noRd
 #' @export
@@ -22,10 +23,11 @@ function
   obj,
   drop=T,
   weights=NULL,
+  rel.mat.path=NULL,
   ...
 )
 {
-  res  <- .lmm(obj, drop, weights)
+  res  <- .lmm(obj, drop, weights, rel.mat.path)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -41,6 +43,7 @@ function
   obj,
   drop,
   weights=NULL,
+  rel.mat.path=NULL,
   ...
 )
 {
@@ -48,7 +51,7 @@ function
   ignore <- base::ifelse(hasArg(ignore) &&
                            is.numeric(params$ignore), params$ignore, 1)
   # init the data table for the LMM
-  model.data <- .set.lmm.matrix(obj, drop, ignore, weights)
+  model.data <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.math)
   # save gene control mappings
   gene.control.map <-
     dplyr::select(model.data, GeneSymbol, Control) %>%
@@ -99,7 +102,8 @@ function
   obj,
   drop,
   ignore,
-  weights=NULL
+  weights=NULL,
+  rel.mat.path=NULL
 )
 {
   wei.dhar <- wei.am <- 1
@@ -115,6 +119,11 @@ function
       wei.am <- weights$ambion
       cat(paste("Setting weights for Ambion library to", wei.am,"\n"))
     }
+  }
+  if (!is.null(rel.mat.path))
+  {
+    cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
+    rel.mat <- .load.rds(path)
   }
 
 
