@@ -837,7 +837,6 @@ function
 plot.svd.diffused.pmm <- function(x, y, ...)
 {
    obj <- x$graph.info$graph
-   graphics::plot.new()
    V(obj)$size = igraph::degree(obj)
    deg <- igraph::degree(obj)
    size <- deg
@@ -852,11 +851,14 @@ plot.svd.diffused.pmm <- function(x, y, ...)
    V(obj)$color[V(obj) %in% blue.genes] <- "lightblue"
    V(obj)$color[V(obj) %in% orange.genes] <- "orange"
    E(obj)$width <- 2
+   graphics::plot.new()
+   op <- par(family = "Helvetica", font=2)
    graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
-                  vertex.label.family="Helvetica",
+                  vertex.label.family="Helvetica", vertex.label.font=2,
                   edge.curved=-.01)
    graphics::legend("topright", legend=c("Linear mixed model", "Diffusion"), col=x$graph.info$colors,
           pch=19, cex=1.05)
+   par(op)
 }
 
 #' Plots several plots in one
