@@ -136,7 +136,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
   igraph::V(res.gr)$color <- igraph::V(res.gr)$Color
   graph.info <- list(graph=res.gr,
                      colors=c("lightblue", "orange"),
-                     legend=c("LMM", "'Diffusion'"),
+                     legend=c("Linear mixed model", "Diffusion"),
                      type="1-NN",
                      tresh=2)
   list(hits=res, graph.info=graph.info)

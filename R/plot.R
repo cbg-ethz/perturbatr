@@ -855,7 +855,7 @@ plot.svd.diffused.pmm <- function(x, y, ...)
    graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
                   vertex.label.family="Helvetica",
                   edge.curved=-.01)
-   graphics::legend("topright", legend=x$graph.info$legend, col=x$graph.info$colors,
+   graphics::legend("topright", legend=c("Linear mixed model", "Diffusion"), col=x$graph.info$colors,
           pch=19, cex=1.05)
 }
 
