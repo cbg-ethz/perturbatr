@@ -8,21 +8,24 @@
 #' @param method  method that should be used for diffusion
 #' \itemize{
 #'   \item{neighbors }{ just looks at the neighbors :)}
-#'   \item{neighbors }{ just looks at the neighbors :)}
+#'   \item{mrw }{ do a Markov random walk}
 #' }
 #' @param path  path to the network
 #' @param ...  additional parameters
-diffuse <- function(obj, method=c("neighbors", "mrw"), path, ...) UseMethod("diffuse")
+diffuse <- function(obj, method=c("neighbors", "mrw"), path, ...)
+  UseMethod("diffuse")
 
 #' @noRd
 #' @export
 #' @import data.table igraph
-diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path, ...)
+diffuse.svd.prioritized.pmm <- function(obj,
+                                        method=c("neighbors", "mrw"),
+                                        path, ...)
 {
   if (!file.exists(path)) stop(paste("Can't find: ", path, "! Yieks!", sep=""))
   graph <- .read.graph(path)
   res  <- .diffuse.lmm(obj, match.arg(method), graph, ...)
-  class(res) <- c("svd.diffused.pmm","svd.diffused", class(res))
+  class(res) <- c("svd.diffused.pmm", "svd.diffused", class(res))
   invisible(res)
 }
 
@@ -85,7 +88,6 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
                      type="1-NN",
                      tresh=2)
   list(hits=res, graph.info=graph.info)
-
   invisible(nei.tab)
 }
 
@@ -127,11 +129,11 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
   li <- unique(c(rel$Gene1, rel$Gene2))
   res <- dplyr::filter(neighbors, Gene1 %in% li | Gene2 %in% li ) %>%
     as.data.frame
-  nodes <- data.table(Node=unique(c(res[,2], res[,3]))) %>%
+  nodes <- data.table(Node=unique(c(res[, 2], res[, 3]))) %>%
     dplyr::mutate(Color=ifelse(Node %in% phs$GeneSymbol, "lightblue", "orange")) %>%
     dplyr::mutate(FromLMM=ifelse(Node %in% phs$GeneSymbol, 1, 0)) %>%
     as.data.frame
-  edges <- res[,c(2,3)]
+  edges <- res[, c(2, 3)]
   res.gr <- igraph::graph.data.frame(edges, directed=F, vertices=nodes)
   igraph::V(res.gr)$color <- igraph::V(res.gr)$Color
   graph.info <- list(graph=res.gr,
@@ -141,4 +143,3 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"), path,
                      tresh=2)
   list(hits=res, graph.info=graph.info)
 }
-

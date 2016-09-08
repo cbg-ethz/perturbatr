@@ -4,7 +4,7 @@ Title: What the Package does
 Version: 0.1
 Date: 2015-12-10
 Author: Simon Dirmeier
-Maintainer: Who to complain to <simon.dirmeier@bsse.ethz.ch>
+Maintainer: Simon Dirmeier <simon.dirmeier@bsse.ethz.ch>
 Description: asdasdn asdasdhjalsd asjd asjld asd ajld asdj. Ainasodn asdosandasb asduasd asdasm d. Right?
 License: GPL-3
 LazyData: TRUE
@@ -36,4 +36,4 @@ Imports: dplyr,
     doParallel,
     methods,
     RankAggreg
-Suggests: testthat
+Suggests: testthat, lintr
