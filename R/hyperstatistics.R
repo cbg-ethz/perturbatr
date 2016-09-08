@@ -39,7 +39,8 @@ function
   summ.method <- match.arg(summ.method)
   padjust     <- match.arg(padjust)
   level       <- match.arg(level)
-  ret <- .hyperstatistic(obj, padjust=padjust, summ.method=summ.method, level=level, ...)
+  ret <- .hyperstatistic(obj, padjust=padjust,
+                         summ.method=summ.method, level=level, ...)
   class(ret) <- c("svd.analysed.hyper", "svd.analysed", class(ret))
   invisible(ret)
 }
@@ -60,10 +61,11 @@ function
 )
 {
   message(paste("Correcting with ", padjust, "!", sep=""))
-  if (level=="gene" & !is.na(summ.method)) message(paste("Summarizing with ", summ.method, "!", sep=""))
+  if (level=="gene" & !is.na(summ.method))
+    message(paste("Summarizing with ", summ.method, "!", sep=""))
   summ.method <- .summarization.method(summ.method)
-  grp.indexes <- dplyr::group_indices(obj, Virus, Screen, ReadoutType, InfectionType,
-                                      Library, Design, Cell)
+  grp.indexes <- dplyr::group_indices(obj, Virus, Screen, ReadoutType,
+                                      InfectionType, Library, Design, Cell)
   ret <-  dplyr::mutate(obj, grp=grp.indexes)
   grps <- unique(ret$grp)
   res <- do.call(

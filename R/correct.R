@@ -31,8 +31,9 @@ function
   ...
 )
 {
-  if (missing(path)) stop("Please provide the path to your target-relation matrices
-                          (or one of the files, wel'll parse it for you)!")
+  if (missing(path))
+      stop(paste("Please provide the path to your target-relation matrices",
+                 "(or one of the files, wel'll parse it for you)!"))
   res <-  .off.target.correct(obj, path, drop, ...)
   class(res) <- c("svd.analysed.offtc", "svd.analysed", class(res))
   invisible(res)
@@ -138,9 +139,11 @@ function
   # what and why:
   # 1) first check that the rel.mat.sirnas are UNIQUE
   # 2) match the pheno.sirnas to the rel.mat sirnas
-  # (i.e. which index has a pheno sirnas in the rel.mat array, these are M:1 mappings)
+  # (i.e. which index has a pheno sirnas in the rel.mat array,
+  # these are M:1 mappings)
   # 3) get the indexes (order is need)
-  assertthat::assert_that(length(rel.mat.sirnas) == length(unique(rel.mat.sirnas)))
+  assertthat::assert_that(length(rel.mat.sirnas) ==
+                            length(unique(rel.mat.sirnas)))
   assertthat::assert_that(!is.unsorted(row.names(vals)))
   assertthat::assert_that(!is.unsorted(rel.mat.sirnas))
   assertthat::assert_that(!is.unsorted(pheno.sirnas))
@@ -168,7 +171,8 @@ function
     .[ord]
   #check if dimensions are so are right
   assertthat::assert_that(all(pheno.frame$siRNAIDs == rel.mat@siRNAs))
-  assertthat::assert_that(all(pheno.frame$siRNAIDs == rownames(rel.mat@values)))
+  assertthat::assert_that(all(pheno.frame$siRNAIDs ==
+                                rownames(rel.mat@values)))
   # TODO some asserts if values are correct
   # THE VALUES ARE FALSE WHAT THE HELL
   list(pheno.frame=pheno.frame, rel.mat=rel.mat)
