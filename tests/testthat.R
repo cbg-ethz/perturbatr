@@ -1,4 +1,4 @@
 library(testthat)
-library(svd)
+library(knockout)
 
-test_check("svd")
+test_check("knockout")
