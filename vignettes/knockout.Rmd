@@ -1,0 +1,17 @@
+---
+title: "The knockout tutorial"
+author: "Simon Dirmeier"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{The knockout tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+## Introduction
+
+`knockout` does analysis of large-scale gene knockout/knockdown screens. 
+
+## Tutorial
+
+This has to be done at some point...

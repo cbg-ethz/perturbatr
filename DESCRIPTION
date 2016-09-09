@@ -1,6 +1,6 @@
 Package: knockout
 Type: Package
-Title: Analyse high-throughput gene knockout screens.
+Title: Analysis of high-throughput gene perturbation screens
 Version: 0.1
 Date: 2015-12-10
 Author: Simon Dirmeier
@@ -38,4 +38,7 @@ Imports: dplyr,
     doParallel,
     methods,
     RankAggreg
-Suggests: testthat, lintr
+Suggests: testthat, lintr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -1,26 +1,25 @@
-<h1 align="center"> diffusr </h1>
+<h1 align="center"> knockout </h1>
 
-[![Build Status](https://travis-ci.org/dirmeier/diffusr.svg?branch=master)](https://travis-ci.org/dirmeier/diffusr.svg?branch=master)
-[![codecov](https://codecov.io/gh/dirmeier/diffusr/branch/master/graph/badge.svg)](https://codecov.io/gh/dirmeier/diffusr)
+[![Build Status](https://travis-ci.org/dirmeier/knockout.svg?branch=master)](https://travis-ci.org/dirmeier/knockout.svg?branch=master)
+[![codecov](https://codecov.io/gh/dirmeier/knockout/branch/master/graph/badge.svg)](https://codecov.io/gh/dirmeier/knockout)
 
-Network diffusion algorithms in R.
+Analysis of high-throughput gene perturbation screens in R.
 
 ## Introduction
 
-`diffusr` implements several algorithms for network diffusion such as *Markov random walks with restarts* and *weighted neighbor classification*. Network diffusion has been studied extensively in bioinformatics, e.g. in the field of cancer gene prioritization.
-To my knowledge only few packages implement all of the diffusion algorithms. In the first version of `diffusr` I implemented the two methods above, several others will follow in future patches.
+`knockout` does analysis of large-scale gene knockout/knockdown screens. 
 
 ## Installation
  
-Install `diffusr` using:
+Install `knockout` using:
 ```{r}
-devtools::install_github("dirmeier/diffusr") 
+devtools::install_github("dirmeier/knockout") 
 ```
 from the R-console.
 
 ## Usage
 
-Load the package using `library(diffusr)`. We provide a vignette for the package that can be called using: `vignette("diffusr")`.
+Load the package using `library(knockout)`. We (maybe if I already was in the mood) provide a vignette for the package that can be called using: `vignette("knockout")`.
 Basically that is all you have to know.
 
 ## Author

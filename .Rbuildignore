@@ -14,5 +14,7 @@
 README.md
 VERSIONS.md
 LICENSE
-svd.Rproj
+knockout.Rproj
+.travis.yml
+.lintr
 
