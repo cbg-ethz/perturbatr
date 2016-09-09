@@ -1,11 +1,13 @@
-Package: svd
+Package: knockout
 Type: Package
-Title: What the Package does
+Title: Analyse high-throughput gene knockout screens.
 Version: 0.1
 Date: 2015-12-10
 Author: Simon Dirmeier
 Maintainer: Simon Dirmeier <simon.dirmeier@bsse.ethz.ch>
-Description: asdasdn asdasdhjalsd asjd asjld asd ajld asdj. Ainasodn asdosandasb asduasd asdasm d. Right?
+Description: Analysis of large-scale gene knockout/knockdown screens. 
+ Preprocess large date-table, normalize your data and analyse using state-of-the-art
+ techniques. Do meta-analyses and diffuse hit genes using network propagation.
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1

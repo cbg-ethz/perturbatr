@@ -12,7 +12,8 @@
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...) UseMethod("lmm", obj)
+lmm <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
+  UseMethod("lmm", obj)
 
 #' @noRd
 #' @export
@@ -58,20 +59,24 @@ function
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   # fit the LMM
-  fit.lmm <- lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol),
-                        data = model.data, weights = model.data$Weight,
-                        verbose = FALSE)
+  fit.lmm <-
+    lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol),
+               data = model.data, weights = model.data$Weight,
+               verbose = FALSE)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
-  ag <- data.table::data.table(Effect = random.effects[["GeneSymbol"]][,1],
-                   GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
+  ag <- data.table::data.table(
+    Effect = random.effects[["GeneSymbol"]][,1],
+    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
   # create the data.table with pathogen effects
-  bcg <- data.table::data.table(bcg = random.effects[["Virus:GeneSymbol"]][,1],
-                    GenePathID = as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
+  bcg <- data.table::data.table(
+    bcg = random.effects[["Virus:GeneSymbol"]][,1],
+    GenePathID = as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
   # create the table with gene-pathogen effects
   ccg <- base::merge(bcg, ag, by = "GeneSymbol") %>%
-    dplyr::mutate(Virus = sub(":.+$", "", GenePathID), GeneVirusEffect = Effect + bcg) %>%
+    dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
+                  GeneVirusEffect = Effect + bcg) %>%
     dplyr::select(-GenePathID, -bcg, -Effect)
   # calculate fdrs
   fdrs <- .fdr(ccg)
@@ -129,7 +134,8 @@ function
 
 
   pmm.mat <-
-    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library) %>%
+    dplyr::select(obj, Entrez, GeneSymbol, Virus,
+                  Readout, Control, Library) %>%
     dplyr::filter(!is.na(GeneSymbol)) %>%
     dplyr::filter(Control != 1)
   data.table::setDT(pmm.mat)[Library == "Dharmacon", Weight := wei.dhar]
@@ -192,8 +198,10 @@ function
     ccg.matrix <- merge(ccg.matrix, sub.ccg.matrix[, c("GeneSymbol", fr)],
                         by = "GeneSymbol")
   }
-  gene.effect.mat <- ccg.matrix[,c(1, grep("GeneVirusEffect", colnames(ccg.matrix)))]
-  colnames(gene.effect.mat) <- sub("GeneVirusEffect.", "", colnames(gene.effect.mat))
+  gene.effect.mat <-
+    ccg.matrix[,c(1, grep("GeneVirusEffect", colnames(ccg.matrix)))]
+  colnames(gene.effect.mat) <-
+    sub("GeneVirusEffect.", "", colnames(gene.effect.mat))
   gene.effect.mat <- gene.effect.mat %>%
     tidyr::gather(Virus, Effect, 2:ncol(gene.effect.mat)) %>%
     as.data.table
@@ -202,11 +210,15 @@ function
   fdr.mat <- fdr.mat %>%
     tidyr::gather(Virus, FDR, 2:ncol(fdr.mat)) %>%
     as.data.table
-  gene.pathogen.matrix <- dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Virus"))
-  list(ccg.matrix=ccg.matrix, fdrs=fdrs, gene.pathogen.matrix=gene.pathogen.matrix )
+  gene.pathogen.matrix <-
+    dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Virus"))
+  list(ccg.matrix=ccg.matrix,
+       fdrs=fdrs,
+       gene.pathogen.matrix=gene.pathogen.matrix )
 }
 
-#' This is the implementation of Efron local fdr with some additions regarding the return values
+#' This is the implementation of Efron local fdr
+#'  with some additions regarding the return values
 #'
 #' @noRd
 #' @import locfdr

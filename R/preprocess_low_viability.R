@@ -71,7 +71,8 @@ function
       dplyr::group_by(Sirna, Gene, Plate, Row, Col, Control) %>%
       dplyr::mutate(n = n()) %>% ungroup
       if (any(fr$n < 3))
-        message("\tSome siRNAs have less than three observations. Setting p.val=1 to prohibit removal of siRNAs erroneously.")
+        message(paste("\tSome siRNAs have less than three observations.",
+                      "Setting p.val=1 to prohibit removal of siRNAs erroneously."))
     fr <-
       dplyr::group_by(fr, Sirna, Gene, Plate, Row, Col, Control) %>%
       # summarize over replicates

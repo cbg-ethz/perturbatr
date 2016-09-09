@@ -11,7 +11,8 @@ cor(x, y, method = c("pearson", "kendall", "spearman"), ...)
 
 \item{y}{a random object of the same type (optional)}
 
-\item{method}{a character string indicating which correlation coefficient (\emph{pearson}, \emph{kendall} or \emph{spearman})}
+\item{method}{a character string indicating which correlation coefficient
+(\emph{pearson}, \emph{kendall} or \emph{spearman})}
 
 \item{...}{additional parameters}
 }

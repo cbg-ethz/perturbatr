@@ -56,7 +56,8 @@ function
   if (!all(is.na(num)))
   {
     quant <- unname(quantile(num, na.rm=T, probs=probs))
-    message(paste("\t..removing x<" ,quant[1], " | ", quant[2], "<x wells!", sep=""))
+    message(paste("\t..removing x<", quant[1],
+                  " | ", quant[2], "<x wells!", sep=""))
     re[num < quant[1] | quant[2] < num] <- NA_real_
   }
   re

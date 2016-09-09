@@ -18,7 +18,8 @@ setGeneric(
 setMethod(
   "ora",
   c(hit.list="integer", universe="integer"),
-  function(hit.list, universe, db=c("kegg", "go"), ...) ora.default(hit.list, universe, db, ...)
+  function(hit.list, universe, db=c("kegg", "go"), ...)
+    ora.default(hit.list, universe, db, ...)
 )
 
 #' @rdname ora-methods
@@ -26,7 +27,8 @@ setMethod(
 setMethod(
   "ora",
   c(hit.list="character", universe="character"),
-  function(hit.list, universe, db=c("kegg", "go"), ...) ora.default(hit.list, universe, db, ...)
+  function(hit.list, universe, db=c("kegg", "go"), ...)
+    ora.default(hit.list, universe, db, ...)
 )
 
 #' @noRd
@@ -40,7 +42,7 @@ function
   ...
 )
 {
-  db = match.arg(db)
+  db <- match.arg(db)
   message(paste("Doing ORA on:", db))
   dat <- switch(db,
                 "kegg"=.gsea.kegg(hit.list, universe, ...),

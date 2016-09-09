@@ -106,7 +106,8 @@ function
     }
     else
     {
-      den <- 1 - ( 3 * stats::sd(read[ot.crtl]) + 3 *  stats::sd(read[neg.crtl]))
+      den <- 1 - ( 3 * stats::sd(read[ot.crtl]) +
+                     3 *  stats::sd(read[neg.crtl]))
       nom <- abs(base::mean(read[ot.crtl]) - base::mean(read[neg.crtl]))
       z.fac <-  den/nom
     }
@@ -128,7 +129,8 @@ function
   {
     pos <- read[pos.crtl]
     neg <- read[neg.crtl]
-    ssmd <- abs(base::mean(pos) - base::mean(neg)) / (stats::var(pos) + stats::var(neg))
+    ssmd <- abs(base::mean(pos) - base::mean(neg)) /
+      (stats::var(pos) + stats::var(neg))
   }
   ssmd
 }

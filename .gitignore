@@ -2,11 +2,9 @@ IFX_*
 src/*.o
 src/*.so
 .Rproj.user/*
-svd.Rcheck/*
-svd*tar.gz
+knockout.Rcheck/*
+knockout*tar.gz
 .nb-gradle/
 .Rhistory
 .Rproj.user
-net_diffu/network_diffusion/network-diffusion.iml
-net_diffu/network_diffusion/target
 

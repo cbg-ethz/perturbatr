@@ -4,10 +4,11 @@ linters: list(linelen=line_length_linter(80),
               notab=no_tab_linter,
               camellinter=camel_case_linter,
               snakelinter=snake_case_linter,
+              spaceinside=spaces_inside_linter,
               closedcurly=closed_curly_linter,
               trailingwhites=trailing_whitespace_linter)
 exclusions: list("tests/testthat.R", 
-                 "tests/testthat/.*.R")
+                 "tests/testthat/test_lintr.R")
 exclude: "# Exclude Linting"
 exclude_start: "# Begin Exclude Linting"
 exclude_end: "# End Exclude Linting"

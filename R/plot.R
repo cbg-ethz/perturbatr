@@ -261,9 +261,11 @@ function
 {
   params <- list(...)
   count <- ifelse(hasArg(count), params$count, NA)
-  show.controls <- ifelse(hasArg(show.controls) & is.logical(params$show.controls),
+  show.controls <- ifelse(hasArg(show.controls) &
+                            is.logical(params$show.controls),
                   params$show.controls, T)
-  show.gene.names <- ifelse(hasArg(show.gene.names) & is.logical(params$show.gene.names),
+  show.gene.names <- ifelse(hasArg(show.gene.names) &
+                              is.logical(params$show.gene.names),
                             params$show.gene.names, T)
   graphics::par(ask=T)
   obj.len <- length(x)
@@ -301,9 +303,11 @@ function
 )
 {
   params <- list(...)
-  show.controls <- ifelse(hasArg(show.controls) & is.logical(params$show.controls),
+  show.controls <- ifelse(hasArg(show.controls) &
+                            is.logical(params$show.controls),
                           params$show.controls, T)
-  show.gene.names <- ifelse(hasArg(show.gene.names) & is.logical(params$show.gene.names),
+  show.gene.names <- ifelse(hasArg(show.gene.names) &
+                              is.logical(params$show.gene.names),
                           params$show.gene.names, T)
   mat <- readout.matrix(x)
   mat$genes[is.na(mat$genes)] <- ""
@@ -375,7 +379,10 @@ function
     ggplot2::ggtitle("Plate readouts")
   # plot control densities
   df  <- dplyr::select(qual, Virus, Screen, Readout, Control) %>%
-    dplyr::filter(!is.na(Readout), !is.infinite(Readout), !is.na(Control), Control != 0) %>%
+    dplyr::filter(!is.na(Readout),
+                  !is.infinite(Readout),
+                  !is.na(Control),
+                  Control != 0) %>%
     dplyr::mutate(Control = as.character(Control))
   data.table::setDT(df)[Control == "-1", Control := "Negative control"]
   data.table::setDT(df)[Control == "1", Control := "Positive control"]
@@ -420,7 +427,8 @@ function
     ggplot2::facet_grid(Virus ~ Screen) +
     ggplot2::theme(axis.text.x=element_blank()) +
     ggplot2::scale_color_discrete(breaks=c("-1", "1"),
-                                  labels=c("Negative control", "Positive control")) +
+                                  labels=c("Negative control",
+                                           "Positive control")) +
     ggplot2::ggtitle("Plate controls")
 
   svd:::.multiplot(pl, pl2, pl3, pl4,  cols=2)
@@ -442,8 +450,9 @@ function
 )
 {
   single.res <- do.call("rbind", lapply(x, function(i) i))
-  single.res$Virus <- unname(unlist(sapply(rownames(single.res),
-                                           function(e) sub(".[[:digit:]]+", "", e))))
+  single.res$Virus <-
+    unname(unlist(sapply(rownames(single.res),
+                         function(e) sub(".[[:digit:]]+", "", e))))
   single.res <-
     dplyr::group_by(single.res, Virus, Sign=sign(Effect)) %>%
     dplyr::summarize(cnt=n()) %>%
@@ -480,9 +489,11 @@ function
   ...
 )
 {
+  gen.pat <- x$gene.pathogen.effect.hits
   pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects")
-  pl2 <- .plot.svd.prioritized.pmm(x$gene.pathogen.effect.hits, main="Gene-virus effects") +
-    ggplot2::facet_wrap( ~ Virus, ncol=length(unique(x$gene.pathogen.effect.hits$Virus))/2)
+  pl2 <-
+    .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects") +
+    ggplot2::facet_wrap(~ Virus, ncol=length(unique(gen.pat$Virus))/2)
   pl3 <- .multiplot(pl, pl2, cols=2)
   pl3
 }
@@ -511,7 +522,7 @@ function
   pl
 }
 
-#' Plot a barplot showing the first 25 hits of the hypergeometric prioritization
+#' Plot a barplot showing the 25 hits of the hypergeometric prioritization
 #'
 #' @noRd
 #' @export
@@ -595,7 +606,10 @@ function
     ggplot2::ggplot(dat, aes(Virus, GeneSymbol)) +
     ggplot2::geom_tile(aes(fill = Effect), colour=LDcolors[1]) +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
-    ggplot2::scale_y_discrete(expand = c(0,0), limits=or, breaks=or, labels=or) +
+    ggplot2::scale_y_discrete(expand = c(0,0),
+                              limits=or,
+                              breaks=or,
+                              labels=or) +
     ggplot2::scale_fill_gradient2(low=LDcolors[1],
                                   high=LDcolors[11],
                                   na.value=LDcolors[6],
@@ -610,7 +624,8 @@ function
   pl
 }
 
-#' Plots the densities of the mixture and the null genes and the histogram of the non-null genes
+#' Plots the densities of the mixture and the
+#' null genes and the histogram of the non-null genes
 #'
 #' @noRd
 #' @export
@@ -626,14 +641,18 @@ function
   hits <- x$hist.dat
   # the values used for estimation of the densities (f0 and f1)
   zvals <- data.frame(Z=hits$zvalues)
-  # frame of estimated non-null hits (yt), density of mixture(f) and density of nulls (f0)
+  # frame of estimated non-null hits (yt),
+  # density of mixture(f) and density of nulls (f0)
   densities <- data.frame(X=hits$x, y=hits$yt, f=hits$f, f0=hits$f0)
   pl <-
     ggplot2::ggplot(zvals) +
     ggplot2::geom_histogram(aes(Z), bins = 130, alpha = 0.3) +
-    ggplot2::geom_bar(data=densities, aes(x=X, y=y), stat = "identity", color="blue") +
-    ggplot2::geom_line(data=densities, aes(x=X, y=f0,  colour="p0*f0"), size=1, linetype=1) +
-    ggplot2::geom_line(data=densities, aes(x=X, y=f,  colour="f"), size=1, linetype=2) +
+    ggplot2::geom_bar(data=densities, aes(x=X, y=y),
+                      stat = "identity", color="blue") +
+    ggplot2::geom_line(data=densities,
+                       aes(x=X, y=f0,  colour="p0*f0"), size=1, linetype=1) +
+    ggplot2::geom_line(data=densities,
+                       aes(x=X, y=f,  colour="f"), size=1, linetype=2) +
     ggplot2::ylab("Frequency") +
     ggplot2::xlab("Gene-pathogen effect") +
     ggplot2::theme_bw() +
@@ -741,10 +760,14 @@ function
   pos.ctrl.idx <- which(ctrls == 1)
   neg.ctrl.idx <- which(ctrls == -1)
   no.hit.idx   <- which(colors == "grey")
-  nohits       <- data.frame(Effect=x[no.hit.idx],   sig=y[no.hit.idx],   Gene=genes[no.hit.idx])
-  hits         <- data.frame(Effect=x[hits.idx],     sig=y[hits.idx],     Gene=genes[hits.idx])
-  pos.ctrls    <- data.frame(Effect=x[pos.ctrl.idx], sig=y[pos.ctrl.idx], Gene=genes[pos.ctrl.idx])
-  neg.ctrls    <- data.frame(Effect=x[neg.ctrl.idx], sig=y[neg.ctrl.idx], Gene=genes[neg.ctrl.idx])
+  nohits       <- data.frame(Effect=x[no.hit.idx],
+                             sig=y[no.hit.idx], Gene=genes[no.hit.idx])
+  hits         <- data.frame(Effect=x[hits.idx],
+                             sig=y[hits.idx], Gene=genes[hits.idx])
+  pos.ctrls    <- data.frame(Effect=x[pos.ctrl.idx],
+                             sig=y[pos.ctrl.idx], Gene=genes[pos.ctrl.idx])
+  neg.ctrls    <- data.frame(Effect=x[neg.ctrl.idx],
+                             sig=y[neg.ctrl.idx], Gene=genes[neg.ctrl.idx])
   pl <-
     ggplot2::ggplot() +
     ggplot2::xlim(xlim) +
@@ -753,28 +776,36 @@ function
     ggplot2::ylab(yl)
   if (length(nohits$Effect) != 0)
     pl <- pl +
-      ggplot2::geom_point(aes(x=nohits$Effect, y=nohits$sig), col="grey",size=.5)
+      ggplot2::geom_point(aes(x=nohits$Effect, y=nohits$sig),
+                          col="grey",size=.5)
   if (length(hits$Effect) != 0)
     pl <- pl +
-      ggplot2::geom_point(aes(x=hits$Effect, y=hits$sig, color="Hit"), size=1.5, alpha=.75)
+      ggplot2::geom_point(aes(x=hits$Effect, y=hits$sig, color="Hit"),
+                          size=1.5, alpha=.75)
   if (sig.thresh > 0)
     pl <- pl +
       ggplot2::geom_hline(yintercept=sig.thresh, alpha=.75, linetype="dashed") +
-      ggplot2::geom_text(aes(xlim[1], sig.thresh, label = paste("Significance threshold:", sig.thresh)
-                             ,vjust = -.25, hjust=0), size = 4)
+      ggplot2::geom_text(aes(xlim[1], sig.thresh,
+                             label = paste("Significance threshold:", sig.thresh),,
+                             vjust = -.25, hjust=0), size = 4)
   if (readout.thresh > 0)
     pl <- pl +
       ggplot2::geom_vline(xintercept=readout.thresh,  alpha=.75, linetype="dotdash") +
       ggplot2::geom_vline(xintercept=-readout.thresh, alpha=.75, linetype="dotdash") +
-      ggplot2::geom_text(aes(readout.thresh, ylim[2], label = paste("Effect threshold:", readout.thresh),vjust = 0, hjust=-.01), size = 4)
+      ggplot2::geom_text(aes(readout.thresh, ylim[2],
+                             label = paste("Effect threshold:", readout.thresh),vjust = 0, hjust=-.01), size = 4)
   if (length(pos.ctrls$Effect) != 0) pl <- pl +
-      ggplot2::geom_point(aes(x=pos.ctrls$Effect, y=pos.ctrls$sig, col="Positive control"), size=1.5, alpha=.75)
+      ggplot2::geom_point(aes(x=pos.ctrls$Effect,
+                              y=pos.ctrls$sig, col="Positive control"), size=1.5, alpha=.75)
   if (length(neg.ctrls$Effect) != 0) pl <- pl +
-      ggplot2::geom_point(aes(x=neg.ctrls$Effect, y=neg.ctrls$sig, col="Negative control"), size=1.5, alpha=.75)
+      ggplot2::geom_point(aes(x=neg.ctrls$Effect,
+                              y=neg.ctrls$sig, col="Negative control"), size=1.5, alpha=.75)
   if (length(pos.ctrls$Effect) != 0) pl <- pl +
-      ggplot2::geom_text(aes(x=pos.ctrls$Effect, y=pos.ctrls$sig, label=pos.ctrls$Gene), hjust=0, vjust=0, check_overlap=TRUE, nudge_x=0.05, size=4)
+      ggplot2::geom_text(aes(x=pos.ctrls$Effect,
+                             y=pos.ctrls$sig, label=pos.ctrls$Gene), hjust=0, vjust=0, check_overlap=TRUE, nudge_x=0.05, size=4)
   if (length(neg.ctrls$Effect) != 0) pl <- pl +
-      ggplot2::geom_text(aes(x=neg.ctrls$Effect, y=(neg.ctrls$sig), label=neg.ctrls$Gene), hjust=0, vjust=0, check_overlap=TRUE, nudge_x=0.05, size=4)
+      ggplot2::geom_text(aes(x=neg.ctrls$Effect,
+                             y=(neg.ctrls$sig), label=neg.ctrls$Gene), hjust=0, vjust=0, check_overlap=TRUE, nudge_x=0.05, size=4)
   pl <- pl +
     ggplot2::scale_color_manual(name="Points", values=c("blue", "red", "green")) +
     ggplot2::guides(color=guide_legend(title=NULL)) +
@@ -846,8 +877,10 @@ plot.svd.diffused.pmm <- function(x, y, ...)
    ad <- igraph::get.adjacency(obj)
    ad[ad >= 1] <- 1
    obj <- igraph::graph_from_adjacency_matrix(ad, mode="undirected")
-   blue.genes <- V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "lightblue")]
-   orange.genes <- V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "orange")]
+   blue.genes <-
+     V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "lightblue")]
+   orange.genes <-
+     V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "orange")]
    V(obj)$color[V(obj) %in% blue.genes] <- "lightblue"
    V(obj)$color[V(obj) %in% orange.genes] <- "orange"
    E(obj)$width <- 2
@@ -856,7 +889,9 @@ plot.svd.diffused.pmm <- function(x, y, ...)
    graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
                   vertex.label.family="Helvetica", vertex.label.font=2,
                   edge.curved=-.01)
-   graphics::legend("topright", legend=c("Linear mixed model", "Diffusion"), col=x$graph.info$colors,
+   graphics::legend("topright",
+                    legend=c("Linear mixed model", "Diffusion"),
+                    col=x$graph.info$colors,
           pch=19, cex=1.05)
    par(op)
 }
@@ -875,7 +910,7 @@ plot.svd.diffused.pmm <- function(x, y, ...)
 )
 {
   plots <- c(list(...), plotlist)
-  numPlots = length(plots)
+  numPlots <- length(plots)
   if (is.null(layout)) {
     layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
                      ncol = cols, nrow = ceiling(numPlots/cols))
@@ -884,7 +919,8 @@ plot.svd.diffused.pmm <- function(x, y, ...)
     return(plots[[1]])
   } else {
     grid::grid.newpage()
-    grid::pushViewport(grid::viewport(layout = grid::grid.layout(nrow(layout), ncol(layout))))
+    grid::pushViewport(
+      grid::viewport(layout = grid::grid.layout(nrow(layout), ncol(layout))))
     for (i in 1:numPlots) {
       matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
       print(plots[[i]], vp = grid::viewport(layout.pos.row = matchidx$row,

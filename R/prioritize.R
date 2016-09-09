@@ -176,7 +176,8 @@ function
 {
   params <- list(...)
   message(paste("Prioritizing on fdr.threshold ", fdr.threshold,
-                " for gene-pathogen effects and 'min.fdr(cg)' for gene effects.",
+                " for gene-pathogen effects and ",
+                "'min.fdr(cg)' for gene effects.",
                 sep=""))
   f <- .summarization.method("min")
   gpes <- obj$gene.pathogen.effects

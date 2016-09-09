@@ -12,7 +12,7 @@ diffuse(obj, method = c("neighbors", "mrw"), path, ...)
 \item{method}{method that should be used for diffusion
 \itemize{
   \item{neighbors }{ just looks at the neighbors :)}
-  \item{neighbors }{ just looks at the neighbors :)}
+  \item{mrw }{ do a Markov random walk}
 }}
 
 \item{path}{path to the network}

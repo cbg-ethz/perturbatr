@@ -163,9 +163,12 @@ function
     if (toupper(mu.gene) == "SCRAMBLED")
       cont.tab <- dplyr::filter(cont.tab, GeneSymbol == "Scrambled")
     if (nrow(cont.tab) == 0) stop("No controls found for criteria!")
-    if (nrow(cont.tab) < 3)  stop("Less than three controls found, better standardize data and take mu=0!")
+    if (nrow(cont.tab) < 3)
+      stop(paste("Less than three controls found,",
+                 "better standardize data and take mu=0!"))
     mu <- mean(cont.tab$Readout, na.rm=T)
-    message(paste("\t..taking mu from all controls(",mu.gene, "): ", mu, sep=""))
+    message(paste("\t..taking mu from all controls(",mu.gene, "): ",
+                  mu, sep=""))
   }
   else if (is.na(mu.gene))
   {
@@ -190,14 +193,18 @@ function
   tst <- 1
   if (length(val) < 3)
   {
-    warning(paste("Only", length(val), "value(s) provided for" , g, "->returning 1"))
+    warning(paste("Only", length(val),
+                  "value(s) provided for" , g, "->returning 1"))
   }
   else
   {
     tryCatch ({
-      tst <- stats::t.test(val, mu=mu, alternative="two.sided", paired=F)$p.value
-    }, warning = function(war) { warning(paste(war, " -> setting one for", g)); },
-       error = function(err) { warning(paste(err, " -> setting one for", g)); }
+      tst <- stats::t.test(val, mu=mu,
+                           alternative="two.sided", paired=F)$p.value
+    }, warning = function(war)
+      { warning(paste(war, " -> setting one for", g)); },
+       error = function(err)
+      { warning(paste(err, " -> setting one for", g)); }
     )
   }
   invisible(tst)

@@ -259,8 +259,10 @@ setMethod(
         any(is.null(names(obj))) |
         any(names(obj) == "")) stop("Please provide names for list items!")
     classes <- unname(sapply(obj, class))
-    if (any(classes == "list")) stop("Please do not provide lists as elements!")
-    if (any(classes != classes[1])) stop("Please provide the same class for every list element!")
+    if (any(classes == "list"))
+      stop("Please do not provide lists as elements!")
+    if (any(classes != classes[1]))
+      stop("Please provide the same class for every list element!")
     invisible(concordance.default(obj, ...))
   }
 )
@@ -334,9 +336,11 @@ function
 #'
 #' @param x  a random object
 #' @param y  a random object of the same type (optional)
-#' @param method  a character string indicating which correlation coefficient (\emph{pearson}, \emph{kendall} or \emph{spearman})
+#' @param method  a character string indicating which correlation coefficient
+#' (\emph{pearson}, \emph{kendall} or \emph{spearman})
 #' @param ...  additional parameters
-cor <- function(x, y, method = c("pearson", "kendall", "spearman"), ...) UseMethod("cor")
+cor <- function(x, y, method = c("pearson", "kendall", "spearman"), ...)
+  UseMethod("cor")
 
 
 #' @noRd
@@ -344,13 +348,11 @@ cor <- function(x, y, method = c("pearson", "kendall", "spearman"), ...) UseMeth
 #' @import data.table
 #' @importFrom dplyr filter
 #' @importFrom stats cor
-cor.svd.replicates <-
-function
-(
-  x, y, method = c("pearson", "kendall", "spearman"), ...
-)
+cor.svd.replicates <- function(x, y,
+                               method = c("pearson", "kendall", "spearman"),
+                               ...)
 {
-  method=match.arg(method)
+  method <- match.arg(method)
   len <- length(x)
   gri <- expand.grid(1:len, 1:len)
   ret <- do.call(
@@ -425,7 +427,8 @@ function
 .read.graph <- function(pth)
 {
   tab <- utils::read.csv(pth, sep="\t", header=T)
-  gra <- igraph::graph.data.frame( read.csv(pth, sep="\t", header=T), directed=F)
+  gra <- igraph::graph.data.frame(read.csv(pth, sep="\t", header=T),
+                                  directed=F)
   if (ncol(tab) == 3)
   {
     if (is.null(E(gra)$weight))

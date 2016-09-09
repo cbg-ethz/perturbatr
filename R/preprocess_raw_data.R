@@ -33,10 +33,14 @@ function
   via.dat <- dplyr::filter(obj, ReadoutClass == "Viability")
   # pars arguments
   params <- list(...)
-  z.score.level <- ifelse(hasArg(z.score.level), params$z.score.level, "plate")
-  z.score.ctrl  <- ifelse(hasArg(z.score.ctrl),  params$z.score.ctrl, NA_character_)
-  poc.ctrl      <- ifelse(hasArg(poc.ctrl),      params$poc.ctrl, NA_character_)
-  method        <- ifelse(hasArg(method),        params$method, "mean")
+  z.score.level <- ifelse(hasArg(z.score.level),
+                          params$z.score.level, "plate")
+  z.score.ctrl  <- ifelse(hasArg(z.score.ctrl),
+                          params$z.score.ctrl, NA_character_)
+  poc.ctrl      <- ifelse(hasArg(poc.ctrl),
+                          params$poc.ctrl, NA_character_)
+  method        <- ifelse(hasArg(method),
+                          params$method, "mean")
   background.column <- ifelse(hasArg(background.column),
                               params$background.column,
                               NA)
@@ -85,26 +89,21 @@ function
   for (norm in normalize)
   {
     obj <- switch(norm,
-                      "log"            =.log.norm(obj=obj),
-                      "poc"            =.poc     (obj=obj,
-                                                  method=method,
-                                                  poc.ctrl=poc.ctrl),
-                      "z.score"        =.z.score (obj=obj,
-                                                  method="default",
-                                                  level=z.score.level,
-                                                  ctrl=z.score.ctrl),
-                      "robust-z.score" =.z.score (obj=obj,
-                                                  method="robust",
-                                                  level=z.score.level,
-                                                  ctrl=z.score.ctrl),
-                      "loess"          =.loess   (obj=obj),
-                      "b.score"        =.b.score (obj=obj),
-                      "background"     =.background.correct(obj=obj,
-                                                            background.column=background.column,
-                                                            background.row=background.row,
-                                                            method=method),
-                      "qq"             =.qq.norm(obj=obj),
-                      stop("Give a default normalization method!"))
+                  "log"=.log.norm(obj=obj),
+                  "poc"=.poc(obj=obj, method=method, poc.ctrl=poc.ctrl),
+                  "z.score"=.z.score(obj=obj, method="default",
+                                      level=z.score.level,
+                                      ctrl=z.score.ctrl),
+                  "robust-z.score"=.z.score(obj=obj, method="robust",
+                                            level=z.score.level,
+                                            ctrl=z.score.ctrl),
+                  "loess"=.loess(obj=obj),
+                  "b.score"=.b.score(obj=obj),
+                  "background"=.background.correct(
+                    obj=obj, background.column=background.column,
+                    background.row=background.row, method=method),
+                  "qq"=.qq.norm(obj=obj),
+                  stop("Give a default normalization method!"))
   }
   obj
 }
@@ -130,15 +129,20 @@ function
   if (!is.na(background.row))
   {
     if (!is.numeric(background.row)) stop("Provide numeric index")
-    if (background.row > max(ret$RowIdx)) stop("Please provide a row index that fits the plate!")
-    message(paste("Substracting", method, "of row", background.row, " rom every plate!"))
+    if (background.row > max(ret$RowIdx))
+      stop("Please provide a row index that fits the plate!")
+    message(paste("Substracting", method,
+                  "of row", background.row, " rom every plate!"))
     ret <- dplyr::mutate(ret, bk = (RowIdx == background.row))
   }
   else if (!is.na(background.column))
   {
-    if (!is.numeric(background.column)) stop("Provide numeric index")
-    if (background.column > max(ret$ColIdx)) stop("Please provide a column index that fits the plate!")
-    message(paste("Substracting", method, "of column", background.column, "from every plate!"))
+    if (!is.numeric(background.column))
+      stop("Provide numeric index")
+    if (background.column > max(ret$ColIdx))
+      stop("Please provide a column index that fits the plate!")
+    message(paste("Substracting", method,
+                  "of column", background.column, "from every plate!"))
     ret <- dplyr::mutate(ret, bk = (ColIdx == background.column))
   }
   else
@@ -244,13 +248,15 @@ function
   }
   else if (level == "control")
   {
-    check <- dplyr::filter(z.score.data, Control == -1) %>% dplyr::mutate(n=n())
+    check <- dplyr::filter(z.score.data, Control == -1) %>%
+      dplyr::mutate(n=n())
     if (length(unique(check$n))  > 1)
       warning(paste("Found unequal number of negative controls on plates:",
                     paste(unique(check$n), collapse=", ")))
     z.score.data <-
       dplyr::mutate(z.score.data,
-                    Readout = .z.score.control(Readout, method, Control, GeneSymbol, ctrl))
+                    Readout = .z.score.control(Readout, method,
+                                               Control, GeneSymbol, ctrl))
   }
   dplyr::ungroup(z.score.data)
   invisible(z.score.data)
@@ -269,8 +275,10 @@ function
 )
 {
   val <- switch(method,
-                "default"=((obj - base::mean(obj, na.rm=T)) / stats::sd(obj, na.rm=T)),
-                "robust" =((obj - stats::median(obj, na.rm=T)) / stats::mad(obj, na.rm=T)),
+                "default"=((obj - base::mean(obj, na.rm=T)) /
+                             stats::sd(obj, na.rm=T)),
+                "robust" =((obj - stats::median(obj, na.rm=T)) /
+                             stats::mad(obj, na.rm=T)),
                 stop("No correct method given!"))
   invisible(val)
 }
@@ -306,10 +314,13 @@ function
   else
   {
     if (length(cont.idx) < 3)
-      warning(paste("You are normalizing with z-scores and only using", length(cont.idx),"values!"))
+      warning(paste("You are normalizing with z-scores and only using",
+                    length(cont.idx),"values!"))
     val <- switch(method,
-                  "default"=((re - base::mean(re[cont.idx], na.rm=T)) / stats::sd(re[cont.idx], na.rm=T)),
-                  "robust" =((re - stats::median(re[cont.idx], na.rm=T)) / stats::mad(re[cont.idx], na.rm=T)),
+                  "default"=((re - base::mean(re[cont.idx], na.rm=T)) /
+                               stats::sd(re[cont.idx], na.rm=T)),
+                  "robust" =((re - stats::median(re[cont.idx], na.rm=T)) /
+                               stats::mad(re[cont.idx], na.rm=T)),
                   stop("No correct method given!"))
   }
   val
@@ -358,7 +369,8 @@ function
   else
   {  tryCatch({
       res <- stats::lowess(n.cells[good.idxs], readout[good.idxs])
-      loessed.readout[good.idxs] <- readout[good.idxs] - res$y[sorted.n.cells.idx$ix] },
+      loessed.readout[good.idxs] <-
+        readout[good.idxs] - res$y[sorted.n.cells.idx$ix] },
       warning = function(war) { message(paste("WARNING: ", war, "\n")); },
       error = function(err)   { message(paste("ERROR: ", err,  "\n")); }
     )
@@ -443,7 +455,8 @@ function
     dplyr::group_by(obj, Virus, Library, Screen,
                     ReadoutType, InfectionType, ReadoutClass,
                     Design, Cell) %>%
-    dplyr::mutate(Readout = .qq.norm.group(Replicate, Readout, RowIdx, ColIdx)) %>%
+    dplyr::mutate(Readout = .qq.norm.group(Replicate, Readout,
+                                           RowIdx, ColIdx)) %>%
     ungroup
   invisible(ret)
 }

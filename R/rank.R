@@ -12,6 +12,7 @@
         .[order(el, decreasing=T)]
       tab$lab
   }))
-  ret <- RankAggreg::RankAggreg(ranks[,1:100], method="CE",distance="Kendall", k=k)
+  ret <- RankAggreg::RankAggreg(ranks[,1:100],
+                                method="CE",distance="Kendall", k=k)
   ret
 }
