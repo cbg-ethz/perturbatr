@@ -8,6 +8,17 @@ r_packages:
   - covr
   - testthat
 
+bioc_packages:
+  - limma
+  - gespeR
+  - pmm
+  - AnnotationDbi
+  - GOstats
+  - org.Hs.eg.db
+  - RankAggreg
+  
+r_github_packages: dirmeier/diffusr 
+
 env:
   global:
     - R_BUILD_ARGS="--no-build-vignettes --no-manual"
