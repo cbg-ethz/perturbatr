@@ -5,9 +5,11 @@ Version: 0.1
 Date: 2015-12-10
 Author: Simon Dirmeier
 Maintainer: Simon Dirmeier <simon.dirmeier@bsse.ethz.ch>
-Description: Analysis of large-scale gene knockout/knockdown screens. 
- Preprocess large date-table, normalize your data and analyse using state-of-the-art
- techniques. Do meta-analyses and diffuse hit genes using network propagation.
+Description: `knockout` does analysis of large-scale gene knockout/knockdown screens.
+ For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented.
+ On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*.
+ The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
+ Eventually hits can be analyses using GSEA, etc.
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1
@@ -37,8 +39,10 @@ Imports: dplyr,
     parallel,
     doParallel,
     methods,
-    RankAggreg
-Suggests: testthat, lintr,
+    RankAggreg,
+    diffusr
+Suggests: testthat,
+    lintr,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
