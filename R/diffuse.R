@@ -34,18 +34,21 @@ diffuse.svd.prioritized.pmm <- function(obj,
 #' @import data.table igraph
 .diffuse.lmm <- function(obj, method, graph, ...)
 {
+  # TODO: include diffusr package
   switch(method,
          "neighbors"= .diffuse.lmm.knn(obj, graph, ...),
          "mrw"      = .diffuse.lmm.mrw(obj, graph, ...),
          stop("No suitable method found"))
 }
 
+#' @noRd
 #' @import data.table
 .diffuse.lmm.mrw <- function(obj, graph, ...)
 {
   .diffuse.lmm.mrw.pathogen.wise(obj, graph, ...)
 }
 
+#' @noRd
 #' @import data.table igraph
 #' @import foreach parallel doParallel
 #' @import Matrix
@@ -92,14 +95,14 @@ diffuse.svd.prioritized.pmm <- function(obj,
   invisible(nei.tab)
 }
 
-
-
+#' @noRd
 #' @import data.table
 .diffuse.lmm.knn <- function(obj, graph, ...)
 {
   .diffuse.lmm.knn.pathogen.wise(obj, graph, ...)
 }
 
+#' @noRd
 #' @import data.table igraph
 #' @import foreach parallel doParallel
 #' @importFrom iterators iter

@@ -7,29 +7,13 @@
 #' @param path  path (or file) to the target-relation matrices
 #' @param drop  drops all genes that are not found in ervery screen
 #' @param ... additional arguments
-correct <-
-function
-(
-  obj,
-  path,
-  drop,
-  ...
-)
-{
-  UseMethod("correct")
-}
+correct <- function(obj, path, drop, ...) UseMethod("correct")
+
 
 #' @noRd
 #' @export
 #' @import data.table
-correct.svd.data <-
-function
-(
-  obj,
-  path,
-  drop,
-  ...
-)
+correct.svd.data <- function(obj, path, drop, ...)
 {
   if (missing(path))
       stop(paste("Please provide the path to your target-relation matrices",
@@ -196,9 +180,6 @@ function
 #' @importFrom gespeR TargetRelations
 .load.rds <- function(path)
 {
-  s <- readRDS(path)
   rel.mat <- gespeR::TargetRelations(path)
   invisible(rel.mat)
 }
-
-

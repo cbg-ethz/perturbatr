@@ -4,27 +4,14 @@
 #'
 #' @param obj  the object for which you want to have the readout matrix
 #' @param ...  additional params
-readout.matrix <-
-function
-(
-  obj,
-  ...
-)
-{
-  UseMethod("readout.matrix")
-}
+readout.matrix <- function(obj, ...) UseMethod("readout.matrix")
 
 #' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
-readout.matrix.svd.plate <-
-function
-(
-  obj,
-  ...
-)
+readout.matrix.svd.plate <- function(obj, ...)
 {
   col.size <- max(obj$ColIdx)
   row.size <- max(obj$RowIdx)
@@ -57,27 +44,14 @@ function
 #'
 #' @param obj  an object for which the replicates should be retrieved
 #' @param ...  additional params
-replicates <-
-function
-(
-  obj,
-  ...
-)
-{
-  UseMethod("replicates", obj)
-}
+replicates <- function(obj, ...) UseMethod("replicates", obj)
 
 #' @noRd
 #' @export
 #'
 #' @import data.table
 #' @importFrom dplyr filter
-replicates.svd.raw <-
-function
-(
-  obj,
-  ...
-)
+replicates.svd.raw <- function(obj, ...)
 {
   obj <- dplyr::filter(obj, ReadoutClass=="Readout") %>%
     as.data.table
@@ -89,12 +63,7 @@ function
 #'
 #' @import data.table
 #' @importFrom dplyr filter
-replicates.svd.data <-
-function
-(
-  obj,
-  ...
-)
+replicates.svd.data <- function(obj, ...)
 {
   g <-
     dplyr::group_indices(obj, Virus, Screen, Replicate,
@@ -103,13 +72,6 @@ function
     as.data.table
   rep.frame <- obj
   rep.frame$grp <- g
-  #
-  # TODO change back
-  # dplyr::group_by(obj, Virus, Screen, Replicate, Plate,
-  #                ReadoutType, InfectionType) %>%
-  # dplyr::mutate(grp = .GRP) %>%
-  #    dplyr::mutate(obj, ) %>%
-  #   ungroup
   grps <- unique(rep.frame$grp)
   ret <- lapply(grps, function(i)
   {
@@ -127,27 +89,14 @@ function
 #'
 #' @param obj  an object for which the plates are going to be retrieved
 #' @param ...  additional params
-plates <-
-function
-(
-  obj,
-  ...
-)
-{
-  UseMethod("plates", obj)
-}
+plates <- function(obj, ...) UseMethod("plates", obj)
 
 #' @noRd
 #' @export
 #'
 #' @import data.table
 #' @importFrom dplyr filter
-plates.svd.raw <-
-function
-(
-  obj,
-  ...
-)
+plates.svd.raw <- function(obj, ...)
 {
   obj <- dplyr::filter(obj, ReadoutClass=="Readout") %>%
     as.data.table
@@ -163,12 +112,7 @@ function
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_indices
-plates.svd.data <-
-function
-(
-  obj,
-  ...
-)
+plates.svd.data <- function(obj, ...)
 {
   g <-
     dplyr::group_indices(obj, Virus, Screen, Replicate, Plate,
@@ -176,13 +120,6 @@ function
     as.data.table
   plate.frame <- obj
   plate.frame$grp <- g
-  #
-  # TODO change back
-  # dplyr::group_by(obj, Virus, Screen, Replicate, Plate,
-  #                ReadoutType, InfectionType) %>%
-  # dplyr::mutate(grp = .GRP) %>%
-  # dplyr::mutate(obj, ) %>%
-  # ungroup
   grps <- unique(plate.frame$grp)
   plates <- lapply(grps, function(i)
   {
@@ -218,11 +155,7 @@ function(arr, sep, col)
 
 #' @noRd
 #' @importFrom stats median
-.summarization.method <-
-function
-(
-  summ.method
-)
+.summarization.method <- function(summ.method)
 {
     f <- switch(as.character(summ.method),
                 "mean"=base::mean,
@@ -270,12 +203,7 @@ setMethod(
 #' @noRd
 #'
 #' @importFrom data.table melt
-concordance.default <-
-function
-(
-  obj,
-  ...
-)
+concordance.default <- function(obj, ...)
 {
   oo.m <- matrix(0, length(obj), length(obj))
   jac.m <- matrix(0, length(obj), length(obj))
@@ -314,12 +242,7 @@ drop <- function(obj, ...) UseMethod("drop")
 
 #' @noRd
 #' @export
-drop.svd.data <-
-function
-(
-  obj,
-  ...
-)
+drop.svd.data <- function(obj, ...)
 {
   cls <- colnames(obj)
   ret <- obj
@@ -341,7 +264,6 @@ function
 #' @param ...  additional parameters
 cor <- function(x, y, method = c("pearson", "kendall", "spearman"), ...)
   UseMethod("cor")
-
 
 #' @noRd
 #' @export
@@ -390,12 +312,7 @@ effect.matrices <- function(obj, ...) UseMethod("effect.matrices")
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter select
-effect.matrices.svd.prioritized.pmm <-
-function
-(
-  obj,
-  ...
-)
+effect.matrices.svd.prioritized.pmm <- function(obj, ...)
 {
   gene.hits <- data.table::as.data.table(obj$res$all.virus.results) %>%
     .[order(abs(Effect), decreasing=T)]

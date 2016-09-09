@@ -8,12 +8,7 @@ as.svd.data <- function(obj, ...) UseMethod("as.svd.data")
 
 #' @export
 #' @noRd
-as.svd.data.data.table <-
-function
-(
-  obj,
-  ...
-)
+as.svd.data.data.table <- function(obj, ...)
 {
   class(obj) <- c("svd.data", class(obj))
   invisible(obj)
