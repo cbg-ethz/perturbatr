@@ -44,7 +44,7 @@ readout.matrix.svd.plate <- function(obj, ...)
 #'
 #' @param obj  an object for which the replicates should be retrieved
 #' @param ...  additional params
-replicates <- function(obj, ...) UseMethod("replicates", obj)
+replicates <- function(obj, ...) UseMethod("replicates")
 
 #' @noRd
 #' @export
