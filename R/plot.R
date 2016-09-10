@@ -1,41 +1,26 @@
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom graphics hist
-hist.svd.plate <-
-function
-(
-  x,
-  ...
-)
+#' @method hist svd.plate
+hist.svd.plate <- function(x,  ...)
 {
   .hist(x, ...)
 }
 
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
-hist.svd.raw <-
-function
-(
-  x,
-  ...
-)
+#' @method hist svd.raw
+hist.svd.raw <- function(x,  ...)
 {
   ret <- dplyr::filter(x, ReadoutClass=="Readout")
   .hist(ret, ...)
 }
 
-#' @noRd
 #' @export
 #' @import data.table
-hist.svd.data <-
-function
-(
-  x,
-  ...
-)
+#' @method hist svd.data
+hist.svd.data <- function(x,  ...)
 {
  .hist(x, ...)
 }
@@ -43,12 +28,7 @@ function
 #' @noRd
 #' @import ggplot2
 #' @import data.table
-.hist <-
-function
-(
-  x,
-  ...
-)
+.hist <- function(x,  ...)
 {
   df <- data.frame(x=x$Readout)
   pl <- ggplot2::ggplot(df) +
@@ -62,31 +42,23 @@ function
   pl
 }
 
-
-#' @noRd
 #' @export
-#'
 #' @import data.table
-plot.svd.raw <-  function(x, y, ...)
+#' @method plot svd.raw
+plot.svd.raw <- function(x, y, ...)
 {
   x <- dplyr::filter(x, ReadoutClass=="Readout")
   plot.svd.data(x, ...)
 }
 
-#' @noRd
 #' @export
 #' @import ggplot2
 #' @import data.table
-#'
 #' @importFrom dplyr summarize
 #' @importFrom dplyr group_by
 #' @importFrom tidyr gather
-plot.svd.data <-
-function
-(
-  x,
-  ...
-)
+#' @method plot svd.data
+plot.svd.data <- function(x, y, ...)
 {
   numb.frame <-
     dplyr::group_by(x, Virus, Screen) %>%
@@ -105,17 +77,13 @@ function
   pl
 }
 
-#' @noRd
+
 #' @export
 #' @import ggplot2
 #' @import data.table
 #' @importFrom RColorBrewer brewer.pal
-plot.svd.concordance <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.concordance
+plot.svd.concordance <- function(x, y, ...)
 {
   params <- list(...)
   type <- ifelse(hasArg(type), params$type, "jaccard")
@@ -151,18 +119,12 @@ function
   pl
 }
 
-#' @noRd
 #' @export
-#'
 #' @import data.table
 #' @import ggplot2
 #' @importFrom stats cor
-plot.svd.replicates <-
-  function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.replicates
+plot.svd.replicates <- function(x, y, ...)
 {
   params <- list(...)
   meth <- ifelse(hasArg(method), params$method, "raw")
@@ -209,17 +171,11 @@ plot.svd.replicates <-
   pl
 }
 
-#' @noRd
 #' @export
-#'
 #' @import data.table
 #' @import ggplot2
-plot.svd.replicate <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.replicate
+plot.svd.replicate <- function(x, y, ...)
 {
   params <- list(...)
   if (missing(x) | missing(y)) stop("Please provide two arguments (x and y)!")
@@ -247,17 +203,11 @@ function
 }
 
 
-#' @noRd
 #' @export
-#'
 #' @import data.table
 #' @importFrom graphics par
-plot.svd.plates <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.plates
+plot.svd.plates <- function(x, y, ...)
 {
   params <- list(...)
   count <- ifelse(hasArg(count), params$count, NA)
@@ -290,17 +240,12 @@ function
   graphics::par(ask=F)
 }
 
-#' @noRd
 #' @export
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr full_join
-plot.svd.plate <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.plate
+plot.svd.plate <- function(x, y, ...)
 {
   params <- list(...)
   show.controls <- ifelse(hasArg(show.controls) &
@@ -346,20 +291,13 @@ function
   pl
 }
 
-#' Plot the quality scores
-#'
-#' @noRd
 #' @export
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr select mutate group_indices filter summarize group_by
 #' @importFrom tidyr gather
-plot.svd.quality <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.quality
+plot.svd.quality <- function(x, y, ...)
 {
   # plot the raw plate values as boxplot
   qual <- x$data
@@ -431,23 +369,15 @@ function
                                            "Positive control")) +
     ggplot2::ggtitle("Plate controls")
 
-  svd:::.multiplot(pl, pl2, pl3, pl4,  cols=2)
+  .multiplot(pl, pl2, pl3, pl4,  cols=2)
 }
 
-#' Plot a barplot showing the number of hits for every virus
-#'
-#' @noRd
 #' @export
 #' @import data.table
 #' @import ggplot2
-#'
 #' @importFrom dplyr group_by summarize mutate
-plot.svd.prioritized.pmm.single.virus.result <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.prioritized.pmm.single.virus.result
+plot.svd.prioritized.pmm.single.virus.result <- function(x, y, ...)
 {
   single.res <- do.call("rbind", lapply(x, function(i) i))
   single.res$Virus <-
@@ -475,19 +405,12 @@ function
   pl
 }
 
-#' Plot a barplot showing the first 25 hits of an integrated PMM screen
-#'
-#' @noRd
 #' @export
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr filter
-plot.svd.prioritized.pmm <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.prioritized.pmm
+plot.svd.prioritized.pmm <- function(x, y, ...)
 {
   gen.pat <- x$gene.pathogen.effect.hits
   pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects")
@@ -522,46 +445,26 @@ function
   pl
 }
 
-#' Plot a barplot showing the 25 hits of the hypergeometric prioritization
-#'
-#' @noRd
 #' @export
 #' @import data.table
-plot.svd.prioritized.hyper <-
-  function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.prioritized.hyper
+plot.svd.prioritized.hyper <- function(x, y, ...)
 {
   .plot.svd.prioritized(x, ...)
 }
 
-#' Plot a barplot showing the first 25 hits of the tt prioritization
-#'
-#' @noRd
 #' @export
 #' @import data.table
-plot.svd.prioritized.tt <-
-  function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.prioritized.tt
+plot.svd.prioritized.tt <- function(x, y, ...)
 {
   .plot.svd.prioritized(x, ...)
 }
 
-#' @noRd
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr group_by summarize mutate filter
-.plot.svd.prioritized <-
-function
-(
-  x,
-  ...
-)
+.plot.svd.prioritized <- function(x, ...)
 {
   x <- x[order(abs(MeanEffect), decreasing=T), .SD[1:25]] %>%
     dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect))
@@ -580,22 +483,14 @@ function
   pl
 }
 
-#' Plots the the found genes and their cpg values in matrix form
-#'
-#' @noRd
 #' @export
-#'
 #' @import data.table
 #' @import ggplot2
-#'
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom tidyr gather
-plot.svd.prioritized.pmm.single.gene.matrices <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.prioritized.pmm.single.gene.matrices
+plot.svd.prioritized.pmm.single.gene.matrices <- function(x, y, ...)
+
 {
   params <- list(...)
   size <- ifelse(hasArg(size), params$size, 14)
@@ -624,19 +519,10 @@ function
   pl
 }
 
-#' Plots the densities of the mixture and the
-#' null genes and the histogram of the non-null genes
-#'
-#' @noRd
 #' @export
-#'
 #' @import ggplot2
-plot.svd.pmm.fdr <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.pmm.fdr
+plot.svd.pmm.fdr <- function(x, y, ...)
 {
   hits <- x$hist.dat
   # the values used for estimation of the densities (f0 and f1)
@@ -662,18 +548,12 @@ function
   pl
 }
 
-#' Plots an volcano-plot of the FDR vs readouts
-#'
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
-plot.svd.analysed.pmm <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.analysed.pmm
+#' @method plot svd.analysed.pmm
+plot.svd.analysed.pmm <- function(x, y, ...)
 {
   params  <- list(...)
   sig.thresh     <- ifelse(hasArg(sig.thresh), params$fdr.thresh, .2)
@@ -700,18 +580,11 @@ function
                      yl=yl)
 }
 
-#' Plots an volcano-plot of the p-value vs readouts
-#'
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
-plot.svd.analysed <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.analysed.pmm
+plot.svd.analysed <- function(x, y, ...)
 {
   params  <- list(...)
   sig.thresh     <- ifelse(hasArg(sig.thresh), params$sig.thresh, 0.0)
@@ -738,17 +611,9 @@ function
 
 #' @noRd
 #' @import ggplot2
-.plot.svd.analysed <-
-function
-(
-  x, y,
-  ctrls,
-  genes,
-  readout.thresh,
-  sig.thresh,
-  xl, yl,
-  ...
-)
+.plot.svd.analysed <- function(x, y, ctrls, genes,
+                               readout.thresh, sig.thresh,
+                               xl, yl, ...)
 {
   colors <- rep("grey", length(ctrls))
   colors[abs(x) >= readout.thresh & y < sig.thresh] <- "blue"
@@ -816,22 +681,13 @@ function
   pl
 }
 
-#' Plots the data used for modelling of the PMM as an nice overview
-#'
-#' @noRd
 #' @export
-#'
 #' @import data.table
 #' @import ggplot2
 #' @import grid
-#'
 #' @importFrom RColorBrewer brewer.pal
-plot.svd.analysed.pmm.model.data <-
-function
-(
-  x, y,
-  ...
-)
+#' @method plot svd.analysed.pmm.model.data
+plot.svd.analysed.pmm.model.data <- function(x, y, ...)
 {
   params <- list(...)
   size <- ifelse(hasArg(size), params$size, 14)
@@ -857,14 +713,11 @@ function
   .multiplot(p1, p2)
 }
 
-#' Plots the graph of network diffusion using 1-NN
-#'
-#' @noRd
 #' @export
-#'
 #' @import data.table
 #' @import igraph
 #' @importFrom graphics plot legend
+#' @method plot svd.diffused.pmm
 plot.svd.diffused.pmm <- function(x, y, ...)
 {
    obj <- x$graph.info$graph
@@ -896,20 +749,11 @@ plot.svd.diffused.pmm <- function(x, y, ...)
    par(op)
 }
 
-#' Plots several plots in one
-#'
 #' @noRd
 #' @import grid
-.multiplot <-
-  function
-(
-  ...,
-  plotlist=NULL,
-  cols=2,
-  layout=NULL
-)
+.multiplot <- function(..., plotlist=NULL, cols=2, layout=NULL)
 {
-  plots <- c(list(...), plotlist)
+  plots <- c(..., plotlist)
   numPlots <- length(plots)
   if (is.null(layout)) {
     layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
@@ -928,4 +772,3 @@ plot.svd.diffused.pmm <- function(x, y, ...)
     }
   }
 }
-

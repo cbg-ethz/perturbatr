@@ -1,23 +1,17 @@
-#' @noRd
 #' @export
 #' @import data.table
-print.svd.plates    <- function(x, ...) .print.svd.list(x, ...)
+#' @method print svd.plates
+print.svd.plates <- function(x, ...) .print.svd.list(x, ...)
 
-#' @noRd
 #' @export
 #' @import data.table
+#' @method print svd.replicates
 print.svd.replicates <- function(x, ...) .print.svd.list(x, ...)
 
 #' @noRd
-#' @export
 #' @import data.table
 #' @importFrom utils str
-.print.svd.list <-
-  function
-(
-  x,
-  ...
-)
+.print.svd.list <- function(x, ...)
 {
   if (base::length(x) != 0)
   {
@@ -28,16 +22,11 @@ print.svd.replicates <- function(x, ...) .print.svd.list(x, ...)
   else return("Empty list!\n")
 }
 
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr group_by summarize as.tbl
-print.svd.data <-
-function
-(
-  x,
-  ...
-)
+#' @method print svd.data
+print.svd.data <- function(x, ...)
 {
   if (nrow(x) != 0)
   {
@@ -47,22 +36,17 @@ function
       dplyr::summarize(Plates=max(Plate), Wells=(max(ColIdx)*max(RowIdx))) %>%
       ungroup
     base::cat("Printing data overview!\n")
-    base::print(data.table:::print.data.table(ret))
+    base::print(data.table::as.data.table(ret))
   }
   base::cat("\n\nPrinting data!\n")
-  base::print(data.table:::print.data.table(x))
+  base::print(data.table::as.data.table(x))
 }
 
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr group_by summarize filter
-print.svd.raw <-
-function
-(
-  x,
-  ...
-)
+#' @method print svd.raw
+print.svd.raw <- function(x, ...)
 {
   cat("Filtering by 'readout', hiding 'viability'!\n\n")
   ret <-
@@ -70,16 +54,11 @@ function
   return(print.svd.data(ret))
 }
 
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr group_by summarize as.tbl
-print.svd.analysed.hyper <-
-function
-(
-  x,
-  ...
-)
+#' @method print svd.analysed.hyper
+print.svd.analysed.hyper <- function(x,  ...)
 {
   ret <-
     dplyr::group_by(x, Virus, Screen, InfectionType, ReadoutType,
@@ -87,76 +66,64 @@ function
     dplyr::summarize(siRNAIDs=n()) %>%
     ungroup
   base::cat("Printing data overview!\n")
-  base::print(data.table:::print.data.table(ret))
+  base::print(data.table::as.data.table(ret))
   cat("\n\nPrinting data!\n")
-  base::print(data.table:::print.data.table(x))
+  base::print(data.table::as.data.table(x))
 }
 
-#' @noRd
+
+
 #' @export
 #' @import data.table
 #' @importFrom dplyr group_by summarize as.tbl
-print.svd.analysed.pmm <-
-function
-(
-  x,
-  ...
-)
+#' @method print svd.analysed.pmm
+print.svd.analysed.pmm <- function(x, ...)
 {
   ret <- x$gene.pathogen.effects %>%
     dplyr::group_by(Virus) %>%
     dplyr::summarize(GenesCount=n()) %>%
     ungroup
   cat("Printing data overview for gene-pathogen effects!\n")
-  print(data.table:::print.data.table(ret))
+  print(data.table::as.data.table(ret))
   cat("\n\nPrinting data for gene-pathogen effects!\n")
-  print(data.table:::print.data.table(x$gene.pathogen.effects))
+  print(data.table::as.data.table(x$gene.pathogen.effects))
 }
 
-#' @noRd
 #' @export
 #' @import data.table
+#' @method print svd.prioritized.hyper
 print.svd.prioritized.hyper <- function(x, ...) .print.svd.prioritized(x, ...)
 
-#' @noRd
+
 #' @export
 #' @import data.table
+#' @method print svd.prioritized.tt
 print.svd.prioritized.tt <- function(x, ...) .print.svd.prioritized(x, ...)
 
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
-print.svd.prioritized.pmm <-
-function
-(
-  x,
- ...
-)
+#' @method print svd.prioritized.pmm
+print.svd.prioritized.pmm <- function(x, ...)
 {
   ret <-
     x$gene.pathogen.effect.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]],
       by=c("Virus")] %>%
     dplyr::filter(!is.na(GeneSymbol))
   cat("Printing data overview for virus-gene effects!\n")
-  print(data.table:::print.data.table(ret))
+  print(data.table::as.data.table(ret))
   ret <-
     x$gene.effect.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]]] %>%
     dplyr::filter(!is.na(GeneSymbol))
   cat("Printing data overview for gene effects!\n")
-  print(data.table:::print.data.table(ret))
+  print(data.table::as.data.table(ret))
   return
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by filter filter
-.print.svd.prioritized <-
-function
-(
-  x,
-  ...
-)
+.print.svd.prioritized <- function(x, ...)
 {
   ret <-
     x[, .SD[order(abs(MeanEffect), decreasing=T)[1:25]],
@@ -164,25 +131,20 @@ function
            "Library", "Design", "Cell")] %>%
     dplyr::filter(!is.na(GeneSymbol))
   cat("Printing data overview for!\n")
-  print(data.table:::print.data.table(ret))
+  print(data.table::as.data.table(ret))
   return
 }
 
-#' @noRd
 #' @export
 #' @import data.table
-print.svd.quality <-
-function
-(
-  x,
-  ...
-)
+#' @method print svd.quality
+print.svd.quality <- function(x, ...)
 {
   q <- x$quality
   cat("Plate quality:\n")
-  print(data.table:::print.data.table(q$plate.quality))
+  print(data.table::as.data.table(q$plate.quality))
   cat("Replicate quality:\n")
-  print(data.table:::print.data.table(q$replicate.quality))
+  print(data.table::as.data.table(q$replicate.quality))
   cat("Screen quality:\n")
-  print(data.table:::print.data.table(q$screen.quality))
+  print(data.table::as.data.table(q$screen.quality))
 }
