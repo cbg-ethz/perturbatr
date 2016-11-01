@@ -27,14 +27,10 @@
 #'  \itemize{
 #'  \item{\emph{hit.ratio} }{ the ratio of siRNAs hits such that a gene counts as hit}
 #'  \item{\emph{readout.thresh} }{ the mean readout threshold for all the siRNAs}
-#'  \item{\emph{p.value.thresh} }{ does a log transformation}
+#'  \item{\emph{p.value.thresh} }{ p.value threshold for hit selection}
+#'  \item{\emph{fdr.threshold} }{ fdr.threshold}
 #' }
-prioritize <-
-function
-(
-  obj,
-  ...
-)
+prioritize <- function(obj, ...)
 {
   UseMethod("prioritize", obj)
 }
@@ -42,12 +38,7 @@ function
 #' @noRd
 #' @export
 #' @import data.table
-prioritize.svd.analysed.tt <-
-function
-(
-  obj,
-  ...
-)
+prioritize.svd.analysed.tt <- function(obj, ...)
 {
   res <- .select.hits.tt(obj, ...)
   class(res) <- c("svd.prioritized.tt", "svd.prioritized", class(res))
@@ -57,12 +48,7 @@ function
 #' @noRd
 #' @export
 #' @import data.table
-prioritize.svd.analysed.hyper <-
-function
-(
-  obj,
-  ...
-)
+prioritize.svd.analysed.hyper <- function(obj, ...)
 {
   res <- .select.hits.hyper(obj, ...)
   class(res) <- c("svd.prioritized.hyper", "svd.prioritized", class(res))
@@ -72,16 +58,12 @@ function
 #' @noRd
 #' @export
 #' @import data.table
-prioritize.svd.analysed.pmm <-
-function
-(
-  obj,
-  ...
-)
+prioritize.svd.analysed.pmm <- function(obj, ...)
 {
   pars <- list(...)
   hit.meth <- ifelse(hasArg(method), pars$method, "abs")
-  res <- .select.hits.pmm(obj, hit.meth, ...)
+  fdrt <- ifelse(hasArg(fdr.threshold), pars$fdr.threshold, .2)
+  res <- .select.hits.pmm(obj, hit.meth, fdrt)
   class(res) <- c("svd.prioritized.pmm", "svd.prioritized", class(res))
   invisible(res)
 }
@@ -89,12 +71,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by summarize ungroup filter select mutate
-.select.hits.tt <-
-function
-(
-  obj,
-  ...
-)
+.select.hits.tt <- function(obj, ...)
 {
   # TODO here: what do do with multiple sirnas? same hit criterion as in hyper
   params <- list(...)
@@ -126,12 +103,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by summarize ungroup filter select
-.select.hits.hyper <-
-function
-(
-  obj,
-  ...
-)
+.select.hits.hyper <- function(obj, ...)
 {
   params <- list(...)
   hit.rat      <- ifelse(hasArg(hit.ratio), params$hit.ratio, 0.5)
@@ -150,16 +122,8 @@ function
 
 #' @noRd
 #' @import data.table
-.select.hits.pmm <-
-function
-(
-  obj,
-  method=c("min.fdr", "abs"),
-  ...
-)
+.select.hits.pmm <- function(obj, method=c("min.fdr", "abs"), fdr.threshold=.2)
 {
-  params <- list(...)
-  fdr.threshold <- ifelse(hasArg(fdr.threshold), params$fdr.threshold, 0.2)
   switch(match.arg(method),
          "abs"=.select.hits.pmm.abs(obj, fdr.threshold),
          "min.fdr"=.select.hits.pmm.min.fdr(obj, fdr.threshold))
@@ -174,10 +138,10 @@ function
                 " for gene-pathogen effects and 'abs' for gene effects.",
                 sep=""))
   gpes <- obj$gene.pathogen.effects
-  gene.pathogen.results <- gpes %>%
+  gene.pathogen.results <-
+    gpes %>%
     dplyr::filter(FDR <= fdr.threshold)
-  gene.effect.results <- obj$gene.effects %>%
-    .[order(-abs(Effect))]
+  gene.effect.results <- obj$gene.effects %>% .[order(-abs(Effect))]
   res <- list(gene.pathogen.effect.hits=gene.pathogen.results,
               gene.effect.hits=gene.effect.results)
   res
@@ -186,12 +150,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter select group_by mutate summarize full_join
-.select.hits.pmm.min.fdr <-
-function
-(
-  obj,
-  fdr.threshold
-)
+.select.hits.pmm.min.fdr <- function(obj, fdr.threshold)
 {
   params <- list(...)
   message(paste("Prioritizing on fdr.threshold ", fdr.threshold,

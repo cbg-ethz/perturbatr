@@ -437,7 +437,7 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   pl2 <-
     .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects") +
     ggplot2::facet_wrap(~ Virus, ncol=length(unique(gen.pat$Virus))/2)
-  pl3 <- .multiplot(pl, pl2, cols=2)
+  pl3 <- .multiplot(plotlist=list(pl, pl2), cols=2)
   pl3
 }
 
@@ -730,7 +730,7 @@ plot.svd.analysed.pmm.model.data <- function(x, y, ...)
     ggplot2::scale_fill_manual(values=LDcolors) +
     ggplot2::theme_bw()
 
-  .multiplot(p1, p2)
+  .multiplot(plotlist=list(p1, p2))
 }
 
 #' @export
@@ -785,7 +785,8 @@ plot.svd.diffused.pmm <- function(x, y, ...)
     grid::grid.newpage()
     grid::pushViewport(
       grid::viewport(layout = grid::grid.layout(nrow(layout), ncol(layout))))
-    for (i in 1:numPlots) {
+    for (i in 1:numPlots)
+    {
       matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
       print(plots[[i]], vp = grid::viewport(layout.pos.row = matchidx$row,
                                             layout.pos.col = matchidx$col))

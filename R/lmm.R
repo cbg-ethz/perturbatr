@@ -51,9 +51,9 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 #' @importFrom dplyr select
 .lmm <- function(obj, drop, weights=NULL, rel.mat.path=NULL, ...)
 {
-  params <- base::list(...)
-  ignore <- base::ifelse(hasArg(ignore) &&
-                           is.numeric(params$ignore), params$ignore, 1)
+  params <- list(...)
+  ignore <- ifelse(hasArg(ignore) &&is.numeric(params$ignore),
+                   params$ignore, 1)
   # init the data table for the LMM
   model.data <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
   # save gene control mappings
@@ -61,11 +61,17 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
     dplyr::select(model.data, GeneSymbol, Control) %>%
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
+  mult.gen.cnt <- (gene.control.map %>% group_by(GeneSymbol) %>%
+                     mutate(cnt=n()))$cnt %>% unique
+  if (length(mult.gen.cnt) != 1)
+  {
+    warning("Found multiple gene-control entries for several genes,
+            i.e. several genes are both control and not control!")
+  }
   # fit the LMM
   fit.lmm <-
     lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol),
-               data = model.data, weights = model.data$Weight,
-               verbose = FALSE)
+               data = model.data, weights = model.data$Weight, verbose = F)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
   ag <- data.table::data.table(
@@ -85,16 +91,11 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   fdrs <- .fdr(ccg)
   # finalize output and return as list
   gene.effects <- dplyr::full_join(ag, gene.control.map,  by="GeneSymbol")
-  gene.pathogen.effects <- dplyr::full_join(
-    fdrs$gene.pathogen.matrix,
-    gene.control.map,
-    by="GeneSymbol"
-  )
-  ret <- base::list(
-    gene.effects=gene.effects,
-    gene.pathogen.effects=gene.pathogen.effects,
-    model.data=model.data,
-    fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
+  # set together the gene/fdr/effects and the mappings
+  gene.path.effs <- dplyr::full_join(fdrs$gene.pathogen.matrix,
+                                     gene.control.map, by="GeneSymbol")
+  ret <- list(gene.effects=gene.effects, gene.pathogen.effects=gene.path.effs,
+    model.data=model.data, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
   invisible(ret)
 }
 
@@ -186,6 +187,8 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   invisible(pmm.mat)
 }
 
+#' Create the local false discovery rates for all viruses
+#'
 #' @noRd
 #' @importFrom stats reshape
 #' @importFrom stats na.omit
