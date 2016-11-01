@@ -41,16 +41,32 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
 #' @export
 #' @import data.table
 #' @import ggplot2
+# knockout: analysis of high-throughput gene perturbation screens
+#
+# Copyright (C) 2015 - 2016 Simon Dirmeier
+#
+# This file is part of knockout
+#
+# knockout is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# knockout is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with knockout. If not, see <http://www.gnu.org/licenses/>.
+
+#' @export
 #' @importFrom dplyr group_by summarize mutate
 #' @method plot svd.prioritized.pmm.single.virus.result
-plot.svd.prioritized.pmm.single.virus.result <- function(x, y, ...)
+plot.svd.prioritized.pmm.gene.pathogen.hits <- function(x, y, ...)
 {
-  single.res <- do.call("rbind", lapply(x, function(i) i))
-  single.res$Virus <-
-    unname(unlist(sapply(rownames(single.res),
-                         function(e) sub(".[[:digit:]]+", "", e))))
   single.res <-
-    dplyr::group_by(single.res, Virus, Sign=sign(Effect)) %>%
+    dplyr::group_by(x, Virus, Sign=sign(Effect)) %>%
     dplyr::summarize(cnt=n()) %>%
     ungroup %>%
     dplyr::mutate(Count=cnt*Sign)
@@ -67,11 +83,9 @@ plot.svd.prioritized.pmm.single.virus.result <- function(x, y, ...)
     ggplot2::ylab("Count hits") +
     ggplot2::geom_text(aes(x=Virus, y=ifelse(Count>0, Count+1, Count-1),
                            label=abs(Count)), size=5, colour="black")
-
   pl
 }
 
-#' @export
 #' @import data.table
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal
@@ -79,6 +93,9 @@ plot.svd.prioritized.pmm.single.virus.result <- function(x, y, ...)
 #' @method plot svd.prioritized.pmm.single.gene.matrices
 plot.svd.prioritized.pmm.single.gene.matrices <- function(x, y, ...)
 {
+  # plot the cool matrix here from the PMM paper
+  # and similar matrices
+  # use two columns: lefft column result of gene, right column matrix of gene hits in colors of gene-pathogen hits
   params <- list(...)
   size <- ifelse(hasArg(size), params$size, 14)
   dat <- tidyr::gather(x$cpg.mat, Virus, Effect, 2:5)

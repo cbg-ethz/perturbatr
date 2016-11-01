@@ -64,7 +64,11 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
   hit.meth <- ifelse(hasArg(method), pars$method, "abs")
   fdrt <- ifelse(hasArg(fdr.threshold), pars$fdr.threshold, .2)
   res <- .select.hits.pmm(obj, hit.meth, fdrt)
+  class(res$gene.pathogen.effect.hits) <-
+    c("svd.prioritized.pmm.gene.pathogen.hits",
+      class(res$gene.pathogen.effect.hits))
   class(res) <- c("svd.prioritized.pmm", "svd.prioritized", class(res))
+  res$fit <- obj
   invisible(res)
 }
 

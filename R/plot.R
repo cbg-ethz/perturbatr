@@ -19,51 +19,6 @@
 
 #' @export
 #' @import data.table
-#' @importFrom graphics hist
-#' @method hist svd.plate
-hist.svd.plate <- function(x,  ...)
-{
-  .hist(x, ...)
-}
-
-#' @export
-#' @import data.table
-#' @importFrom dplyr filter
-#' @method hist svd.raw
-hist.svd.raw <- function(x,  ...)
-{
-  ret <- dplyr::filter(x, ReadoutClass=="Readout")
-  .hist(ret, ...)
-}
-
-#' @export
-#' @import data.table
-#' @method hist svd.data
-hist.svd.data <- function(x,  ...)
-{
- .hist(x, ...)
-}
-
-
-#' @noRd
-#' @import ggplot2
-#' @import data.table
-.hist <- function(x,  ...)
-{
-  df <- data.frame(x=x$Readout)
-  pl <- ggplot2::ggplot(df) +
-    ggplot2::geom_histogram(aes(x=x, y=..density..),
-                            alpha=.15, position="identity", bins=42) +
-    ggplot2::geom_density(aes(x)) +
-    theme_bw() +
-    theme(text = element_text(size = 14, family = "Helvetica")) +
-    xlab("Readout") +
-    ylab("Density")
-  pl
-}
-
-#' @export
-#' @import data.table
 #' @method plot svd.raw
 plot.svd.raw <- function(x, y, ...)
 {
