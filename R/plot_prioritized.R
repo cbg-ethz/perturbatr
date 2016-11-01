@@ -1,3 +1,22 @@
+# knockout: analysis of high-throughput gene perturbation screens
+#
+# Copyright (C) 2015 - 2016 Simon Dirmeier
+#
+# This file is part of knockout
+#
+# knockout is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# knockout is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with knockout. If not, see <http://www.gnu.org/licenses/>.
+
 #' @export
 #' @import ggplot2
 #' @import data.table
@@ -9,7 +28,7 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects")
   pl2 <-
     .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects") +
-    ggplot2::facet_wrap(~ Virus, ncol=length(unique(gen.pat$Virus))/2)
+    ggplot2::facet_wrap(. ~ Virus, ncol=length(unique(gen.pat$Virus))/2)
   pl3 <- .multiplot(plotlist=list(pl, pl2), cols=2)
   pl3
 }
@@ -38,35 +57,25 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   pl
 }
 
+#' Plot the hit counts of a PMM analysis for every virus as barplots
+#'
 #' @export
 #' @import data.table
-#' @import ggplot2
-# knockout: analysis of high-throughput gene perturbation screens
-#
-# Copyright (C) 2015 - 2016 Simon Dirmeier
-#
-# This file is part of knockout
-#
-# knockout is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# knockout is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with knockout. If not, see <http://www.gnu.org/licenses/>.
+#'
+#' @param x  an svd.prioritized.pmm object
+#' @param ...  additional parameters
+plot.pathogen.hit.counts <- function(x, ...)
+{
+  UseMethod("plot.pathogen.hit.counts")
+}
 
 #' @export
 #' @importFrom dplyr group_by summarize mutate
-#' @method plot svd.prioritized.pmm.gene.pathogen.hits
-plot.svd.prioritized.pmm.gene.pathogen.hits <- function(x, y, ...)
+plot.pathogen.hit.counts.svd.prioritized.pmm <- function(x, ...)
 {
+  obj <- x$gene.pathogen.effect.hits
   single.res <-
-    dplyr::group_by(x, Virus, Sign=sign(Effect)) %>%
+    dplyr::group_by(obj, Virus, Sign=sign(Effect)) %>%
     dplyr::summarize(cnt=n()) %>%
     ungroup %>%
     dplyr::mutate(Count=cnt*Sign)
@@ -86,12 +95,24 @@ plot.svd.prioritized.pmm.gene.pathogen.hits <- function(x, y, ...)
   pl
 }
 
+#' Plot the effects matrix of a PMM analysis
+#'
+#' @export
+#' @import data.table
+#'
+#' @param x  an svd.prioritized.pmm object
+#' @param ...  additional parameters
+plot.effect.matrix <- function(x, ...)
+{
+  UseMethod("plot.effect.matrix")
+}
+
 #' @import data.table
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom tidyr gather
 #' @method plot svd.prioritized.pmm.single.gene.matrices
-plot.svd.prioritized.pmm.single.gene.matrices <- function(x, y, ...)
+plot.effect.matrix.svd.prioritized.pmm <- function(x, ...)
 {
   # TODO:
   # plot the cool matrix here from the PMM paper

@@ -117,12 +117,12 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
     if (!is.null(weights$dharmacon))
     {
       wei.dhar <- weights$dharmacon
-      cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
+      message(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
     }
     if (!is.null(weights$ambion))
     {
       wei.am <- weights$ambion
-      cat(paste("Setting weights for Ambion library to", wei.am,"\n"))
+      message(paste("Setting weights for Ambion library to", wei.am,"\n"))
     }
   }
   # check if sirna-gene affinities are given
