@@ -71,7 +71,7 @@ function
   ignore <- base::ifelse(hasArg(ignore) &&
                            is.numeric(params$ignore), params$ignore, 1)
   # init the data table for the LMM
-  model.data <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.math)
+  model.data <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
   # save gene control mappings
   gene.control.map <-
     dplyr::select(model.data, GeneSymbol, Control) %>%
@@ -146,11 +146,10 @@ function
   }
   if (!is.null(rel.mat.path))
   {
+    # TODO: this is the
     cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
     rel.mat <- .load.rds(path)
-
   }
-
 
   pmm.mat <-
     dplyr::select(obj, Entrez, GeneSymbol, Virus,

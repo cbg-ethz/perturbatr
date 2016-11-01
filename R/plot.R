@@ -44,6 +44,7 @@ hist.svd.data <- function(x,  ...)
  .hist(x, ...)
 }
 
+
 #' @noRd
 #' @import ggplot2
 #' @import data.table
@@ -670,7 +671,7 @@ plot.svd.analysed <- function(x, y, ...)
     pl <- pl +
       ggplot2::geom_hline(yintercept=sig.thresh, alpha=.75, linetype="dashed") +
       ggplot2::geom_text(aes(xlim[1], sig.thresh,
-                             label = paste("Significance threshold:", sig.thresh),,
+                             label = paste("Significance threshold:", sig.thresh),
                              vjust = -.25, hjust=0), size = 4)
   if (readout.thresh > 0)
     pl <- pl +
