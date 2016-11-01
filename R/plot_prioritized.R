@@ -62,7 +62,7 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
 
 #' @export
 #' @importFrom dplyr group_by summarize mutate
-#' @method plot svd.prioritized.pmm.single.virus.result
+#' @method plot svd.prioritized.pmm.gene.pathogen.hits
 plot.svd.prioritized.pmm.gene.pathogen.hits <- function(x, y, ...)
 {
   single.res <-
@@ -93,6 +93,7 @@ plot.svd.prioritized.pmm.gene.pathogen.hits <- function(x, y, ...)
 #' @method plot svd.prioritized.pmm.single.gene.matrices
 plot.svd.prioritized.pmm.single.gene.matrices <- function(x, y, ...)
 {
+  # TODO:
   # plot the cool matrix here from the PMM paper
   # and similar matrices
   # use two columns: lefft column result of gene, right column matrix of gene hits in colors of gene-pathogen hits

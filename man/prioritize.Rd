@@ -13,7 +13,8 @@ prioritize(obj, ...)
  \itemize{
  \item{\emph{hit.ratio} }{ the ratio of siRNAs hits such that a gene counts as hit}
  \item{\emph{readout.thresh} }{ the mean readout threshold for all the siRNAs}
- \item{\emph{p.value.thresh} }{ does a log transformation}
+ \item{\emph{p.value.thresh} }{ p.value threshold for hit selection}
+ \item{\emph{fdr.threshold} }{ fdr.threshold}
 }}
 }
 \description{

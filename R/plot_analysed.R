@@ -52,7 +52,7 @@ plot.svd.analysed.pmm <- function(x, y, ...)
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
-#' @method plot svd.analysed.pmm
+#' @method plot svd.analysed
 plot.svd.analysed <- function(x, y, ...)
 {
   params  <- list(...)
@@ -183,7 +183,7 @@ plot.svd.analysed.pmm.model.data <- function(x, y, ...)
 
 #' @export
 #' @import ggplot2
-#' @method plot svd.pmm.fdr
+#' @method plot svd.analysed.pmm.fdr
 plot.svd.analysed.pmm.fdr <- function(x, y, ...)
 {
   hits <- x$hist.dat
