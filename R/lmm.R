@@ -37,15 +37,7 @@ lmm <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 #' @noRd
 #' @export
 #' @import data.table
-lmm.svd.data <-
-function
-(
-  obj,
-  drop=T,
-  weights=NULL,
-  rel.mat.path=NULL,
-  ...
-)
+lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 {
   res  <- .lmm(obj, drop, weights, rel.mat.path)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
@@ -57,15 +49,7 @@ function
 #' @import lme4
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-.lmm <-
-function
-(
-  obj,
-  drop,
-  weights=NULL,
-  rel.mat.path=NULL,
-  ...
-)
+.lmm <- function(obj, drop, weights=NULL, rel.mat.path=NULL, ...)
 {
   params <- base::list(...)
   ignore <- base::ifelse(hasArg(ignore) &&
@@ -130,7 +114,9 @@ function
   rel.mat.path=NULL
 )
 {
+  # set weights for the sirnas
   wei.dhar <- wei.am <- 1
+  # check if weights are given
   if (!is.null(weights))
   {
     if (!is.null(weights$dharmacon))
@@ -144,7 +130,7 @@ function
       cat(paste("Setting weights for Ambion library to", wei.am,"\n"))
     }
   }
-  if (!is.null(rel.mat.path))
+  else if (!is.null(rel.mat.path))
   {
     # TODO: this is the
     cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
