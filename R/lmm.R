@@ -191,9 +191,11 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 #' @importFrom stats na.omit
 .fdr <- function(obj, ...)
 {
+  # reshape the data matrix
   ccg.matrix <- stats::reshape(as.data.frame(obj), direction = "wide",
                                timevar = "Virus", idvar = "GeneSymbol")
   fdrs <- list()
+  # calculate FDRs for every pathogen-gene effect
   for (i in unique(obj$Virus))
   {
     cl <- paste("GeneVirusEffect", i, sep = ".")
@@ -209,6 +211,8 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
     ccg.matrix <- merge(ccg.matrix, sub.ccg.matrix[, c("GeneSymbol", fr)],
                         by = "GeneSymbol")
   }
+  # parse the result matrix into a gene matrix
+  # TODO: extra function
   gene.effect.mat <-
     ccg.matrix[,c(1, grep("GeneVirusEffect", colnames(ccg.matrix)))]
   colnames(gene.effect.mat) <-
@@ -216,11 +220,13 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   gene.effect.mat <- gene.effect.mat %>%
     tidyr::gather(Virus, Effect, 2:ncol(gene.effect.mat)) %>%
     as.data.table
+  # parse the result matrix into a fdr matrix
   fdr.mat         <- ccg.matrix[,c(1, grep("fdr", colnames(ccg.matrix)))]
   colnames(fdr.mat) <- sub("fdr.", "", colnames(fdr.mat))
   fdr.mat <- fdr.mat %>%
     tidyr::gather(Virus, FDR, 2:ncol(fdr.mat)) %>%
     as.data.table
+  # join both matrices
   gene.pathogen.matrix <-
     dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Virus"))
   list(ccg.matrix=ccg.matrix,
