@@ -98,21 +98,15 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   invisible(ret)
 }
 
+#' Create LMM matrix
+#'
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_by
 #' @importFrom dplyr mutate
-.set.lmm.matrix <-
-function
-(
-  obj,
-  drop,
-  ignore,
-  weights=NULL,
-  rel.mat.path=NULL
-)
+.set.lmm.matrix <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
 {
   # set weights for the sirnas
   wei.dhar <- wei.am <- 1
@@ -130,22 +124,30 @@ function
       cat(paste("Setting weights for Ambion library to", wei.am,"\n"))
     }
   }
+  # check if sirna-gene affinities are given
   else if (!is.null(rel.mat.path))
   {
     # TODO: this is the
     cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
+    # this i still have to implement
     rel.mat <- .load.rds(path)
   }
-
+  # setup pmm data
   pmm.mat <-
-    dplyr::select(obj, Entrez, GeneSymbol, Virus,
-                  Readout, Control, Library) %>%
+    # subset the columns
+    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library) %>%
+    # only take entries that have a genesymbol
     dplyr::filter(!is.na(GeneSymbol)) %>%
+    # dont take positive controls since these are different between the pathonges
+    # negative control on the other hand should be fine
     dplyr::filter(Control != 1)
   data.table::setDT(pmm.mat)[Library == "Dharmacon", Weight := wei.dhar]
   data.table::setDT(pmm.mat)[Library == "Ambion",    Weight := wei.am]
+  # set a column that concats virus and genesymbol
   data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
+  #  remove librarz
   data.table::setDT(pmm.mat)[, Library := NULL]
+  ## cast some columns
   pmm.mat$Entrez     <- as.integer(pmm.mat$Entrez)
   pmm.mat$Virus      <- as.factor( pmm.mat$Virus)
   pmm.mat$VG         <- as.factor( pmm.mat$VG)
@@ -153,19 +155,31 @@ function
   pmm.mat$Weight     <- as.integer(pmm.mat$Weight)
   pmm.mat$Control    <- as.integer(pmm.mat$Control)
   pmm.mat <-
+    # remove entries that have nan as readout
     dplyr::filter(pmm.mat, !is.na(Readout)) %>%
     dplyr::group_by(VG) %>%
+    # count how often VG is in the data
     dplyr::mutate(cnt=n()) %>%
     ungroup %>%
+    # throw away VGs that are less than ignore
     dplyr::filter(cnt >= ignore) %>%
+    # remove cnt column
     dplyr::select(-cnt)
+  # drop genes that are not found in ALL pathogens
   if (drop)
   {
+    # count how many viruses are in the date sets
     vir.cnt <- length(unique(pmm.mat$Virus))
-    pmm.mat <- dplyr::group_by(pmm.mat, GeneSymbol) %>%
+    pmm.mat <-
+      # group by genesymbol
+      dplyr::group_by(pmm.mat, GeneSymbol) %>%
+      # count if the genes are in all viruses
+      # and compare if it matches the virus count
       dplyr::mutate(drop=(length(unique(Virus)) != vir.cnt)) %>%
       ungroup %>%
+      # remove genes that are not in all genes
       dplyr::filter(!drop) %>%
+      # remove drop column
       dplyr::select(-drop)
   }
   pmm.mat <- droplevels(pmm.mat)
@@ -175,17 +189,10 @@ function
 #' @noRd
 #' @importFrom stats reshape
 #' @importFrom stats na.omit
-.fdr <-
-function
-(
-  obj,
-  ...
-)
+.fdr <- function(obj, ...)
 {
-  ccg.matrix <-
-    stats::reshape(as.data.frame(obj),
-                   direction = "wide", timevar = "Virus",
-                   idvar = "GeneSymbol")
+  ccg.matrix <- stats::reshape(as.data.frame(obj), direction = "wide",
+                               timevar = "Virus", idvar = "GeneSymbol")
   fdrs <- list()
   for (i in unique(obj$Virus))
   {
@@ -221,21 +228,15 @@ function
        gene.pathogen.matrix=gene.pathogen.matrix )
 }
 
-#' This is the implementation of Efron local fdr
+#' This is the implementation of Efron's local fdr
 #'  with some additions regarding the return values
 #'
 #' @noRd
 #' @import locfdr
 #' @importFrom splines ns
 #' @importFrom stats glm quantile poly lm approx poisson qnorm
-.localfdr <-
-function
-(
-  zz,
-  bre = 120,
-  df = 7, pct = 0, pct0 = 1/4, nulltype = 1,
-  type = 0, mult, mlests, main = " ", sw = 0
-)
+.localfdr <- function(zz, bre = 120, df = 7, pct = 0, pct0 = 1/4, nulltype = 1,
+                      type = 0, mult, mlests, main = " ", sw = 0)
 {
   call = match.call()
   if (length(bre) > 1) {
