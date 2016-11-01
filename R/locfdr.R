@@ -341,7 +341,7 @@
     vl$mult = EE
   vl$call = call
   vl$hist.dat <- hist.dat
-  class(vl) <- "svd.pmm.fdr"
+  class(vl) <- "svd.analysed.pmm.fdr"
   invisible(vl)
 }
 

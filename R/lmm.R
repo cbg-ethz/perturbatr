@@ -184,6 +184,7 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
       dplyr::select(-drop)
   }
   pmm.mat <- droplevels(pmm.mat)
+  class(pmm.mat) <- c("svd.analysed.pmm.model.data", class(pmm.mat))
   invisible(pmm.mat)
 }
 
