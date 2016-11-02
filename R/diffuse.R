@@ -33,14 +33,15 @@
 #' @param path  path to the network
 #' @param ...  additional parameters
 diffuse <- function(obj, method=c("neighbors", "mrw"), path, ...)
+{
   UseMethod("diffuse")
+}
 
 #' @noRd
 #' @export
 #' @import data.table igraph
-diffuse.svd.prioritized.pmm <- function(obj,
-                                        method=c("neighbors", "mrw"),
-                                        path, ...)
+diffuse.svd.prioritized.pmm <-
+function(obj, method=c("neighbors", "mrw"), path, ...)
 {
   if (!file.exists(path))
     stop(paste("Can't find: ", path, "!", sep=""))
