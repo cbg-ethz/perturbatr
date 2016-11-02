@@ -1,10 +1,9 @@
 Package: knockout
 Type: Package
 Title: Analysis of high-throughput gene perturbation screens
-Version: 0.1
+Version: 0.1.0
 Date: 2015-12-10
 Authors@R: person("Simon", "Dirmeier", email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
-Maintainer: Simon Dirmeier <simon.dirmeier@bsse.ethz.ch>
 Description: `knockout` does analysis of large-scale gene knockout/knockdown screens.
  For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented.
  On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*.
