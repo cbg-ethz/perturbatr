@@ -114,35 +114,41 @@ plot.effect.matrix <- function(x, ...)
 #' @method plot svd.prioritized.pmm.single.gene.matrices
 plot.effect.matrix.svd.prioritized.pmm <- function(x, ...)
 {
+  # TODO: change for other prioritization than abs (see: svd.prioritize.pmm)
+  gene.top <- x$gene.effect.hits %>%
+    .[order(-abs(Effect))] %>%
+    .[, .SD[1:min(25,.N)]]
+  gene.path <- x$fit$gene.pathogen.effects %>%
+    dplyr::filter()
   # TODO:
   # plot the cool matrix here from the PMM paper
   # and similar matrices
   # use two columns: lefft column result of gene, right column matrix of gene hits in colors of gene-pathogen hits
-  params <- list(...)
-  size <- ifelse(hasArg(size), params$size, 14)
-  dat <- tidyr::gather(x$cpg.mat, Virus, Effect, 2:5)
-  LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
-  or <- rev(x$GeneSymbol)
-  pl <-
-    ggplot2::ggplot(dat, aes(Virus, GeneSymbol)) +
-    ggplot2::geom_tile(aes(fill = Effect), colour=LDcolors[1]) +
-    ggplot2::scale_x_discrete(expand = c(0,0)) +
-    ggplot2::scale_y_discrete(expand = c(0,0),
-                              limits=or,
-                              breaks=or,
-                              labels=or) +
-    ggplot2::scale_fill_gradient2(low=LDcolors[1],
-                                  high=LDcolors[11],
-                                  na.value=LDcolors[6],
-                                  name="Gene-pathogen\neffect") +
-    ggplot2::theme_bw() +
-    ggplot2::theme(text = element_text(size = 16, family = "Helvetica"),
-                   aspect.ratio=2,
-                   axis.text.x=element_text(angle=45,  hjust = 1, size=10),
-                   axis.text.y=element_text(size=10),
-                   axis.title=element_blank(),
-                   axis.ticks=element_blank())
-  pl
+  # params <- list(...)
+  # size <- ifelse(hasArg(size), params$size, 14)
+  # dat <- tidyr::gather(x$cpg.mat, Virus, Effect, 2:5)
+  # LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
+  # or <- rev(x$GeneSymbol)
+  # pl <-
+  #   ggplot2::ggplot(dat, aes(Virus, GeneSymbol)) +
+  #   ggplot2::geom_tile(aes(fill = Effect), colour=LDcolors[1]) +
+  #   ggplot2::scale_x_discrete(expand = c(0,0)) +
+  #   ggplot2::scale_y_discrete(expand = c(0,0),
+  #                             limits=or,
+  #                             breaks=or,
+  #                             labels=or) +
+  #   ggplot2::scale_fill_gradient2(low=LDcolors[1],
+  #                                 high=LDcolors[11],
+  #                                 na.value=LDcolors[6],
+  #                                 name="Gene-pathogen\neffect") +
+  #   ggplot2::theme_bw() +
+  #   ggplot2::theme(text = element_text(size = 16, family = "Helvetica"),
+  #                  aspect.ratio=2,
+  #                  axis.text.x=element_text(angle=45,  hjust = 1, size=10),
+  #                  axis.text.y=element_text(size=10),
+  #                  axis.title=element_blank(),
+  #                  axis.ticks=element_blank())
+  # pl
 }
 
 #' @export

@@ -109,6 +109,7 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 #' @importFrom dplyr mutate
 .set.lmm.matrix <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
 {
+  # TODO: change this to pooled and unpooled
   # set weights for the sirnas
   wei.dhar <- wei.am <- 1
   # check if weights are given

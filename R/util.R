@@ -323,7 +323,7 @@ cor.svd.replicates <- function(x, y,
 #'
 #' @export
 #' @import data.table
-#' @param obj  the object to calculate the ffect matrices for
+#' @param obj  the object to calculate the effect matrices for
 #' @param ...  additional parameters
 effect.matrices <- function(obj, ...) UseMethod("effect.matrices")
 
@@ -333,11 +333,13 @@ effect.matrices <- function(obj, ...) UseMethod("effect.matrices")
 #' @importFrom dplyr filter select
 effect.matrices.svd.prioritized.pmm <- function(obj, ...)
 {
-  gene.hits <- data.table::as.data.table(obj$res$all.virus.results) %>%
-    .[order(abs(Effect), decreasing=T)]
-  pathogen.gene.hits <-
-    base::do.call("rbind",
-                  base::lapply(obj$res$single.virus.results , function(i) i))
+
+  gene.top <- obj$gene.effect.hits %>%
+    .[order(-abs(Effect))] %>%
+    .[, .SD[1:min(25,.N)]]
+  pgs <- obj$fit$gene.pathogen.effects %>%
+    dplyr::filter(GeneSymbol %in% gene.top$GeneSymbol)
+
   pathogen.gene.hits$Virus <-
     base::unname(unlist(sapply(rownames(pathogen.gene.hits),
                                function(e) sub(".[[:digit:]]+", "", e))))
