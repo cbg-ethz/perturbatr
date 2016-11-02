@@ -2,16 +2,16 @@
 % Please edit documentation in R/util.R
 \name{effect.matrices}
 \alias{effect.matrices}
-\title{Calculcate the I-dont-know-how-to-call-them}
+\title{Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices}
 \usage{
 effect.matrices(obj, ...)
 }
 \arguments{
-\item{obj}{the object to calculate the ffect matrices for}
+\item{obj}{the object to calculate the effect matrices for}
 
 \item{...}{additional parameters}
 }
 \description{
-Calculcate the I-dont-know-how-to-call-them
+Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices
 }
 

@@ -56,7 +56,6 @@ readout.matrix.svd.plate <- function(obj, ...)
   res
 }
 
-
 #' Get the replicates of a data-set
 #'
 #' @export
@@ -319,7 +318,7 @@ cor.svd.replicates <- function(x, y,
 }
 
 
-#' Calculcate the I-dont-know-how-to-call-them
+#' Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices
 #'
 #' @export
 #' @import data.table
@@ -335,26 +334,15 @@ effect.matrices.svd.prioritized.pmm <- function(obj, ...)
 {
 
   gene.top <- obj$gene.effect.hits %>%
+    dplyr::select(GeneSymbol, Effect) %>%
     .[order(-abs(Effect))] %>%
     .[, .SD[1:min(25,.N)]]
   pgs <- obj$fit$gene.pathogen.effects %>%
-    dplyr::filter(GeneSymbol %in% gene.top$GeneSymbol)
-
-  pathogen.gene.hits$Virus <-
-    base::unname(unlist(sapply(rownames(pathogen.gene.hits),
-                               function(e) sub(".[[:digit:]]+", "", e))))
-  cpgs <- data.table::as.data.table(obj$model$gene.pathogen.effects)
-
-  cpg.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
-    dplyr::select(GeneID, grep("GenePathogenEffect", colnames(cpgs)))
-  base::colnames(cpg.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
-
-  fdr.mat <- dplyr::filter(cpgs, GeneID %in% gene.hits$GeneSymbol) %>%
-    dplyr::select(GeneID, grep("fdr", colnames(cpgs)))
-  base::colnames(fdr.mat) <- c("GeneSymbol", "CHIKV", "DENV", "HCV", "SARS")
-
-  res        <- base::list(cpg.mat=cpg.mat, fdr.mat=fdr.mat)
-  class(res) <- "svd.pmm.single.gene.matrices"
+    dplyr::filter(GeneSymbol %in% gene.top$GeneSymbol) %>%
+    dplyr::select(Virus, GeneSymbol, Effect) %>%
+    tidyr::spread(Virus, Effect)
+  res <- list(gene.effects=gene.top, gene.pathogen.hits=pgs)
+  class(res) <- "svd.prioritized.pmm.effect.matrices"
   res
 }
 
