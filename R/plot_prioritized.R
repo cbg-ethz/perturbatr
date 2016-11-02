@@ -116,25 +116,26 @@ plot.effect.matrix.svd.prioritized.pmm <- function(x, ...)
 {
   # TODO: change for other prioritization than abs (see: svd.prioritize.pmm)
   effect.matrices <- effect.matrices(x)
-  v <- effect.matrices$gene.effects
-  v$Pathogen <- ""
+  v <- effect.matrices$gene.effects %>% .[order(GeneSymbol, decreasing=T)]
+  v$GeneSymbol <- factor(v$GeneSymbol, levels=v$GeneSymbol)
+  v$Pathogen <- "All pathogens"
+
   LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
   pl1 <-
     ggplot2::ggplot(v, aes(Pathogen, GeneSymbol)) +
     ggplot2::geom_tile(aes(fill=Effect), colour=LDcolors[1]) +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +
-    ggplot2::scale_fill_gradient2(low=LDcolors[1],
-                                  high=LDcolors[11],
+    ggplot2::scale_fill_gradient2(low=LDcolors[1], high=LDcolors[11],
                                   na.value=LDcolors[6],
-                                  name="Gene\neffect") +
+                                  name="Gene effect") +
     ggplot2::theme_bw() +
     ggplot2::theme(text = element_text(size = 16, family = "Helvetica"),
-                   aspect.ratio=5,
+                   aspect.ratio=4,
                    axis.text.x=element_text(angle=45,  hjust = 1, size=10),
                    axis.text.y=element_text(size=10),
-                   axis.title=element_blank(),
-                   axis.ticks=element_blank())
+                   axis.title=element_blank(), axis.ticks=element_blank()) +
+    ggplot2::coord_fixed()
   v <-  s %>% gather(GeneSymbol)
   colnames(v) <- c("GeneSymbol", "Pathogen", "Effect")
   v$GeneSymbol <- factor(v$GeneSymbol, levels=rev(unique(v$GeneSymbol)))
@@ -143,8 +144,7 @@ plot.effect.matrix.svd.prioritized.pmm <- function(x, ...)
     ggplot2::geom_tile(aes(fill = Effect), colour=LDcolors[1]) +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +
-    ggplot2::scale_fill_gradient2(low=LDcolors[1],
-                                  high=LDcolors[11],
+    ggplot2::scale_fill_gradient2(low=LDcolors[1], high=LDcolors[11],
                                   na.value=LDcolors[6],
                                   name="Gene-pathogen\neffect") +
     ggplot2::theme_bw() +
@@ -153,8 +153,9 @@ plot.effect.matrix.svd.prioritized.pmm <- function(x, ...)
                    axis.text.x=element_text(angle=45,  hjust = 1, size=10),
                    axis.text.y=element_text(size=10),
                    axis.title=element_blank(),
-                   axis.ticks=element_blank())
-  .multiplot(plotlist=list(pl1, pl2))
+                   axis.ticks=element_blank()) +
+   ggplot2::coord_fixed()
+  return(list(gene.effects.plot=pl1, gene.pathogen.effects.plot=pl2))
 }
 
 #' @export
