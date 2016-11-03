@@ -26,8 +26,8 @@
 #' @param ...  additional parameters
 #'  \itemize{
 #'  \item{\emph{hit.ratio} }{ the ratio of siRNAs hits such that a gene counts as hit}
-#'  \item{\emph{readout.thresh} }{ the mean readout threshold for all the siRNAs}
-#'  \item{\emph{p.value.thresh} }{ p.value threshold for hit selection}
+#'  \item{\emph{readout.threshold} }{ the mean readout threshold for all the siRNAs}
+#'  \item{\emph{p.value.threshold} }{ p.value threshold for hit selection}
 #'  \item{\emph{fdr.threshold} }{ fdr.threshold}
 #' }
 prioritize <- function(obj, ...)
@@ -80,8 +80,8 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
   # TODO here: what do do with multiple sirnas? same hit criterion as in hyper
   params <- list(...)
   hit.rat <- ifelse(hasArg(hit.ratio), params$hit.ratio, 0.5)
-  read.thresh <- ifelse(hasArg(readout.thresh), params$readout.thresh, 0.0)
-  p.val.thresh <- ifelse(hasArg(p.value.thresh), params$p.value.thresh, 0.05)
+  read.thresh <- ifelse(hasArg(readout.threshold), params$readout.threshold, 0.0)
+  p.val.thresh <- ifelse(hasArg(p.value.threshold), params$p.value.threshold, 0.05)
   message(paste("Prioritizing on hit.ratio ", hit.rat,
                 ", readout threshold " , read.thresh,
                 " and p-value threshold ", p.val.thresh, sep=""))

@@ -21,8 +21,9 @@
 #' @import data.table
 .poc <- function(obj, method, ctrl.gene)
 {
-  message("Calculating POC..")
-  if (!is.na(ctrl.gene)) message(paste("..on gene ", ctrl.gene, "!", sep=""))
+  ctrl.gene <- tolower(ctrl.gene)
+  if (!is.na(ctrl.gene)) message(paste0("Calculating POC on gene ", ctrl.gene, "!"))
+  else message("Calculating POC on negative controls!")
   f <- .summarization.method(method)
   ret <-
     dplyr::group_by(obj, Virus, Screen, Library,
