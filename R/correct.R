@@ -24,7 +24,7 @@
 #'
 #' @param obj  a summarized data.table
 #' @param path  path (or file) to the target-relation matrices
-#' @param drop  drops all genes that are not found in ervery screen
+#' @param drop  drops all genes that are not found in every screen, i.e. a gene has to be found over all pathogens to be used
 #' @param ... additional arguments
 correct <- function(obj, path, drop, ...) UseMethod("correct")
 
@@ -59,18 +59,19 @@ function
 )
 {
   nor <- nrow(obj)
+  # only take elements that have an entrez ID and a sirna ID
   res <-
     dplyr::filter(obj, !is.na(Entrez), !is.na(siRNAIDs)) %>%
     ungroup
+  # drop genes that are not found in all screens
   if (drop)
   {
     vir.cnt <- length(unique(res$Virus))
     res <- dplyr::group_by(res, GeneSymbol) %>%
       dplyr::mutate(drop=(length(unique(Virus)) != vir.cnt)) %>%
       ungroup %>%
-      dplyr::filter(!drop) %>%
-      dplyr::select(-drop)
-    message("Dropped rows with genes not found in everz virus-screen!")
+      dplyr::filter(!drop) %>% dplyr::select(-drop)
+    message("Dropped rows with genes not found in every virus-screen!")
   }
   if (nrow(res) < nor) message("Rows with is.na(Entrez) have been removed!")
   res <- .gespeR(res, path)
@@ -82,7 +83,10 @@ function
 #' @import gespeR glmnet parallel doParallel Matrix
 .gespeR <- function(obj, path)
 {
+  # load target relation matrix
   rel.mat <- .load.rds(path)
+  # init the matrices so that all entrez id that are not in both matrices are discarded
+  # and that both matrices have the right dimensional
   gesp.dat <- .init.frames(pheno.mat=obj, rel.mat=rel.mat)
   pheno.frame <- gesp.dat$pheno.frame
   rel.mat <- gesp.dat$rel.mat
@@ -186,7 +190,6 @@ function
 #' @importFrom tidyr unnest
 .preprocess.dharmacon.entries <- function(obj)
 {
-
   obj.unnest <-
     obj %>%
     dplyr::mutate(siRNAIDs=strsplit(as.character(siRNAIDs), ",")) %>%
