@@ -29,10 +29,10 @@ function
 {
   if (!is.null(rm.cytotoxic) & "Viability" %in% colnames(obj))
   {
-    message(paste("Removing un-viable genes by comparing to ",
-                  rm.cytotoxic, " viability.", sep=""))
-    message(paste("\tUsing t-test with mu=85*mean(viability(",
-                  rm.cytotoxic ,")) and alternative=less", sep=""))
+    message(paste0("Removing un-viable genes by comparing to ",
+                  rm.cytotoxic, " viability."))
+    message(paste0("\tUsing t-test with mu=85*mean(viability(",
+                  rm.cytotoxic ,")) and alternative=less"))
     obj <-
       dplyr::group_by(obj, Virus, Screen, Library,
                       InfectionType, ReadoutType,
@@ -56,19 +56,8 @@ function
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
 #' @importFrom dplyr filter
-.set.cytotoxic <-
-function
-(
-  re,
-  val,
-  sirnas,
-  ctrl,
-  genes,
-  plates,
-  rows,
-  cols,
-  comp.to
-)
+.set.cytotoxic <- function(re, val, sirnas, ctrl, genes,
+                           plates, rows, cols, comp.to)
 {
   # against which gene should viability be compared
   comp.to <- tolower(comp.to)
@@ -80,8 +69,8 @@ function
     if (is.na(cont.idx[1])) stop("No control index found! Change gene names")
     assertthat::assert_that(length(cont.idx) == length(which(genes == comp.to)))
     # get mean readout and  viability of scrambled siRNAs
-    cont.vial.thresh <- base::mean(val[cont.idx], na.rm=T) * .85
-    cont.re   <- base::mean(re [cont.idx], na.rm=T)
+    cont.vial.thresh <- mean(val[cont.idx], na.rm=T) * .85
+    cont.re          <- mean(re [cont.idx], na.rm=T)
     # get the mean readouts and viabilities for every siRNA
     fr <-
       data.table::data.table(Re=re, Val=val, Gene=genes, Sirna=sirnas,
@@ -125,22 +114,15 @@ function
 
 #' @noRd
 #' @importFrom stats t.test
-.t.test.vial <-
-function
-(
-  vial,
-  cont.vial.thresh,
-  gene, sirna, plate,
-  row, col
-)
+.t.test.vial <- function(vial, cont.vial.thresh, gene, sirna, plate, row, col)
 {
   p.val <- 1.0
   if (is.na(gene) | is.na(sirna)) p.val <- 1
-  else if (length(p.val) < 3)     p.val <- 1
+  else if (length(vial) < 3)     p.val <- 1
   else if (!all(is.na(vial)))
   {
-    war <- paste("Plate:", plate, ", row:", row, ", col:", col,
-                 ", gene:", gene, ", sirna:", sirna, "!", sep="" )
+    war <- paste0("Plate:", plate, ", row:", row, ", col:", col,
+                 ", gene:", gene, ", sirna:", sirna, "!")
     tryCatch({
       p.val <- t.test(vial, mu=cont.vial.thresh, alternative="less")$p.value },
       warning = function(r) { message(paste(r, war)) },
