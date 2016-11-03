@@ -19,13 +19,7 @@
 
 #' @noRd
 #' @import data.table
-.remove.outliers <-
-function
-(
-  obj,
-  outlier.wells,
-  outlier.well.range
-)
+.remove.outliers <- function(obj, outlier.wells, outlier.well.range)
 {
   if (!is.na(outlier.wells))
     obj <- .rm.outlier.wells(obj, outlier.wells, outlier.well.range)
@@ -35,13 +29,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr mutate group_by
-.rm.outlier.wells <-
-function
-(
-  obj,
-  outlier.wells,
-  outlier.well.range
-)
+.rm.outlier.wells <- function(obj, outlier.wells, outlier.well.range)
 {
   if (outlier.wells == "quantile")
   {
@@ -63,13 +51,7 @@ function
 
 #' @noRd
 #' @importFrom stats quantile
-.rm.outlier.quantile <-
-function
-(
-  read,
-  num,
-  probs
-)
+.rm.outlier.quantile <- function(read, num, probs)
 {
   re <- read
   if (!all(is.na(num)))
