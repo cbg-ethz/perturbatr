@@ -42,8 +42,7 @@
   z.score.ctrl  <- ifelse(hasArg(z.score.ctrl),
                           params$z.score.ctrl, NA_character_)
   poc.ctrl      <- ifelse(hasArg(poc.ctrl), params$poc.ctrl, NA_character_)
-  method        <- ifelse(hasArg(method),
-                          params$method, "mean")
+  method        <- ifelse(hasArg(method), params$method, "mean")
   background.column <- ifelse(hasArg(background.column),
                               params$background.column,
                               NA)
@@ -84,7 +83,7 @@
   {
     obj <- switch(norm,
                   "log"=.log.norm(obj=obj),
-                  "poc"=.poc(obj=obj, method=method, poc.ctrl=poc.ctrl),
+                  "poc"=.poc(obj=obj, method=method, ctrl.gene=poc.ctrl),
                   "z.score"=.z.score(obj=obj, method="default",
                                       level=z.score.level,
                                       ctrl=z.score.ctrl),
