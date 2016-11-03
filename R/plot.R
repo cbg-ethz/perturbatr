@@ -344,7 +344,7 @@ plot.svd.quality <- function(x, y, ...)
                                            "Positive control")) +
     ggplot2::ggtitle("Plate controls")
 
-  .multiplot(pl, pl2, pl3, pl4,  cols=2)
+  .multiplot(plotlist=list(pl, pl2, pl3, pl4),cols=2)
 }
 
 #' @export
