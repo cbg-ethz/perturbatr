@@ -38,12 +38,10 @@
   via.dat <- dplyr::filter(obj, ReadoutClass == "Viability")
   # pars arguments
   params <- list(...)
-  z.score.level <- ifelse(hasArg(z.score.level),
-                          params$z.score.level, "plate")
+  z.score.level <- ifelse(hasArg(z.score.level), params$z.score.level, "plate")
   z.score.ctrl  <- ifelse(hasArg(z.score.ctrl),
                           params$z.score.ctrl, NA_character_)
-  poc.ctrl      <- ifelse(hasArg(poc.ctrl),
-                          params$poc.ctrl, NA_character_)
+  poc.ctrl      <- ifelse(hasArg(poc.ctrl), params$poc.ctrl, NA_character_)
   method        <- ifelse(hasArg(method),
                           params$method, "mean")
   background.column <- ifelse(hasArg(background.column),

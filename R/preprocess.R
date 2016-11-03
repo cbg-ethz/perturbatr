@@ -77,11 +77,11 @@ preprocess.svd.raw <- function (obj,normalize=c("log", "robust-z.score"),
   # should viabilityies also be normalized
   if (!is.logical(normalize.viability))
     stop("Please provide a boolean normalize.viability")
-  # do outlier removal
+  # do outlier removal based on cell numbers
   res <- .remove.outliers(obj, rm.outlier.wells, outlier.well.range)
   # do normalization
   res <- .normalize(res, normalize, normalize.viability, ...)
-  # remove outliers
+  # remove outliers based on cytotoicity
   res <- .rm.cytotoxic(res, rm.cytotoxic)
   res <- .drop(res, drop)
   res <- as.data.table(res)
