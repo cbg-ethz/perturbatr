@@ -29,15 +29,9 @@
 #' @param summ.method  summarize single siRNAs using mean or median
 #' @param level  do hypergeometric test on gene level or siRNA level
 #' @param ...   additional params
-hyperstatistic <-
-function
-(
-  obj,
-  padjust=c("BH", "bonferroni"),
-  summ.method=c("mean", "median"),
-  level=c("gene", "sirna"),
-  ...
-)
+hyperstatistic <- function(obj, padjust=c("BH", "bonferroni"),
+                           summ.method=c("mean", "median"),
+                           level=c("gene", "sirna"),...)
 {
   UseMethod("hyperstatistic", obj)
 }
@@ -45,21 +39,13 @@ function
 #' @noRd
 #' @export
 #' @import data.table
-hyperstatistic.svd.data <-
-function
-(
-  obj,
-  padjust=c("BH", "bonferroni"),
-  summ.method=c("mean", "median"),
-  level=c("gene", "sirna"),
-  ...
-)
+hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
+                                    summ.method=c("mean", "median"),
+                                    level=c("gene", "sirna"), ...)
 {
-  summ.method <- match.arg(summ.method)
-  padjust     <- match.arg(padjust)
-  level       <- match.arg(level)
-  ret <- .hyperstatistic(obj, padjust=padjust,
-                         summ.method=summ.method, level=level, ...)
+  ret <- .hyperstatistic(obj, padjust=match.arg(padjust),
+                         summ.method=match.arg(summ.method),
+                         level=match.arg(level), ...)
   class(ret) <- c("svd.analysed.hyper", "svd.analysed", class(ret))
   invisible(ret)
 }
@@ -69,15 +55,7 @@ function
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_by
 #' @importFrom dplyr mutate
-.hyperstatistic <-
-function
-(
-  obj,
-  padjust,
-  summ.method,
-  level,
-  ...
-)
+.hyperstatistic <- function(obj, padjust, summ.method, level, ...)
 {
   message(paste("Correcting with ", padjust, "!", sep=""))
   if (level=="gene" & !is.na(summ.method))
@@ -87,6 +65,9 @@ function
                                       InfectionType, Library, Design, Cell)
   ret <-  dplyr::mutate(obj, grp=grp.indexes)
   grps <- unique(ret$grp)
+  # do the hyperstatistic for all the different screens
+  # this do.call splits up the data into different screens and does
+  # the hyperstatistic on every single one
   res <- do.call(
     "rbind",
     lapply
@@ -120,20 +101,15 @@ function
 #' @importFrom dplyr mutate
 #' @importFrom tidyr separate
 #' @importFrom stats p.adjust
-.do.hyperstatistic <-
-function
-(
-  obj,
-  padjust,
-  summ.method,
-  level
-)
+.do.hyperstatistic <- function(obj, padjust, summ.method, level)
 {
   # TODO: make this nicer and split up
   res <- obj %>% ungroup
   if (obj$Design[1] == "single" & level=="gene")
   {
-    message(paste("\t..summarizing single siRNAs over replicates!"))
+    message(paste("\t...summarizing single siRNAs over replicates!"))
+    # summarize all the sirnas over the different replicates
+    # so: for a gene A and siRNA B
     res <- dplyr::group_by(res, Virus, Screen, Library,
                            InfectionType, ReadoutType,
                            Cell, Design,
@@ -141,8 +117,10 @@ function
                            GeneSymbol, Entrez, siRNAIDs) %>%
       dplyr::summarize(Readout=summ.method(Readout, na.rm=T)) %>%
       ungroup
-  } else {
-    message(paste("\t..NOT summarizing single siRNAs over replicate!"))
+  }
+  else
+  {
+    message(paste("\t ...NOT summarizing single siRNAs over replicate!"))
   }
   if (obj$Design[2] == "pooled")
   {
