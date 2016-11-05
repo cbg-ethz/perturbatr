@@ -28,8 +28,8 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects")
   pl2 <-
     .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects") +
-    ggplot2::facet_wrap(. ~ Virus, ncol=length(unique(gen.pat$Virus))/2)
-  pl3 <- .multiplot(plotlist=list(pl, pl2), cols=2)
+    ggplot2::facet_wrap( ~ Virus, ncol=ceiling(length(unique(gen.pat$Virus))/2))
+  pl3 <- .multiplot(plotlist=list(pl, pl2))
   pl3
 }
 
