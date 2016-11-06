@@ -83,6 +83,7 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
   adj.mat <-  igraph::get.adjacency(gra, attr="weight")
   W <- .stoch.col.norm(adj.mat)
   len <- nrow(W)
+  # TODO
   adj.mat.genes <- colnames(adj.mat)
   neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=cbind) %do% {
     flt <- dplyr::filter(phs, Virus==v)
@@ -110,8 +111,7 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
   graph.info <- list(graph=res.gr,
                      colors=c("lightblue", "orange"),
                      legend=c("LMM", "'Diffusion'"),
-                     type="1-NN",
-                     tresh=2)
+                     type="MRW")
   list(hits=res, graph.info=graph.info)
   invisible(nei.tab)
 }
