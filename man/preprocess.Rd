@@ -6,7 +6,7 @@
 \usage{
 preprocess(obj, normalize = c("log", "robust-z.score"),
   normalize.viability = F, rm.cytotoxic = NULL, rm.outlier.wells = c(NA,
-  "quantile"), ...)
+  "quantile"), drop = T, ...)
 }
 \arguments{
 \item{obj}{the data.table to be analysed}
@@ -28,6 +28,8 @@ preprocess(obj, normalize = c("log", "robust-z.score"),
 \item{rm.cytotoxic}{gene name of neutral gene against which viability is testet (e.g. \emph{Scrambled} or \emph{PIK3CA})}
 
 \item{rm.outlier.wells}{remove wells that have a extreme number of cells (outliers)}
+
+\item{drop}{boolean if rows that are not needed should be dropped}
 
 \item{...}{additional parameters
 \itemize{

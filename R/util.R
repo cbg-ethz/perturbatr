@@ -280,15 +280,15 @@ drop.svd.data <- function(obj, ...)
 #' @param method  a character string indicating which correlation coefficient
 #' (\emph{pearson}, \emph{kendall} or \emph{spearman})
 #' @param ...  additional parameters
-cor <- function(x, y, method = c("pearson", "kendall", "spearman"), ...)
-  UseMethod("cor")
+correlation <- function(x, y, method = c("pearson", "kendall", "spearman"), ...)
+  UseMethod("correlation")
 
-#' @noRd
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
 #' @importFrom stats cor
-cor.svd.replicates <- function(x, y,
+#' @method correlation svd.replicates
+correlation.svd.replicates <- function(x, y,
                                method = c("pearson", "kendall", "spearman"),
                                ...)
 {

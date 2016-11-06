@@ -11,7 +11,7 @@ correct(obj, path, drop, ...)
 
 \item{path}{path (or file) to the target-relation matrices}
 
-\item{drop}{drops all genes that are not found in ervery screen}
+\item{drop}{drops all genes that are not found in every screen, i.e. a gene has to be found over all pathogens to be used}
 
 \item{...}{additional arguments}
 }

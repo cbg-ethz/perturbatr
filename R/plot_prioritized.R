@@ -64,14 +64,15 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
 #'
 #' @param x  an svd.prioritized.pmm object
 #' @param ...  additional parameters
-plot.pathogen.hit.counts <- function(x, ...)
+show.pathogen.hit.counts <- function(x, ...)
 {
-  UseMethod("plot.pathogen.hit.counts")
+  UseMethod("show.pathogen.hit.counts")
 }
 
 #' @export
 #' @importFrom dplyr group_by summarize mutate
-plot.pathogen.hit.counts.svd.prioritized.pmm <- function(x, ...)
+#' @method show.pathogen.hit.counts svd.prioritized.pmm
+show.pathogen.hit.counts.svd.prioritized.pmm <- function(x, ...)
 {
   obj <- x$gene.pathogen.effect.hits
   single.res <-
@@ -102,17 +103,17 @@ plot.pathogen.hit.counts.svd.prioritized.pmm <- function(x, ...)
 #'
 #' @param x  an svd.prioritized.pmm object
 #' @param ...  additional parameters
-plot.effect.matrix <- function(x, ...)
+show.effect.matrix <- function(x, ...)
 {
-  UseMethod("plot.effect.matrix")
+  UseMethod("show.effect.matrix")
 }
 
 #' @import data.table
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom tidyr gather
-#' @method plot svd.prioritized.pmm.single.gene.matrices
-plot.effect.matrix.svd.prioritized.pmm <- function(x, ...)
+#' @method show.effect.matrix svd.prioritized.pmm
+show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
 {
   # TODO: change for other prioritization than abs (see: svd.prioritize.pmm)
   effect.matrices <- effect.matrices(x)
