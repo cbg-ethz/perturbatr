@@ -153,7 +153,7 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
   colnames(v) <- c("GeneSymbol", "Pathogen", "Effect")
   v$GeneSymbol <- factor(v$GeneSymbol, levels=rev(unique(v$GeneSymbol)))
   pl2 <-
-    ggplot2::ggplot(v, aes(Pathogen, GeneSymbol)) +
+    ggplot2::ggplot(v, aes(GeneSymbol, Pathogen)) +
     ggplot2::geom_tile(aes(fill = Effect), colour=LDcolors[1]) +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +
@@ -162,7 +162,7 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
                                   name="Gene-pathogen\neffect") +
     ggplot2::theme_bw() +
     ggplot2::theme(text = element_text(size = 14, family = "Helvetica"),
-                   aspect.ratio=2,
+                   aspect.ratio=.5,
                    axis.text.x=element_text(angle=45,  hjust = 1, size=10),
                    axis.text.y=element_text(size=10),
                    axis.title=element_blank(),

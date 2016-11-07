@@ -87,18 +87,24 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
   len <- nrow(W)
   # TODO
   adj.mat.genes <- colnames(adj.mat)
-  neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=cbind) %do% {
-    flt <- dplyr::filter(phs, Virus==v)
-    vir.gen <- flt$GeneSymbol
-    vir.eff <- abs(flt$Effect)
-    intr.gen <- intersect(adj.mat.genes, vir.gen)
-    idxs.com   <- which(adj.mat.genes %in% intr.gen)
-    idxs.set   <- which(vir.gen %in% intr.gen)
-    p0 <- rep(0, len)
-    p0[idxs.com] <- vir.eff[idxs.set]/sum(vir.eff[idxs.set])
-    p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
-    p.inf
-  }
+  adj.matr  <- data.table(Genes=adj.mat.genes)
+  vir.matr  <- data.table(Effect=abs(phs$Effect), Genes=phs$GeneSymbol)
+  fin <- dplyr::left_join(adj.matr, vir.matr)
+  setDT(fin)[is.na(Effect), Effect := 0]
+  setDT(fin)[, Effect := Effect / sum(Effect)]
+
+  # neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=cbind) %do% {
+  #   flt <- phs %>% .[order(GeneSymbol)]
+  #   vir.gen <- flt$GeneSymbol
+  #   vir.eff <- abs(flt$Effect)
+  #   intr.gen <- intersect(adj.mat.genes, vir.gen)
+  #   idxs.com   <- which(adj.mat.genes %in% intr.gen)
+  #   idxs.set   <- which(vir.gen %in% intr.gen)
+  #   p0 <- rep(0, len)
+  #   p0[idxs.com] <- vir.eff[idxs.set]/sum(vir.eff[idxs.set])
+  #   p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
+  #   p.inf
+  # }
   mat <- knockout:::.rankaggreg(neighbors, adj.mat.genes, k=kc)
   return(mat)
 }

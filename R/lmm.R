@@ -70,7 +70,8 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   }
   # fit the LMM
   fit.lmm <-
-    lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol),
+    lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) +
+                 (1 | InfectionType),
                data = model.data, weights = model.data$Weight, verbose = F)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
@@ -137,7 +138,8 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   # setup pmm data
   pmm.mat <-
     # subset the columns
-    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library) %>%
+    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library,
+                  Cell, InfectionType, Design, ReadoutType) %>%
     # only take entries that have a genesymbol
     dplyr::filter(!is.na(GeneSymbol)) %>%
     # dont take positive controls since these are different between the pathonges
@@ -150,12 +152,16 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   #  remove librarz
   data.table::setDT(pmm.mat)[, Library := NULL]
   ## cast some columns
-  pmm.mat$Entrez     <- as.integer(pmm.mat$Entrez)
-  pmm.mat$Virus      <- as.factor( pmm.mat$Virus)
-  pmm.mat$VG         <- as.factor( pmm.mat$VG)
-  pmm.mat$GeneSymbol <- as.factor( pmm.mat$GeneSymbol)
-  pmm.mat$Weight     <- as.integer(pmm.mat$Weight)
-  pmm.mat$Control    <- as.integer(pmm.mat$Control)
+  pmm.mat$Entrez        <- as.integer(pmm.mat$Entrez)
+  pmm.mat$Virus         <- as.factor(pmm.mat$Virus)
+  pmm.mat$VG            <- as.factor(pmm.mat$VG)
+  pmm.mat$Cell          <- as.factor(pmm.mat$Cell)
+  pmm.mat$ReadoutType   <- as.factor(pmm.mat$ReadoutType)
+  pmm.mat$InfectionType <- as.factor(pmm.mat$InfectionType)
+  pmm.mat$Design        <- as.factor(pmm.mat$Design)
+  pmm.mat$GeneSymbol    <- as.factor(pmm.mat$GeneSymbol)
+  pmm.mat$Weight        <- as.double(pmm.mat$Weight)
+  pmm.mat$Control       <- as.integer(pmm.mat$Control)
   pmm.mat <-
     # remove entries that have nan as readout
     dplyr::filter(pmm.mat, !is.na(Readout)) %>%
