@@ -39,8 +39,17 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
 #' @importFrom dplyr filter
 .plot.svd.prioritized.pmm <- function(x, main, ...)
 {
-  x <- x[order(abs(Effect), decreasing=T), .SD[1:25]] %>%
-    dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
+  if ("Virus" %in% colnames(x))
+  {
+    x <- x %>%
+      .[order(abs(Effect), decreasing=T), .SD[1:25], by=Virus] %>%
+      filter(!is.na(GeneSymbol))
+  }
+  else
+  {
+    x <- x[order(abs(Effect), decreasing=T), .SD[1:25]] %>%
+      dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
+  }
   x.pos.range <- max(abs(x$Effect))
   x.lim  <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
   pl <-
