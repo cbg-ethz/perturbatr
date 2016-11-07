@@ -78,6 +78,8 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
 #' @importFrom assertthat assert_that
 .diffuse.lmm.mrw.pathogen.wise <- function(obj, graph, ...)
 {
+  # TODO
+  stop("this has to be redone")
   pars <- list(...)
   kc <- ifelse(hasArg(k), pars$k, 25)
   phs <- obj$gene.pathogen.effect.hits
