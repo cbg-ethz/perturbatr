@@ -76,11 +76,13 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
 #' @importFrom iterators iter
 #' @importFrom dplyr filter
 #' @importFrom assertthat assert_that
-.diffuse.lmm.mrw.pathogen.wise <- function(obj, gra, ...)
+.diffuse.lmm.mrw.pathogen.wise <- function(obj, graph, ...)
 {
+  pars <- list(...)
+  kc <- ifelse(hasArg(k), pars$k, 25)
   phs <- obj$gene.pathogen.effect.hits
   vir <- unique(phs$Virus)
-  adj.mat <-  igraph::get.adjacency(gra, attr="weight")
+  adj.mat <-  igraph::get.adjacency(graph, attr="weight")
   W <- .stoch.col.norm(adj.mat)
   len <- nrow(W)
   # TODO
@@ -97,23 +99,8 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
     p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
     p.inf
   }
-  mat <- .rankaggreg(neighbors, adj.mat.genes, k=25)
-  colnames(mat) <- adj.mat.genes
-  nei.tab <- data.table::data.table(Gene=adj.mat.genes,
-                                    Mean=rowMeans(neighbors)) %>%
-      .[order(Mean, decreasing=T)] %>% .[1:25]
-
-  new.gen.idx <- which(adj.mat.genes %in% nei.tab$Gene)
-  new.adj.mat <- adj.mat[new.gen.idx,new.gen.idx]
-  nodes <- colnames(new.adj.mat)
-  res.gr <- igraph::graph.adjacency(new.adj.mat,mode="undirected")
-  igraph::V(res.gr)$color <- igraph::V(res.gr)$Color
-  graph.info <- list(graph=res.gr,
-                     colors=c("lightblue", "orange"),
-                     legend=c("LMM", "'Diffusion'"),
-                     type="MRW")
-  list(hits=res, graph.info=graph.info)
-  invisible(nei.tab)
+  mat <- knockout:::.rankaggreg(neighbors, adj.mat.genes, k=kc)
+  return(mat)
 }
 
 #' @noRd
