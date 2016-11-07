@@ -128,11 +128,14 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
 #' @import foreach parallel doParallel
 #' @importFrom iterators iter
 #' @importFrom dplyr filter
-.diffuse.lmm.knn.pathogen.wise <- function(obj, gra, ...)
+#' @importFrom methods hasArg
+.diffuse.lmm.knn.pathogen.wise <- function(obj, graph, ...)
 {
+  pars <- list(...)
+  c <- ifelse(hasArg(count), pars$count, 1)
   phs <- obj$gene.pathogen.effect.hits
   vir <- unique(phs$Virus)
-  all.edges  <- igraph::get.edgelist(gra)
+  all.edges  <- igraph::get.edgelist(graph)
   #cl <- parallel::makeCluster(parallel::detectCores() - 2)
   #doParallel::registerDoParallel(cl)
   neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=rbind) %do%
@@ -149,7 +152,7 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
  # parallel::stopCluster(cl)
   rel <- dplyr::group_by(neighbors, Gene1, Gene2) %>%
     dplyr::summarise(Count=n()) %>%
-    dplyr::filter(Count > 1) %>%
+    dplyr::filter(Count >= c) %>%
     as.data.frame
   li <- unique(c(rel$Gene1, rel$Gene2))
   res <- dplyr::filter(neighbors, Gene1 %in% li | Gene2 %in% li ) %>%

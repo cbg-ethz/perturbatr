@@ -25,25 +25,27 @@
 plot.svd.prioritized.pmm <- function(x, y, ...)
 {
   gen.pat <- x$gene.pathogen.effect.hits
-  pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects")
+  pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects", ...)
   pl2 <-
-    .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects") +
+    .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects", ...) +
     ggplot2::facet_wrap( ~ Virus, ncol=ceiling(length(unique(gen.pat$Virus))/2))
-  pl3 <- .multiplot(plotlist=list(pl, pl2))
-  pl3
+  return(list(pl, pl2))
 }
 
 #' @noRd
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr filter
+#' @importFrom methods hasArg
 .plot.svd.prioritized.pmm <- function(x, main, ...)
 {
+  pars <- list(...)
+  size <- ifelse(methods::hasArg(size), pars$size, 10)
   if ("Virus" %in% colnames(x))
   {
     x <- x %>%
       .[order(abs(Effect), decreasing=T), .SD[1:25], by=Virus] %>%
-      filter(!is.na(GeneSymbol))
+      dplyr::filter(!is.na(GeneSymbol))
   }
   else
   {
@@ -60,9 +62,11 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
     ylab("Effect") +
     ggplot2::theme_bw() +
     ggplot2::theme(axis.text.y=element_blank(),
-                   axis.ticks=element_blank()) +
+                   axis.ticks=element_blank(),
+                   text = element_text(size = size, family = "Helvetica")) +
     ggplot2::coord_polar() +
     ggplot2::ggtitle(main)
+
   pl
 }
 
@@ -140,13 +144,12 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
                                   na.value=LDcolors[6],
                                   name="Gene effect") +
     ggplot2::theme_bw() +
-    ggplot2::theme(text = element_text(size = 16, family = "Helvetica"),
+    ggplot2::theme(text = element_text(size = 14, family = "Helvetica"),
                    aspect.ratio=4,
                    axis.text.x=element_text(angle=45,  hjust = 1, size=10),
                    axis.text.y=element_text(size=10),
-                   axis.title=element_blank(), axis.ticks=element_blank()) +
-    ggplot2::coord_fixed()
-  v <-  s %>% gather(GeneSymbol)
+                   axis.title=element_blank(), axis.ticks=element_blank())
+  v <-  effect.matrices$gene.pathogen.hits %>% gather(GeneSymbol)
   colnames(v) <- c("GeneSymbol", "Pathogen", "Effect")
   v$GeneSymbol <- factor(v$GeneSymbol, levels=rev(unique(v$GeneSymbol)))
   pl2 <-
@@ -158,13 +161,12 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
                                   na.value=LDcolors[6],
                                   name="Gene-pathogen\neffect") +
     ggplot2::theme_bw() +
-    ggplot2::theme(text = element_text(size = 16, family = "Helvetica"),
+    ggplot2::theme(text = element_text(size = 14, family = "Helvetica"),
                    aspect.ratio=2,
                    axis.text.x=element_text(angle=45,  hjust = 1, size=10),
                    axis.text.y=element_text(size=10),
                    axis.title=element_blank(),
-                   axis.ticks=element_blank()) +
-   ggplot2::coord_fixed()
+                   axis.ticks=element_blank())
   return(list(gene.effects.plot=pl1, gene.pathogen.effects.plot=pl2))
 }
 

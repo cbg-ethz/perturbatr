@@ -354,6 +354,9 @@ plot.svd.quality <- function(x, y, ...)
 #' @method plot svd.diffused.pmm
 plot.svd.diffused.pmm <- function(x, y, ...)
 {
+   pars <- list(...)
+   sz <- ifelse(hasArg(size), pars$size, -1)
+   show.labels <- ifelse(hasArg(size), pars$size, -1)
    obj <- x$graph.info$graph
    V(obj)$size = igraph::degree(obj)
    deg <- igraph::degree(obj)
@@ -373,6 +376,7 @@ plot.svd.diffused.pmm <- function(x, y, ...)
    E(obj)$width <- 2
    graphics::plot.new()
    op <- par(family = "Helvetica", font=2)
+   if (sz != -1) size <- rep(sz, length(size))
    graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
                   vertex.label.family="Helvetica", vertex.label.font=2,
                   edge.curved=-.01)
