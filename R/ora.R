@@ -52,14 +52,7 @@ setMethod(
 
 #' @noRd
 #' @importFrom GOstats hyperGTest
-ora.default <-
-function
-(
-  hit.list,
-  universe,
-  db=c("kegg", "go"),
-  ...
-)
+ora.default <- function(hit.list, universe, db=c("kegg", "go"), ...)
 {
   db <- match.arg(db)
   message(paste("Doing ORA on:", db))
@@ -74,13 +67,7 @@ function
 }
 
 #' @noRd
-.gsea.go <-
-function
-(
-  hit.list,
-  universe,
-  ...
-)
+.gsea.go <- function(hit.list, universe, ...)
 {
   params <- list(...)
   ontology <- ifelse(hasArg("ontology"), params$ontology, "BP")
@@ -97,13 +84,7 @@ function
 }
 
 #' @noRd
-.gsea.kegg <-
-  function
-(
-  hit.list,
-  universe,
-  ...
-)
+.gsea.kegg <- function(hit.list, universe, ...)
 {
   params <- list(...)
   p.value <- ifelse(hasArg("p.value"), params$p.value, .05)
@@ -117,8 +98,7 @@ function
 }
 
 
-go.mapping <-
-function(dat)
+go.mapping <- function(dat)
 {
   UseMethod("go.mapping", dat)
 }
@@ -130,8 +110,7 @@ function(dat)
 #'
 #' @importFrom AnnotationDbi toTable
 #' @importFrom dplyr filter
-go.mapping.integer <-
-function(dat)
+go.mapping.integer <- function(dat)
 {
   frame <- AnnotationDbi::toTable(org.Hs.eg.db::org.Hs.egGO)
   go.frame.data <- data.table::data.table(GO=frame$go_id,
@@ -141,8 +120,7 @@ function(dat)
 }
 
 #' @noRd
-kegg.mapping <-
-function(dat)
+kegg.mapping <- function(dat)
 {
     UseMethod("kegg.mapping", dat)
 }
