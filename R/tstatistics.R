@@ -28,14 +28,8 @@
 #' @param mu  side to which the mean of a siRNA is compared to
 #' @param padjust  multiple testing correction method
 #' @param ...   additional params
-tstatistic <-
-function
-(
-  obj,
-  mu=c(NA, "Scrambled", "control"),
-  padjust=c("BH", "bonferroni"),
-  ...
-)
+tstatistic <- function(obj, mu=c(NA, "Scrambled", "control"),
+                       padjust=c("BH", "bonferroni"), ...)
 {
   UseMethod("tstatistic", obj)
 }
@@ -43,14 +37,8 @@ function
 #' @noRd
 #' @export
 #' @import data.table
-tstatistic.svd.data <-
-function
-(
-  obj,
-  mu=c(NA, "Scrambled", "control"),
-  padjust=c("BH", "bonferroni"),
-  ...
-)
+tstatistic.svd.data <- function(obj, mu=c(NA, "Scrambled", "control"),
+                                padjust=c("BH", "bonferroni"), ...)
 {
   mu <- match.arg(mu)
   padjust <- match.arg(padjust)
@@ -61,14 +49,7 @@ function
 
 #' @noRd
 #' @import data.table
-.tstatistic <-
-function
-(
-  obj,
-  mu,
-  padjust,
-  ...
-)
+.tstatistic <- function(obj, mu, padjust, ...)
 {
   message(paste("Correcting with ", padjust, "!", sep=""))
   message(paste("Taking", mu, "for t-test!"))
@@ -110,13 +91,7 @@ function
 #' @importFrom dplyr summarize
 #' @importFrom dplyr ungroup
 #' @importFrom stats p.adjust
-.do.tstatistic <-
-function
-(
-  obj,
-  padjust,
-  mu
-)
+.do.tstatistic <- function(obj, padjust, mu)
 {
   res <- obj %>% ungroup
   # unfortunately it is needed (but works bcs siRNAs are always on the same plates)
@@ -145,12 +120,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter group_by mutate summarize
-.tstatisic.plate <-
-function
-(
-  obj,
-  mu
-)
+.tstatisic.plate <- function(obj, mu)
 {
   ret <- obj %>% ungroup
   mu <- .set.mu(ret, mu)
@@ -169,12 +139,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter
-.set.mu <-
-function
-(
-  ret,
-  mu.gene
-)
+.set.mu <- function(ret,mu.gene)
 {
   if (!is.na(mu.gene))
   {
@@ -201,13 +166,7 @@ function
 
 #' @noRd
 #' @importFrom stats t.test
-.ttest <-
-function
-(
-  g,
-  val,
-  mu
-)
+.ttest <- function(g, val, mu)
 {
   tst <- 1
   if (length(val) < 3)

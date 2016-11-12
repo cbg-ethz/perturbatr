@@ -90,8 +90,6 @@ print.svd.analysed.hyper <- function(x,  ...)
   base::print(data.table::as.data.table(x))
 }
 
-
-
 #' @export
 #' @import data.table
 #' @importFrom dplyr group_by summarize as.tbl
@@ -112,7 +110,6 @@ print.svd.analysed.pmm <- function(x, ...)
 #' @import data.table
 #' @method print svd.prioritized.hyper
 print.svd.prioritized.hyper <- function(x, ...) .print.svd.prioritized(x, ...)
-
 
 #' @export
 #' @import data.table

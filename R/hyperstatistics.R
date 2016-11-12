@@ -149,17 +149,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
 #' @import dtplyr
 #' @importFrom dplyr group_by
 #' @importFrom dplyr mutate
-.hypertest <-
-function
-(
- all.genes,
- sirnas,
- plates,
- rows,
- cols,
- readouts,
- level
-)
+.hypertest <- function(all.genes, sirnas, plates, rows, cols, readouts, level)
 {
   fr <- data.table::data.table(genes=all.genes, sirnas=sirnas,
                                plates=plates, rows=rows, cols=cols,
@@ -188,12 +178,7 @@ function
 
 #' @noRd
 #' @importFrom stats phyper
-.hypertest.grp <-
-function
-(
-  ranks,
-  all.genes
-)
+.hypertest.grp <- function(ranks, all.genes)
 {
   N <- length(all.genes)
   ndrawn <- length(ranks)

@@ -26,8 +26,10 @@
 #' @param path  path (or file) to the target-relation matrices
 #' @param drop  drops all genes that are not found in every screen, i.e. a gene has to be found over all pathogens to be used
 #' @param ... additional arguments
-correct <- function(obj, path, drop, ...) UseMethod("correct")
-
+correct <- function(obj, path, drop, ...)
+{
+  UseMethod("correct")
+}
 
 #' @noRd
 #' @export
@@ -49,14 +51,7 @@ correct.svd.data <- function(obj, path, drop, ...)
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
-.off.target.correct <-
-function
-(
- obj,
- path,
- drop,
- ...
-)
+.off.target.correct <- function(obj, path, drop, ...)
 {
   nor <- nrow(obj)
   # only take elements that have an entrez ID and a sirna ID

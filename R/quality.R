@@ -24,8 +24,10 @@
 #'
 #' @param obj  the object for which quality scores are calculates
 #' @param ...  additional parameters
-quality <- function(obj, ...) UseMethod("quality")
-
+quality <- function(obj, ...)
+{
+  UseMethod("quality")
+}
 
 #' @export
 #' @noRd
@@ -47,12 +49,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr select
-quality.svd.data <-
-function
-(
-  obj,
-  ...
-)
+quality.svd.data <- function(obj, ...)
 {
   q <- .quality(obj)
   res <- dplyr::select(obj, Virus, Screen, Library, Cell,
@@ -67,11 +64,7 @@ function
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by summarize
-.quality <-
-function
-(
-    obj
-)
+.quality <- function(obj)
 {
   q.plate <- obj %>%
     dplyr::group_by(Virus, Screen, Library, Replicate,

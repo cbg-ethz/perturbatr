@@ -20,12 +20,7 @@
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by mutate filter select
-.rm.cytotoxic <-
-function
-(
-  obj,
-  rm.cytotoxic
-)
+.rm.cytotoxic <- function(obj, rm.cytotoxic)
 {
   if (!is.null(rm.cytotoxic) & "Viability" %in% colnames(obj))
   {

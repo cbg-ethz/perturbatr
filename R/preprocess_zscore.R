@@ -33,8 +33,7 @@
   z.score.data <-
     dplyr::group_by(obj, Virus, Screen, Library,
                     ReadoutType, InfectionType, ReadoutClass,
-                    Design, Cell,
-                    Replicate, Plate)
+                    Design, Cell, Replicate, Plate)
   if (level == "plate")
   {
     z.score.data <-
@@ -63,7 +62,7 @@
 .z.score.plate <- function(obj, method)
 {
   val <- switch(method,
-                "default"=((obj - base::mean(obj, na.rm=T)) /
+                "default"=((obj - mean(obj, na.rm=T)) /
                              stats::sd(obj, na.rm=T)),
                 "robust" =((obj - stats::median(obj, na.rm=T)) /
                              stats::mad(obj, na.rm=T)),
@@ -96,7 +95,7 @@
       warning(paste("You are normalizing with z-scores and only using",
                     length(cont.idx),"values!"))
     val <- switch(method,
-                  "default"=((re - base::mean(re[cont.idx], na.rm=T)) /
+                  "default"=((re - mean(re[cont.idx], na.rm=T)) /
                                stats::sd(re[cont.idx], na.rm=T)),
                   "robust" =((re - stats::median(re[cont.idx], na.rm=T)) /
                                stats::mad(re[cont.idx], na.rm=T)),
