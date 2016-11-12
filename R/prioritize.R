@@ -156,7 +156,6 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 #' @importFrom dplyr filter select group_by mutate summarize full_join
 .select.hits.pmm.min.fdr <- function(obj, fdr.threshold)
 {
-  params <- list(...)
   message(paste("Prioritizing on fdr.threshold ", fdr.threshold,
                 " for gene-pathogen effects and ",
                 "'min.fdr(cg)' for gene effects.",

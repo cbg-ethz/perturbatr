@@ -18,6 +18,7 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 #' @noRd
+#' @import data.table
 #' @importFrom RankAggreg RankAggreg
 #' @param obj  a n x k matrix where n is the number of lists and k the number of elements in each list
 #' @param labels  the names of the k elements

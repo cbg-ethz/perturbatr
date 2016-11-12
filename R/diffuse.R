@@ -45,7 +45,7 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
 {
   if (!file.exists(path))
     stop(paste("Can't find: ", path, "!", sep=""))
-  graph <- knockout:::.read.graph(path)
+  graph <- .read.graph(path)
   res  <- .diffuse.lmm(obj, match.arg(method), graph, ...)
   class(res) <- c("svd.diffused.pmm", "svd.diffused", class(res))
   invisible(res)
@@ -85,7 +85,7 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
   phs <- obj$gene.pathogen.effect.hits
   vir <- unique(phs$Virus)
   adj.mat <-  igraph::get.adjacency(graph, attr="weight")
-  W <- knockout:::.stoch.col.norm(adj.mat)
+  W <- .stoch.col.norm(adj.mat)
   len <- nrow(W)
   # TODO
   adj.mat.genes <- colnames(adj.mat)
@@ -107,7 +107,7 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
   #   p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
   #   p.inf
   # }
-  mat <- knockout:::.rankaggreg(neighbors, adj.mat.genes, k=kc)
+  mat <- .rankaggreg(neighbors, adj.mat.genes, k=kc)
   return(mat)
 }
 
