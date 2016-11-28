@@ -24,15 +24,22 @@
 #'
 #' @import data.table
 #'
-#' @param obj  an svd.data object
+#' @param obj  an \code{svd.prioritized} object
 #' @param method  method that should be used for diffusion
 #' \itemize{
 #'   \item{neighbors }{ just looks at the neighbors :)}
 #'   \item{mrw }{ do a Markov random walk}
 #' }
-#' @param path  path to the network
+#' @param path   path to the network file
+#' @param r  restart probability of the random if method \code{mrw} is selected
+#' @param node.start.count  number of nodes that are used to do the neighbors
+#'  search if method \code{neighbors} is selected.
+#'  If the number of hits in \code{obj} exceeds \code{node.start.count},
+#'  then the elements with the highest absolute effects are chosen. If this
+#'  behaviour is not desired filter \code{obj} before.
 #' @param ...  additional parameters
-diffuse <- function(obj, method=c("neighbors", "mrw"), path, ...)
+diffuse <- function(obj, method=c("neighbors", "mrw"), path,
+                    r=0.5, node.start.count=25, search.depth=5, ...)
 {
   UseMethod("diffuse")
 }
@@ -40,103 +47,85 @@ diffuse <- function(obj, method=c("neighbors", "mrw"), path, ...)
 #' @noRd
 #' @export
 #' @import data.table igraph
-diffuse.svd.prioritized.pmm <-
-function(obj, method=c("neighbors", "mrw"), path, ...)
+diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
+                                        path, r=0.5, node.start.count=25,
+                                        search.depth=5, ...)
 {
   if (!file.exists(path))
     stop(paste("Can't find: ", path, "!", sep=""))
   hits <- obj$gene.effect.hits %>%
     dplyr::select(GeneSymbol, abs(Effect))
-  res  <- .diffuse(hits, path, match.arg(method), ...)
+  graph <- .read.graph(path)
+  res  <- .diffuse(hits, graph, match.arg(method),
+                   r=0.5, node.start.count=25, search.depth=5)
   invisible(res)
 }
 
 #' @noRd
 #' @import data.table
-.diffuse <- function(hits, path, method, ...)
+#' @importFrom igraph get.adjacency
+.diffuse <- function(hits, graph, method, r=0.5, node.start.count=25,
+                     search.depth=5)
 {
-  graph <- .read.graph(path)
-
-  f <- switch(method,
-         "neighbors"= .knn, "mrw" = .mrw,
+  adjm <-  igraph::get.adjacency(graph, attr="weight")
+  switch(method,
+         "neighbors"= .knn(hits, adjm, node.start.count, search.depth),
+         "mrw"      = .mrw(hits, adjm, r),
          stop("No suitable method found"))
-  f(hits, graph, ...)
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom diffusr random.walk
-.mrw <- function(hits, graph, r=0.5, ...)
+.mrw <- function(hits, adjm, r)
 {
-  diffuse.data <- .init.starting.distribution(hits, graph)
+  diffuse.data <- .init.starting.distribution(hits, adjm)
   mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
-                              diffuse.data$adjm, .5)
+                              as.matrix(diffuse.data$adjm), r)
   diffuse.data$frame$DiffusionEffect <- mrw
   res <- diffuse.data$frame
   class(res) <- c("svd.diffused.mrw", "svd.diffused", class(res))
   return(res)
 }
 
-
-#' @noRd
-#' @import data.table igraph
-#' @import foreach parallel doParallel
-#' @importFrom iterators iter
-#' @importFrom dplyr filter
-#' @importFrom methods hasArg
-.knn <- function(hits, adjm, ...)
-{
-  pars <- list(...)
-  c <- ifelse(hasArg(count), pars$count, 1)
-  phs <- obj$gene.pathogen.effect.hits
-  vir <- unique(phs$Virus)
-  all.edges  <- igraph::get.edgelist(graph)
-  #cl <- parallel::makeCluster(parallel::detectCores() - 2)
-  #doParallel::registerDoParallel(cl)
-  neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=rbind) %do%
-  {
-      virgen <- dplyr::filter(phs, Virus==v)$GeneSymbol
-      idxs   <- which(all.edges[,1] %in% virgen | all.edges[,2] %in% virgen)
-      fr <- t(apply(all.edges[idxs, ], 1, function(e) sort(e)))
-      chosen.edges <- data.table(Virus=v,
-                                    Gene1=c(fr[, 1]),
-                                    Gene2=c(fr[, 2])) %>%
-        unique
-      chosen.edges
-  }
- # parallel::stopCluster(cl)
-  rel <- dplyr::group_by(neighbors, Gene1, Gene2) %>%
-    dplyr::summarise(Count=n()) %>%
-    dplyr::filter(Count >= c) %>%
-    as.data.frame
-  li <- unique(c(rel$Gene1, rel$Gene2))
-  res <- dplyr::filter(neighbors, Gene1 %in% li | Gene2 %in% li ) %>%
-    as.data.frame
-  nodes <- data.table(Node=unique(c(res[, 2], res[, 3]))) %>%
-    dplyr::mutate(Color=ifelse(Node %in% phs$GeneSymbol,
-                               "lightblue", "orange")) %>%
-    dplyr::mutate(FromLMM=ifelse(Node %in% phs$GeneSymbol, 1, 0)) %>%
-    as.data.frame
-  edges <- res[, c(2, 3)]
-  res.gr <- igraph::graph.data.frame(edges, directed=F, vertices=nodes)
-  igraph::V(res.gr)$color <- igraph::V(res.gr)$Color
-  graph.info <- list(graph=res.gr,
-                     colors=c("lightblue", "orange"),
-                     legend=c("Linear mixed model", "Diffusion"),
-                     type="1-NN",
-                     tresh=2)
-  list(hits=res, graph.info=graph.info)
-}
-
 #' @noRd
 #' @import data.table
-#' @importFrom igraph get.adjacency
 #' @importFrom dplyr left_join
-.init.starting.distribution <- function(hits, graph)
+.init.starting.distribution <- function(hits, adjm)
 {
-  adjm <-  igraph::get.adjacency(graph, attr="weight")
   res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
                            hits)
   data.table::setDT(res)[is.na(Effect), Effect := 0]
   return(list(frame=res, adjm=adjm))
+}
+
+#' @noRd
+#' @import data.table igraph
+#' @importFrom dplyr filter mutate
+.knn <- function(hits, adjm, node.start.count, search.depth)
+{
+  diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
+  knn <- diffusr::nearest.neighbors(
+    as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
+    as.matrix(diffuse.data$adjm), search.depth)
+  diffuse.data$frame$DiffusionEffect <- mrw
+  res <- diffuse.data$frame
+  class(res) <- c("svd.diffused.mrw", "svd.diffused", class(res))
+  return(res)
+}
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr left_join mutate select
+.init.starting.indexes <- function(hits, adjm, node.start.count)
+{
+    res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
+                             hits)
+    data.table::setDT(res)[is.na(Effect), Effect := 0]
+    res <- res %>%
+      .[order(-abs(Effect))] %>%
+      dplyr::mutate(Idx = 1:.N) %>%
+      dplyr::mutate(Select = (Idx <= node.start.count))
+    data.table::setDT(res)[is.na(Select), Select := FALSE]
+    return(list(frame=res, adjm=adjm))
 }
