@@ -36,13 +36,13 @@ Imports: dplyr,
     parallel,
     doParallel,
     RankAggreg,
-    methods
+    methods,
+    diffusr
 biocViews: AnnotationDbi,
     GOstats,
     org.Hs.eg.db,
     gespeR,
     limma
-Remotes: dirmeier/diffusr
 Suggests: testthat,
     lintr,
     knitr,

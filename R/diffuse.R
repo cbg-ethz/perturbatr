@@ -45,78 +45,36 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
 {
   if (!file.exists(path))
     stop(paste("Can't find: ", path, "!", sep=""))
-  graph <- .read.graph(path)
-  res  <- .diffuse.lmm(obj, match.arg(method), graph, ...)
+  hits <- obj$gene.effect.hits %>%
+    dplyr::select(GeneSymbol, abs(Effect))
+  res  <- .diffuse(hits, path, match.arg(method), ...)
   class(res) <- c("svd.diffused.pmm", "svd.diffused", class(res))
   invisible(res)
 }
 
 #' @noRd
-#' @import data.table igraph
-.diffuse.lmm <- function(obj, method, graph, ...)
+#' @import data.table
+.diffuse <- function(hits, path, method, ...)
 {
-  # TODO: include diffusr package
-  switch(method,
-         "neighbors"= .diffuse.lmm.knn(obj, graph, ...),
-         "mrw"      = .diffuse.lmm.mrw(obj, graph, ...),
+  graph <- .read.graph(path)
+  el <- .init.starting.distribution(hits, graph)
+  f <- switch(method,
+         "neighbors"= .knn, "mrw" = .mrw,
          stop("No suitable method found"))
+  f(el$hits, el$adj)
 }
 
 #' @noRd
 #' @import data.table
-.diffuse.lmm.mrw <- function(obj, graph, ...)
+.mrw <- function(hits, adjm, r=0.5, ...)
 {
-  .diffuse.lmm.mrw.pathogen.wise(obj, graph, ...)
+  res <- diffusr::random.walk(abs(hits$Effects), adjm, r)
+  mrw <- random.walk(fin$Effect, W, .5)
+  fin$mrw <- mrw
+  best.100 <- fin%>% .[order(-mrw)] %>% .[1:100]
+  # parse inf
 }
 
-#' @noRd
-#' @import data.table igraph
-#' @import foreach parallel doParallel
-#' @import Matrix
-#' @importFrom iterators iter
-#' @importFrom dplyr filter
-#' @importFrom assertthat assert_that
-.diffuse.lmm.mrw.pathogen.wise <- function(obj, graph, ...)
-{
-  # TODO
-  stop("this has to be redone")
-  pars <- list(...)
-  kc <- ifelse(hasArg(k), pars$k, 25)
-  phs <- obj$gene.pathogen.effect.hits
-  vir <- unique(phs$Virus)
-  adj.mat <-  igraph::get.adjacency(graph, attr="weight")
-  W <- .stoch.col.norm(adj.mat)
-  len <- nrow(W)
-  # TODO
-  adj.mat.genes <- colnames(adj.mat)
-  adj.matr  <- data.table(Genes=adj.mat.genes)
-  vir.matr  <- data.table(Effect=abs(phs$Effect), Genes=phs$GeneSymbol)
-  fin <- dplyr::left_join(adj.matr, vir.matr)
-  setDT(fin)[is.na(Effect), Effect := 0]
-  setDT(fin)[, Effect := Effect / sum(Effect)]
-
-  # neighbors <- foreach::foreach(v=iterators::iter(vir), .combine=cbind) %do% {
-  #   flt <- phs %>% .[order(GeneSymbol)]
-  #   vir.gen <- flt$GeneSymbol
-  #   vir.eff <- abs(flt$Effect)
-  #   intr.gen <- intersect(adj.mat.genes, vir.gen)
-  #   idxs.com   <- which(adj.mat.genes %in% intr.gen)
-  #   idxs.set   <- which(vir.gen %in% intr.gen)
-  #   p0 <- rep(0, len)
-  #   p0[idxs.com] <- vir.eff[idxs.set]/sum(vir.eff[idxs.set])
-  #   p.inf <- solve(diag(len) - .5 * W) %*% (.5 * p0)
-  #   p.inf
-  # }
-  mat <- .rankaggreg(neighbors, adj.mat.genes, k=kc)
-  return(mat)
-}
-
-#' @noRd
-#' @import data.table
-.diffuse.lmm.knn <- function(obj, graph, ...)
-{
-  .diffuse.lmm.knn.pathogen.wise(obj, graph, ...)
-}
 
 #' @noRd
 #' @import data.table igraph
@@ -124,7 +82,7 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
 #' @importFrom iterators iter
 #' @importFrom dplyr filter
 #' @importFrom methods hasArg
-.diffuse.lmm.knn.pathogen.wise <- function(obj, graph, ...)
+.knn <- function(hits, adjm, ...)
 {
   pars <- list(...)
   c <- ifelse(hasArg(count), pars$count, 1)
@@ -166,4 +124,18 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
                      type="1-NN",
                      tresh=2)
   list(hits=res, graph.info=graph.info)
+}
+
+
+#' @noRd
+#' @import data.table
+#' @importFrom igraph get.adjacency
+#' @importFrom dplyr left_join
+.init.starting.distribution <- function(hits, graph)
+{
+  adjm <-  igraph::get.adjacency(graph, attr="weight")
+  res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
+                           hits)
+  data.table::setDT(res)[is.na(Effect), Effect := 0]
+  return(list(frame=res, adjm=adjm))
 }
