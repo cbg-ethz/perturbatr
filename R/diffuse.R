@@ -84,7 +84,8 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
                               as.matrix(diffuse.data$adjm), r)
   diffuse.data$frame$DiffusionEffect <- mrw
   res <- diffuse.data$frame
-  class(res) <- c("svd.diffused.mrw", "svd.diffused", class(res))
+  li <- list(data=li)
+  class(li) <- c("svd.diffused.mrw", "svd.diffused", class(li))
   return(res)
 }
 
@@ -105,13 +106,15 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 .knn <- function(hits, adjm, node.start.count, search.depth)
 {
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
-  knn <- diffusr::nearest.neighbors(
+  neighs <- diffusr::nearest.neighbors(
     as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
     as.matrix(diffuse.data$adjm), search.depth)
-  diffuse.data$frame$DiffusionEffect <- mrw
   res <- diffuse.data$frame
-  class(res) <- c("svd.diffused.mrw", "svd.diffused", class(res))
-  return(res)
+  names(neighs) <- filter(diffuse.data$frame,
+                       Idx %in% as.integer(names(neighs)))$GeneSymbol
+  li <- list(data=res, neighbors=knn)
+  class(li) <- c("svd.diffused.knn", "svd.diffused", class(res))
+  return(li)
 }
 
 #' @noRd
@@ -119,13 +122,13 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 #' @importFrom dplyr left_join mutate select
 .init.starting.indexes <- function(hits, adjm, node.start.count)
 {
-    res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
-                             hits)
-    data.table::setDT(res)[is.na(Effect), Effect := 0]
-    res <- res %>%
-      .[order(-abs(Effect))] %>%
-      dplyr::mutate(Idx = 1:.N) %>%
-      dplyr::mutate(Select = (Idx <= node.start.count))
-    data.table::setDT(res)[is.na(Select), Select := FALSE]
-    return(list(frame=res, adjm=adjm))
+  res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
+                           hits)
+  data.table::setDT(res)[is.na(Effect), Effect := 0]
+  res <- res %>%
+    .[order(-abs(Effect))] %>%
+    dplyr::mutate(Idx = 1:.N) %>%
+    dplyr::mutate(Select = (Idx <= node.start.count))
+  data.table::setDT(res)[is.na(Select), Select := FALSE]
+  return(list(frame=res, adjm=adjm))
 }
