@@ -48,7 +48,6 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
   hits <- obj$gene.effect.hits %>%
     dplyr::select(GeneSymbol, abs(Effect))
   res  <- .diffuse(hits, path, match.arg(method), ...)
-  class(res) <- c("svd.diffused.pmm", "svd.diffused", class(res))
   invisible(res)
 }
 
@@ -57,22 +56,25 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
 .diffuse <- function(hits, path, method, ...)
 {
   graph <- .read.graph(path)
-  el <- .init.starting.distribution(hits, graph)
+
   f <- switch(method,
          "neighbors"= .knn, "mrw" = .mrw,
          stop("No suitable method found"))
-  f(el$hits, el$adj)
+  f(hits, graph, ...)
 }
 
 #' @noRd
 #' @import data.table
-.mrw <- function(hits, adjm, r=0.5, ...)
+#' @importFrom diffusr random.walk
+.mrw <- function(hits, graph, r=0.5, ...)
 {
-  res <- diffusr::random.walk(abs(hits$Effects), adjm, r)
-  mrw <- random.walk(fin$Effect, W, .5)
-  fin$mrw <- mrw
-  best.100 <- fin%>% .[order(-mrw)] %>% .[1:100]
-  # parse inf
+  diffuse.data <- .init.starting.distribution(hits, graph)
+  mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
+                              diffuse.data$adjm, .5)
+  diffuse.data$frame$DiffusionEffect <- mrw
+  res <- diffuse.data$frame
+  class(res) <- c("svd.diffused.mrw", "svd.diffused", class(res))
+  return(res)
 }
 
 
@@ -125,7 +127,6 @@ function(obj, method=c("neighbors", "mrw"), path, ...)
                      tresh=2)
   list(hits=res, graph.info=graph.info)
 }
-
 
 #' @noRd
 #' @import data.table
