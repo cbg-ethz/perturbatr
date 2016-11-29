@@ -62,6 +62,7 @@ preprocess <- function(obj, normalize=c("log", "robust-z.score"),
 #' @import data.table
 #' @importFrom dplyr group_by mutate filter select
 #' @importFrom tidyr spread
+#' @importFrom methods hasArg
 preprocess.svd.raw <- function (obj,normalize=c("log", "robust-z.score"),
                                 normalize.viability=F, rm.cytotoxic=NULL,
                                 rm.outlier.wells=c(NA, "quantile"), drop=T, ...)
@@ -69,7 +70,7 @@ preprocess.svd.raw <- function (obj,normalize=c("log", "robust-z.score"),
   params <- list(...)
   # what wells should set to NA dependent on quantiles
   outlier.well.range <- NA
-  if (hasArg(outlier.well.range))
+  if (methods::hasArg(outlier.well.range))
     outlier.well.range <- params$outlier.well.range
   rm.outlier.wells <- match.arg(rm.outlier.wells)
   if (!is.logical(drop))

@@ -49,10 +49,11 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 #' @import lme4
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
+#' @importFrom methods hasArg
 .lmm <- function(obj, drop, weights=NULL, rel.mat.path=NULL, ...)
 {
   params <- list(...)
-  ignore <- ifelse(hasArg(ignore) &&is.numeric(params$ignore),
+  ignore <- ifelse(methods::hasArg(ignore) &&is.numeric(params$ignore),
                    params$ignore, 1)
   # init the data table for the LMM
   model.data <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)

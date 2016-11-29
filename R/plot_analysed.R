@@ -20,14 +20,18 @@
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
+#' @importFrom methods hasArg
 #' @method plot svd.analysed.pmm
 #' @method plot svd.analysed.pmm
 plot.svd.analysed.pmm <- function(x, y, ...)
 {
   params  <- list(...)
-  sig.thresh     <- ifelse(hasArg(sig.thresh), params$fdr.thresh, .2)
-  effect.thresh <- ifelse(hasArg(effect.thresh), params$effect.thresh, 0.0)
-  log.scale      <- ifelse(hasArg(log.scale), params$log.scale, F)
+  sig.thresh     <- ifelse(methods::hasArg(sig.thresh),
+                           params$fdr.thresh, .2)
+  effect.thresh <- ifelse(methods::hasArg(effect.thresh),
+                          params$effect.thresh, 0.0)
+  log.scale      <- ifelse(methods::hasArg(log.scale),
+                           params$log.scale, F)
   gpes <-
     x$gene.pathogen.effects %>%
     dplyr::filter(!is.na(FDR))
@@ -37,7 +41,7 @@ plot.svd.analysed.pmm <- function(x, y, ...)
     y <- -log(y)
     fdr.thresh <- -log(sig.thresh)
   }
-  xl <- ifelse(hasArg(xlab), params$xlab, "Readout")
+  xl <- ifelse(methods::hasArg(xlab), params$xlab, "Readout")
   yl <- ifelse(log.scale, "-log(fdr)", "Local FDR")
   .plot.svd.analysed(x=gpes$Effect,
                      y=y,
@@ -52,14 +56,15 @@ plot.svd.analysed.pmm <- function(x, y, ...)
 #' @export
 #' @import data.table
 #' @importFrom dplyr filter
+#' @importFrom methods hasArg
 #' @method plot svd.analysed
 plot.svd.analysed <- function(x, y, ...)
 {
   params  <- list(...)
-  sig.thresh     <- ifelse(hasArg(sig.thresh), params$sig.thresh, 0.0)
-  readout.thresh <- ifelse(hasArg(readout.thresh), params$readout.thresh, 0.0)
-  log.scale      <- ifelse(hasArg(log.scale), params$log.scale, F)
-  xl <- ifelse(hasArg(xlab), params$xlab, "Readout")
+  sig.thresh     <- ifelse(methods::hasArg(sig.thresh), params$sig.thresh, 0.0)
+  readout.thresh <- ifelse(methods::hasArg(readout.thresh), params$readout.thresh, 0.0)
+  log.scale      <- ifelse(methods::hasArg(log.scale), params$log.scale, F)
+  xl <- ifelse(methods::hasArg(xlab), params$xlab, "Readout")
   yl <- ifelse(log.scale, "-log(p-value)", "p-value")
   obj <- x
   y <- obj$Pval + 0.0001
@@ -155,11 +160,12 @@ plot.svd.analysed <- function(x, y, ...)
 #' @import ggplot2
 #' @import grid
 #' @importFrom RColorBrewer brewer.pal
+#' @importFrom methods hasArg
 #' @method plot svd.analysed.pmm.model.data
 plot.svd.analysed.pmm.model.data <- function(x, y, ...)
 {
   params <- list(...)
-  size <- ifelse(hasArg(size), params$size, 14)
+  size <- ifelse(methods::hasArg(size), params$size, 14)
   LDcolors <- RColorBrewer::brewer.pal(length(unique(as.character(x$Virus))), "Spectral")
   p1 <-
     ggplot2::ggplot(x, aes(Virus, Readout)) +

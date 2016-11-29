@@ -57,12 +57,13 @@ plot.svd.data <- function(x, y, ...)
 #' @import ggplot2
 #' @import data.table
 #' @importFrom RColorBrewer brewer.pal
+#' @importFrom methods hasArg
 #' @method plot svd.concordance
 plot.svd.concordance <- function(x, y, ...)
 {
   params <- list(...)
-  type <- ifelse(hasArg(type), params$type, "jaccard")
-  size <- ifelse(hasArg(size), params$size, 14)
+  type <- ifelse(methods::hasArg(type), params$type, "jaccard")
+  size <- ifelse(methods::hasArg(size), params$size, 14)
   mrix <- switch(type,
                  "jaccard"=x$jaccard.matrix,
                  "overlap"=x$overlap.matrix,
@@ -87,7 +88,7 @@ plot.svd.concordance <- function(x, y, ...)
           axis.title.x=element_blank(),
           axis.title.y=element_blank(),
           panel.background=element_blank()) +
-    ggplot2::ggtitle(ifelse(hasArg("main"), params$main, "")) +
+    ggplot2::ggtitle(ifelse(methods::hasArg("main"), params$main, "")) +
     ggplot2::guides(fill = guide_colorbar(
                                  title.position = "top", title.hjust = 0.5))
 
@@ -98,11 +99,12 @@ plot.svd.concordance <- function(x, y, ...)
 #' @import data.table
 #' @import ggplot2
 #' @importFrom stats cor
+#' @importFrom methods hasArg
 #' @method plot svd.replicates
 plot.svd.replicates <- function(x, y, ...)
 {
   params <- list(...)
-  meth <- ifelse(hasArg(method), params$method, "raw")
+  meth <- ifelse(methods::hasArg(method), params$method, "raw")
   len <- length(x)
   gri <- expand.grid(1:len, 1:len)
   ret <- do.call(
@@ -181,15 +183,16 @@ plot.svd.replicate <- function(x, y, ...)
 #' @export
 #' @import data.table
 #' @importFrom graphics par
+#' @importFrom methods hasArg
 #' @method plot svd.plates
 plot.svd.plates <- function(x, y, ...)
 {
   params <- list(...)
-  count <- ifelse(hasArg(count), params$count, NA)
-  show.controls <- ifelse(hasArg(show.controls) &
+  count <- ifelse(methods::hasArg(count), params$count, NA)
+  show.controls <- ifelse(methods::hasArg(show.controls) &
                             is.logical(params$show.controls),
                   params$show.controls, T)
-  show.gene.names <- ifelse(hasArg(show.gene.names) &
+  show.gene.names <- ifelse(methods::hasArg(show.gene.names) &
                               is.logical(params$show.gene.names),
                             params$show.gene.names, T)
   graphics::par(ask=T)
@@ -219,14 +222,15 @@ plot.svd.plates <- function(x, y, ...)
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr full_join
+#' @importFrom methods hasArg
 #' @method plot svd.plate
 plot.svd.plate <- function(x, y, ...)
 {
   params <- list(...)
-  show.controls <- ifelse(hasArg(show.controls) &
+  show.controls <- ifelse(methods::hasArg(show.controls) &
                             is.logical(params$show.controls),
                           params$show.controls, T)
-  show.gene.names <- ifelse(hasArg(show.gene.names) &
+  show.gene.names <- ifelse(methods::hasArg(show.gene.names) &
                               is.logical(params$show.gene.names),
                           params$show.gene.names, T)
   mat <- readout.matrix(x)
@@ -258,7 +262,7 @@ plot.svd.plate <- function(x, y, ...)
                               labels=rev(df$Row),
                               name="Row index") +
     ggplot2::scale_fill_distiller(palette="Spectral", na.value="white") +
-    ggplot2::ggtitle(ifelse(hasArg(main), params$main, "")) +
+    ggplot2::ggtitle(ifelse(methods::hasArg(main), params$main, "")) +
     ggplot2::theme_bw() +
     ggplot2::theme(text = element_text(size = 12, family = "Helvetica"),
                    aspect.ratio=.75)
@@ -351,12 +355,13 @@ plot.svd.quality <- function(x, y, ...)
 #' @import data.table
 #' @import igraph
 #' @importFrom graphics plot legend
+#' @importFrom methods hasArg
 #' @method plot svd.diffused.pmm
 plot.svd.diffused.pmm <- function(x, y, ...)
 {
    pars <- list(...)
-   sz <- ifelse(hasArg(size), pars$size, -1)
-   show.labels <- ifelse(hasArg(size), pars$size, -1)
+   sz <- ifelse(methods::hasArg(size), pars$size, -1)
+   show.labels <- ifelse(methods::hasArg(size), pars$size, -1)
    obj <- x$graph.info$graph
    V(obj)$size = igraph::degree(obj)
    deg <- igraph::degree(obj)

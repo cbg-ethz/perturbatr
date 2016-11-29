@@ -67,11 +67,12 @@ ora.default <- function(hit.list, universe, db=c("kegg", "go"), ...)
 }
 
 #' @noRd
+#' @importFrom methods hasArg
 .gsea.go <- function(hit.list, universe, ...)
 {
   params <- list(...)
-  ontology <- ifelse(hasArg("ontology"), params$ontology, "BP")
-  p.value <- ifelse(hasArg("p.value"), params$p.value, .05)
+  ontology <- ifelse(methods::hasArg("ontology"), params$ontology, "BP")
+  p.value <- ifelse(methods::hasArg("p.value"), params$p.value, .05)
   GOparams <- new("GOHyperGParams",
                   geneIds = hit.list,
                   universeGeneIds = universe,
@@ -84,10 +85,11 @@ ora.default <- function(hit.list, universe, db=c("kegg", "go"), ...)
 }
 
 #' @noRd
+#' @importFrom methods hasArg
 .gsea.kegg <- function(hit.list, universe, ...)
 {
   params <- list(...)
-  p.value <- ifelse(hasArg("p.value"), params$p.value, .05)
+  p.value <- ifelse(methods::hasArg("p.value"), params$p.value, .05)
   KEGGparams <- new("KEGGHyperGParams",
                   geneIds = hit.list,
                   universeGeneIds = universe,
@@ -129,7 +131,6 @@ kegg.mapping <- function(dat)
 #'
 #' @import data.table
 #' @import org.Hs.eg.db
-#'
 #' @importFrom AnnotationDbi toTable
 #' @importFrom dplyr filter
 kegg.mapping.integer <-

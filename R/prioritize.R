@@ -61,8 +61,8 @@ prioritize.svd.analysed.hyper <- function(obj, ...)
 prioritize.svd.analysed.pmm <- function(obj, ...)
 {
   pars <- list(...)
-  hit.meth <- ifelse(hasArg(method), pars$method, "abs")
-  fdrt <- ifelse(hasArg(fdr.threshold), pars$fdr.threshold, .2)
+  hit.meth <- ifelse(methods::hasArg(method), pars$method, "abs")
+  fdrt <- ifelse(methods::hasArg(fdr.threshold), pars$fdr.threshold, .2)
   res <- .select.hits.pmm(obj, hit.meth, fdrt)
   class(res$gene.pathogen.effect.hits) <-
     c("svd.prioritized.pmm.gene.pathogen.hits",
@@ -75,13 +75,16 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by summarize ungroup filter select mutate
+#' @importFrom methods hasArg
 .select.hits.tt <- function(obj, ...)
 {
   # TODO here: what do do with multiple sirnas? same hit criterion as in hyper
   params <- list(...)
-  hit.rat <- ifelse(hasArg(hit.ratio), params$hit.ratio, 0.5)
-  read.thresh <- ifelse(hasArg(readout.threshold), params$readout.threshold, 0.0)
-  p.val.thresh <- ifelse(hasArg(p.value.threshold), params$p.value.threshold, 0.05)
+  hit.rat <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
+  read.thresh <- ifelse(methods::hasArg(readout.threshold),
+                        params$readout.threshold, 0.0)
+  p.val.thresh <- ifelse(methods::hasArg(p.value.threshold),
+                         params$p.value.threshold, 0.05)
   message(paste("Prioritizing on hit.ratio ", hit.rat,
                 ", readout threshold " , read.thresh,
                 " and p-value threshold ", p.val.thresh, sep=""))
@@ -110,7 +113,7 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 .select.hits.hyper <- function(obj, ...)
 {
   params <- list(...)
-  hit.rat      <- ifelse(hasArg(hit.ratio), params$hit.ratio, 0.5)
+  hit.rat      <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
   message(paste("Prioritizing on hit.ratio ", hit.rat, sep=""))
   res <- dplyr::group_by(obj, Virus, Screen, Library,
                          InfectionType, ReadoutType,

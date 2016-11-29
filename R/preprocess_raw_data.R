@@ -31,6 +31,7 @@
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter
+#' @importFrom methods hasArg
 .normalize.within <- function(obj, normalize, normalize.viability, ...)
 {
   if (!("Readout" %in% colnames(obj))) stop("No 'Readout' column given!")
@@ -38,15 +39,17 @@
   via.dat <- dplyr::filter(obj, ReadoutClass == "Viability")
   # pars arguments
   params <- list(...)
-  z.score.level <- ifelse(hasArg(z.score.level), params$z.score.level, "plate")
-  z.score.ctrl  <- ifelse(hasArg(z.score.ctrl),
+  z.score.level <- ifelse(methods::hasArg(z.score.level),
+                          params$z.score.level, "plate")
+  z.score.ctrl  <- ifelse(methods::hasArg(z.score.ctrl),
                           params$z.score.ctrl, NA_character_)
-  poc.ctrl      <- ifelse(hasArg(poc.ctrl), params$poc.ctrl, NA_character_)
-  method        <- ifelse(hasArg(method), params$method, "mean")
-  background.column <- ifelse(hasArg(background.column),
+  poc.ctrl      <- ifelse(methods::hasArg(poc.ctrl), params$poc.ctrl, NA_character_)
+  method        <- ifelse(methods::hasArg(method), params$method, "mean")
+  background.column <- ifelse(methods::hasArg(background.column),
                               params$background.column,
                               NA)
-  background.row <- ifelse(hasArg(background.row), params$background.row, NA)
+  background.row <- ifelse(methods::hasArg(methods::background.row),
+                           params$background.row, NA)
   # normalize the readout
   message("Normalizing readout")
   read.dat <- .do.normalize.within(obj=read.dat,
