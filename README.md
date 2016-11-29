@@ -1,6 +1,6 @@
 <h1 align="center"> knockout </h1>
 
-[![Build Status](https://travis-ci.org/dirmeier/knockout.svg?branch=master)](https://travis-ci.org/dirmeier/knockout.svg?branch=master)
+[![Build Status](https://travis-ci.org/dirmeier/knockout.svg?branch=master)](https://travis-ci.org/dirmeier/knockout)
 [![codecov](https://codecov.io/gh/dirmeier/knockout/branch/master/graph/badge.svg)](https://codecov.io/gh/dirmeier/knockout)
 
 Analysis of high-throughput gene perturbation screens in R.
