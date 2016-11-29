@@ -48,7 +48,7 @@
   background.column <- ifelse(methods::hasArg(background.column),
                               params$background.column,
                               NA)
-  background.row <- ifelse(methods::hasArg(methods::background.row),
+  background.row <- ifelse(methods::hasArg(background.row),
                            params$background.row, NA)
   # normalize the readout
   message("Normalizing readout")

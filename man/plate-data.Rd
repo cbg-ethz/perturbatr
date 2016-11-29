@@ -2,6 +2,7 @@
 % Please edit documentation in R/data.R
 \docType{data}
 \name{plate-data}
+\alias{plate}
 \alias{plate-data}
 \title{plate}
 \format{A data.table with 18 columns, each describing a necessary feature of a \code{svd.raw} data-set}

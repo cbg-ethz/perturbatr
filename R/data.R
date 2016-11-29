@@ -28,4 +28,4 @@
 #' @keywords datasets data
 #' @usage data(plate)
 #' @format A data.table with 18 columns, each describing a necessary feature of a \code{svd.raw} data-set
-NULL
+"plate"

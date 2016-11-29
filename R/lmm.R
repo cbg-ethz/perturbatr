@@ -134,6 +134,7 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
     # TODO: this is the
     cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
     # this i still have to implement
+    stop("to do")
     rel.mat <- .load.rds(path)
   }
   # setup pmm data
@@ -244,4 +245,29 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   list(ccg.matrix=ccg.matrix,
        fdrs=fdrs,
        gene.pathogen.matrix=gene.pathogen.matrix )
+}
+
+
+#' Create model data for an LMM
+#'
+#' @export
+#'
+#' @import data.table
+#'
+#' @param obj  an object for which LMM model.data is created
+#' @param drop  decide if genes that are not found in every virus should be dropped
+#' @param ignore  ignore siRNAS that are only found \code{ignore} many times
+#' @param weights  weights to set for the siRNAs
+#' @param rel.mat.path  target-relation matrix (TODO)
+model.data.lmm <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
+{
+  UseMethod("lmm.model.data")
+}
+
+#' @export
+#' @method model.data.lmm svd.data
+model.data.lmm.svd.data <- function(obj, drop, ignore, weights=NULL,
+                                    rel.mat.path=NULL)
+{
+  .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
 }

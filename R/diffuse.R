@@ -33,10 +33,11 @@
 #' @param path   path to the network file
 #' @param r  restart probability of the random if method \code{mrw} is selected
 #' @param node.start.count  number of nodes that are used to do the neighbors
-#'  search if method \code{neighbors} is selected.
+#'  search if method \code{neighbors} is selected
 #'  If the number of hits in \code{obj} exceeds \code{node.start.count},
 #'  then the elements with the highest absolute effects are chosen. If this
-#'  behaviour is not desired filter \code{obj} before.
+#'  behaviour is not desired filter \code{obj} before
+#' @param search.depth  how deep should the neighbor search go if method \code{neighbors} is selected
 #' @param ...  additional parameters
 diffuse <- function(obj, method=c("neighbors", "mrw"), path,
                     r=0.5, node.start.count=25, search.depth=5, ...)
