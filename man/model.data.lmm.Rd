@@ -4,7 +4,8 @@
 \alias{model.data.lmm}
 \title{Create model data for an LMM}
 \usage{
-model.data.lmm(obj, drop, ignore, weights = NULL, rel.mat.path = NULL)
+model.data.lmm(obj, drop = T, ignore = 1, weights = NULL,
+  rel.mat.path = NULL)
 }
 \arguments{
 \item{obj}{an object for which LMM model.data is created}

@@ -32,7 +32,9 @@
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
 lmm <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
+{
   UseMethod("lmm", obj)
+}
 
 #' @noRd
 #' @export
@@ -53,7 +55,7 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 .lmm <- function(obj, drop, weights=NULL, rel.mat.path=NULL, ...)
 {
   params <- list(...)
-  ignore <- ifelse(methods::hasArg(ignore) &&is.numeric(params$ignore),
+  ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
                    params$ignore, 1)
   # init the data table for the LMM
   model.data <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
@@ -247,7 +249,6 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
        gene.pathogen.matrix=gene.pathogen.matrix )
 }
 
-
 #' Create model data for an LMM
 #'
 #' @export
@@ -259,15 +260,23 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 #' @param ignore  ignore siRNAS that are only found \code{ignore} many times
 #' @param weights  weights to set for the siRNAs
 #' @param rel.mat.path  target-relation matrix (TODO)
-model.data.lmm <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
+model.data.lmm <- function(obj, drop=T, ignore=1, weights=NULL, rel.mat.path=NULL)
 {
-  UseMethod("lmm.model.data")
+  UseMethod("model.data.lmm")
 }
 
 #' @export
 #' @method model.data.lmm svd.data
-model.data.lmm.svd.data <- function(obj, drop, ignore, weights=NULL,
-                                    rel.mat.path=NULL)
+model.data.lmm.svd.data <- function(obj, drop=T, ignore=1,
+                                    weights=NULL, rel.mat.path=NULL)
+{
+  .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
+}
+
+#' @export
+#' @method model.data.lmm data.table
+model.data.lmm.data.table <- function(obj, drop=T, ignore=1,
+                                    weights=NULL, rel.mat.path=NULL)
 {
   .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
 }
