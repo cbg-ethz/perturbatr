@@ -24,7 +24,7 @@
 #' @import data.table
 #'
 #' @param obj  an svd.data object
-#' @param formula  LMM formula you want to use. This can be either left as NA, then a model using
+#' @param model.formula  LMM formula you want to use. This can be either left as NULL, then a model using
 #'  \code{Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)}
 #'  is fit or you provide your own formula.
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
@@ -34,17 +34,27 @@
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NULL, ...)
+lmm <- function(obj,
+                model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
+                                         (1 | Virus:GeneSymbol) +
+                                         (1 | InfectionType) +
+                                         (1 | Virus:InfectionType)"),
+                drop=T, weights=NULL, rel.mat.path=NULL, ...)
 {
-  UseMethod("lmm")
+  UseMethod("lmm", obj)
 }
 
 #' @noRd
 #' @export
 #' @import data.table
-lmm.svd.data <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NULL, ...)
+lmm.svd.data <- function(obj,
+                         model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
+                                                  (1 | Virus:GeneSymbol) +
+                                                  (1 | InfectionType) +
+                                                  (1 | Virus:InfectionType)"),
+                         drop=T, weights=NULL, rel.mat.path=NULL, ...)
 {
-  res  <- .lmm(obj, formula, drop, weights, rel.mat.path)
+  res  <- .lmm(obj, model.formula, drop, weights, rel.mat.path,  ...)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -55,16 +65,16 @@ lmm.svd.data <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NUL
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom methods hasArg
-.lmm <- function(obj, formula, drop, weights=NULL, rel.mat.path=NULL, ...)
+.lmm <- function(obj, model.formula, drop, weights=NULL, rel.mat.path=NULL, ...)
 {
   params <- list(...)
   ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
                    params$ignore, 1)
   # init the data table for the LMM
-  model.data <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
+  md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
   # save gene control mappings
   gene.control.map <-
-    dplyr::select(model.data, GeneSymbol, Control) %>%
+    dplyr::select(md, GeneSymbol, Control) %>%
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   mult.gen.cnt <- (gene.control.map %>% group_by(GeneSymbol) %>%
@@ -75,9 +85,8 @@ lmm.svd.data <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NUL
             i.e. several genes are both control and not control!")
   }
   # fit the LMM
-  if (is.na(formula)) formula <- .init.formula()
   fit.lmm <-
-    lme4::lmer(formula, data = model.data, weights = model.data$Weight, verbose = F)
+    lme4::lmer(model.formula, data = md, weights = md$Weight, verbose = F)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
   ag <- data.table::data.table(
@@ -101,7 +110,7 @@ lmm.svd.data <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NUL
   gene.path.effs <- dplyr::full_join(fdrs$gene.pathogen.matrix,
                                      gene.control.map, by="GeneSymbol")
   ret <- list(gene.effects=gene.effects, gene.pathogen.effects=gene.path.effs,
-    model.data=model.data, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
+    model.data=md, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
   invisible(ret)
 }
 
@@ -197,8 +206,7 @@ lmm.svd.data <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NUL
       dplyr::select(-drop)
   }
   pmm.mat <- droplevels(pmm.mat)
-  class(pmm.mat) <- c("svd.analysed.pmm.model.data", class(pmm.mat))
-  invisible(pmm.mat)
+  pmm.mat
 }
 
 #' @noRd

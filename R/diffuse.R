@@ -85,7 +85,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
                               as.matrix(diffuse.data$adjm), r)
   diffuse.data$frame$DiffusionEffect <- mrw
   res <- diffuse.data$frame
-  li <- list(data=li)
+  li <- list(data=res)
   class(li) <- c("svd.diffused.mrw", "svd.diffused", class(li))
   return(res)
 }

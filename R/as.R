@@ -26,7 +26,7 @@
 as.svd.data <- function(obj, ...) UseMethod("as.svd.data")
 
 #' @export
-#' @noRd
+#' @method as.svd.data data.table
 as.svd.data.data.table <- function(obj, ...)
 {
   class(obj) <- c("svd.data", class(obj))

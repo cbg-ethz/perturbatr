@@ -4,10 +4,15 @@
 \alias{lmm}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
-lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL, ...)
+lmm(obj, model.formula = NULL, drop = T, weights = NULL,
+  rel.mat.path = NULL, ...)
 }
 \arguments{
 \item{obj}{an svd.data object}
+
+\item{model.formula}{LMM formula you want to use. This can be either left as NULL, then a model using
+\code{Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)}
+is fit or you provide your own formula.}
 
 \item{drop}{boolean flag if all entries should be dropped that are not found in every virus}
 
