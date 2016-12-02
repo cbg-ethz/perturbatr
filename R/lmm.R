@@ -24,6 +24,9 @@
 #' @import data.table
 #'
 #' @param obj  an svd.data object
+#' @param formula  LMM formula you want to use. This can be either left as NA, then a model using
+#'  \code{Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)}
+#'  is fit or you provide your own formula.
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
@@ -31,17 +34,17 @@
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
+lmm <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 {
-  UseMethod("lmm", obj)
+  UseMethod("lmm")
 }
 
 #' @noRd
 #' @export
 #' @import data.table
-lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
+lmm.svd.data <- function(obj, formula=NA, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 {
-  res  <- .lmm(obj, drop, weights, rel.mat.path)
+  res  <- .lmm(obj, formula, drop, weights, rel.mat.path)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -52,7 +55,7 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom methods hasArg
-.lmm <- function(obj, drop, weights=NULL, rel.mat.path=NULL, ...)
+.lmm <- function(obj, formula, drop, weights=NULL, rel.mat.path=NULL, ...)
 {
   params <- list(...)
   ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
@@ -72,10 +75,9 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
             i.e. several genes are both control and not control!")
   }
   # fit the LMM
+  if (is.na(formula)) formula <- .init.formula()
   fit.lmm <-
-    lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) +
-                 (1 | InfectionType),
-               data = model.data, weights = model.data$Weight, verbose = F)
+    lme4::lmer(formula, data = model.data, weights = model.data$Weight, verbose = F)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
   ag <- data.table::data.table(
@@ -197,6 +199,16 @@ lmm.svd.data <- function(obj, drop=T, weights=NULL, rel.mat.path=NULL, ...)
   pmm.mat <- droplevels(pmm.mat)
   class(pmm.mat) <- c("svd.analysed.pmm.model.data", class(pmm.mat))
   invisible(pmm.mat)
+}
+
+#' @noRd
+#' @importFrom stats as.formula
+.init.formula <- function()
+{
+  frm.str <- paste0("Readout ~ Virus + ",
+                    "(1 | GeneSymbol) + (1 | Virus:GeneSymbol) + ",
+                    "(1 | InfectionType) + (1 | Virus:InfectionType)")
+  stats::as.formula(frm.str)
 }
 
 #' Create the local false discovery rates for all viruses
