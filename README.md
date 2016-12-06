@@ -1,6 +1,6 @@
 <h1 align="center"> knockout </h1>
 
-[![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![Project Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Build Status](https://travis-ci.org/dirmeier/knockout.svg?branch=master)](https://travis-ci.org/dirmeier/knockout)
 [![codecov](https://codecov.io/gh/dirmeier/knockout/branch/master/graph/badge.svg)](https://codecov.io/gh/dirmeier/knockout)
 

@@ -17,7 +17,7 @@ bioc_packages:
   - org.Hs.eg.db
   - RankAggreg
   
-r_github_packages: dirmeier/diffusr 
+r_github_packages: dirmeier/diffusr
 
 env:
   global:
