@@ -8,7 +8,7 @@ Analysis of high-throughput gene perturbation screens in R.
 
 ## Introduction
 
-`knockout` does analysis of large-scale gene knockout/knockdown screens. 
+`knockout` does analysis of large-scale gene knockout/knockdown screens.
 For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented. 
 On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*. 
 The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
