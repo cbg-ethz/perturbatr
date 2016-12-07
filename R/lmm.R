@@ -34,29 +34,64 @@
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj,
-                model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
+lmm <- function(
+  obj,
+  model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
                                          (1 | Virus:GeneSymbol) +
                                          (1 | InfectionType) +
                                          (1 | Virus:InfectionType)"),
-                drop=T, weights=NULL, rel.mat.path=NULL, ...)
+  drop=T,
+  weights=NULL,
+  rel.mat.path=NULL, ...)
 {
-  UseMethod("lmm", obj)
+  UseMethod("lmm")
+}
+
+#' @export
+#' @import data.table
+#' @method lmm svd.data
+lmm.svd.data <- function(
+  obj,
+  model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
+                           (1 | Virus:GeneSymbol) +
+                           (1 | InfectionType) +
+                           (1 | Virus:InfectionType)"),
+  drop=T,
+  weights=NULL,
+  rel.mat.path=NULL, ...)
+{
+  res  <- .lmm.svd.data(obj, model.formula, drop, weights, rel.mat.path,  ...)
+  class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
+  invisible(res)
+}
+
+#' @export
+#' @import data.table
+#' @method lmm svd.lmm.model.data
+lmm.svd.lmm.model.data <- function(obj,
+                                   model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
+                                                            (1 | Virus:GeneSymbol) +
+                                                            (1 | InfectionType) +
+                                                            (1 | Virus:InfectionType)"),
+                                   drop=T, weights=NULL, rel.mat.path=NULL, ...)
+{
+  res <- .lmm.model.data(obj, model.formula, drop, weights, rel.mat.path,  ...)
+  class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
+  invisible(res)
 }
 
 #' @noRd
-#' @export
 #' @import data.table
-lmm.svd.data <- function(obj,
-                         model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
-                                                  (1 | Virus:GeneSymbol) +
-                                                  (1 | InfectionType) +
-                                                  (1 | Virus:InfectionType)"),
-                         drop=T, weights=NULL, rel.mat.path=NULL, ...)
+#' @importFrom methods hasArg
+.lmm.svd.data <- function(obj, model.formula, drop,
+                          weights=NULL, rel.mat.path=NULL, ...)
 {
-  res  <- .lmm(obj, model.formula, drop, weights, rel.mat.path,  ...)
-  class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
-  invisible(res)
+  params <- list(...)
+  ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
+                   params$ignore, 1)
+  # init the data table for the LMM
+  md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
+  .lmm.model.data(md, model.formula, drop, weights, rel.mat.path)
 }
 
 #' @noRd
@@ -64,17 +99,13 @@ lmm.svd.data <- function(obj,
 #' @import lme4
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#' @importFrom methods hasArg
-.lmm <- function(obj, model.formula, drop, weights=NULL, rel.mat.path=NULL, ...)
+.lmm.model.data <- function(obj, model.formula, drop,
+                            weights=NULL, rel.mat.path=NULL, ...)
 {
-  params <- list(...)
-  ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
-                   params$ignore, 1)
-  # init the data table for the LMM
-  md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-  # save gene control mappings
+
+    # save gene control mappings
   gene.control.map <-
-    dplyr::select(md, GeneSymbol, Control) %>%
+    dplyr::select(obj, GeneSymbol, Control) %>%
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   mult.gen.cnt <- (gene.control.map %>% group_by(GeneSymbol) %>%
@@ -85,8 +116,9 @@ lmm.svd.data <- function(obj,
             i.e. several genes are both control and not control!")
   }
   # fit the LMM
+  print(obj)
   fit.lmm <-
-    lme4::lmer(model.formula, data = md, weights = md$Weight, verbose = F)
+    lme4::lmer(model.formula, data = obj, weights = obj$Weight, verbose = F)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
   ag <- data.table::data.table(
@@ -110,8 +142,8 @@ lmm.svd.data <- function(obj,
   gene.path.effs <- dplyr::full_join(fdrs$gene.pathogen.matrix,
                                      gene.control.map, by="GeneSymbol")
   ret <- list(gene.effects=gene.effects, gene.pathogen.effects=gene.path.effs,
-    model.data=md, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
-  invisible(ret)
+              model.data=obj, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
+  ret
 }
 
 #' Create LMM matrix
@@ -206,6 +238,7 @@ lmm.svd.data <- function(obj,
       dplyr::select(-drop)
   }
   pmm.mat <- droplevels(pmm.mat)
+  class(pmm.mat) <- c("svd.lmm.model.data", class(pmm.mat))
   pmm.mat
 }
 
@@ -290,7 +323,7 @@ model.data.lmm <- function(obj, drop=T, ignore=1, weights=NULL, rel.mat.path=NUL
 model.data.lmm.svd.data <- function(obj, drop=T, ignore=1,
                                     weights=NULL, rel.mat.path=NULL)
 {
-  .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
+   .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
 }
 
 #' @export

@@ -4,8 +4,9 @@
 \alias{lmm}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
-lmm(obj, model.formula = NULL, drop = T, weights = NULL,
-  rel.mat.path = NULL, ...)
+lmm(obj,
+  model.formula = as.formula("Readout ~ Virus + (1 | GeneSymbol) +\\n                                         (1 | Virus:GeneSymbol) +\\n                                         (1 | InfectionType) +\\n                                         (1 | Virus:InfectionType)"),
+  drop = T, weights = NULL, rel.mat.path = NULL, ...)
 }
 \arguments{
 \item{obj}{an svd.data object}

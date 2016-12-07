@@ -29,6 +29,23 @@ as.svd.data <- function(obj, ...) UseMethod("as.svd.data")
 #' @method as.svd.data data.table
 as.svd.data.data.table <- function(obj, ...)
 {
-  class(obj) <- c("svd.data", class(obj))
+  class(obj) <- unique(c("svd.data", class(obj)))
   invisible(obj)
 }
+
+#' Converts an object to an svd.lmm.model.data object
+#'
+#' @export
+#' @import data.table
+#' @param obj  the object to be converted
+#' @param ...  additional params
+as.svd.lmm.model.data <- function(obj, ...) UseMethod("as.svd.lmm.model.data")
+
+#' @export
+#' @method as.svd.lmm.model.data data.table
+as.svd.lmm.model.data.data.table <- function(obj, ...)
+{
+  class(obj) <- unique(c("svd.data.data.table", class(obj)))
+  invisible(obj)
+}
+
