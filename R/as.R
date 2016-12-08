@@ -45,7 +45,7 @@ as.svd.lmm.model.data <- function(obj, ...) UseMethod("as.svd.lmm.model.data")
 #' @method as.svd.lmm.model.data data.table
 as.svd.lmm.model.data.data.table <- function(obj, ...)
 {
-  class(obj) <- unique(c("svd.data.data.table", class(obj)))
+  class(obj) <- unique(c("svd.lmm.model.data", class(obj)))
   invisible(obj)
 }
 

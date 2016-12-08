@@ -24,9 +24,7 @@
 #' @import data.table
 #'
 #' @param obj  an svd.data object
-#' @param model.formula  LMM formula you want to use. This can be either left as NULL, then a model using
-#'  \code{Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)}
-#'  is fit or you provide your own formula.
+#' @param model.formula  LMM formula you want to use
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
@@ -36,10 +34,7 @@
 #' }
 lmm <- function(
   obj,
-  model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
-                                         (1 | Virus:GeneSymbol) +
-                                         (1 | InfectionType) +
-                                         (1 | Virus:InfectionType)"),
+  model.formula,
   drop=T,
   weights=NULL,
   rel.mat.path=NULL, ...)
@@ -52,10 +47,7 @@ lmm <- function(
 #' @method lmm svd.data
 lmm.svd.data <- function(
   obj,
-  model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
-                           (1 | Virus:GeneSymbol) +
-                           (1 | InfectionType) +
-                           (1 | Virus:InfectionType)"),
+  model.formula,
   drop=T,
   weights=NULL,
   rel.mat.path=NULL, ...)
@@ -69,13 +61,10 @@ lmm.svd.data <- function(
 #' @import data.table
 #' @method lmm svd.lmm.model.data
 lmm.svd.lmm.model.data <- function(obj,
-                                   model.formula=as.formula("Readout ~ Virus + (1 | GeneSymbol) +
-                                                            (1 | Virus:GeneSymbol) +
-                                                            (1 | InfectionType) +
-                                                            (1 | Virus:InfectionType)"),
+                                   model.formula,
                                    drop=T, weights=NULL, rel.mat.path=NULL, ...)
 {
-  res <- .lmm.model.data(obj, model.formula, drop, weights, rel.mat.path,  ...)
+  res <- .lmm.model.data(obj, model.formula)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -99,13 +88,11 @@ lmm.svd.lmm.model.data <- function(obj,
 #' @import lme4
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-.lmm.model.data <- function(obj, model.formula, drop,
-                            weights=NULL, rel.mat.path=NULL, ...)
+.lmm.model.data <- function(md, model.formula)
 {
-
     # save gene control mappings
   gene.control.map <-
-    dplyr::select(obj, GeneSymbol, Control) %>%
+    dplyr::select(md, GeneSymbol, Control) %>%
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   mult.gen.cnt <- (gene.control.map %>% group_by(GeneSymbol) %>%
@@ -116,9 +103,8 @@ lmm.svd.lmm.model.data <- function(obj,
             i.e. several genes are both control and not control!")
   }
   # fit the LMM
-  print(obj)
-  fit.lmm <-
-    lme4::lmer(model.formula, data = obj, weights = obj$Weight, verbose = F)
+  fit.lmm <- lme4::lmer(as.formula(model.formula),
+                        data = md, weights = md$Weight, verbose = F)
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
   ag <- data.table::data.table(
@@ -142,7 +128,7 @@ lmm.svd.lmm.model.data <- function(obj,
   gene.path.effs <- dplyr::full_join(fdrs$gene.pathogen.matrix,
                                      gene.control.map, by="GeneSymbol")
   ret <- list(gene.effects=gene.effects, gene.pathogen.effects=gene.path.effs,
-              model.data=obj, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
+              model.data=md, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
   ret
 }
 
