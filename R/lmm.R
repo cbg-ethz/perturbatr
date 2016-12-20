@@ -80,7 +80,7 @@ lmm.svd.lmm.model.data <- function(obj,
                    params$ignore, 1)
   # init the data table for the LMM
   md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-  .lmm.model.data(md, model.formula, drop, weights, rel.mat.path)
+  .lmm.model.data(md, model.formula)
 }
 
 #' @noRd
