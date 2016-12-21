@@ -28,16 +28,14 @@
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
+#' @param loocv  the number of loocv runs you want to do in order to estimate a significance level for the gene effects
 #' @param ...  additional parameters
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(
-  obj,
-  model.formula,
-  drop=T,
-  weights=NULL,
-  rel.mat.path=NULL, ...)
+lmm <- function(obj, model.formula, drop=T,
+                weights=NULL, rel.mat.path=NULL,
+                loocv=5, ...)
 {
   UseMethod("lmm")
 }
@@ -45,14 +43,12 @@ lmm <- function(
 #' @export
 #' @import data.table
 #' @method lmm svd.data
-lmm.svd.data <- function(
-  obj,
-  model.formula,
-  drop=T,
-  weights=NULL,
-  rel.mat.path=NULL, ...)
+lmm.svd.data <- function(obj, model.formula, drop=T,
+                         weights=NULL, rel.mat.path=NULL,
+                         loocv=5, ...)
 {
-  res  <- .lmm.svd.data(obj, model.formula, drop, weights, rel.mat.path,  ...)
+  res  <- .lmm.svd.data(obj, model.formula, drop,
+                        weights, rel.mat.path, loocv, ...)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -60,11 +56,11 @@ lmm.svd.data <- function(
 #' @export
 #' @import data.table
 #' @method lmm svd.lmm.model.data
-lmm.svd.lmm.model.data <- function(obj,
-                                   model.formula,
-                                   drop=T, weights=NULL, rel.mat.path=NULL, ...)
+lmm.svd.lmm.model.data <- function(obj, model.formula, drop=T,
+                                   weights=NULL, rel.mat.path=NULL,
+                                   loocv, ...)
 {
-  res <- .lmm.model.data(obj, model.formula)
+  res <- .lmm.model.data(obj, model.formula, loocv)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -73,14 +69,15 @@ lmm.svd.lmm.model.data <- function(obj,
 #' @import data.table
 #' @importFrom methods hasArg
 .lmm.svd.data <- function(obj, model.formula, drop,
-                          weights=NULL, rel.mat.path=NULL, ...)
+                          weights=NULL, rel.mat.path=NULL,
+                          loocv, ...)
 {
   params <- list(...)
   ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
                    params$ignore, 1)
   # init the data table for the LMM
   md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-  .lmm.model.data(md, model.formula)
+  .lmm.model.data(md, model.formula, loocv)
 }
 
 #' @noRd
@@ -88,7 +85,7 @@ lmm.svd.lmm.model.data <- function(obj,
 #' @import lme4
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-.lmm.model.data <- function(md, model.formula)
+.lmm.model.data <- function(md, model.formula, loocv)
 {
     # save gene control mappings
   gene.control.map <-
@@ -115,6 +112,10 @@ lmm.svd.lmm.model.data <- function(obj,
     bcg = random.effects[["Virus:GeneSymbol"]][,1],
     GenePathID = as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
+
+  # TODO add the infectiont ype effects or leave out CPG effects totally
+  # Add Ranef function
+
   # create the table with gene-pathogen effects
   ccg <- base::merge(bcg, ag, by = "GeneSymbol") %>%
     dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
