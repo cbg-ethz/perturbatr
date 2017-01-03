@@ -17,6 +17,59 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+#' Create the local false discovery rates for all viruses
+#'
+#' @noRd
+#' @importFrom stats reshape
+#' @importFrom stats na.omit
+.fdr <- function(obj, ...)
+{
+  # reshape the data matrix
+  ccg.matrix <- stats::reshape(as.data.frame(obj), direction = "wide",
+                               timevar = "Virus", idvar = "GeneSymbol")
+  fdrs <- list()
+  # calculate FDRs for every pathogen-gene effect
+  for (i in unique(obj$Virus))
+  {
+    cl <- paste("GeneVirusEffect", i, sep = ".")
+    fr <- paste("fdr", i, sep = ".")
+    sub.ccg.matrix <- stats::na.omit(ccg.matrix[, c("GeneSymbol",cl) ])
+    locf <- .localfdr(sub.ccg.matrix[, cl])
+    fdrs[[i]] <- locf
+    sub.ccg.matrix <- cbind(sub.ccg.matrix, fdr = locf$fdr)
+    nmiss <- sum(is.na(ccg.matrix[, cl]))
+    dmiss <- ccg.matrix[is.na(ccg.matrix[, cl ]), c("GeneSymbol", cl)]
+    sub.ccg.matrix <- rbind(sub.ccg.matrix, cbind(dmiss, fdr = rep(NA, nmiss)))
+    colnames(sub.ccg.matrix)[colnames(sub.ccg.matrix) == "fdr"] <- fr
+    ccg.matrix <- merge(ccg.matrix, sub.ccg.matrix[, c("GeneSymbol", fr)],
+                        by = "GeneSymbol")
+  }
+  # parse the result matrix into a gene matrix
+  # TODO: extra function
+  gene.effect.mat <-
+    ccg.matrix[,c(1, grep("GeneVirusEffect", colnames(ccg.matrix)))]
+  colnames(gene.effect.mat) <-
+    sub("GeneVirusEffect.", "", colnames(gene.effect.mat))
+  gene.effect.mat <- gene.effect.mat %>%
+    tidyr::gather(Virus, Effect, 2:ncol(gene.effect.mat)) %>%
+    as.data.table
+  # parse the result matrix into a fdr matrix
+  fdr.mat         <- ccg.matrix[,c(1, grep("fdr", colnames(ccg.matrix)))]
+  colnames(fdr.mat) <- sub("fdr.", "", colnames(fdr.mat))
+  fdr.mat <- fdr.mat %>%
+    tidyr::gather(Virus, FDR, 2:ncol(fdr.mat)) %>%
+    as.data.table
+  # join both matrices
+  gene.pathogen.matrix <-
+    dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Virus"))
+  list(ccg.matrix=ccg.matrix,
+       fdrs=fdrs,
+       gene.pathogen.matrix=gene.pathogen.matrix )
+}
+
+
+# TODO: beautify
+
 #' This is the implementation of Efron's local fdr
 #'  with some additions regarding the return values
 #'
