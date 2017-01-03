@@ -24,7 +24,6 @@
 #' @import data.table
 #'
 #' @param obj  an svd.data object
-#' @param model.formula  LMM formula you want to use
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
@@ -33,7 +32,7 @@
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
-lmm <- function(obj, model.formula, drop=T,
+lmm <- function(obj, drop=T,
                 weights=NULL, rel.mat.path=NULL,
                 loocv=5, ...)
 {
@@ -43,11 +42,11 @@ lmm <- function(obj, model.formula, drop=T,
 #' @export
 #' @import data.table
 #' @method lmm svd.data
-lmm.svd.data <- function(obj, model.formula, drop=T,
+lmm.svd.data <- function(obj, drop=T,
                          weights=NULL, rel.mat.path=NULL,
                          loocv=5, ...)
 {
-  res  <- .lmm.svd.data(obj, model.formula, drop,
+  res  <- .lmm.svd.data(obj, drop,
                         weights, rel.mat.path, loocv, ...)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
@@ -56,11 +55,11 @@ lmm.svd.data <- function(obj, model.formula, drop=T,
 #' @export
 #' @import data.table
 #' @method lmm svd.lmm.model.data
-lmm.svd.lmm.model.data <- function(obj, model.formula, drop=T,
+lmm.svd.lmm.model.data <- function(obj, drop=T,
                                    weights=NULL, rel.mat.path=NULL,
                                    loocv, ...)
 {
-  res <- .lmm.model.data(obj, model.formula, loocv)
+  res <- .lmm.model.data(obj, loocv)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -68,7 +67,7 @@ lmm.svd.lmm.model.data <- function(obj, model.formula, drop=T,
 #' @noRd
 #' @import data.table
 #' @importFrom methods hasArg
-.lmm.svd.data <- function(obj, model.formula, drop,
+.lmm.svd.data <- function(obj, drop,
                           weights=NULL, rel.mat.path=NULL,
                           loocv, ...)
 {
@@ -77,7 +76,7 @@ lmm.svd.lmm.model.data <- function(obj, model.formula, drop=T,
                    params$ignore, 1)
   # init the data table for the LMM
   md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-  .lmm.model.data(md, model.formula, loocv)
+  .lmm.model.data(md, loocv)
 }
 
 #' @noRd
@@ -85,7 +84,7 @@ lmm.svd.lmm.model.data <- function(obj, model.formula, drop=T,
 #' @import lme4
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-.lmm.model.data <- function(md, model.formula, loocv)
+.lmm.model.data <- function(md, loocv)
 {
     # save gene control mappings
   gene.control.map <-
@@ -100,27 +99,10 @@ lmm.svd.lmm.model.data <- function(obj, model.formula, drop=T,
             i.e. several genes are both control and not control!")
   }
   # fit the LMM
-  fit.lmm <- lme4::lmer(as.formula(model.formula),
+  fit.lmm <- lme4::lmer(.init.formula(),
                         data = md, weights = md$Weight, verbose = F)
-  random.effects <- lme4::ranef(fit.lmm)
-  # create the data table with gene effects
-  ag <- data.table::data.table(
-    Effect = random.effects[["GeneSymbol"]][,1],
-    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
-  # create the data.table with pathogen effects
-  bcg <- data.table::data.table(
-    bcg = random.effects[["Virus:GeneSymbol"]][,1],
-    GenePathID = as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
-    dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
+  random.effects <- .ranef(fit.lmm)
 
-  # TODO add the infectiont ype effects or leave out CPG effects totally
-  # Add Ranef function
-
-  # create the table with gene-pathogen effects
-  ccg <- base::merge(bcg, ag, by = "GeneSymbol") %>%
-    dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
-                  GeneVirusEffect = Effect + bcg) %>%
-    dplyr::select(-GenePathID, -bcg, -Effect)
   # calculate fdrs
   fdrs <- .fdr(ccg)
   # finalize output and return as list
@@ -237,4 +219,37 @@ lmm.svd.lmm.model.data <- function(obj, model.formula, drop=T,
                     "(1 | GeneSymbol) + (1 | Virus:GeneSymbol) + ",
                     "(1 | InfectionType) + (1 | Virus:InfectionType)")
   stats::as.formula(frm.str)
+}
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr mutate select
+#' @importFrom lme4 ranef
+.ranef <-  function(fit.lmm)
+{
+  random.effects <- lme4::ranef(fit.lmm)
+  # create the data table with gene effects
+  ge <- data.table::data.table(
+    Effect = random.effects[["GeneSymbol"]][,1],
+    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
+  # create the data.table with gene-pathogen effects
+  gpe <- data.table::data.table(
+    gpe = random.effects[["Virus:GeneSymbol"]][,1],
+    GenePathID = as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
+    dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
+  # table for infection types
+  ie <- data.table::data.table(
+    ie = random.effects[["InfectionType"]][,1],
+    InfectionType = as.character(rownames(random.effects[["InfectionType"]])))
+  # table for virus-infection types
+  # ipe <- data.table::data.table(
+  #   ie = random.effects[["Virus:InfectionType"]][,1],
+  #   InfectionPathID = as.character(rownames(random.effects[["Virus:InfectionType"]])))
+  # create the table with gene-pathogen effects
+  ga <- base::merge(gpe, ge, by = "GeneSymbol") %>%
+    dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
+                  GeneVirusEffect = Effect + gpe) %>%
+    dplyr::select(-GenePathID, -gpe, -Effect)
+
+  list(gene.effects=ge, gene.pathogen.effects=ga, infection.effects=ie)
 }
