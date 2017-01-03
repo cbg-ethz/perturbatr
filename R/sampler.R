@@ -60,8 +60,10 @@ loocv <- function(model.data, idx)
 #' @method loocv svd.lmm.model.data
 #' @import data.table
 #' @importFrom dplyr left_join mutate select group_by filter
-loocv <- function(model.data, idx)
+loocv.svd.lmm.model.data <- function(model.data, idx)
 {
+  if (!is.numeric(idx)) stop("provide an numeric index pls")
+
   dat <-
     model.data %>%
     dplyr::group_by(Virus, InfectionType, GeneSymbol) %>%
@@ -75,6 +77,7 @@ loocv <- function(model.data, idx)
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
+        if (idx > max(grp.dat)) stop("idx > grp.dat")
         idxs <- seq(grp.dat$cnt[1])[-idx]
         grp.dat[idxs]
       }
