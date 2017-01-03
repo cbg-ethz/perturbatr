@@ -101,16 +101,21 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   # fit the LMM
   fit.lmm <- lme4::lmer(.init.formula(),
                         data = md, weights = md$Weight, verbose = F)
-  random.effects <- .ranef(fit.lmm)
 
+  # TODO: add bootstrapping here for p-values
+
+  ref <- .ranef(fit.lmm)
   # calculate fdrs
-  fdrs <- .fdr(ccg)
+  fdrs <- .fdr(ref$gene.pathogen.effects)
   # finalize output and return as list
-  gene.effects <- dplyr::full_join(ag, gene.control.map,  by="GeneSymbol")
+  gene.effects <- dplyr::full_join(ref$gene.effects,
+                                   gene.control.map,  by="GeneSymbol")
   # set together the gene/fdr/effects and the mappings
   gene.path.effs <- dplyr::full_join(fdrs$gene.pathogen.matrix,
                                      gene.control.map, by="GeneSymbol")
-  ret <- list(gene.effects=gene.effects, gene.pathogen.effects=gene.path.effs,
+  ret <- list(gene.effects=gene.effects,
+              gene.pathogen.effects=gene.path.effs,
+              infection.effects=ref$infection.effects,
               model.data=md, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
   ret
 }
@@ -235,11 +240,12 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   # create the data.table with gene-pathogen effects
   gpe <- data.table::data.table(
     gpe = random.effects[["Virus:GeneSymbol"]][,1],
-    GenePathID = as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
+    GenePathID =
+      as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
   # table for infection types
   ie <- data.table::data.table(
-    ie = random.effects[["InfectionType"]][,1],
+    Effect = random.effects[["InfectionType"]][,1],
     InfectionType = as.character(rownames(random.effects[["InfectionType"]])))
   # table for virus-infection types
   # ipe <- data.table::data.table(
@@ -250,6 +256,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
     dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
                   GeneVirusEffect = Effect + gpe) %>%
     dplyr::select(-GenePathID, -gpe, -Effect)
-
-  list(gene.effects=ge, gene.pathogen.effects=ga, infection.effects=ie)
+  list(gene.effects=ge,
+       gene.pathogen.effects=ga,
+       infection.effects=ie)
 }
