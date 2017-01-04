@@ -61,9 +61,10 @@ prioritize.svd.analysed.hyper <- function(obj, ...)
 prioritize.svd.analysed.pmm <- function(obj, ...)
 {
   pars <- list(...)
-  hit.meth <- ifelse(methods::hasArg(method), pars$method, "abs")
+  # TODO: add this correctly
+  eft  <- ifelse(methods::hasArg(readout.threshold), pars$readout.threshold, .05)
   fdrt <- ifelse(methods::hasArg(fdr.threshold), pars$fdr.threshold, .2)
-  res <- .select.hits.pmm(obj, hit.meth, fdrt)
+  res <- .select.hits.pmm(obj, eft, fdrt)
   class(res$gene.pathogen.effect.hits) <-
     c("svd.prioritized.pmm.gene.pathogen.hits",
       class(res$gene.pathogen.effect.hits))
@@ -129,52 +130,17 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 
 #' @noRd
 #' @import data.table
-.select.hits.pmm <- function(obj, method=c("min.fdr", "abs"), fdr.threshold=.2)
-{
-  switch(match.arg(method),
-         "abs"=.select.hits.pmm.abs(obj, fdr.threshold),
-         "min.fdr"=.select.hits.pmm.min.fdr(obj, fdr.threshold))
-}
-
-#' @noRd
-#' @import data.table
 #' @importFrom dplyr filter select group_by mutate summarize full_join
-.select.hits.pmm.abs <- function(obj,  fdr.threshold)
+.select.hits.pmm <- function(obj, eft, fdrt)
 {
-  message(paste("Prioritizing on fdr.threshold ", fdr.threshold,
-                " for gene-pathogen effects and 'abs' for gene effects.",
-                sep=""))
+
+    message(paste0("Prioritizing on fdr.threshold ", fdr.threshold,
+                   "and on effect.threshold ", eft ,"."))
   gpes <- obj$gene.pathogen.effects
   gene.pathogen.results <-
     gpes %>%
     dplyr::filter(FDR <= fdr.threshold)
   gene.effect.results <- obj$gene.effects %>% .[order(-abs(Effect))]
-  res <- list(gene.pathogen.effect.hits=gene.pathogen.results,
-              gene.effect.hits=gene.effect.results)
-  res
-}
-
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr filter select group_by mutate summarize full_join
-.select.hits.pmm.min.fdr <- function(obj, fdr.threshold)
-{
-  message(paste("Prioritizing on fdr.threshold ", fdr.threshold,
-                " for gene-pathogen effects and ",
-                "'min.fdr(cg)' for gene effects.",
-                sep=""))
-  f <- .summarization.method("min")
-  gpes <- obj$gene.pathogen.effects
-  gene.pathogen.results <- gpes %>%
-    dplyr::filter(FDR <= fdr.threshold)
-  gene.results   <- gpes %>%
-    dplyr::select(GeneSymbol, FDR) %>%
-    dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarize(FDR=f(FDR)) %>%
-    ungroup
-  gene.effect.results <-
-    dplyr::full_join(gene.results, obj$gene.effects, by="GeneSymbol") %>%
-    dplyr::filter(FDR <= th)
   res <- list(gene.pathogen.effect.hits=gene.pathogen.results,
               gene.effect.hits=gene.effect.results)
   res

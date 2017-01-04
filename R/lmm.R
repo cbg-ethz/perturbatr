@@ -99,11 +99,13 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
             i.e. several genes are both control and not control!")
   }
   # fit the LMM
+  message("Fitting LMM")
   fit.lmm <- .lmm(md)
   ref <- .ranef(fit.lmm)
   # calculate fdrs
   gp.fdrs <- .fdr(ref$gene.pathogen.effects)
   # finalize output and return as list
+  message("LOOCV for significance estimation")
   ge.fdrs <- .lmm.significant.hits(md)
   # set together the gene/fdr/effects and the mappings
   gene.effects <- dplyr::full_join(ref$gene.effects, gene.control.map,
@@ -272,7 +274,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
                      Pval=.ttest(GeneSymbol, Effect, 0)) %>%
     ungroup %>%
     dplyr::mutate(FDR=p.adjust(Pval, method=padj)) %>%
-    .[order(Qval)]
+    .[order(FDR)]
   dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, loocv, Effect), bby="GeneSymbol")
   dat
 }
