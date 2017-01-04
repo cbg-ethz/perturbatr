@@ -4,22 +4,18 @@
 \alias{lmm}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
-lmm(obj,
-  model.formula = as.formula("Readout ~ Virus + (1 | GeneSymbol) +\\n                                         (1 | Virus:GeneSymbol) +\\n                                         (1 | InfectionType) +\\n                                         (1 | Virus:InfectionType)"),
-  drop = T, weights = NULL, rel.mat.path = NULL, ...)
+lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL, loocv = 5, ...)
 }
 \arguments{
 \item{obj}{an svd.data object}
-
-\item{model.formula}{LMM formula you want to use. This can be either left as NULL, then a model using
-\code{Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)}
-is fit or you provide your own formula.}
 
 \item{drop}{boolean flag if all entries should be dropped that are not found in every virus}
 
 \item{weights}{a list of weights}
 
 \item{rel.mat.path}{the (optional) path to a target relation matrix that is going to be used for}
+
+\item{loocv}{the number of loocv runs you want to do in order to estimate a significance level for the gene effects}
 
 \item{...}{additional parameters
 \itemize{

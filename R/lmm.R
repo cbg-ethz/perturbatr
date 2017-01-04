@@ -81,9 +81,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 
 #' @noRd
 #' @import data.table
-#' @import lme4
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
+#' @importFrom dplyr mutate full_join select group_by
 .lmm.model.data <- function(md, loocv)
 {
     # save gene control mappings
@@ -91,37 +89,37 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
     dplyr::select(md, GeneSymbol, Control) %>%
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
-  mult.gen.cnt <- (gene.control.map %>% group_by(GeneSymbol) %>%
-                     mutate(cnt=n()))$cnt %>% unique
+  mult.gen.cnt <- (gene.control.map %>%
+                     dplyr::group_by(GeneSymbol) %>%
+                     dplyr::mutate(cnt=n()))$cnt %>%
+    unique
   if (length(mult.gen.cnt) != 1)
   {
     warning("Found multiple gene-control entries for several genes,
             i.e. several genes are both control and not control!")
   }
   # fit the LMM
-  fit.lmm <- lme4::lmer(.init.formula(),
-                        data = md, weights = md$Weight, verbose = F)
-
-  # TODO: add bootstrapping here for p-values
-
+  fit.lmm <- .lmm(md)
   ref <- .ranef(fit.lmm)
   # calculate fdrs
-  fdrs <- .fdr(ref$gene.pathogen.effects)
+  gp.fdrs <- .fdr(ref$gene.pathogen.effects)
   # finalize output and return as list
-  gene.effects <- dplyr::full_join(ref$gene.effects,
-                                   gene.control.map,  by="GeneSymbol")
+  ge.fdrs <- .lmm.significant.hits(md)
   # set together the gene/fdr/effects and the mappings
-  gene.path.effs <- dplyr::full_join(fdrs$gene.pathogen.matrix,
+  gene.effects <- dplyr::full_join(ref$gene.effects, gene.control.map,
+                                   by="GeneSymbol") %>%
+    dplyr::full_join(dplyr::select(ge.fdrs, GeneSymbol, FDR), by="GeneSymbol")
+  gene.path.effs <- dplyr::full_join(gp.fdrs$gene.pathogen.matrix,
                                      gene.control.map, by="GeneSymbol")
   ret <- list(gene.effects=gene.effects,
               gene.pathogen.effects=gene.path.effs,
               infection.effects=ref$infection.effects,
-              model.data=md, fit=list(model=fit.lmm, fdrs=fdrs$fdrs))
+              model.data=md, fit=list(model=fit.lmm,
+                                      gene.pathogen.fdrs=gp.fdrs$fdrs,
+                                      gene.fdrs=ge.fdrs))
   ret
 }
 
-#' Create LMM matrix
-#'
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr select
@@ -217,13 +215,66 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 }
 
 #' @noRd
-#' @importFrom stats as.formula
 .init.formula <- function()
 {
   frm.str <- paste0("Readout ~ Virus + ",
                     "(1 | GeneSymbol) + (1 | Virus:GeneSymbol) + ",
                     "(1 | InfectionType) + (1 | Virus:InfectionType)")
-  stats::as.formula(frm.str)
+  frm.str
+}
+
+#' @noRd
+#' @import data.table
+#' @importFrom lme4 lmer
+#' @importFrom stats as.formula
+.lmm <- function(md)
+{
+  lme4::lmer(stats::as.formula(.init.formula()),
+             data = md, weights = md$Weight, verbose = F)
+}
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr mutate select left_join
+#' @importFrom tidyr spread
+#' @importFrom lme4 ranef
+.lmm.significant.hits <- function(model.data, padj=c("bonf", "BH"))
+{
+  padj <- match.arg(padj)
+  # do 5 loocv iterations
+  li <- list()
+  i <- 1
+  ctr <- 1
+  repeat
+  {
+    ctr <- ctr + 1
+    tryCatch({
+      loocv.sample <- as.svd.lmm.model.data(loocv(model.data, i))
+      # here use the lmer params
+      lmm.fit <- .lmm(loocv.sample)
+      re <- .ranef(lmm.fit)
+      da <- data.table::data.table(loocv=paste0("LOOCV_", i),
+                                   Effect=re$gene.effects$Effect,
+                                   GeneSymbol=re$gene.effects$GeneSymbol)
+      li[[i]] <- da
+      i <- i + 1
+    }, error=function(e) { print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000 },
+    warning=function(e) { print(e)})
+    if (i > 5)
+      break
+    if (ctr == 100)
+      stop("Breaking after 100 mis-trials!")
+  }
+  flat.dat <- do.call("rbind", lapply(li, function(e) e))
+  dat <-  flat.dat %>%
+    dplyr::group_by(GeneSymbol) %>%
+    dplyr::summarise(MeanLOOCVEffect=mean(Effect, na.rm=T),
+                     Pval=.ttest(GeneSymbol, Effect, 0)) %>%
+    ungroup %>%
+    dplyr::mutate(FDR=p.adjust(Pval, method=padj)) %>%
+    .[order(Qval)]
+  dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, loocv, Effect), bby="GeneSymbol")
+  dat
 }
 
 #' @noRd

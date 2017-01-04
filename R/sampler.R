@@ -63,7 +63,6 @@ loocv <- function(model.data, idx)
 loocv.svd.lmm.model.data <- function(model.data, idx)
 {
   if (!is.numeric(idx)) stop("provide an numeric index pls")
-
   dat <-
     model.data %>%
     dplyr::group_by(Virus, InfectionType, GeneSymbol) %>%
@@ -77,8 +76,13 @@ loocv.svd.lmm.model.data <- function(model.data, idx)
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
-        if (idx > max(grp.dat)) stop("idx > grp.dat")
-        idxs <- seq(grp.dat$cnt[1])[-idx]
+        ma <- max(grp.dat$cnt)
+        if (idx > ma || ma <= 3) {
+          print("idx > grp.dat. returning all elements for group")
+          idxs <- seq(ma)
+        } else {
+          idxs <- seq(ma)[-idx]
+        }
         grp.dat[idxs]
       }
     )
