@@ -134,7 +134,7 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 .select.hits.pmm <- function(obj, eft, fdrt)
 {
 
-    message(paste0("Prioritizing on fdr.threshold ", fdr.threshold,
+  message(paste0("Prioritizing on fdr.threshold ", fdr.threshold,
                    "and on effect.threshold ", eft ,"."))
   gpes <- obj$gene.pathogen.effects
   gene.pathogen.results <-
