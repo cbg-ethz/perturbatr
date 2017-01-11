@@ -54,11 +54,11 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 {
   if (!file.exists(path))
     stop(paste("Can't find: ", path, "!", sep=""))
-  hits <- obj$gene.effect.hits %>%
+  hits <- obj$gene.hits %>%
     dplyr::select(GeneSymbol, abs(Effect))
   graph <- .read.graph(path)
-  res  <- .diffuse(hits, graph, match.arg(method),
-                   r=0.5, node.start.count=25, search.depth=5)
+  res   <- .diffuse(hits, graph, match.arg(method),
+                    r=0.5, node.start.count=25, search.depth=5)
   invisible(res)
 }
 
