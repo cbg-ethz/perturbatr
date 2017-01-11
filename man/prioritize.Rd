@@ -14,7 +14,7 @@ prioritize(obj, ...)
  \item{\emph{hit.ratio} }{ the ratio of siRNAs hits such that a gene counts as hit}
  \item{\emph{readout.threshold} }{ the mean readout threshold for all the siRNAs}
  \item{\emph{p.value.threshold} }{ p.value threshold for hit selection}
- \item{\emph{fdr.threshold} }{ fdr.threshold}
+ \item{\emph{fdr.threshold} }{ fdr.threshold for hit selection}
 }}
 }
 \description{

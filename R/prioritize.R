@@ -28,16 +28,16 @@
 #'  \item{\emph{hit.ratio} }{ the ratio of siRNAs hits such that a gene counts as hit}
 #'  \item{\emph{readout.threshold} }{ the mean readout threshold for all the siRNAs}
 #'  \item{\emph{p.value.threshold} }{ p.value threshold for hit selection}
-#'  \item{\emph{fdr.threshold} }{ fdr.threshold}
+#'  \item{\emph{fdr.threshold} }{ fdr.threshold for hit selection}
 #' }
 prioritize <- function(obj, ...)
 {
   UseMethod("prioritize", obj)
 }
 
-#' @noRd
 #' @export
 #' @import data.table
+#' @method prioritize svd.analysed.tt
 prioritize.svd.analysed.tt <- function(obj, ...)
 {
   res <- .select.hits.tt(obj, ...)
@@ -45,9 +45,9 @@ prioritize.svd.analysed.tt <- function(obj, ...)
   invisible(res)
 }
 
-#' @noRd
 #' @export
 #' @import data.table
+#' @method prioritize svd.analysed.hyper
 prioritize.svd.analysed.hyper <- function(obj, ...)
 {
   res <- .select.hits.hyper(obj, ...)
@@ -55,19 +55,15 @@ prioritize.svd.analysed.hyper <- function(obj, ...)
   invisible(res)
 }
 
-#' @noRd
 #' @export
 #' @import data.table
+#' @method prioritize svd.analysed.pmm
 prioritize.svd.analysed.pmm <- function(obj, ...)
 {
   pars <- list(...)
-  # TODO: add this correctly
   eft  <- ifelse(methods::hasArg(readout.threshold), pars$readout.threshold, .05)
   fdrt <- ifelse(methods::hasArg(fdr.threshold), pars$fdr.threshold, .2)
   res <- .select.hits.pmm(obj, eft, fdrt)
-  class(res$gene.pathogen.effect.hits) <-
-    c("svd.prioritized.pmm.gene.pathogen.hits",
-      class(res$gene.pathogen.effect.hits))
   class(res) <- c("svd.prioritized.pmm", "svd.prioritized", class(res))
   res$fit <- obj
   invisible(res)
@@ -133,15 +129,14 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 #' @importFrom dplyr filter select group_by mutate summarize full_join
 .select.hits.pmm <- function(obj, eft, fdrt)
 {
-
-  message(paste0("Prioritizing on fdr.threshold ", fdr.threshold,
-                   "and on effect.threshold ", eft ,"."))
-  gpes <- obj$gene.pathogen.effects
-  gene.pathogen.results <-
-    gpes %>%
-    dplyr::filter(FDR <= fdr.threshold)
-  gene.effect.results <- obj$gene.effects %>% .[order(-abs(Effect))]
-  res <- list(gene.pathogen.effect.hits=gene.pathogen.results,
-              gene.effect.hits=gene.effect.results)
-  res
+  message(paste0("Prioritizing on fdr.threshold ", fdrt,
+                 " and on effect.threshold ", eft ,"."))
+  ge <-
+    obj$gene.effects %>%
+    dplyr::filter(FDR <= fdrt, abs(Effect) >= eft)  %>%
+    .[order(-abs(Effect))]
+  gpe <- obj$gene.pathogen.effects %>%
+    dplyr::filter(FDR <= fdrt, abs(Effect) >= eft)  %>%
+    .[order(-abs(Effect))]
+  list(gene.hits=ge, gene.pathogen.hits=gpe)
 }

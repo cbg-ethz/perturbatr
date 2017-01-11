@@ -240,7 +240,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 #' @importFrom dplyr mutate select left_join
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
-.lmm.significant.hits <- function(model.data, padj=c("bonf", "BH"))
+.lmm.significant.hits <- function(model.data, padj=c("BH", "bonf"))
 {
   padj <- match.arg(padj)
   # do 5 loocv iterations

@@ -123,13 +123,13 @@ print.svd.prioritized.tt <- function(x, ...) .print.svd.prioritized(x, ...)
 print.svd.prioritized.pmm <- function(x, ...)
 {
   ret <-
-    x$gene.pathogen.effect.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]],
+    x$gene.pathogen.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]],
       by=c("Virus")] %>%
     dplyr::filter(!is.na(GeneSymbol))
   cat("Printing data overview for virus-gene effects!\n")
   print(data.table::as.data.table(ret))
   ret <-
-    x$gene.effect.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]]] %>%
+    x$gene.hits[, .SD[order(abs(Effect), decreasing=T)[1:25]]] %>%
     dplyr::filter(!is.na(GeneSymbol))
   cat("Printing data overview for gene effects!\n")
   print(data.table::as.data.table(ret))
