@@ -275,7 +275,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
     ungroup %>%
     dplyr::mutate(FDR=p.adjust(Pval, method=padj)) %>%
     .[order(FDR)]
-  dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, loocv, Effect), bby="GeneSymbol")
+  dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, loocv, Effect), by="GeneSymbol")
   dat
 }
 
