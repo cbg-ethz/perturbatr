@@ -38,11 +38,7 @@ Imports: dplyr,
     RankAggreg,
     methods,
     diffusr
-biocViews: AnnotationDbi,
-    GOstats,
-    org.Hs.eg.db,
-    gespeR,
-    limma
+biocViews: geneticperturbation
 Suggests: testthat,
     lintr,
     knitr,
