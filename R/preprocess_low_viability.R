@@ -30,7 +30,7 @@
                   rm.cytotoxic ,")) and alternative=less"))
     obj <-
       dplyr::group_by(obj, Virus, Screen, Library,
-                      InfectionType, ReadoutType,
+                      ScreenType, ReadoutType,
                       Design, Cell) %>%
       # set siRNAS that are cytotoxic within each replicate
       dplyr::mutate(Remove=.set.cytotoxic(Readout, Viability, siRNAIDs,

@@ -209,7 +209,7 @@ plot.svd.plates <- function(x, y, ...)
                         ", replicate:", plate$Replicate[1],
                         ", plate:", plate$Plate[1],
                         ", readout:", plate$ReadoutType[1],
-                        ", infection:", plate$InfectionType[1],
+                        ", infection:", plate$ScreenType[1],
                         sep="")
     print(plot.svd.plate(plate, main=plate.name,
                          show.controls=show.controls,
@@ -281,7 +281,7 @@ plot.svd.quality <- function(x, y, ...)
   # plot the raw plate values as boxplot
   qual <- x$data
   grps <- dplyr::group_indices(qual, Virus, Screen, Library,
-                               InfectionType, ReadoutType,
+                               ScreenType, ReadoutType,
                                Replicate, Plate)
   df   <- dplyr::mutate(qual, Plate=grps) %>%
     dplyr::select(Virus, Screen, Readout, Plate) %>%

@@ -27,7 +27,7 @@
   message("Calculating b-scores!")
   b.score.data <-
     dplyr::group_by(obj, Virus, Screen, Library,
-                    ReadoutType, InfectionType, ReadoutClass,
+                    ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell,
                     Replicate, Plate) %>%
     dplyr::mutate(Readout = .bscore.plate(RowIdx, ColIdx, Readout)) %>%

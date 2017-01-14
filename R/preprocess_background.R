@@ -24,7 +24,7 @@
 {
   ret <-
     dplyr::group_by(obj, Virus, Screen, Library,
-                    InfectionType, ReadoutType, ReadoutClass,
+                    ScreenType, ReadoutType, ReadoutClass,
                     Design, Cell,
                     Replicate, Plate)
   f <- .summarization.method(method)

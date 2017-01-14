@@ -31,7 +31,7 @@ bootstrap.svd.lmm.model.data <- function(model.data, level=c("sirna", "pathogen"
 
   dat <-
     model.data %>%
-    dplyr::group_by(Virus, InfectionType, GeneSymbol) %>%
+    dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>%
     ungroup
   grps <- unique(dat$grp)
@@ -65,7 +65,7 @@ loocv.svd.lmm.model.data <- function(model.data, idx)
   if (!is.numeric(idx)) stop("provide an numeric index pls")
   dat <-
     model.data %>%
-    dplyr::group_by(Virus, InfectionType, GeneSymbol) %>%
+    dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>%
     ungroup
   grps <- unique(dat$grp)

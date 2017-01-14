@@ -86,14 +86,14 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                 ", readout threshold " , read.thresh,
                 " and p-value threshold ", p.val.thresh, sep=""))
   res <- dplyr::group_by(obj, Virus, Screen, Library,
-                         InfectionType, ReadoutType,
+                         ScreenType, ReadoutType,
                          Design, Cell,
                          GeneSymbol, Entrez,
                          Plate, RowIdx, ColIdx, siRNAIDs) %>%
     dplyr::mutate(Hit=(Pval <= p.val.thresh & abs(Readout) >= read.thresh)) %>%
     ungroup %>%
     dplyr::group_by(Virus, Screen, Library,
-                    ReadoutType, InfectionType,
+                    ReadoutType, ScreenType,
                     Design, Cell,
                     GeneSymbol, Entrez) %>%
     dplyr::summarize(HitRatio = (sum(Hit)/n()),
@@ -113,7 +113,7 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
   hit.rat      <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
   message(paste("Prioritizing on hit.ratio ", hit.rat, sep=""))
   res <- dplyr::group_by(obj, Virus, Screen, Library,
-                         InfectionType, ReadoutType,
+                         ScreenType, ReadoutType,
                          Design, Cell,
                          GeneSymbol, Entrez) %>%
     dplyr::summarize(HitRatio        = (base::sum(Hit == TRUE, na.rm=T)/n()),

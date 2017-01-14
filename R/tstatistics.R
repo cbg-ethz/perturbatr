@@ -54,7 +54,7 @@ tstatistic.svd.data <- function(obj, mu=c(NA, "Scrambled", "control"),
   message(paste("Correcting with ", padjust, "!", sep=""))
   message(paste("Taking", mu, "for t-test!"))
   ret <- dplyr::group_by(obj, Virus, Screen, Library,
-                         ReadoutType, InfectionType,
+                         ReadoutType, ScreenType,
                          Design, Cell) %>%
     dplyr::mutate(grp=.GRP) %>%
     ungroup
@@ -69,7 +69,7 @@ tstatistic.svd.data <- function(obj, mu=c(NA, "Scrambled", "control"),
         grp.dat <- dplyr::filter(ret, grp==g) %>% ungroup
         message(paste("Doing grp: ", paste(grp.dat$Virus[1],
                                          grp.dat$Screen[1],
-                                         grp.dat$InfectionType[1],
+                                         grp.dat$ScreenType[1],
                                          grp.dat$ReadoutType[1],
                                          grp.dat$Cell[1],
                                          grp.dat$Design[1],
@@ -125,7 +125,7 @@ tstatistic.svd.data <- function(obj, mu=c(NA, "Scrambled", "control"),
   ret <- obj %>% ungroup
   mu <- .set.mu(ret, mu)
   ret <- dplyr::group_by(ret, Virus, Screen, Library,
-                         ReadoutType, InfectionType,
+                         ReadoutType, ScreenType,
                          Cell, Design,
                          GeneSymbol, Entrez, Plate, Control,
                          RowIdx, ColIdx, siRNAIDs) %>%

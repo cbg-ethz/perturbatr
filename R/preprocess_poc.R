@@ -27,7 +27,7 @@
   f <- .summarization.method(method)
   ret <-
     dplyr::group_by(obj, Virus, Screen, Library,
-                    ReadoutType, InfectionType, ReadoutClass,
+                    ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell, Replicate, Plate) %>%
     dplyr::mutate(Readout=.poc.grp(Readout, ctrl.gene, f, Control, GeneSymbol))
   ret

@@ -62,7 +62,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
     message(paste("Summarizing with ", summ.method, "!", sep=""))
   summ.method <- .summarization.method(summ.method)
   grp.indexes <- dplyr::group_indices(obj, Virus, Screen, ReadoutType,
-                                      InfectionType, Library, Design, Cell)
+                                      ScreenType, Library, Design, Cell)
   ret <-  dplyr::mutate(obj, grp=grp.indexes)
   grps <- unique(ret$grp)
   # do the hyperstatistic for all the different screens
@@ -78,7 +78,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
         grp.dat <- dplyr::filter(ret, grp==g)
         message(paste("Doing grp: ", paste(grp.dat$Virus[1],
                                          grp.dat$Screen[1],
-                                         grp.dat$InfectionType[1],
+                                         grp.dat$ScreenType[1],
                                          grp.dat$ReadoutType[1],
                                          grp.dat$Cell[1],
                                          grp.dat$Design[1],
@@ -111,7 +111,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
     # summarize all the sirnas over the different replicates
     # so: for a gene A and siRNA B
     res <- dplyr::group_by(res, Virus, Screen, Library,
-                           InfectionType, ReadoutType,
+                           ScreenType, ReadoutType,
                            Cell, Design,
                            Plate, RowIdx, ColIdx,
                            GeneSymbol, Entrez, siRNAIDs) %>%
@@ -129,7 +129,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   }
   res <-
     dplyr::group_by(res, Virus, Screen, Library,
-                    ReadoutType, InfectionType, Cell, Design) %>%
+                    ReadoutType, ScreenType, Cell, Design) %>%
     dplyr::mutate(HRes=.hypertest(GeneSymbol, siRNAIDs, Plate,
                                   RowIdx, ColIdx, Readout, level)) %>%
     ungroup %>%

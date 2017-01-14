@@ -51,7 +51,7 @@ print.svd.data <- function(x, ...)
   {
     ret <-
       dplyr::group_by(x, Virus, Screen, Replicate,
-                      InfectionType, ReadoutType, Design, Cell, Library) %>%
+                      ScreenType, ReadoutType, Design, Cell, Library) %>%
       dplyr::summarize(Plates=max(Plate), Wells=(max(ColIdx)*max(RowIdx))) %>%
       ungroup
     base::cat("Printing data overview!\n")
@@ -80,7 +80,7 @@ print.svd.raw <- function(x, ...)
 print.svd.analysed.hyper <- function(x,  ...)
 {
   ret <-
-    dplyr::group_by(x, Virus, Screen, InfectionType, ReadoutType,
+    dplyr::group_by(x, Virus, Screen, ScreenType, ReadoutType,
                     Design, Cell, Library, GeneSymbol) %>%
     dplyr::summarize(siRNAIDs=n()) %>%
     ungroup
@@ -143,7 +143,7 @@ print.svd.prioritized.pmm <- function(x, ...)
 {
   ret <-
     x[, .SD[order(abs(MeanEffect), decreasing=T)[1:25]],
-      by=c("Virus", "Screen", "ReadoutType", "InfectionType",
+      by=c("Virus", "Screen", "ReadoutType", "ScreenType",
            "Library", "Design", "Cell")] %>%
     dplyr::filter(!is.na(GeneSymbol))
   cat("Printing data overview for!\n")

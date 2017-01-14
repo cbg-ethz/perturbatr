@@ -97,7 +97,7 @@ replicates.svd.data <- function(obj, ...)
   g <-
     dplyr::group_indices(obj, Virus, Screen, Replicate,
                          Design, Library,
-                         ReadoutType, InfectionType) %>%
+                         ReadoutType, ScreenType) %>%
     as.data.table
   rep.frame <- obj
   rep.frame$grp <- g
@@ -148,7 +148,7 @@ plates.svd.data <- function(obj, ...)
 {
   g <-
     dplyr::group_indices(obj, Virus, Screen, Replicate, Plate,
-                         ReadoutType, InfectionType) %>%
+                         ReadoutType, ScreenType) %>%
     as.data.table
   plate.frame <- obj
   plate.frame$grp <- g

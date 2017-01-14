@@ -32,7 +32,7 @@
   if (!is.na(ctrl)) message(paste("...normalizing on", ctrl))
   z.score.data <-
     dplyr::group_by(obj, Virus, Screen, Library,
-                    ReadoutType, InfectionType, ReadoutClass,
+                    ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell, Replicate, Plate)
   if (level == "plate")
   {

@@ -31,7 +31,7 @@
   # TODO difference between plate/replicates
   ret <-
     dplyr::group_by(obj, Virus, Library, Screen,
-                    ReadoutType, InfectionType, ReadoutClass,
+                    ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell) %>%
     dplyr::mutate(Readout = .qq.norm.group(Replicate, Readout,
                                            RowIdx, ColIdx)) %>%

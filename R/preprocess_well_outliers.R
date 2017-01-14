@@ -40,7 +40,7 @@
     message(paste("Removing wells based on ", probs[1],
                   "% and ", probs[2], "% quantile of cell number!"))
     obj <- dplyr::group_by(obj, Virus, Screen, Library,
-                           InfectionType, ReadoutType, ReadoutClass,
+                           ScreenType, ReadoutType, ReadoutClass,
                            Cell, Design) %>%
       dplyr::mutate(Readout=.rm.outlier.quantile(Readout, NumCells, probs)) %>%
       ungroup

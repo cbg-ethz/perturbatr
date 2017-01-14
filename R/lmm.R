@@ -160,7 +160,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   pmm.mat <-
     # subset the columns
     dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library,
-                  Cell, InfectionType, Design, ReadoutType) %>%
+                  Cell, ScreenType, Design, ReadoutType) %>%
     # only take entries that have a genesymbol
     dplyr::filter(!is.na(GeneSymbol)) %>%
     # dont take positive controls since these are different between the pathonges
@@ -178,7 +178,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   pmm.mat$VG            <- as.factor(pmm.mat$VG)
   pmm.mat$Cell          <- as.factor(pmm.mat$Cell)
   pmm.mat$ReadoutType   <- as.factor(pmm.mat$ReadoutType)
-  pmm.mat$InfectionType <- as.factor(pmm.mat$InfectionType)
+  pmm.mat$ScreenType <- as.factor(pmm.mat$ScreenType)
   pmm.mat$Design        <- as.factor(pmm.mat$Design)
   pmm.mat$GeneSymbol    <- as.factor(pmm.mat$GeneSymbol)
   pmm.mat$Weight        <- as.double(pmm.mat$Weight)
@@ -221,7 +221,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 {
   frm.str <- paste0("Readout ~ Virus + ",
                     "(1 | GeneSymbol) + (1 | Virus:GeneSymbol) + ",
-                    "(1 | InfectionType) + (1 | Virus:InfectionType)")
+                    "(1 | ScreenType) + (1 | Virus:ScreenType)")
   frm.str
 }
 
@@ -298,12 +298,12 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
   # table for infection types
   ie <- data.table::data.table(
-    Effect = random.effects[["InfectionType"]][,1],
-    InfectionType = as.character(rownames(random.effects[["InfectionType"]])))
+    Effect = random.effects[["ScreenType"]][,1],
+    ScreenType = as.character(rownames(random.effects[["ScreenType"]])))
   # table for virus-infection types
   # ipe <- data.table::data.table(
-  #   ie = random.effects[["Virus:InfectionType"]][,1],
-  #   InfectionPathID = as.character(rownames(random.effects[["Virus:InfectionType"]])))
+  #   ie = random.effects[["Virus:ScreenType"]][,1],
+  #   InfectionPathID = as.character(rownames(random.effects[["Virus:ScreenType"]])))
   # create the table with gene-pathogen effects
   ga <- base::merge(gpe, ge, by = "GeneSymbol") %>%
     dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
