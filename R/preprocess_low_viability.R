@@ -65,7 +65,6 @@
     assertthat::assert_that(length(cont.idx) == length(which(genes == comp.to)))
     # get mean readout and  viability of scrambled siRNAs
     cont.vial.thresh <- mean(val[cont.idx], na.rm=T) * .85
-    cont.re          <- mean(re [cont.idx], na.rm=T)
     # get the mean readouts and viabilities for every siRNA
     fr <-
       data.table::data.table(Re=re, Val=val, Gene=genes, Sirna=sirnas,
@@ -79,7 +78,7 @@
     fr <-
       dplyr::group_by(fr, Sirna, Gene, Plate, Row, Col, Control) %>%
       # summarize over replicates
-      dplyr::summarize(MR=mean(Re, na.rm=T),
+      dplyr::summarize(
                        MV=mean(Val, na.rm=T),
                        Pval=.t.test.vial(Val, cont.vial.thresh, Gene,
                                          Sirna, Plate, Row, Col)) %>%
@@ -88,7 +87,6 @@
     # get the sirnas that show toxicity
     lowe <- dplyr::filter(fr,
                           MV < cont.vial.thresh,
-                          MR < cont.re,
                           Pval < .05,
                           !is.na(Sirna),
                           !is.na(Gene),
@@ -99,7 +97,7 @@
                           Gene != "gapdh",
                           Gene != "gfp")
     remarr[which(sirnas %in% lowe$Sirna &
-                   rows %in% lowe$Row&
+                   rows %in% lowe$Row &
                    plates %in% lowe$Plate &
                    cols %in% lowe$Col)
            ] <- T

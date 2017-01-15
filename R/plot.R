@@ -288,11 +288,11 @@ plot.svd.quality <- function(x, y, ...)
     dplyr::mutate(Plate=as.factor(Plate)) %>%
     dplyr::filter(!is.na(Readout), !is.infinite(Readout))
   pl <-
-    ggplot2::ggplot(df, aes(Plate, Readout)) +
+    ggplot2::ggplot(df, ggplot2::aes(Plate, Readout)) +
     ggplot2::geom_boxplot() +
     ggplot2::facet_grid(Virus ~ Screen) +
     ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.x=element_blank()) +
+    ggplot2::theme(axis.text.x=ggplot2::element_blank()) +
     ggplot2::ggtitle("Plate readouts")
   # plot control densities
   df  <- dplyr::select(qual, Virus, Screen, Readout, Control) %>%
@@ -304,30 +304,37 @@ plot.svd.quality <- function(x, y, ...)
   data.table::setDT(df)[Control == "-1", Control := "Negative control"]
   data.table::setDT(df)[Control == "1", Control := "Positive control"]
   data.table::setDT(df)[Control == "0", Control := "Normal"]
-  pl2 <-
-    ggplot2::ggplot(df) +
-    ggplot2::geom_histogram(aes(x=Readout, y=..density.., color=Control),
-                            alpha=.5, position="identity", bins=42) +
-    ggplot2::facet_grid(Virus ~ Screen) +
-    ggplot2::theme_bw() +
-    ggplot2::ylab("Density") +
-    ggplot2::ggtitle("Control densities")
+  pl2 <- ggplot2::ggplot() + ggplot2::theme_bw()
+  if (nrow(df) != 0) {
+    pl2 <-
+      ggplot2::ggplot(df) +
+      ggplot2::geom_histogram(
+        ggplot2::aes(x=Readout, y=..density.., color=Control), alpha=.5,
+        position="identity", bins=42) +
+      ggplot2::facet_grid(Virus ~ Screen) +
+      ggplot2::theme_bw() +
+      ggplot2::ylab("Density") +
+      ggplot2::ggtitle("Control densities")
+  }
   # plot z factor and ssmd per plate as boxplot
   qual <- x$quality$plate.quality %>% ungroup
   df <- dplyr::select(qual, Virus, Screen, z.fac.control, ssmd) %>%
     tidyr::gather(key, value, z.fac.control, ssmd) %>%
     dplyr::filter(!is.na(value), !is.infinite(value))
-  pl3 <-
-    ggplot2::ggplot(df) +
-    ggplot2::geom_boxplot(aes(key, value), outlier.shape=NA) +
-    ggplot2::scale_y_continuous(limits = quantile(df$value, c(0.1, 0.9))) +
-    ggplot2::facet_grid(Virus ~ Screen) +
-    ggplot2::theme_bw() +
-    ggplot2::xlab("Quality metric") +
-    ggplot2::ylab("Readout") +
-    ggplot2::scale_x_discrete(breaks=c("ssmd", "z.fac.control"),
-                     labels=c("SSMD", "Z-factor")) +
-    ggplot2::ggtitle("Plate quality measures")
+  pl3 <- ggplot2::ggplot() + ggplot2::theme_bw()
+  if (nrow(df) != 0) {
+    pl3 <-
+      ggplot2::ggplot(df) +
+      ggplot2::geom_boxplot(ggplot2::aes(key, value), outlier.shape=NA) +
+      ggplot2::scale_y_continuous(limits = quantile(df$value, c(0.1, 0.9))) +
+      ggplot2::facet_grid(Virus ~ Screen) +
+      ggplot2::theme_bw() +
+      ggplot2::xlab("Quality metric") +
+      ggplot2::ylab("Readout") +
+      ggplot2::scale_x_discrete(breaks=c("ssmd", "z.fac.control"),
+                       labels=c("SSMD", "Z-factor")) +
+      ggplot2::ggtitle("Plate quality measures")
+  }
     # plot positive control and negative control values
   qual <- x$data
   df   <- dplyr::mutate(qual, Plate=grps) %>%
@@ -336,18 +343,20 @@ plot.svd.quality <- function(x, y, ...)
     dplyr::group_by(Virus, Screen, Plate, Control) %>%
     dplyr::summarize(Readout=mean(Readout, na.rm=T)) %>% ungroup %>%
     dplyr::mutate(Plate=as.factor(Plate), Control=as.factor(Control))
-  pl4 <-
-    ggplot2::ggplot(df) +
-    ggplot2::geom_point(aes(x=Plate, y=Readout, color=Control)) +
-    ggplot2::theme_bw() +
-    ggplot2::geom_line(aes(x=Plate, y=Readout)) +
-    ggplot2::facet_grid(Virus ~ Screen) +
-    ggplot2::theme(axis.text.x=element_blank()) +
-    ggplot2::scale_color_discrete(breaks=c("-1", "1"),
-                                  labels=c("Negative control",
-                                           "Positive control")) +
-    ggplot2::ggtitle("Plate controls")
-
+  pl4 <- ggplot2::ggplot() + ggplot2::theme_bw()
+  if (nrow(df) != 0) {
+    pl4 <-
+      ggplot2::ggplot(df) +
+      ggplot2::geom_point(ggplot2::aes(x=Plate, y=Readout, color=Control)) +
+      ggplot2::theme_bw() +
+      ggplot2::geom_line(ggplot2::aes(x=Plate, y=Readout)) +
+      ggplot2::facet_grid(Virus ~ Screen) +
+      ggplot2::theme(axis.text.x=ggplot2::element_blank()) +
+      ggplot2::scale_color_discrete(breaks=c("-1", "1"),
+                                    labels=c("Negative control",
+                                             "Positive control")) +
+      ggplot2::ggtitle("Plate controls")
+  }
   .multiplot(plotlist=list(pl, pl2, pl3, pl4),cols=2)
 }
 
