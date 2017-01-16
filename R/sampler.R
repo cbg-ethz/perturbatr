@@ -78,7 +78,6 @@ loocv.svd.lmm.model.data <- function(model.data, idx)
         grp.dat <- dplyr::filter(dat, grp==g)
         ma <- max(grp.dat$cnt)
         if (idx > ma || ma <= 3) {
-          print("idx > grp.dat. returning all elements for group")
           idxs <- seq(ma)
         } else {
           idxs <- seq(ma)[-idx]

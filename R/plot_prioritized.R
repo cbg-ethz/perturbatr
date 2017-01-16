@@ -24,8 +24,8 @@
 #' @method plot svd.prioritized.pmm
 plot.svd.prioritized.pmm <- function(x, y, ...)
 {
-  gen.pat <- x$gene.pathogen.effect.hits
-  pl <- .plot.svd.prioritized.pmm(x$gene.effect.hits, main="Gene effects", ...)
+  gen.pat <- x$gene.pathogen.hits
+  pl <- .plot.svd.prioritized.pmm(x$gene.hits, main="Gene effects", ...)
   pl2 <-
     .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects", ...) +
     ggplot2::facet_wrap( ~ Virus, ncol=ceiling(length(unique(gen.pat$Virus))/2))
