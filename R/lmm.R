@@ -130,32 +130,6 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 #' @importFrom dplyr mutate
 .set.lmm.matrix <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
 {
-  # TODO: change this to pooled and unpooled
-  # set weights for the sirnas
-  wei.dhar <- wei.am <- 1
-  # check if weights are given
-  if (!is.null(weights))
-  {
-    if (!is.null(weights$dharmacon))
-    {
-      wei.dhar <- weights$dharmacon
-      message(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
-    }
-    if (!is.null(weights$ambion))
-    {
-      wei.am <- weights$ambion
-      message(paste("Setting weights for Ambion library to", wei.am,"\n"))
-    }
-  }
-  # check if sirna-gene affinities are given
-  else if (!is.null(rel.mat.path))
-  {
-    # TODO: this is the
-    cat(paste("Setting weights for Dharmacon library to", wei.dhar,"\n"))
-    # this i still have to implement
-    stop("to do")
-    rel.mat <- .load.rds(path)
-  }
   # setup pmm data
   pmm.mat <-
     # subset the columns
@@ -166,8 +140,8 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
     # dont take positive controls since these are different between the pathonges
     # negative control on the other hand should be fine
     dplyr::filter(Control != 1)
-  data.table::setDT(pmm.mat)[Library == "Dharmacon", Weight := wei.dhar]
-  data.table::setDT(pmm.mat)[Library == "Ambion",    Weight := wei.am]
+  # set weights
+  data.table::setDT(pmm.mat)[, Weight := .weights(obj, weights, rel.mat.path)]
   # set a column that concats virus and genesymbol
   data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
   #  remove librarz
@@ -214,6 +188,24 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   pmm.mat <- droplevels(pmm.mat)
   class(pmm.mat) <- c("svd.lmm.model.data", class(pmm.mat))
   pmm.mat
+}
+
+.weights <- function(obj, weights, rel.mat.path)
+{
+    if (!is.null(weights)) return(1)
+    else if (!is.list(weights)) stop("Please give a list argument")
+    els <- names(weights)
+    ret <- rep(1, nrow(obj))
+    for (el in els)
+    {
+      idxs <- switch(el,
+                     "pooled"  =which(obj$Design == "pooled"),
+                     "single"=which(obj$Design == "single"),
+                     stop("Please provide 'single'/'pooled' list names for setting weights"))
+      ret[idxs] <- as.numeric(weights[[el]])
+      message(paste("Setting", length(idxs), el,  "well weights to:", as.numeric(weights[[el]])))
+    }
+    ret
 }
 
 #' @noRd
