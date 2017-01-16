@@ -39,6 +39,7 @@ hyperstatistic <- function(obj, padjust=c("BH", "bonferroni"),
 #' @noRd
 #' @export
 #' @import data.table
+#' @method hyperstatistic svd.data
 hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
                                     summ.method=c("mean", "median"),
                                     level=c("gene", "sirna"), ...)
@@ -120,7 +121,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   }
   else
   {
-    message(paste("\t ...NOT summarizing single siRNAs over replicate!"))
+    message(paste("\t ...NOT summarizing single siRNAs over replicates!"))
   }
   if (obj$Design[2] == "pooled")
   {
@@ -128,8 +129,10 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
     message("\t...setting level=gene since a pooled library is used!")
   }
   res <-
-    dplyr::group_by(res, Virus, Screen, Library,
-                    ReadoutType, ScreenType, Cell, Design) %>%
+    dplyr::group_by(res, Virus,
+                    Screen, Library,
+                    ReadoutType, ScreenType,
+                    Cell, Design) %>%
     dplyr::mutate(HRes=.hypertest(GeneSymbol, siRNAIDs, Plate,
                                   RowIdx, ColIdx, Readout, level)) %>%
     ungroup %>%

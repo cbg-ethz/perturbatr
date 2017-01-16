@@ -46,7 +46,7 @@ plot.svd.data <- function(x, y, ...)
     ggplot2::geom_bar(aes(fill=Virus), stat="identity") +
     ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
     ggplot2::scale_fill_brewer(palette="Spectral") +
-    ggplot2::geom_text(aes(label = Count, y = Count), size = 3, vjust=-.25) +
+    ggplot2::geom_text(aes(label = Count, y = Count), size = 2, vjust=-.25) +
     ggplot2::theme_bw()
 
   pl
