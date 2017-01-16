@@ -128,6 +128,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
     level <- "gene"
     message("\t...setting level=gene since a pooled library is used!")
   }
+  # do hyper test on every screen
   res <-
     dplyr::group_by(res, Virus,
                     Screen, Library,
@@ -143,6 +144,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   res <- res[order(Pval)]
   data.table::setDT(res)[,HyperRank := cumsum(res$Hit)]
   data.table::setDT(res)[Hit == 0, HyperRank := NA_integer_]
+  # p val correction
   res <- dplyr::mutate(res, Pvalcorr=p.adjust(Pval, method=padjust))
   invisible(res)
 }
@@ -160,11 +162,17 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
                                ord=1:length(all.genes)) %>%
     dplyr::mutate(rank=rank(-readout, ties.method="max")) %>%
     .[order(rank)]
+  ## this part is tricky!
+  ## if we do the hypergeometric test on genes we need another grouping as for siRNAs
+  ## TODO: definitely write tests for this and beautify
+  # on gene level group by genes and take all siRNAs for test
   if (level == "gene")
   {
     fr <- dplyr::group_by(fr, genes)
   }
-  else if (level =="sirna")
+  # on sirna level group by gene name and specific sirna
+  # (the siRNA SHOULD be identical to grouping by plate/row/col; so the last grouping should be redundant)
+  else if (level == "sirna")
   {
     fr <- dplyr::group_by(fr, genes, sirnas, plates, rows, cols)
   }
@@ -172,6 +180,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   {
     stop("Please provide a standard method!")
   }
+  # used the grouped ranks and all genes and to hyper test
   fr <- fr %>%
     dplyr::mutate(H=.hypertest.grp(rank, all.genes)) %>%
     ungroup %>%
