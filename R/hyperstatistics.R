@@ -188,6 +188,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   fr$H
 }
 
+#' Test as described in the original RSA paper by Koenig et al, 2007
 #' @noRd
 #' @importFrom stats phyper
 .hypertest.grp <- function(ranks, all.genes)
