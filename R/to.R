@@ -163,6 +163,16 @@ plates.svd.data <- function(obj, ...)
   invisible(plates)
 }
 
+#' @noRd
+#' @export
+#' @method plates default
+plates.default <- function(obj, ...)
+{
+  # TODO make better
+  plate.frame <- obj
+  class(plate.frame) <- c("svd.plate.rows", "svd.plate", class(plate.frame))
+  plate.frame
+}
 
 #' Calculate the correlation between two data-sets
 #'

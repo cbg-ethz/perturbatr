@@ -195,7 +195,6 @@ plot.svd.plates <- function(x, y, ...)
   show.gene.names <- ifelse(methods::hasArg(show.gene.names) &
                               is.logical(params$show.gene.names),
                             params$show.gene.names, T)
-  graphics::par(ask=T)
   obj.len <- length(x)
   if (is.na(count)) count <- obj.len
   if (obj.len == count) { plates <- seq(obj.len) }
@@ -215,7 +214,6 @@ plot.svd.plates <- function(x, y, ...)
                          show.controls=show.controls,
                          show.gene.names=show.gene.names))
   }
-  graphics::par(ask=F)
 }
 
 #' @export
@@ -224,7 +222,7 @@ plot.svd.plates <- function(x, y, ...)
 #' @importFrom dplyr full_join
 #' @importFrom methods hasArg
 #' @method plot svd.plate
-plot.svd.plate <- function(x, y, ...)
+plot.svd.plate <- function(x, y, ..., ylab="Row idx", xlab="Column idx", main="")
 {
   params <- list(...)
   show.controls <- ifelse(methods::hasArg(show.controls) &
@@ -247,9 +245,7 @@ plot.svd.plate <- function(x, y, ...)
     ctrl <- df$Control
     lwd <- ctrl
     lwd[lwd != 0] <- 1
-    pl <- pl + ggplot2::geom_tile(aes(fill=Readout),
-                                  color="black",
-                                  lwd=lwd)
+    pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black", lwd=lwd)
   } else {
     pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black")
   }
@@ -262,7 +258,60 @@ plot.svd.plate <- function(x, y, ...)
                               labels=rev(df$Row),
                               name="Row index") +
     ggplot2::scale_fill_distiller(palette="Spectral", na.value="white") +
-    ggplot2::ggtitle(ifelse(methods::hasArg(main), params$main, "")) +
+    ggplot2::ggtitle(main) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(text = element_text(size = 12, family = "Helvetica"),
+                   aspect.ratio=.75)
+  if (show.gene.names) pl <- pl + ggplot2::geom_text(aes(label=df$Gene), size=3)
+  pl
+}
+
+#' @export
+#' @import data.table
+#' @import ggplot2
+#' @importFrom dplyr full_join select rename left_join
+#' @importFrom methods hasArg
+#' @method plot svd.plate.rows
+plot.svd.plate.rows <- function(x, y, ..., ylab="Plate idx", xlab="Column idx", main="")
+{
+  params <- list(...)
+  show.controls <- ifelse(methods::hasArg(show.controls) &
+                            is.logical(params$show.controls),
+                          params$show.controls, T)
+  show.gene.names <- ifelse(methods::hasArg(show.gene.names) &
+                              is.logical(params$show.gene.names),
+                            params$show.gene.names, T)
+  mat <- readout.matrix(x)
+  mat$genes[is.na(mat$genes)] <- ""
+  dr  <- data.table::melt(mat$readout)
+  di  <- data.table::melt(mat$idx)
+  dg  <- data.table::melt(mat$genes)
+  df  <- dplyr::full_join(dr, di, by=c("Var1", "Var2"))
+  df  <- dplyr::full_join(df, dg, by=c("Var1", "Var2"))
+  dp  <- x %>% dplyr::select(Plate, RowIdx) %>% unique %>% dplyr::rename(Row=RowIdx)
+  colnames(df) <- c("Row", "Column", "Readout", "Control", "Gene")
+  df <- left_join(df, dp, by="Row")
+  pl <-  ggplot2::ggplot(df, aes(x=Column, y=rev(Row)))
+  if (show.controls) {
+    ctrl <- df$Control
+    lwd <- ctrl
+    lwd[lwd != 0] <- 1
+    pl <- pl + ggplot2::geom_tile(aes(fill=Readout),
+                                  color="black",
+                                  lwd=lwd)
+  } else {
+    pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black")
+  }
+  pl <- pl +
+    ggplot2::scale_x_discrete(expand = c(0,0),
+                              limits=df$Column,
+                              name=xlab) +
+    ggplot2::scale_y_discrete(expand = c(0,0),
+                              limits=df$Row,
+                              labels=rev(df$Plate),
+                              name=ylab) +
+    ggplot2::scale_fill_distiller(palette="Spectral", na.value="white") +
+    ggplot2::ggtitle(main) +
     ggplot2::theme_bw() +
     ggplot2::theme(text = element_text(size = 12, family = "Helvetica"),
                    aspect.ratio=.75)

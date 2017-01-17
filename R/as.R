@@ -49,3 +49,5 @@ as.svd.lmm.model.data.data.table <- function(obj, ...)
   invisible(obj)
 }
 
+#' @export
+as.svd.plate <- function(obj, ...) UseMethod("as.svd.plate")
