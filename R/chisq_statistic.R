@@ -41,13 +41,25 @@ chisq.statistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"), ...)
   padjust <- match.arg(padjust)
   maha  <- .mahalanobis(obj$Readout)
   pvals <- .chisq(maha)
-  if (length(maha) != nrow(obj))  stop("length(mahalanobis distance) != nrow(obj)")
+  if (length(maha)  != nrow(obj)) stop("length(mahalanobis distance) != nrow(obj)")
   if (length(pvals) != nrow(obj)) stop("length(pvals) != nrow(obj)")
   ret <- obj
   data.table::setDT(ret)[, Pval := pvals]
   data.table::setDT(ret)[, Qval := p.adjust(pvals, method=padjust)]
   class(ret) <- c("svd.analysed.chisq", class(ret))
   ret
+}
+
+#' @export
+#' @method chisq.statistic numeric
+#' @importFrom stats p.adjust
+chisq.statistic.numeric <- function(obj, padjust=c("BH", "bonferroni"), ...)
+{
+  warning("this is a protoype. limited usability")
+  padjust  <- match.arg(padjust)
+  maha     <- .mahalanobis(obj)
+  p.vals   <- .chisq(maha)
+  list(p.vals=p.vals, q.vals=stats::p.adjust(p.vals, method=padjust))
 }
 
 #' @noRd

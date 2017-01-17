@@ -409,47 +409,6 @@ plot.svd.quality <- function(x, y, ...)
   .multiplot(plotlist=list(pl, pl2, pl3, pl4),cols=2)
 }
 
-#' @export
-#' @import data.table
-#' @import igraph
-#' @importFrom graphics plot legend
-#' @importFrom methods hasArg
-#' @method plot svd.diffused.pmm
-plot.svd.diffused.pmm <- function(x, y, ...)
-{
-   pars <- list(...)
-   sz <- ifelse(methods::hasArg(size), pars$size, -1)
-   show.labels <- ifelse(methods::hasArg(size), pars$size, -1)
-   obj <- x$graph.info$graph
-   V(obj)$size = igraph::degree(obj)
-   deg <- igraph::degree(obj)
-   size <- deg
-   size[deg < 3] <- 15
-   size[deg >= 3] <- 20
-   size[deg > 5] <- 25
-   ad <- igraph::get.adjacency(obj)
-   ad[ad >= 1] <- 1
-   obj <- igraph::graph_from_adjacency_matrix(ad, mode="undirected")
-   blue.genes <-
-     V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "lightblue")]
-   orange.genes <-
-     V(x$graph.info$graph)[which(V(x$graph.info$graph)$color == "orange")]
-   V(obj)$color[V(obj) %in% blue.genes] <- "lightblue"
-   V(obj)$color[V(obj) %in% orange.genes] <- "orange"
-   E(obj)$width <- 2
-   graphics::plot.new()
-   op <- par(family = "Helvetica", font=2)
-   if (sz != -1) size <- rep(sz, length(size))
-   graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
-                  vertex.label.family="Helvetica", vertex.label.font=2,
-                  edge.curved=-.01)
-   graphics::legend("topright",
-                    legend=c("Linear mixed model", "Diffusion"),
-                    col=x$graph.info$colors,
-          pch=19, cex=1.05)
-   par(op)
-}
-
 #' @noRd
 #' @import grid
 .multiplot <- function(..., plotlist=NULL, cols=2, layout=NULL)

@@ -107,7 +107,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   # finalize output and return as list
   message("LOOCV for significance estimation")
   # TODO make this consistent to previous FDR
-  ge.fdrs <- .lmm.significant.hits(md)
+  ge.fdrs      <- .lmm.significant.hits(md)
   # set together the gene/fdr/effects and the mappings
   gene.effects <- dplyr::full_join(ref$gene.effects, gene.control.map,
                                    by="GeneSymbol") %>%
@@ -192,7 +192,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 }
 
 #' @noRd
-#' importFrom assertthat assert_that
+#' @importFrom assertthat assert_that
 .weights <- function(obj, weights, rel.mat.path)
 {
   if (is.null(weights)) return(1)
