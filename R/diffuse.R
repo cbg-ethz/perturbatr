@@ -87,7 +87,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
   res <- diffuse.data$frame
   li <- list(data=res)
   class(li) <- c("svd.diffused.mrw", "svd.diffused", class(li))
-  return(res)
+  return(li)
 }
 
 #' @noRd
