@@ -56,8 +56,8 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
     stop(paste("Can't find: ", path, "!", sep=""))
   hits <- obj$gene.hits %>%
     dplyr::select(GeneSymbol, abs(Effect))
-  graph <- .read.graph(path)
-  res   <- .diffuse(hits, graph, match.arg(method),
+  res   <- .diffuse(hits, path,
+                    match.arg(method),
                     r=0.5, node.start.count=25, search.depth=5)
   invisible(res)
 }
@@ -65,10 +65,10 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 #' @noRd
 #' @import data.table
 #' @importFrom igraph get.adjacency
-.diffuse <- function(hits, graph, method, r=0.5, node.start.count=25,
-                     search.depth=5)
+.diffuse <- function(hits, path, method, r=0.5,
+                     node.start.count=25, search.depth=5)
 {
-  adjm <-  igraph::get.adjacency(graph, attr="weight")
+  adjm <-  igraph::get.adjacency(.read.graph(path), attr="weight")
   switch(method,
          "neighbors"= .knn(hits, adjm, node.start.count, search.depth),
          "mrw"      = .mrw(hits, adjm, r),
@@ -96,7 +96,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 .init.starting.distribution <- function(hits, adjm)
 {
   res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
-                           hits)
+                           hits, by="GeneSymbol")
   data.table::setDT(res)[is.na(Effect), Effect := 0]
   return(list(frame=res, adjm=adjm))
 }

@@ -116,9 +116,9 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                          ScreenType, ReadoutType,
                          Design, Cell,
                          GeneSymbol, Entrez) %>%
-    dplyr::summarize(HitRatio        = (base::sum(Hit == TRUE, na.rm=T)/n()),
-                     MeanEffect          = base::mean(Readout, na.rm=T),
-                     MeanPvalue          = base::mean(Pval)) %>%
+    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
+                     MeanEffect = mean(Readout, na.rm=T),
+                     MeanPvalue = mean(Pval)) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.rat)
   res

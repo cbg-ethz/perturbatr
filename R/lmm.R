@@ -106,6 +106,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   gp.fdrs <- .fdr(ref$gene.pathogen.effects)
   # finalize output and return as list
   message("LOOCV for significance estimation")
+  # TODO make this consistent to previous FDR
   ge.fdrs <- .lmm.significant.hits(md)
   # set together the gene/fdr/effects and the mappings
   gene.effects <- dplyr::full_join(ref$gene.effects, gene.control.map,
@@ -141,7 +142,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
     # negative control on the other hand should be fine
     dplyr::filter(Control != 1)
   # set weights
-  data.table::setDT(pmm.mat)[, Weight := .weights(obj, weights, rel.mat.path)]
+  data.table::setDT(pmm.mat)[, Weight := .weights(pmm.mat, weights, rel.mat.path)]
   # set a column that concats virus and genesymbol
   data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
   #  remove librarz
@@ -152,7 +153,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   pmm.mat$VG            <- as.factor(pmm.mat$VG)
   pmm.mat$Cell          <- as.factor(pmm.mat$Cell)
   pmm.mat$ReadoutType   <- as.factor(pmm.mat$ReadoutType)
-  pmm.mat$ScreenType <- as.factor(pmm.mat$ScreenType)
+  pmm.mat$ScreenType    <- as.factor(pmm.mat$ScreenType)
   pmm.mat$Design        <- as.factor(pmm.mat$Design)
   pmm.mat$GeneSymbol    <- as.factor(pmm.mat$GeneSymbol)
   pmm.mat$Weight        <- as.double(pmm.mat$Weight)
@@ -190,22 +191,25 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   pmm.mat
 }
 
+#' @noRd
+#' importFrom assertthat assert_that
 .weights <- function(obj, weights, rel.mat.path)
 {
-    if (!is.null(weights)) return(1)
-    else if (!is.list(weights)) stop("Please give a list argument")
-    els <- names(weights)
-    ret <- rep(1, nrow(obj))
-    for (el in els)
-    {
-      idxs <- switch(el,
-                     "pooled"  =which(obj$Design == "pooled"),
-                     "single"=which(obj$Design == "single"),
-                     stop("Please provide 'single'/'pooled' list names for setting weights"))
-      ret[idxs] <- as.numeric(weights[[el]])
-      message(paste("Setting", length(idxs), el,  "well weights to:", as.numeric(weights[[el]])))
-    }
-    ret
+  if (is.null(weights)) return(1)
+  else if (!is.list(weights)) stop("Please give a list argument")
+  els <- names(weights)
+  ret <- rep(1, nrow(obj))
+  for (el in els)
+  {
+    idxs <- switch(el,
+                   "pooled"  =which(obj$Design == "pooled"),
+                   "single"=which(obj$Design == "single"),
+                   stop("Please provide 'single'/'pooled' list names for setting weights"))
+    ret[idxs] <- as.numeric(weights[[el]])
+    message(paste("Setting", length(idxs), el,  "well weights to:", as.numeric(weights[[el]])))
+  }
+  assertthat::assert_that(length(ret) == nrow(obj))
+  ret
 }
 
 #' @noRd
