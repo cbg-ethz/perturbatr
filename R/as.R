@@ -49,5 +49,10 @@ as.svd.lmm.model.data.data.table <- function(obj, ...)
   invisible(obj)
 }
 
+#' Convert to an plate object
+#'
 #' @export
+#'
+#' @param obj  objject to be converted
+#' @param ...  additional params
 as.svd.plate <- function(obj, ...) UseMethod("as.svd.plate")

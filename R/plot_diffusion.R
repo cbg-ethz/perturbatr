@@ -17,44 +17,99 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+# knockout: analysis of high-throughput gene perturbation screens
+#
+# Copyright (C) 2015 - 2016 Simon Dirmeier
+#
+# This file is part of knockout
+#
+# knockout is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# knockout is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with knockout. If not, see <http://www.gnu.org/licenses/>.
+
 #' @export
 #' @import data.table
 #' @import igraph
 #' @importFrom graphics plot legend
 #' @importFrom methods hasArg
+#' @importFrom assertthat assert_that
 #' @method plot svd.diffused.mrw
-plot.svd.diffused.mrw <- function(x, y, ...)
+plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
 {
-  pars <- list(...)
+  pars        <- list(...)
   sz          <- ifelse(methods::hasArg(size), pars$size, -1)
-  show.labels <- ifelse(methods::hasArg(size), pars$size, -1)
-
-  obj <- x$graph.info$graph
-  igraph::V(obj)$size = igraph::degree(obj)
-  deg <- igraph::degree(obj)
-  size <- deg
-  size[deg < 3] <- 15
-  size[deg >= 3] <- 20
-  size[deg > 5] <- 25
-  ad <- igraph::get.adjacency(obj)
-  ad[ad >= 1] <- 1
-  obj <- igraph::graph_from_adjacency_matrix(ad, mode="undirected")
-  blue.genes <-
-    igraph::V(x$graph.info$graph)[which(igraph::V(x$graph.info$graph)$color == "lightblue")]
-  orange.genes <-
-    igraph::V(x$graph.info$graph)[which(igraph::V(x$graph.info$graph)$color == "orange")]
-  igraph::V(obj)$color[V(obj) %in% blue.genes] <- "lightblue"
-  igraph::V(obj)$color[V(obj) %in% orange.genes] <- "orange"
+  obj         <- x$graph
+  stopifnot(is.igraph(obj))
+  # get the best 100 hits according to their ranking
+  best.100 <- x$diffusion %>%
+    .[order(-DiffusionEffect)] %>%
+    .[1:100] %>%
+    dplyr::filter(!is.na(DiffusionEffect))
+  # index of edges that are gonna be plotted
+  edge.list    <- igraph::get.edgelist(x$graph)
+  idxs         <- .edge.indexes(edge.list, best.100)
+  # node colors (LMM identified genes are blue, rest orange)
+  blue.genes   <- best.100$GeneSymbol[best.100$GeneSymbol %in%
+                                        x$lmm.hits$GeneSymbol]
+  # set some vis params
+  obj <- igraph::graph.data.frame(.edge.subset(edge.list, idxs), directed=F)
+  size <- .size(obj)
+  igraph::V(obj)$color <- "orange"
+  # igraph::V(obj)$color[igraph::V(obj)$name %in% blue.genes] <- "lightblue"
   igraph::E(obj)$width <- 2
+  # plot all the the nodes
+  .plot.graph(obj, sz, size)
+}
+
+#' @noRd
+.edge.indexes <- function(edge.list, best.100)
+{
+  v1 <- (edge.list[,1] %in% best.100$GeneSymbol &
+           edge.list[,2] %in% best.100$GeneSymbol)
+  v2 <- (edge.list[,2] %in% best.100$GeneSymbol &
+           edge.list[,1] %in% best.100$GeneSymbol)
+  which(v1 | v2)
+}
+
+#' @noRd
+.size <- function(obj)
+{
+  deg                 <- igraph::degree(obj)
+  size                <- deg
+  size[deg <  3]      <- 5
+  size[deg >= 3]      <- 10
+  size[deg >  5]      <- 15
+  size
+}
+
+#' @noRd
+#' @import data.table
+.edge.subset <- function(edge.list, idxs)
+{
+  fr  <- t(apply(edge.list[idxs, ], 1, function(e) sort(e)))
+  rel <- data.table::data.table(Gene1=c(fr[, 1]),
+                                Gene2=c(fr[, 2])) %>%
+    unique
+  as.data.frame(rel)
+}
+
+#' @noRd
+.plot.graph <- function(obj, sz, size)
+{
   graphics::plot.new()
-  op <- par(family = "Helvetica", font=2)
+  op                 <- par(family = "Helvetica", font=2)
   if (sz != -1) size <- rep(sz, length(size))
   graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
                  vertex.label.family="Helvetica", vertex.label.font=2,
-                 edge.curved=-.01)
-  graphics::legend("topright",
-                   legend=c("Linear mixed model", "Diffusion"),
-                   col=x$graph.info$colors,
-                   pch=19, cex=1.05)
+                 edge.curved=-.15)
   par(op)
 }

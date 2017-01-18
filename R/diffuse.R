@@ -85,8 +85,8 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
   mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
                               as.matrix(diffuse.data$adjm), r)
   diffuse.data$frame$DiffusionEffect <- mrw
-  res <- diffuse.data$frame
-  li <- list(diffusion=res, lmm.hits=hits, graph=graph)
+  res       <- diffuse.data$frame
+  li        <- list(diffusion=res, lmm.hits=hits, graph=graph)
   class(li) <- c("svd.diffused.mrw", "svd.diffused", class(li))
   return(li)
 }
