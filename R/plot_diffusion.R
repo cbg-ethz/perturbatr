@@ -26,8 +26,9 @@
 plot.svd.diffused.mrw <- function(x, y, ...)
 {
   pars <- list(...)
-  sz <- ifelse(methods::hasArg(size), pars$size, -1)
+  sz          <- ifelse(methods::hasArg(size), pars$size, -1)
   show.labels <- ifelse(methods::hasArg(size), pars$size, -1)
+
   obj <- x$graph.info$graph
   igraph::V(obj)$size = igraph::degree(obj)
   deg <- igraph::degree(obj)

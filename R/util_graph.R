@@ -25,8 +25,7 @@
 .read.graph <- function(pth)
 {
   tab <- utils::read.csv(pth, sep="\t", header=T)
-  gra <- igraph::graph.data.frame(read.csv(pth, sep="\t", header=T),
-                                  directed=F)
+  gra <- igraph::graph.data.frame(tab, directed=F)
   if (ncol(tab) == 3)
   {
     if (is.null(E(gra)$weight))

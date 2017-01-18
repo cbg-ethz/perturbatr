@@ -68,24 +68,25 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 .diffuse <- function(hits, path, method, r=0.5,
                      node.start.count=25, search.depth=5)
 {
-  adjm <-  igraph::get.adjacency(.read.graph(path), attr="weight")
+  graph <- .read.graph(path)
+  adjm  <-  igraph::get.adjacency(graph, attr="weight")
   switch(method,
-         "neighbors"= .knn(hits, adjm, node.start.count, search.depth),
-         "mrw"      = .mrw(hits, adjm, r),
+         "neighbors"= .knn(hits, adjm, node.start.count, search.depth, graph),
+         "mrw"      = .mrw(hits, adjm, r, graph),
          stop("No suitable method found"))
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom diffusr random.walk
-.mrw <- function(hits, adjm, r)
+.mrw <- function(hits, adjm, r, graph)
 {
   diffuse.data <- .init.starting.distribution(hits, adjm)
   mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
                               as.matrix(diffuse.data$adjm), r)
   diffuse.data$frame$DiffusionEffect <- mrw
   res <- diffuse.data$frame
-  li <- list(data=res)
+  li <- list(diffusion=res, lmm.hits=hits, graph=graph)
   class(li) <- c("svd.diffused.mrw", "svd.diffused", class(li))
   return(li)
 }
@@ -104,7 +105,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 #' @noRd
 #' @import data.table igraph
 #' @importFrom dplyr filter mutate
-.knn <- function(hits, adjm, node.start.count, search.depth)
+.knn <- function(hits, adjm, node.start.count, search.depth, graph)
 {
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
   neighs <- diffusr::nearest.neighbors(
@@ -113,7 +114,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
   res <- diffuse.data$frame
   names(neighs) <- filter(diffuse.data$frame,
                        Idx %in% as.integer(names(neighs)))$GeneSymbol
-  li <- list(data=res, neighbors=knn)
+  li <- list(data=res, neighbors=knn, graph=graph)
   class(li) <- c("svd.diffused.knn", "svd.diffused", class(res))
   return(li)
 }
