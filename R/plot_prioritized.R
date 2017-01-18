@@ -24,10 +24,9 @@
 #' @method plot svd.prioritized.pmm
 plot.svd.prioritized.pmm <- function(x, y, ...)
 {
-  gen.pat <- x$gene.pathogen.hits
   pl <- .plot.svd.prioritized.pmm(x$gene.hits, main="Gene effects", ...)
   pl2 <-
-    .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects", ...) +
+    .plot.svd.prioritized.pmm(x$gene.pathogen.hits, main="Gene-virus effects", ...) +
     ggplot2::facet_wrap( ~ Virus, ncol=ceiling(length(unique(gen.pat$Virus))/2))
   return(list(pl, pl2))
 }
@@ -43,7 +42,7 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   size <- ifelse(methods::hasArg(size), pars$size, 10)
   if ("Virus" %in% colnames(x))
   {
-    x <- x %>%
+    x <- filter(x, Control == 0) %>%
       .[order(abs(Effect), decreasing=T), .SD[1:25], by=Virus] %>%
       dplyr::filter(!is.na(GeneSymbol))
   }
