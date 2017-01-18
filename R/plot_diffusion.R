@@ -48,20 +48,27 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
   pars        <- list(...)
   sz          <- ifelse(methods::hasArg(size), pars$size, -1)
   obj         <- x$graph
-  stopifnot(is.igraph(obj))
+  stopifnot(igraph::is.igraph(obj))
   # get the best 100 hits according to their ranking
-  best.100 <- x$diffusion %>%
-    .[order(-DiffusionEffect)] %>%
-    .[1:100] %>%
-    dplyr::filter(!is.na(DiffusionEffect))
-  # index of edges that are gonna be plotted
-  edge.list    <- igraph::get.edgelist(x$graph)
-  idxs         <- .edge.indexes(edge.list, best.100)
+  v.cnt <- 100
+  repeat
+  {
+    best.100 <- x$diffusion %>%
+      .[order(-DiffusionEffect)] %>%
+      .[1:v.cnt] %>%
+      dplyr::filter(!is.na(DiffusionEffect))
+    # index of edges that are gonna be plotted
+    edge.list    <- igraph::get.edgelist(x$graph)
+    idxs         <- .edge.indexes(edge.list, best.100)
+    obj <- igraph::graph.data.frame(.edge.subset(edge.list, idxs), directed=F)
+    if (length(igraph::V(obj)) >= 100) break
+    v.cnt <- v.cnt + 1
+  }
   # node colors (LMM identified genes are blue, rest orange)
   blue.genes   <- best.100$GeneSymbol[best.100$GeneSymbol %in%
                                         x$lmm.hits$GeneSymbol]
   # set some vis params
-  obj <- igraph::graph.data.frame(.edge.subset(edge.list, idxs), directed=F)
+
   size <- .size(obj)
   igraph::V(obj)$color <- "orange"
   # igraph::V(obj)$color[igraph::V(obj)$name %in% blue.genes] <- "lightblue"
@@ -85,9 +92,9 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
 {
   deg                 <- igraph::degree(obj)
   size                <- deg
-  size[deg <  3]      <- 5
-  size[deg >= 3]      <- 10
-  size[deg >  5]      <- 15
+  size[deg <  3]      <- 1
+  size[deg >= 3]      <- 3
+  size[deg >  5]      <- 5
   size
 }
 
@@ -105,11 +112,10 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
 #' @noRd
 .plot.graph <- function(obj, sz, size)
 {
-  graphics::plot.new()
   op                 <- par(family = "Helvetica", font=2)
   if (sz != -1) size <- rep(sz, length(size))
-  graphics::plot(obj, vertex.size=size,layout =  layout.kamada.kawai,
-                 vertex.label.family="Helvetica", vertex.label.font=2,
-                 edge.curved=-.15)
+  graphics::plot(obj, vertex.size=size,layout= igraph::layout.kamada.kawai,
+                 vertex.label.family="Courier", vertex.label.font=1,
+                 vertex.label.cex=0.75, edge.curved=-.15)
   par(op)
 }
