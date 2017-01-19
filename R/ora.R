@@ -33,34 +33,33 @@ setGeneric(
 )
 
 #' @rdname ora-methods
-#' @aliases ora,integer,integer-method
-setMethod(
-  "ora",
-  c(hit.list="integer", universe="integer"),
-  function(hit.list, universe, db=c("kegg", "go"), ...)
-    ora.default(hit.list, universe, db, ...)
-)
-
-#' @rdname ora-methods
 #' @aliases ora,character,character-method
 setMethod(
   "ora",
   c(hit.list="character", universe="character"),
   function(hit.list, universe, db=c("kegg", "go"), ...)
-    ora.default(hit.list, universe, db, ...)
+    .ora(hit.list, universe, db, ...)
 )
 
 #' @noRd
 #' @importFrom GOstats hyperGTest
-ora.default <- function(hit.list, universe, db=c("kegg", "go"), ...)
+.ora <- function(hit.list, universe, db=c("kegg", "go"), ...)
 {
   db <- match.arg(db)
+
+  hit.list <- .to.entrez(hit.list)
+  universe <- .to.entrez(universe)
   message(paste("Doing ORA on:", db))
   dat <- switch(db,
                 "kegg"=.gsea.kegg(hit.list, universe, ...),
-                "go"=.gsea.go(hit.list, universe, ...))
+                "go"  =.gsea.go(hit.list, universe, ...))
   ora <- GOstats::hyperGTest(dat)
+  # this is tedious. they should correct this
+  test.count <- switch(db,
+                       "go"=length(ora@pvalue.order),
+                       "kegg"=length(ora@pvalues))
   summ <- summary(ora)
+  summ$Qvalue <- summ$Pvalue * test.count
   li <- list(ora=ora, summary=summ)
   class(li) <- c(class(li), "svd.ora")
   invisible(li)
@@ -74,8 +73,8 @@ ora.default <- function(hit.list, universe, db=c("kegg", "go"), ...)
   ontology <- ifelse(methods::hasArg("ontology"), params$ontology, "BP")
   p.value <- ifelse(methods::hasArg("p.value"), params$p.value, .05)
   GOparams <- new("GOHyperGParams",
-                  geneIds = hit.list,
-                  universeGeneIds = universe,
+                  geneIds = unique(hit.list$gene_id),
+                  universeGeneIds = unique(universe$gene_id),
                   annotation="hgu95av2.db",
                   ontology=ontology,
                   pvalueCutoff=p.value,
@@ -91,8 +90,8 @@ ora.default <- function(hit.list, universe, db=c("kegg", "go"), ...)
   params <- list(...)
   p.value <- ifelse(methods::hasArg("p.value"), params$p.value, .05)
   KEGGparams <- new("KEGGHyperGParams",
-                  geneIds = hit.list,
-                  universeGeneIds = universe,
+                  geneIds =  unique(hit.list$gene_id),
+                  universeGeneIds =  unique(universe$gene_id),
                   annotation="hgu95av2.db",
                   pvalueCutoff=p.value,
                   testDirection="over")
@@ -125,6 +124,20 @@ go.mapping.integer <- function(dat)
 kegg.mapping <- function(dat)
 {
     UseMethod("kegg.mapping", dat)
+}
+
+#' @noRd
+#'
+#' @import data.table
+#' @import org.Hs.eg.db
+#' @importFrom AnnotationDbi toTable
+#' @importFrom dplyr filter left_join
+.to.entrez <-function(dat)
+{
+  frame.hugo <- AnnotationDbi::toTable(org.Hs.eg.db::org.Hs.egSYMBOL) %>%
+    as.data.table
+  dat <- dplyr::left_join(data.table(symbol=toupper(dat)), frame.hugo, by="symbol")
+  dat
 }
 
 #' @noRd

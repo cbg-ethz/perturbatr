@@ -98,6 +98,6 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
   if (sz != -1) size <- rep(sz, length(size))
   graphics::plot(obj, vertex.size=size,layout= igraph::layout.kamada.kawai,
                  vertex.label.family="Courier", vertex.label.font=1,
-                 vertex.label.cex=0.75, edge.curved=-.15)
+                 vertex.label.cex=.95, edge.curved=-.15)
   par(op)
 }
