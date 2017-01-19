@@ -70,10 +70,10 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
                                   na.value=LDcolors[6],
                                   name="Gene-pathogen\neffect") +
     ggplot2::theme_bw() +
-    ggplot2::theme(text = element_text(size = 14, family = "Helvetica"),
+    ggplot2::theme(text = element_text(size = 8, family = "Helvetica"),
                    aspect.ratio=.5,
-                   axis.text.x=element_text(angle=45,  hjust = 1, size=10),
-                   axis.text.y=element_text(size=10),
+                   axis.text.x=element_text(angle=45,  hjust = 1, size=9),
+                   axis.text.y=element_text(size=9),
                    axis.title=element_blank(),
                    axis.ticks=element_blank())
   return(list(gene.effects.plot=pl1, gene.pathogen.effects.plot=pl2))
