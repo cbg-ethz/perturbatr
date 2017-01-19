@@ -20,7 +20,6 @@
 
 #' @noRd
 #' @import igraph
-#' @importFrom igraph graph.data.frame
 #' @importFrom utils read.csv
 .read.graph <- function(pth)
 {
@@ -28,7 +27,7 @@
   gra <- igraph::graph.data.frame(tab, directed=F)
   if (ncol(tab) == 3)
   {
-    if (is.null(E(gra)$weight))
+    if (is.null(igraph::E(gra)$weight))
       stop("Third column sould be 'weight'")
   }
   gra
@@ -52,4 +51,20 @@
   assertthat::assert_that(all(ret.col.sums >= 0.999))
   assertthat::assert_that(all(ret >= 0) & all(!is.nan(ret@x)))
   invisible(ret)
+}
+
+#' Get the neighbors of a node including all edges between them
+#'
+#' @export
+#' @param gene  the gene for which the neighborhood is searched
+#' @param graph  the graph
+#' @import igraph
+induced.subgraph <- function(gene, graph)
+{
+  stop("not yet imlemented")
+  fr  <- t(apply(edge.list, 1, function(e) sort(e)))
+
+  edge.list <- igraph::get.edgelist(graph)
+  idxs <- edge.list[,1] == gene | edge.list[,2] == gene
+  genes <- edge.list[idxs, ]
 }

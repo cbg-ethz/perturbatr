@@ -5,7 +5,7 @@
 \title{Extend the results from a <code>svd.prioritized</code> object by network diffusion.}
 \usage{
 diffuse(obj, method = c("neighbors", "mrw"), path, r = 0.5,
-  node.start.count = 25, search.depth = 5, ...)
+  node.start.count = 25, search.depth = 5, delete.nodes.on.degree, ...)
 }
 \arguments{
 \item{obj}{an \code{svd.prioritized} object}
@@ -27,6 +27,8 @@ then the elements with the highest absolute effects are chosen. If this
 behaviour is not desired filter \code{obj} before}
 
 \item{search.depth}{how deep should the neighbor search go if method \code{neighbors} is selected}
+
+\item{delete.nodes.on.degree}{delete nodes from the graph with a degree of less that \code{delete.nodes.on.degree}}
 
 \item{...}{additional parameters}
 }

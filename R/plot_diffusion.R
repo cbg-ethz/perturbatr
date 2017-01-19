@@ -17,25 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-# knockout: analysis of high-throughput gene perturbation screens
-#
-# Copyright (C) 2015 - 2016 Simon Dirmeier
-#
-# This file is part of knockout
-#
-# knockout is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# knockout is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with knockout. If not, see <http://www.gnu.org/licenses/>.
-
 #' @export
 #' @import data.table
 #' @import igraph
@@ -71,6 +52,7 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
 
   size <- .size(obj)
   igraph::V(obj)$color <- "orange"
+  igraph::V(obj)[igraph::V(obj)$name %in% blue.genes] $color <- "blue"
   # igraph::V(obj)$color[igraph::V(obj)$name %in% blue.genes] <- "lightblue"
   igraph::E(obj)$width <- 2
   # plot all the the nodes

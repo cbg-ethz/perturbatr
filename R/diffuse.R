@@ -38,9 +38,11 @@
 #'  then the elements with the highest absolute effects are chosen. If this
 #'  behaviour is not desired filter \code{obj} before
 #' @param search.depth  how deep should the neighbor search go if method \code{neighbors} is selected
+#' @param delete.nodes.on.degree  delete nodes from the graph with a degree of less that \code{delete.nodes.on.degree}
 #' @param ...  additional parameters
 diffuse <- function(obj, method=c("neighbors", "mrw"), path,
-                    r=0.5, node.start.count=25, search.depth=5, ...)
+                    r=0.5, node.start.count=25, search.depth=5,
+                    delete.nodes.on.degree, ...)
 {
   UseMethod("diffuse")
 }
@@ -48,47 +50,67 @@ diffuse <- function(obj, method=c("neighbors", "mrw"), path,
 #' @noRd
 #' @export
 #' @import data.table igraph
+#' @importFrom dplyr filter select
 diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
                                         path, r=0.5, node.start.count=25,
-                                        search.depth=5, ...)
+                                        search.depth=5, delete.nodes.on.degree=1,
+                                        ...)
 {
   if (!file.exists(path))
     stop(paste("Can't find: ", path, "!", sep=""))
   hits <- obj$gene.hits %>%
     dplyr::select(GeneSymbol, abs(Effect))
-  res   <- .diffuse(hits, path,
-                    match.arg(method),
-                    r=0.5, node.start.count=25, search.depth=5)
+
+  # TODO: optimize
+  loocv.hits <- obj$fit$fit$gene.fdrs %>%
+    dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
+    dplyr::select(-MeanLOOCVEffect, -Pval, -FDR)
+
+  res   <- .diffuse(hits, loocv.hits,
+                    path, match.arg(method),
+                    r=r, node.start.count=node.start.count, search.depth=search.depth,
+                    delete.nodes.on.degree=delete.nodes.on.degree)
   invisible(res)
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom igraph get.adjacency
-.diffuse <- function(hits, path, method, r=0.5,
-                     node.start.count=25, search.depth=5)
+.diffuse <- function(hits, loocv.hits, path, method, r,
+                     node.start.count, search.depth, delete.nodes.on.degree)
 {
   graph <- .read.graph(path)
+  graph <- delete.vertices(graph, V(graph)[ degree(graph) <= delete.nodes.on.degree  ])
   adjm  <-  igraph::get.adjacency(graph, attr="weight")
   switch(method,
-         "neighbors"= .knn(hits, adjm, node.start.count, search.depth, graph),
-         "mrw"      = .mrw(hits, adjm, r, graph),
+         "neighbors"= .knn(hits, loocv.hits, adjm, node.start.count, search.depth, graph),
+         "mrw"      = .mrw(hits, loocv.hits, adjm, r, graph),
          stop("No suitable method found"))
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom diffusr random.walk
-.mrw <- function(hits, adjm, r, graph)
+.mrw <- function(hits, loocv.hits, adjm, r, graph)
+{
+  diffuse.data <- .do.mrw(hits, adjm, r)
+  pvals        <- .significance.mrw(loocv.hits, adjm, r)
+  res          <- dplyr::left_join(diffuse.data$frame, pvals, by="GeneSymbol")
+  li           <- list(diffusion=dplyr::select(res, GeneSymbol, Effect, DiffusionEffect),
+                       diffusion.model=res,
+                       lmm.hits=hits,
+                       graph=graph)
+  class(li)    <- c("svd.diffused.mrw", "svd.diffused", class(li))
+  return(li)
+}
+
+.do.mrw <- function(hits, adjm, r)
 {
   diffuse.data <- .init.starting.distribution(hits, adjm)
   mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
                               as.matrix(diffuse.data$adjm), r)
   diffuse.data$frame$DiffusionEffect <- mrw
-  res       <- diffuse.data$frame
-  li        <- list(diffusion=res, lmm.hits=hits, graph=graph)
-  class(li) <- c("svd.diffused.mrw", "svd.diffused", class(li))
-  return(li)
+  diffuse.data
 }
 
 #' @noRd
@@ -103,10 +125,41 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 }
 
 #' @noRd
+#' @importFrom tidyr gather
+.significance.mrw <- function(loocv.hits, adjm, r)
+{
+  loocv.g <- tidyr::gather(loocv.hits, LOOCV, Effect, -GeneSymbol) %>%
+    as.data.table
+  li <- list()
+  # TODO parallalize
+  for (lo in unique(loocv.g$LOOCV))
+  {
+    hits <- dplyr::filter(loocv.g, LOOCV==lo) %>% dplyr::select(-LOOCV)
+    dd.lo <- .do.mrw(hits, adjm, r)
+    dd.lo$frame$loocv <- lo
+    li[[lo]] <- dd.lo$frame
+  }
+  # TODO: how to do hypothesis test here?
+  # -> calculate means -> calculate alphas -> calculate variance -> calculate alpha_0
+  flat.dat <- do.call("rbind", lapply(li, function(e) e)) %>% dplyr::select(-Effect)
+  dat <- flat.dat  %>%
+    dplyr::group_by(GeneSymbol) %>%
+    dplyr::summarise(MeanLOOCVDiffusionEffect=mean(DiffusionEffect, na.rm=T)) %>%
+    ungroup
+  dat <- dplyr::left_join(dat,
+                          tidyr::spread(flat.dat, loocv, DiffusionEffect),
+                          by="GeneSymbol")
+  dat
+}
+
+#' @noRd
 #' @import data.table igraph
 #' @importFrom dplyr filter mutate
-.knn <- function(hits, adjm, node.start.count, search.depth, graph)
+.knn <- function(hits, loocv.hits, adjm, node.start.count, search.depth, graph)
 {
+
+  # TODO diff on loocv.hits
+
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
   neighs <- diffusr::nearest.neighbors(
     as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
