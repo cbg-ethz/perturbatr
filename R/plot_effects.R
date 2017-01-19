@@ -29,6 +29,7 @@ show.effect.matrix <- function(x, ...)
   UseMethod("show.effect.matrix")
 }
 
+#' @export
 #' @import data.table
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal

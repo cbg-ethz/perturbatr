@@ -1,178 +1,21 @@
-#' Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices
-#'
-#' @export
-#' @import data.table
-#' @param obj  the object to calculate the effect matrices for
-#' @param ...  additional parameters
-effect.matrices <- function(obj, ...)
-{
-  UseMethod("effect.matrices")
-}
-
-#' @noRd
-#' @export
-#' @import data.table
-#' @importFrom dplyr filter select
-effect.matrices.svd.prioritized.pmm <- function(obj, ...)
-{
-
-  gene.top <- obj$gene.effect.hits %>%
-    dplyr::select(GeneSymbol, Effect) %>%
-    .[order(-abs(Effect))] %>%
-    .[, .SD[1:min(25,.N)]]
-  pgs <- obj$fit$gene.pathogen.effects %>%
-    dplyr::filter(GeneSymbol %in% gene.top$GeneSymbol) %>%
-    dplyr::select(Virus, GeneSymbol, Effect) %>%
-    tidyr::spread(Virus, Effect)
-  res <- list(gene.effects=gene.top, gene.pathogen.hits=pgs)
-  class(res) <- "svd.prioritized.pmm.effect.matrices"
-  res
-}
-
-#' Get the readout matrix (plus control indexes) as list from and svd.plate object
-#'
-#' @export
-#'
-#' @param obj  the object for which you want to have the readout matrix
-#' @param ...  additional params
-readout.matrix <- function(obj, ...) UseMethod("readout.matrix")
-
-#' @noRd
-#' @export
-#' @import data.table
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-readout.matrix.svd.plate <- function(obj, ...)
-{
-  col.size <- max(obj$ColIdx)
-  row.size <- max(obj$RowIdx)
-  m <- idx <- genes <- matrix(0, row.size, col.size)
-  for (i in 1:row.size)
-  {
-    row <- dplyr::filter(obj, RowIdx==i)
-    for (j in 1:col.size)
-    {
-      col <- dplyr::filter(row, ColIdx==j)
-      if (nrow(col) == 0) {
-        m[i, j] <- NA_real_
-        idx[i, j] <- 0
-        genes[i,j] <- NA_character_
-      }  else {
-        m[i, j]   <- dplyr::select(col, Readout) %>% unlist
-        idx[i, j] <- dplyr::select(col, Control)  %>% unlist
-        genes[i, j] <- dplyr::select(col, GeneSymbol) %>% unlist
-      }
-    }
-  }
-  res <- list(readout=m, idx=idx, genes=genes)
-  res
-}
-
-#' Get the replicates of a data-set
-#'
-#' @export
-#'
-#' @param obj  an object for which the replicates should be retrieved
-#' @param ...  additional params
-replicates <- function(obj, ...) UseMethod("replicates")
-
-#' @noRd
-#' @export
-#'
-#' @import data.table
-#' @importFrom dplyr filter
-replicates.svd.raw <- function(obj, ...)
-{
-  obj <- dplyr::filter(obj, ReadoutClass=="Readout") %>% as.data.table
-  replicates.svd.data(obj, ...)
-}
-
-#' @noRd
-#' @export
-#'
-#' @import data.table
-#' @importFrom dplyr filter
-replicates.svd.data <- function(obj, ...)
-{
-  g <-
-    dplyr::group_indices(obj, Virus, Screen, Replicate,
-                         Design, Library,
-                         ReadoutType, ScreenType) %>%
-    as.data.table
-  rep.frame <- obj
-  rep.frame$grp <- g
-  grps <- unique(rep.frame$grp)
-  ret <- lapply(grps, function(i)
-  {
-    pl <- data.table::as.data.table(dplyr::filter(rep.frame, grp==i))
-    class(pl) <- c("svd.replicate", class(pl))
-    pl
-  })
-  class(ret) <- "svd.replicates"
-  invisible(ret)
-}
-
-#' Get the plates of a data-set
-#'
-#' @export
-#'
-#' @param obj  an object for which the plates are going to be retrieved
-#' @param ...  additional params
-plates <- function(obj, ...)
-{
-  UseMethod("plates", obj)
-}
-
-#' @noRd
-#' @export
-#'
-#' @import data.table
-#' @importFrom dplyr filter
-plates.svd.raw <- function(obj, ...)
-{
-  obj <- dplyr::filter(obj, ReadoutClass=="Readout") %>%
-    as.data.table
-  plates.svd.data(obj, ...)
-}
-
-#' @noRd
-#' @export
-#'
-#' @import data.table
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_indices
-plates.svd.data <- function(obj, ...)
-{
-  g <-
-    dplyr::group_indices(obj, Virus, Screen, Replicate, Plate,
-                         ReadoutType, ScreenType) %>%
-    as.data.table
-  plate.frame <- obj
-  plate.frame$grp <- g
-  grps <- unique(plate.frame$grp)
-  plates <- lapply(grps, function(i)
-  {
-    pl <- data.table::as.data.table(dplyr::filter(plate.frame, grp==i))
-    class(pl) <- c("svd.plate", class(pl))
-    pl
-  })
-  class(plates) <- "svd.plates"
-  invisible(plates)
-}
-
-#' @noRd
-#' @export
-#' @method plates default
-plates.default <- function(obj, ...)
-{
-  # TODO make better
-  plate.frame <- obj
-  class(plate.frame) <- c("svd.plate.rows", "svd.plate", class(plate.frame))
-  plate.frame
-}
+# knockout: analysis of high-throughput gene perturbation screens
+#
+# Copyright (C) 2015 - 2016 Simon Dirmeier
+#
+# This file is part of knockout
+#
+# knockout is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# knockout is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 #' Calculate the correlation between two data-sets
 #'
