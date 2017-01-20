@@ -74,10 +74,9 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
   invisible(res)
 }
 
-#' @noRd
 #' @export
 #' @import data.table igraph
-#' @importFrom dplyr filter select
+#' @importFrom dplyr filter select rename
 #' @method diffuse data.table
 diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
                                path, r=0.5, node.start.count=25,
@@ -86,26 +85,46 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 {
   if (!file.exists(path))
     stop(paste("Can't find: ", path, "!", sep=""))
-  hits <- obj %>%
-    dplyr::select(GeneSymbol, abs(Readout))
-
-  res   <- .diffuse(hits, NULL,
-                    path, match.arg(method),
-                    r=r, node.start.count=node.start.count, search.depth=search.depth,
+  if ("Readout" %in% colnames(obj))
+  {
+    hits <- obj %>%
+      dplyr::select(GeneSymbol, abs(Readout)) %>%
+      dplyr::rename(Effect=Readout)
+  }
+  else if ("MeanEffect" %in% colnames(obj))
+  {
+    hits <- obj %>%
+      dplyr::select(GeneSymbol, abs(MeanEffect)) %>%
+      dplyr::rename(Effect=MeanEffect)
+  }
+  else if ("Effect" %in% colnames(obj))
+  {
+    hits <- obj %>% dplyr::select(GeneSymbol, abs(Effect))
+  }
+  else
+  {
+    stop("Neither 'Readout' nor 'Effect' found in colnames")
+  }
+  res   <- .diffuse(hits=hits,
+                    loocv.hits=NULL,
+                    path=path,
+                    method=match.arg(method),
+                    r=r,
+                    node.start.count=node.start.count,
+                    search.depth=search.depth,
                     delete.nodes.on.degree=delete.nodes.on.degree)
   invisible(res)
 }
 
-
-
 #' @noRd
-#' @import data.table
-#' @importFrom igraph get.adjacency
+#' @import data.table igraph
 .diffuse <- function(hits, loocv.hits, path, method, r,
                      node.start.count, search.depth, delete.nodes.on.degree)
 {
   graph <- .read.graph(path)
-  graph <- delete.vertices(graph, V(graph)[ degree(graph) <= delete.nodes.on.degree  ])
+  graph <- igraph::delete.vertices(
+    graph, igraph::V(graph)[
+      igraph::degree(graph) <= delete.nodes.on.degree  ])
   adjm  <- igraph::get.adjacency(graph, attr="weight")
   switch(method,
          "neighbors"= .knn(hits, loocv.hits, adjm, node.start.count, search.depth, graph),
@@ -130,7 +149,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
               diffusion.model=res,
               lmm.hits=hits,
               graph=graph)
-  class(li)    <- c("svd.diffused.mrw", "svd.diffused", class(li))
+  class(li) <- c("svd.diffused.mrw", "svd.diffused")
   return(li)
 }
 
@@ -187,18 +206,27 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 #' @importFrom dplyr filter mutate
 .knn <- function(hits, loocv.hits, adjm, node.start.count, search.depth, graph)
 {
-
   # TODO diff on loocv.hits
-
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
   neighs <- diffusr::nearest.neighbors(
     as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
     as.matrix(diffuse.data$adjm), search.depth)
   res <- diffuse.data$frame
+  neighs
   names(neighs) <- filter(diffuse.data$frame,
-                       Idx %in% as.integer(names(neighs)))$GeneSymbol
-  li <- list(data=res, neighbors=knn, graph=graph)
-  class(li) <- c("svd.diffused.knn", "svd.diffused", class(res))
+                          Idx %in% as.integer(names(neighs)))$GeneSymbol
+
+  neighs <- lapply(neighs, function(e) {
+    dplyr::left_join(data.table(Idx=e), res, by="Idx") %>%
+      dplyr::select(GeneSymbol, Effect)}
+  )
+  flat.dat <- do.call(
+    "rbind",
+    lapply(1:length(neighs),
+           function(e) data.table(Start=names(neighs)[e], neighs[[e]])))
+
+  li <- list(data=res, neighbors=flat.dat, graph=graph)
+  class(li) <- c("svd.diffused.knn", "svd.diffused")
   return(li)
 }
 
@@ -208,7 +236,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 .init.starting.indexes <- function(hits, adjm, node.start.count)
 {
   res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
-                           hits)
+                           hits, by="GeneSymbol")
   data.table::setDT(res)[is.na(Effect), Effect := 0]
   res <- res %>%
     .[order(-abs(Effect))] %>%

@@ -11,7 +11,6 @@ show.table <- function(obj, nrow=10, colored=2, main="", ...)
 
 #' @export
 #' @import xtable
-#' @import
 #' @method show.table data.table
 show.table.data.table <- function(obj, nrow=10, colored=2, main="", ...)
 {

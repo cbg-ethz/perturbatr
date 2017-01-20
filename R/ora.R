@@ -98,7 +98,7 @@ setMethod(
   invisible(KEGGparams)
 }
 
-
+#' @noRd
 go.mapping <- function(dat)
 {
   UseMethod("go.mapping", dat)
