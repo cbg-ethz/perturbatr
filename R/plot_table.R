@@ -5,7 +5,7 @@
 #' @param obj  the object you want
 show.table <- function(obj, nrow=10, colored=2, main="", ...)
 {
-  stop{"todo"}
+  stop("not implemented yey")
   UseMethod("show.table")
 }
 

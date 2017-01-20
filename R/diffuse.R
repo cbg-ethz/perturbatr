@@ -51,6 +51,7 @@ diffuse <- function(obj, method=c("neighbors", "mrw"), path,
 #' @export
 #' @import data.table igraph
 #' @importFrom dplyr filter select
+#' @method diffuse svd.prioritized.pmm
 diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
                                         path, r=0.5, node.start.count=25,
                                         search.depth=5, delete.nodes.on.degree=1,
@@ -74,6 +75,30 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 }
 
 #' @noRd
+#' @export
+#' @import data.table igraph
+#' @importFrom dplyr filter select
+#' @method diffuse data.table
+diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
+                               path, r=0.5, node.start.count=25,
+                               search.depth=5, delete.nodes.on.degree=1,
+                               ...)
+{
+  if (!file.exists(path))
+    stop(paste("Can't find: ", path, "!", sep=""))
+  hits <- obj %>%
+    dplyr::select(GeneSymbol, abs(Readout))
+
+  res   <- .diffuse(hits, NULL,
+                    path, match.arg(method),
+                    r=r, node.start.count=node.start.count, search.depth=search.depth,
+                    delete.nodes.on.degree=delete.nodes.on.degree)
+  invisible(res)
+}
+
+
+
+#' @noRd
 #' @import data.table
 #' @importFrom igraph get.adjacency
 .diffuse <- function(hits, loocv.hits, path, method, r,
@@ -81,7 +106,7 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 {
   graph <- .read.graph(path)
   graph <- delete.vertices(graph, V(graph)[ degree(graph) <= delete.nodes.on.degree  ])
-  adjm  <-  igraph::get.adjacency(graph, attr="weight")
+  adjm  <- igraph::get.adjacency(graph, attr="weight")
   switch(method,
          "neighbors"= .knn(hits, loocv.hits, adjm, node.start.count, search.depth, graph),
          "mrw"      = .mrw(hits, loocv.hits, adjm, r, graph),
@@ -94,12 +119,17 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 .mrw <- function(hits, loocv.hits, adjm, r, graph)
 {
   diffuse.data <- .do.mrw(hits, adjm, r)
-  pvals        <- .significance.mrw(loocv.hits, adjm, r)
-  res          <- dplyr::left_join(diffuse.data$frame, pvals, by="GeneSymbol")
-  li           <- list(diffusion=dplyr::select(res, GeneSymbol, Effect, DiffusionEffect),
-                       diffusion.model=res,
-                       lmm.hits=hits,
-                       graph=graph)
+  if (!is.null(loocv.hits)) {
+    pvals <- .significance.mrw(loocv.hits, adjm, r)
+    res   <- dplyr::left_join(diffuse.data$frame, pvals, by="GeneSymbol")
+  }
+  else {
+    res  <- diffuse.data$frame
+  }
+  li  <- list(diffusion=dplyr::select(res, GeneSymbol, Effect, DiffusionEffect),
+              diffusion.model=res,
+              lmm.hits=hits,
+              graph=graph)
   class(li)    <- c("svd.diffused.mrw", "svd.diffused", class(li))
   return(li)
 }

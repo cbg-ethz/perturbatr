@@ -4,12 +4,9 @@
 \name{ora}
 \alias{ora}
 \alias{ora,character,character-method}
-\alias{ora,integer,integer-method}
 \title{Do overrepresentation analysis based on the hypergeometric test}
 \usage{
 ora(hit.list, universe, db = c("kegg", "go"), ...)
-
-\S4method{ora}{integer,integer}(hit.list, universe, db = c("kegg", "go"), ...)
 
 \S4method{ora}{character,character}(hit.list, universe, db = c("kegg", "go"),
   ...)

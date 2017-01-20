@@ -109,16 +109,22 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 #' @importFrom dplyr group_by summarize ungroup filter select
 .select.hits.hyper <- function(obj, ...)
 {
+  # TODO add variable pval and qval
   params <- list(...)
-  hit.rat      <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
+  hit.rat        <- ifelse(methods::hasArg(hit.ratio),
+                           params$hit.ratio, 0.5)
+
   message(paste("Prioritizing on hit.ratio ", hit.rat, sep=""))
   res <- dplyr::group_by(obj, Virus, Screen, Library,
                          ScreenType, ReadoutType,
                          Design, Cell,
                          GeneSymbol, Entrez) %>%
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
+                     PvalRatio  = (sum(Pval     <= 0.05, na.rm=T)/n()),
+                     QvalRatio  = (sum(Pvalcorr <= 0.2, na.rm=T)/n()),
                      MeanEffect = mean(Readout, na.rm=T),
-                     MeanPvalue = mean(Pval)) %>%
+                     MeanPvalue = mean(Pval),
+                     MeanQvalue = mean(Pvalcorr)) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.rat)
   res
