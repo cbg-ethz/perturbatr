@@ -21,9 +21,9 @@
 #' @noRd
 #' @import igraph
 #' @importFrom utils read.csv
-.read.graph <- function(pth)
+.read.graph <- function(path)
 {
-  tab <- utils::read.csv(pth, sep="\t", header=T)
+  tab <- utils::read.csv(path, sep="\t", header=T)
   gra <- igraph::graph.data.frame(tab, directed=F)
   if (ncol(tab) == 3)
   {
@@ -67,4 +67,5 @@ induced.subgraph <- function(gene, graph)
   edge.list <- igraph::get.edgelist(graph)
   idxs <- edge.list[,1] == gene | edge.list[,2] == gene
   genes <- edge.list[idxs, ]
+  genes
 }

@@ -88,23 +88,24 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
   if ("Readout" %in% colnames(obj))
   {
     hits <- obj %>%
-      dplyr::select(GeneSymbol, abs(Readout)) %>%
+      dplyr::select(GeneSymbol, Readout) %>%
       dplyr::rename(Effect=Readout)
   }
   else if ("MeanEffect" %in% colnames(obj))
   {
     hits <- obj %>%
-      dplyr::select(GeneSymbol, abs(MeanEffect)) %>%
+      dplyr::select(GeneSymbol, MeanEffect) %>%
       dplyr::rename(Effect=MeanEffect)
   }
   else if ("Effect" %in% colnames(obj))
   {
-    hits <- obj %>% dplyr::select(GeneSymbol, abs(Effect))
+    hits <- obj %>% dplyr::select(GeneSymbol, Effect)
   }
   else
   {
     stop("Neither 'Readout' nor 'Effect' found in colnames")
   }
+  hits <- hits %>% dplyr::mutate(Effect=abs(Effect))
   res   <- .diffuse(hits=hits,
                     loocv.hits=NULL,
                     path=path,
@@ -242,6 +243,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
     .[order(-abs(Effect))] %>%
     dplyr::mutate(Idx = 1:.N) %>%
     dplyr::mutate(Select = (Idx <= node.start.count))
+  data.table::setDT(res)[Effect == 0  , Select := FALSE]
   data.table::setDT(res)[is.na(Select), Select := FALSE]
   return(list(frame=res, adjm=adjm))
 }
