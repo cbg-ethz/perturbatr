@@ -59,7 +59,9 @@ setMethod(
                        "go"=length(ora@pvalue.order),
                        "kegg"=length(ora@pvalues))
   summ <- summary(ora)
-  summ$Qvalue <- summ$Pvalue * test.count
+  pvals <- c(summ$Pvalue, rep(1, test.count - nrow(summ)))
+  qvals <- p.adjust(pvals, method="BH")
+  summ$Qvalue <- qvals[1:nrow(summ)]
   li <- list(ora=ora, summary=summ)
   class(li) <- c(class(li), "svd.ora")
   invisible(li)
