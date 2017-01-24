@@ -28,7 +28,7 @@
 {
   method <- match.arg(method)
   level  <- match.arg(level)
-  message(paste("Calculating z-scores on", level))
+  message(paste("Calculating", method, "z-scores on", level))
   if (!is.na(ctrl)) message(paste("...normalizing on", ctrl))
   z.score.data <-
     dplyr::group_by(obj, Virus, Screen, Library,

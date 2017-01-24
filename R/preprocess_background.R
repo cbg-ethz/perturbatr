@@ -23,10 +23,9 @@
 .background.correct <- function(obj, background.column, background.row, method)
 {
   ret <-
-    dplyr::group_by(obj, Virus, Screen, Library,
+    dplyr::group_by(obj, Virus, Screen, Library, Replicate, Plate,
                     ScreenType, ReadoutType, ReadoutClass,
-                    Design, Cell,
-                    Replicate, Plate)
+                    Design, Cell)
   f <- .summarization.method(method)
   if (!is.na(background.row))
   {
@@ -53,7 +52,10 @@
     ret <- dplyr::mutate(ret, bk = (is.na(GeneSymbol)))
   }
   ret <-
-    dplyr::mutate(ret, Readout = .substract.background(Readout, f, bk)) %>%
+    dplyr::group_by(ret, Virus, Screen, Library, Replicate, Plate,
+                    ScreenType, ReadoutType, ReadoutClass,
+                    Design, Cell) %>%
+    dplyr::mutate(Readout = .substract.background(Readout, f, bk)) %>%
     ungroup %>%
     dplyr::select(-bk)
   ret
@@ -62,6 +64,6 @@
 #' @noRd
 .substract.background <- function(readout, f, background)
 {
-  ret  <- readout - f(readout[background])
+  ret  <- readout - f(readout[background], na.rm=T)
   ret
 }
