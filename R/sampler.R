@@ -28,7 +28,6 @@ bootstrap <- function(model.data, level=c("sirna", "pathogen"))
 #' @method bootstrap svd.lmm.model.data
 bootstrap.svd.lmm.model.data <- function(model.data, level=c("sirna", "pathogen"))
 {
-
   dat <-
     model.data %>%
     dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
