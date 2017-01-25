@@ -23,9 +23,9 @@ bootstrap <- function(model.data, level=c("sirna", "pathogen"))
   UseMethod("bootstrap")
 }
 
-#' @method bootstrap svd.lmm.model.data
 #' @import data.table
 #' @importFrom dplyr left_join mutate select group_by filter
+#' @method bootstrap svd.lmm.model.data
 bootstrap.svd.lmm.model.data <- function(model.data, level=c("sirna", "pathogen"))
 {
 

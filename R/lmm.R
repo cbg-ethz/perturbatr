@@ -57,7 +57,7 @@ lmm.svd.data <- function(obj, drop=T,
 #' @method lmm svd.lmm.model.data
 lmm.svd.lmm.model.data <- function(obj, drop=T,
                                    weights=NULL, rel.mat.path=NULL,
-                                   loocv, ...)
+                                   loocv=5, ...)
 {
   res <- .lmm.model.data(obj, loocv)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
@@ -105,9 +105,13 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   # calculate fdrs
   gp.fdrs <- .fdr(ref$gene.pathogen.effects)
   # finalize output and return as list
-  message("LOOCV for significance estimation")
   # TODO make this consistent to previous FDR
-  ge.fdrs      <- .lmm.significant.hits(md)
+  if (loocv > 0)
+  {
+    message("LOOCV for significance estimation")
+    ge.fdrs <- .lmm.significant.hits(md)
+  }
+  else ge.fdrs <- data.table(GeneSymbol=ref$gene.effects$GeneSymbol, FDR=NA_real_)
   # set together the gene/fdr/effects and the mappings
   gene.effects <- dplyr::full_join(ref$gene.effects, gene.control.map,
                                    by="GeneSymbol") %>%
