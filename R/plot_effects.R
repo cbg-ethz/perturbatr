@@ -69,9 +69,10 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
     ggplot2::scale_fill_gradient2(low=LDcolors[1], high=LDcolors[11],
                                   na.value=LDcolors[6],
                                   name="Gene-pathogen\neffect") +
+    ggplot2::coord_flip() +
     ggplot2::theme_bw() +
     ggplot2::theme(text = element_text(size = 8, family = "Helvetica"),
-                   aspect.ratio=.5,
+                   aspect.ratio=2,
                    axis.text.x=element_text(angle=45,  hjust = 1, size=9),
                    axis.text.y=element_text(size=9),
                    axis.title=element_blank(),

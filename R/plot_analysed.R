@@ -215,3 +215,4 @@ plot.svd.analysed.pmm.fdr <- function(x, y, ...)
 
   pl
 }
+
