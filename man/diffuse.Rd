@@ -4,8 +4,9 @@
 \alias{diffuse}
 \title{Extend the results from a <code>svd.prioritized</code> object by network diffusion.}
 \usage{
-diffuse(obj, method = c("neighbors", "mrw"), path, r = 0.5,
-  node.start.count = 25, search.depth = 5, delete.nodes.on.degree, ...)
+diffuse(obj, method = c("neighbors", "mrw"), path = NULL, graph = NULL,
+  r = 0.5, node.start.count = 25, search.depth = 5,
+  delete.nodes.on.degree, ...)
 }
 \arguments{
 \item{obj}{an \code{svd.prioritized} object}
@@ -17,6 +18,8 @@ diffuse(obj, method = c("neighbors", "mrw"), path, r = 0.5,
 }}
 
 \item{path}{path to the network file}
+
+\item{graph}{an weighted adjacency matrix}
 
 \item{r}{restart probability of the random if method \code{mrw} is selected}
 

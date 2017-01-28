@@ -21,14 +21,30 @@
 #' @noRd
 #' @import igraph
 #' @importFrom utils read.csv
-.read.graph <- function(path)
+.read.graph <- function(path, graph)
 {
-  tab <- utils::read.csv(path, sep="\t", header=T)
-  gra <- igraph::graph.data.frame(tab, directed=F)
-  if (ncol(tab) == 3)
+  if (all(!is.null(c(path, graph)))) {
+    stop("Please provide either a graph or the file-to a graph!")
+  }
+
+  if (!is.null(path))
   {
-    if (is.null(igraph::E(gra)$weight))
-      stop("Third column sould be 'weight'")
+    if (!file.exists(path)) stop("'path' does not exist!")
+    tab <- utils::read.csv(path, sep="\t", header=T)
+    gra <- igraph::graph.data.frame(tab, directed=F)
+    if (ncol(tab) == 3)
+    {
+      if (is.null(igraph::E(gra)$weight))
+        stop("Third column sould be 'weight'")
+    }
+  }
+  else if(!is.null(graph))
+  {
+    gra <- graph_from_adjacency_matrix(graph, weighted=T, mode="undirected")
+  }
+  else
+  {
+    stop("Something went wrong with graph-reading.")
   }
   gra
 }

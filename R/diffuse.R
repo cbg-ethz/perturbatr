@@ -31,6 +31,7 @@
 #'   \item{mrw }{ do a Markov random walk}
 #' }
 #' @param path   path to the network file
+#' @param graph  an weighted adjacency matrix
 #' @param r  restart probability of the random if method \code{mrw} is selected
 #' @param node.start.count  number of nodes that are used to do the neighbors
 #'  search if method \code{neighbors} is selected
@@ -40,7 +41,7 @@
 #' @param search.depth  how deep should the neighbor search go if method \code{neighbors} is selected
 #' @param delete.nodes.on.degree  delete nodes from the graph with a degree of less that \code{delete.nodes.on.degree}
 #' @param ...  additional parameters
-diffuse <- function(obj, method=c("neighbors", "mrw"), path,
+diffuse <- function(obj, method=c("neighbors", "mrw"), path=NULL, graph=NULL,
                     r=0.5, node.start.count=25, search.depth=5,
                     delete.nodes.on.degree, ...)
 {
@@ -53,12 +54,10 @@ diffuse <- function(obj, method=c("neighbors", "mrw"), path,
 #' @importFrom dplyr filter select
 #' @method diffuse svd.prioritized.pmm
 diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
-                                        path, r=0.5, node.start.count=25,
+                                        path=NULL, graph=NULL, r=0.5, node.start.count=25,
                                         search.depth=5, delete.nodes.on.degree=1,
                                         ...)
 {
-  if (!file.exists(path))
-    stop(paste("Can't find: ", path, "!", sep=""))
   hits <- obj$gene.hits %>%
     dplyr::select(GeneSymbol, abs(Effect))
 
@@ -68,8 +67,10 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
     dplyr::select(-MeanLOOCVEffect, -Pval, -FDR)
 
   res   <- .diffuse(hits, loocv.hits,
-                    path, match.arg(method),
-                    r=r, node.start.count=node.start.count, search.depth=search.depth,
+                    path=path, graph=graph,
+                    method=match.arg(method),
+                    r=r, node.start.count=node.start.count,
+                    search.depth=search.depth,
                     delete.nodes.on.degree=delete.nodes.on.degree)
   invisible(res)
 }
@@ -79,12 +80,10 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
 #' @importFrom dplyr filter select rename
 #' @method diffuse data.table
 diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
-                               path, r=0.5, node.start.count=25,
+                               path=NULL, graph=NULL, r=0.5, node.start.count=25,
                                search.depth=5, delete.nodes.on.degree=1,
                                ...)
 {
-  if (!file.exists(path))
-    stop(paste("Can't find: ", path, "!", sep=""))
   if ("Readout" %in% colnames(obj))
   {
     hits <- obj %>%
@@ -108,10 +107,9 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
   hits <- hits %>% dplyr::mutate(Effect=abs(Effect))
   res   <- .diffuse(hits=hits,
                     loocv.hits=NULL,
-                    path=path,
+                    path=path, graph=graph,
                     method=match.arg(method),
-                    r=r,
-                    node.start.count=node.start.count,
+                    r=r, node.start.count=node.start.count,
                     search.depth=search.depth,
                     delete.nodes.on.degree=delete.nodes.on.degree)
   invisible(res)
@@ -119,10 +117,10 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 
 #' @noRd
 #' @import data.table igraph
-.diffuse <- function(hits, loocv.hits, path, method, r,
+.diffuse <- function(hits, loocv.hits, path, graph, method, r,
                      node.start.count, search.depth, delete.nodes.on.degree)
 {
-  graph <- .read.graph(path)
+  graph <- .read.graph(path=path, graph=graph)
   graph <- igraph::delete.vertices(
     graph, igraph::V(graph)[
       igraph::degree(graph) <= delete.nodes.on.degree  ])
