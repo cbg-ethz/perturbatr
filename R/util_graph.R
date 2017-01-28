@@ -23,7 +23,7 @@
 #' @importFrom utils read.csv
 .read.graph <- function(path, graph)
 {
-  if (all(!is.null(c(path, graph)))) {
+  if (all(is.null(c(path, graph)))) {
     stop("Please provide either a graph or the file-to a graph!")
   }
 
