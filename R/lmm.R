@@ -27,14 +27,14 @@
 #' @param drop  boolean flag if all entries should be dropped that are not found in every virus
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
-#' @param loocv  the number of loocv runs you want to do in order to estimate a significance level for the gene effects
+#' @param bootstrap.cnt  the number of loocv runs you want to do in order to estimate a significance level for the gene effects
 #' @param ...  additional parameters
 #' \itemize{
 #'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
 #' }
 lmm <- function(obj, drop=T,
                 weights=NULL, rel.mat.path=NULL,
-                loocv=5, ...)
+                bootstrap.cnt=F, ...)
 {
   UseMethod("lmm")
 }
@@ -44,10 +44,10 @@ lmm <- function(obj, drop=T,
 #' @method lmm svd.data
 lmm.svd.data <- function(obj, drop=T,
                          weights=NULL, rel.mat.path=NULL,
-                         loocv=5, ...)
+                         bootstrap.cnt=F, ...)
 {
   res  <- .lmm.svd.data(obj, drop,
-                        weights, rel.mat.path, loocv, ...)
+                        weights, rel.mat.path, bootstrap.cnt, ...)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -57,9 +57,9 @@ lmm.svd.data <- function(obj, drop=T,
 #' @method lmm svd.lmm.model.data
 lmm.svd.lmm.model.data <- function(obj, drop=T,
                                    weights=NULL, rel.mat.path=NULL,
-                                   loocv=5, ...)
+                                   bootstrap.cnt=F, ...)
 {
-  res <- .lmm.model.data(obj, loocv)
+  res <- .lmm.model.data(obj, bootstrap.cnt)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -69,20 +69,20 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 #' @importFrom methods hasArg
 .lmm.svd.data <- function(obj, drop,
                           weights=NULL, rel.mat.path=NULL,
-                          loocv, ...)
+                          bootstrap.cnt, ...)
 {
   params <- list(...)
   ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
                    params$ignore, 1)
   # init the data table for the LMM
   md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-  .lmm.model.data(md, loocv)
+  .lmm.model.data(md, bootstrap.cnt)
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr mutate full_join select group_by
-.lmm.model.data <- function(md, loocv)
+.lmm.model.data <- function(md, bootstrap.cnt)
 {
     # save gene control mappings
   gene.control.map <-
@@ -106,10 +106,10 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   gp.fdrs <- .fdr(ref$gene.pathogen.effects)
   # finalize output and return as list
   # TODO make this consistent to previous FDR
-  if (loocv > 0)
+  if (is.numeric(bootstrap.cnt) & bootstrap.cnt > 0)
   {
-    message("LOOCV for significance estimation")
-    ge.fdrs <- .lmm.significant.hits(md)
+    message("Bootstrap for significance estimation")
+    ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)
   }
   else ge.fdrs <- data.table(GeneSymbol=ref$gene.effects$GeneSymbol, FDR=NA_real_)
   # set together the gene/fdr/effects and the mappings
@@ -240,42 +240,44 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 #' @importFrom dplyr mutate select left_join
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
-.lmm.significant.hits <- function(model.data, padj=c("BH", "bonf"))
+.lmm.significant.hits <- function(model.data, bootstrap.cnt, padj=c("BH", "bonf"))
 {
   padj <- match.arg(padj)
-  # do 5 loocv iterations
   li <- list()
   i <- 1
   ctr <- 1
+  mistrial.cnt <- bootstrap.cnt * 10
   repeat
   {
     ctr <- ctr + 1
     tryCatch({
-      loocv.sample <- as.svd.lmm.model.data(loocv(model.data, i))
+      bt.sample <- as.svd.lmm.model.data(bootstrap(model.data))
       # here use the lmer params
-      lmm.fit <- .lmm(loocv.sample)
+      lmm.fit <- .lmm(bt.sample)
       re <- .ranef(lmm.fit)
-      da <- data.table::data.table(loocv=paste0("LOOCV_", i),
+      da <- data.table::data.table(bootstrap=paste0("Bootstrap_", i),
                                    Effect=re$gene.effects$Effect,
                                    GeneSymbol=re$gene.effects$GeneSymbol)
       li[[i]] <- da
       i <- i + 1
     }, error=function(e) { print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000 },
     warning=function(e) { print(e)})
-    if (i > 5)
+    if (i > bootstrap.cnt)
       break
-    if (ctr == 100)
-      stop("Breaking after 100 mis-trials!")
+    if (ctr == mistrial.cnt)
+      stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
   }
   flat.dat <- do.call("rbind", lapply(li, function(e) e))
+  # TODO modify that accordingly
   dat <-  flat.dat %>%
     dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarise(MeanLOOCVEffect=mean(Effect, na.rm=T),
-                     Pval=.ttest(GeneSymbol, Effect, 0)) %>%
+    dplyr::summarise(MeanBootstrap=mean(Effect, na.rm=T),
+                     Pval=.ttest(GeneSymbol, Effect, 0),
+                     ) %>%
     ungroup %>%
     dplyr::mutate(FDR=p.adjust(Pval, method=padj)) %>%
     .[order(FDR)]
-  dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, loocv, Effect), by="GeneSymbol")
+  dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, bootstrap, Effect), by="GeneSymbol")
   dat
 }
 

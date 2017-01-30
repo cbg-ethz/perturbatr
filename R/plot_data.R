@@ -40,13 +40,13 @@ plot.svd.data <- function(x, y, ...)
     dplyr::summarize(Replicates=length(unique(Replicate)),
                      Genes=length(unique(GeneSymbol))) %>%
     tidyr::gather(Type, Count, Replicates, Genes)
-
+  numb.frame$Count <- as.integer(numb.frame$Count)
   pl <-
     ggplot2::ggplot(numb.frame, aes(x=Virus, y = Count)) +
     ggplot2::geom_bar(aes(fill=Virus), stat="identity") +
     ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
     ggplot2::scale_fill_brewer(palette="Spectral") +
-    ggplot2::geom_text(aes(label = Count, y = Count), size = 2, vjust=-.25) +
+    ggplot2::geom_text(aes(label = Count, y = Count), size = 4, vjust=.25) +
     ggplot2::theme_bw()
 
   pl
