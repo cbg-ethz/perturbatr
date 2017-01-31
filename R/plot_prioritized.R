@@ -54,16 +54,20 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   }
   x.pos.range <- max(abs(x$Effect))
   x.lim  <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
+  LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
   pl <-
     ggplot2::ggplot(x) +
     ggplot2::geom_bar(aes(x=GeneSymbol,y=abs(Effect), fill=Effect),
                       stat="identity") +
-    ggplot2::scale_fill_distiller(palette="Spectral", limits=x.lim) +
+    ggplot2::scale_fill_gradient2(low=LDcolors[1], high=LDcolors[11],
+                                  na.value=LDcolors[6],
+                                  name="Gene effect") +
     ylab("Effect") +
     ggplot2::theme_bw() +
     ggplot2::theme(axis.text.y=element_blank(),
                    axis.ticks=element_blank(),
-                   text = element_text(size = size, family = "Helvetica")) +
+                   text = element_text(size = size, family = "Helvetica"),
+                   strip.text=element_text(face=x$font) )+
     ggplot2::coord_polar() +
     ggplot2::ggtitle(main)
 

@@ -84,23 +84,19 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
                                search.depth=5, delete.nodes.on.degree=1,
                                ...)
 {
-  if ("Readout" %in% colnames(obj))
-  {
+  if ("Readout" %in% colnames(obj)) {
     hits <- obj %>%
       dplyr::select(GeneSymbol, Readout) %>%
       dplyr::rename(Effect=Readout)
-  }
-  else if ("MeanEffect" %in% colnames(obj))
+  } else if ("MeanEffect" %in% colnames(obj))
   {
     hits <- obj %>%
       dplyr::select(GeneSymbol, MeanEffect) %>%
       dplyr::rename(Effect=MeanEffect)
-  }
-  else if ("Effect" %in% colnames(obj))
+  } else if ("Effect" %in% colnames(obj))
   {
     hits <- obj %>% dplyr::select(GeneSymbol, Effect)
-  }
-  else
+  } else
   {
     stop("Neither 'Readout' nor 'Effect' found in colnames")
   }
@@ -112,7 +108,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
                     r=r, node.start.count=node.start.count,
                     search.depth=search.depth,
                     delete.nodes.on.degree=delete.nodes.on.degree)
-  invisible(res)
+  res
 }
 
 #' @noRd
@@ -125,10 +121,11 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
     graph, igraph::V(graph)[
       igraph::degree(graph) <= delete.nodes.on.degree  ])
   adjm  <- igraph::get.adjacency(graph, attr="weight")
-  switch(method,
+  l <- switch(method,
          "neighbors"= .knn(hits, loocv.hits, adjm, node.start.count, search.depth, graph),
          "mrw"      = .mrw(hits, loocv.hits, adjm, r, graph),
          stop("No suitable method found"))
+  l
 }
 
 #' @noRd
@@ -211,9 +208,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
     as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
     as.matrix(diffuse.data$adjm), search.depth)
   res <- diffuse.data$frame
-  neighs
-  names(neighs) <- filter(diffuse.data$frame,
-                          Idx %in% as.integer(names(neighs)))$GeneSymbol
+  names(neighs) <- filter(diffuse.data$frame, Idx %in% as.integer(names(neighs)))$GeneSymbol
 
   neighs <- lapply(neighs, function(e) {
     dplyr::left_join(data.table(Idx=e), res, by="Idx") %>%

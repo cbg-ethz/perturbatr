@@ -272,8 +272,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   dat <-  flat.dat %>%
     dplyr::group_by(GeneSymbol) %>%
     dplyr::summarise(MeanBootstrap=mean(Effect, na.rm=T),
-                     Pval=.ttest(GeneSymbol, Effect, 0),
-                     ) %>%
+                     Pval=.ttest(GeneSymbol, Effect, 0)) %>%
     ungroup %>%
     dplyr::mutate(FDR=p.adjust(Pval, method=padj)) %>%
     .[order(FDR)]
