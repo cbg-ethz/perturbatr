@@ -41,17 +41,22 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
     # index of edges that are gonna be plotted
     edge.list    <- igraph::get.edgelist(x$graph)
     idxs         <- .edge.indexes(edge.list, best.100)
-    obj <- igraph::graph.data.frame(.edge.subset(edge.list, idxs), directed=F)
+    obj          <- igraph::graph.data.frame(.edge.subset(edge.list, idxs), directed=F)
+
     if (length(igraph::V(obj)) >= 100) break
     v.cnt <- v.cnt + 1
   }
+  comps        <- igraph::components(obj)
+  good.genes   <- names(which(comps$membership !=   which.max(comps$csize)))
+  obj <- igraph::delete.vertices(obj, good.genes)
   # node colors (LMM identified genes are blue, rest orange)
   blue.genes   <- best.100$GeneSymbol[best.100$GeneSymbol %in%
                                         x$lmm.hits$GeneSymbol]
   # set some vis params
 
   size <- .size(obj)
-  igraph::V(obj)$color <- "orange"
+  igraph::V(obj)$color[size<=10] <- "#fe9929"
+  igraph::V(obj)$color[size==3] <- "#fed98e"
   igraph::V(obj)[igraph::V(obj)$name %in% blue.genes] $color <- "blue"
   # igraph::V(obj)$color[igraph::V(obj)$name %in% blue.genes] <- "lightblue"
   igraph::E(obj)$width <- 2
@@ -74,10 +79,10 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
 {
   deg                 <- igraph::degree(obj)
   size                <- deg
-  size[deg <  3]      <- 1
-  size[deg >= 3]      <- 3
-  size[deg >  5]      <- 5
-  size
+  size[deg <  3]      <- 3
+  size[deg >= 3]      <- 5
+  size[deg >  5]      <- 10
+  unname(size)
 }
 
 #' @noRd
@@ -96,8 +101,11 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
 {
   op                 <- par(family = "Helvetica", font=2)
   if (sz != -1) size <- rep(sz, length(size))
+  igraph::V(obj)$name <- rep(NA, length(igraph::V(obj)$name))
   graphics::plot(obj, vertex.size=size,layout= igraph::layout.kamada.kawai,
-                 vertex.label.family="Courier", vertex.label.font=1,
-                 vertex.label.cex=.95, edge.curved=-.15)
+                 edge.curved=-.05)
+  legend("bottomleft",fill=c("blue", "#e34a33", "#fdbb84"),
+         legend=c( "Identified host factors by LMM",
+                   "Additional identified host factors by network analysis"))
   par(op)
 }
