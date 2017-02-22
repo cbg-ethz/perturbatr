@@ -102,7 +102,7 @@ preprocess.svd.raw <- function (obj,normalize=c("log", "robust-z.score"),
     obj <- dplyr::filter(obj, !is.na(GeneSymbol), GeneSymbol != "buffer")  %>%
       dplyr::select(-NumCells)
     if ("Remove" %in% colnames(obj))
-      obj <- dplyr::select(obj, -Remove)
+      obj <- dplyr::filter(obj, Remove==F) %>% dplyr::select(-Remove)
   }
   obj
 }

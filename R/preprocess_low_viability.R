@@ -37,8 +37,9 @@
                                           Control, GeneSymbol,
                                           Plate, RowIdx, ColIdx,
                                           rm.cytotoxic)) %>%
-      ungroup %>%
-      dplyr::filter(Remove==F)
+      ungroup
+    # %>%
+    #   dplyr::filter(Remove==F)
   }
   invisible(obj)
 }
@@ -65,7 +66,9 @@
     if (is.na(cont.idx[1])) stop("No control index found! Change gene names")
     assertthat::assert_that(length(cont.idx) == length(which(genes == comp.to)))
     # get mean readout and  viability of scrambled siRNAs
-    cont.vial.thresh <- mean(val[cont.idx], na.rm=T) * .85
+    # this .85 is magic
+    cont.vial.thresh <- mean(val[cont.idx], na.rm=T) * .80
+    cont.re          <- mean(re [cont.idx], na.rm=T)
     # get the mean readouts and viabilities for every siRNA
     fr <-
       data.table::data.table(Re=re, Val=val, Gene=genes, Sirna=sirnas,
@@ -79,15 +82,16 @@
     fr <-
       dplyr::group_by(fr, Sirna, Gene, Plate, Row, Col, Control) %>%
       # summarize over replicates
-      dplyr::summarize(
+      dplyr::summarize(MR=mean(Re, na.rm=T),
                        MV=mean(Val, na.rm=T),
                        Pval=.t.test.vial(Val, cont.vial.thresh, Gene,
                                          Sirna, Plate, Row, Col)) %>%
       ungroup
-    # this .85 is magic
+
     # get the sirnas that show toxicity
     lowe <- dplyr::filter(fr,
                           MV < cont.vial.thresh,
+                          MR < cont.re,
                           Pval < .05,
                           !is.na(Sirna),
                           !is.na(Gene),
@@ -112,7 +116,7 @@
 {
   p.val <- 1.0
   if (is.na(gene) | is.na(sirna)) p.val <- 1
-  else if (length(vial) < 3)     p.val <- 1
+  else if (length(vial) < 3)      p.val <- 1
   else if (!all(is.na(vial)))
   {
     war <- paste0("Plate:", plate, ", row:", row, ", col:", col,
