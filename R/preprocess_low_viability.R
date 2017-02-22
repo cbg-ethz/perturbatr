@@ -37,7 +37,8 @@
                                           Control, GeneSymbol,
                                           Plate, RowIdx, ColIdx,
                                           rm.cytotoxic)) %>%
-      ungroup
+      ungroup %>%
+      dplyr::filter(Remove==F)
   }
   invisible(obj)
 }

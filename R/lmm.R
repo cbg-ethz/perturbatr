@@ -84,6 +84,10 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 #' @importFrom dplyr mutate full_join select group_by
 .lmm.model.data <- function(md, bootstrap.cnt)
 {
+  if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
+  {
+    stop("Please use at least 10 bootstrap runs (better 100/1000).")
+  }
     # save gene control mappings
   gene.control.map <-
     dplyr::select(md, GeneSymbol, Control) %>%
@@ -104,9 +108,8 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   ref <- .ranef(fit.lmm)
   # calculate fdrs
   gp.fdrs <- .fdr(ref$gene.pathogen.effects)
-  # finalize output and return as list
   # TODO make this consistent to previous FDR
-  if (is.numeric(bootstrap.cnt) & bootstrap.cnt > 0)
+  if (is.numeric(bootstrap.cnt) & bootstrap.cnt >= 10)
   {
     message("Bootstrap for significance estimation")
     ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)

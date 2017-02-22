@@ -139,10 +139,12 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                  " and on effect.threshold ", eft ,"."))
   ge <-
     obj$gene.effects %>%
-    dplyr::filter(FDR <= fdrt, abs(Effect) >= eft)  %>%
+    dplyr::filter(abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]
+  if (!all(is.na(ge$FDR))) ge <- dplyr::filter(ge, FDR <= fdrt)
   gpe <- obj$gene.pathogen.effects %>%
-    dplyr::filter(FDR <= fdrt, abs(Effect) >= eft)  %>%
+    dplyr::filter(abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]
+  if (!all(is.na(gpe$FDR))) gpe <- dplyr::filter(gpe, FDR <= fdrt)
   list(gene.hits=ge, gene.pathogen.hits=gpe)
 }
