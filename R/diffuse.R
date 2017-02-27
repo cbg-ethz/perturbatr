@@ -62,11 +62,11 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
     dplyr::select(GeneSymbol, abs(Effect))
 
   # TODO: optimize
-  loocv.hits <- obj$fit$fit$gene.fdrs %>%
+  bootstrap.hits <- obj$fit$fit$gene.fdrs %>%
     dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
-    dplyr::select(-MeanLOOCVEffect, -Pval, -FDR)
+    dplyr::select(-MeanBootstrap, -Pval, -FDR)
 
-  res   <- .diffuse(hits, loocv.hits,
+  res   <- .diffuse(hits, bootstrap.hits=bootstrap.hits,
                     path=path, graph=graph,
                     method=match.arg(method),
                     r=r, node.start.count=node.start.count,
@@ -102,7 +102,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
   }
   hits <- hits %>% dplyr::mutate(Effect=abs(Effect))
   res   <- .diffuse(hits=hits,
-                    loocv.hits=NULL,
+                    bootstrap.hits=NULL,
                     path=path, graph=graph,
                     method=match.arg(method),
                     r=r, node.start.count=node.start.count,
@@ -113,7 +113,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 
 #' @noRd
 #' @import data.table igraph
-.diffuse <- function(hits, loocv.hits, path, graph, method, r,
+.diffuse <- function(hits, bootstrap.hits, path, graph, method, r,
                      node.start.count, search.depth, delete.nodes.on.degree)
 {
   graph <- .read.graph(path=path, graph=graph)
@@ -122,8 +122,8 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
       igraph::degree(graph) <= delete.nodes.on.degree  ])
   adjm  <- igraph::get.adjacency(graph, attr="weight")
   l <- switch(method,
-         "neighbors"= .knn(hits, loocv.hits, adjm, node.start.count, search.depth, graph),
-         "mrw"      = .mrw(hits, loocv.hits, adjm, r, graph),
+         "neighbors"= .knn(hits, bootstrap.hits, adjm, node.start.count, search.depth, graph),
+         "mrw"      = .mrw(hits, bootstrap.hits, adjm, r, graph),
          stop("No suitable method found"))
   l
 }
@@ -131,11 +131,11 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 #' @noRd
 #' @import data.table
 #' @importFrom diffusr random.walk
-.mrw <- function(hits, loocv.hits, adjm, r, graph)
+.mrw <- function(hits, bootstrap.hits, adjm, r, graph)
 {
   diffuse.data <- .do.mrw(hits, adjm, r)
-  if (!is.null(loocv.hits)) {
-    pvals <- .significance.mrw(loocv.hits, adjm, r)
+  if (!is.null(bootstrap.hits)) {
+    pvals <- .significance.mrw(bootstrap.hits, adjm, r)
     res   <- dplyr::left_join(diffuse.data$frame, pvals, by="GeneSymbol")
   }
   else {
@@ -171,28 +171,32 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 
 #' @noRd
 #' @importFrom tidyr gather
-.significance.mrw <- function(loocv.hits, adjm, r)
+#' @import foreach
+#' @import doParallel
+.significance.mrw <- function(bootstrap.hits, adjm, r)
 {
-  loocv.g <- tidyr::gather(loocv.hits, LOOCV, Effect, -GeneSymbol) %>%
+  boot.g <- tidyr::gather(bootstrap.hits, Boot, Effect, -GeneSymbol) %>%
     as.data.table
   li <- list()
-  # TODO parallalize
-  for (lo in unique(loocv.g$LOOCV))
+  cl <- makeCluster(detectCores() - 2)
+  registerDoParallel(cl)
+  foreach::foreach(lo=unique(boot.g$Boot)) %dopar%
   {
-    hits <- dplyr::filter(loocv.g, LOOCV==lo) %>% dplyr::select(-LOOCV)
+    hits <- dplyr::filter(boot.g, Boot==lo) %>% dplyr::select(-Boot)
     dd.lo <- .do.mrw(hits, adjm, r)
-    dd.lo$frame$loocv <- lo
+    dd.lo$frame$boot <- lo
     li[[lo]] <- dd.lo$frame
   }
+  stopCluster(cl)
   # TODO: how to do hypothesis test here?
   # -> calculate means -> calculate alphas -> calculate variance -> calculate alpha_0
   flat.dat <- do.call("rbind", lapply(li, function(e) e)) %>% dplyr::select(-Effect)
   dat <- flat.dat  %>%
     dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarise(MeanLOOCVDiffusionEffect=mean(DiffusionEffect, na.rm=T)) %>%
+    dplyr::summarise(MeanBootstrapDiffusionEffect=mean(DiffusionEffect, na.rm=T)) %>%
     ungroup
   dat <- dplyr::left_join(dat,
-                          tidyr::spread(flat.dat, loocv, DiffusionEffect),
+                          tidyr::spread(flat.dat, boot, DiffusionEffect),
                           by="GeneSymbol")
   dat
 }
