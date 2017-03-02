@@ -27,11 +27,16 @@
 #' @param obj  the data to be analysed
 #' @param padjust  multiple testing correction method
 #' @param summ.method  summarize single siRNAs using mean or median
-#' @param level  do hypergeometric test on gene level or siRNA level
+#' @param level  do hypergeometric test on gene level or siRNA level.
+#'  If level=sirna is chosen, multiple replicates have to be given.
+#'  If level=gene we use all the sirnas for a gene and optionally summarize
+#'  siRNAs over replicate level.
+#' @param do.summarization  boolean flag whether sirnas should be summarized if level=gene is chosen
 #' @param ...   additional params
 hyperstatistic <- function(obj, padjust=c("BH", "bonferroni"),
                            summ.method=c("mean", "median"),
-                           level=c("gene", "sirna"),...)
+                           level=c("gene", "sirna"),
+                           do.summarization=F, ...)
 {
   UseMethod("hyperstatistic", obj)
 }
@@ -42,11 +47,13 @@ hyperstatistic <- function(obj, padjust=c("BH", "bonferroni"),
 #' @method hyperstatistic svd.data
 hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
                                     summ.method=c("mean", "median"),
-                                    level=c("gene", "sirna"), ...)
+                                    level=c("gene", "sirna"),
+                                    do.summarization=F, ...)
 {
   ret <- .hyperstatistic(obj, padjust=match.arg(padjust),
                          summ.method=match.arg(summ.method),
-                         level=match.arg(level), ...)
+                         level=match.arg(level),
+                         do.summarization=do.summarization, ...)
   class(ret) <- c("svd.analysed.hyper", "svd.analysed", class(ret))
   invisible(ret)
 }
@@ -56,10 +63,13 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_by
 #' @importFrom dplyr mutate
-.hyperstatistic <- function(obj, padjust, summ.method, level, ...)
+.hyperstatistic <- function(obj, padjust, summ.method, level,
+                            do.summarization, ...)
 {
+  if (do.summarization & level=="sirna")
+    stop("Cant do summarization on sirna level. Choose level=gene")
   message(paste("Correcting with ", padjust, "!", sep=""))
-  if (level=="gene" & !is.na(summ.method))
+  if (level=="gene" & !is.na(summ.method) & do.summarization)
     message(paste("Summarizing with ", summ.method, "!", sep=""))
   summ.method <- .summarization.method(summ.method)
   grp.indexes <- dplyr::group_indices(obj, Virus, Screen, ReadoutType,
@@ -85,7 +95,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
                                          grp.dat$Design[1],
                                          grp.dat$Library[1],
                                          sep=", ")))
-        fr <- .do.hyperstatistic(grp.dat, padjust, summ.method, level)
+        fr <- .do.hyperstatistic(grp.dat, padjust, summ.method, do.summarization, level)
         fr
       }
     )
@@ -102,11 +112,11 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
 #' @importFrom dplyr mutate
 #' @importFrom tidyr separate
 #' @importFrom stats p.adjust
-.do.hyperstatistic <- function(obj, padjust, summ.method, level)
+.do.hyperstatistic <- function(obj, padjust, summ.method, do.summarization, level)
 {
   # TODO: make this nicer and split up
   res <- obj %>% ungroup
-  if (obj$Design[1] == "single" & level=="gene")
+  if (obj$Design[1] == "single" & level=="gene" & do.summarization)
   {
     message(paste("\t...summarizing single siRNAs over replicates!"))
     # summarize all the sirnas over the different replicates
@@ -121,7 +131,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   }
   else
   {
-    message(paste("\t ...NOT summarizing single siRNAs over replicates!"))
+    message(paste("\t...NOT summarizing single siRNAs over replicates!"))
   }
   if (obj$Design[2] == "pooled")
   {
@@ -138,9 +148,11 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
                                   RowIdx, ColIdx, Readout, level)) %>%
     ungroup %>%
     tidyr::separate(HRes, c("Pval", "Hit"), sep="_")
+
   if ("grp" %in% colnames(res)) res <- dplyr::select(res, -grp)
+
   data.table::setDT(res)[,Pval := as.numeric(Pval)]
-  data.table::setDT(res)[,Hit := as.logical(as.numeric(Hit))]
+  data.table::setDT(res)[,Hit  := as.logical(as.numeric(Hit))]
   res <- res[order(Pval)]
   data.table::setDT(res)[,HyperRank := cumsum(res$Hit)]
   data.table::setDT(res)[Hit == 0, HyperRank := NA_integer_]
@@ -158,6 +170,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
 {
   fr <- data.table::data.table(genes=all.genes, sirnas=sirnas,
                                plates=plates, rows=rows, cols=cols,
+                               # THE ABS IS IMPORTANT
                                readout=abs(readouts),
                                ord=1:length(all.genes)) %>%
     dplyr::mutate(rank=rank(-readout, ties.method="max")) %>%
@@ -197,8 +210,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   ndrawn <- length(ranks)
   hi <- t(sapply(1:ndrawn, function(i)
   {
-    prob <- stats::phyper(i - 1, ranks[i], N - ranks[i],
-                   ndrawn, lower.tail = F,log.p=F)
+    prob <- stats::phyper(i - 1, ranks[i], N - ranks[i], ndrawn, lower.tail = F, log.p=F)
     prob <- max(prob, 0.0)
     cutoff <- i
     c(prob=prob, cutoff=cutoff)

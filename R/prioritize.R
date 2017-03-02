@@ -111,8 +111,7 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 {
   # TODO add variable pval and qval
   params <- list(...)
-  hit.rat        <- ifelse(methods::hasArg(hit.ratio),
-                           params$hit.ratio, 0.5)
+  hit.rat        <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
 
   message(paste("Prioritizing on hit.ratio ", hit.rat, sep=""))
   res <- dplyr::group_by(obj, Virus, Screen, Library,
@@ -123,8 +122,12 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                      PvalRatio  = (sum(Pval     <= 0.05, na.rm=T)/n()),
                      QvalRatio  = (sum(Pvalcorr <= 0.2, na.rm=T)/n()),
                      MeanEffect = mean(Readout, na.rm=T),
+                     MaxEffect =  max(Readout, na.rm=T),
+                     MinEffect =  min(Readout, na.rm=T),
                      MeanPvalue = mean(Pval),
-                     MeanQvalue = mean(Pvalcorr)) %>%
+                     MeanQvalue = mean(Pvalcorr),
+                     Pval=paste(Pval, collapse=","),
+                     Qval=paste(Qval, collapse=",")) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.rat)
   res
