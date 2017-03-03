@@ -96,9 +96,15 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                     ReadoutType, ScreenType,
                     Design, Cell,
                     GeneSymbol, Entrez) %>%
-    dplyr::summarize(HitRatio = (sum(Hit)/n()),
-                     MeanEffect=mean(Readout),
-                     MeanPvalue=mean(Pval)) %>%
+    # TODO this should be as in hyper. the means dont make sense here
+    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
+                     PvalRatio  = (sum(Pval     <= 0.05, na.rm=T)/n()),
+                     QvalRatio  = (sum(Qval <= 0.2, na.rm=T)/n()),
+                     MeanEffect = mean(Readout, na.rm=T),
+                     MaxEffect  = max(Readout, na.rm=T),
+                     MinEffect  = min(Readout, na.rm=T),
+                     Pval=paste(sprintf("%03f", Pval), collapse=","),
+                     Qval=paste(sprintf("%03f", Qval), collapse=",")) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.rat)
   res
@@ -119,15 +125,13 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                          Design, Cell,
                          GeneSymbol, Entrez) %>%
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
-                     PvalRatio  = (sum(Pval     <= 0.05, na.rm=T)/n()),
-                     QvalRatio  = (sum(Pvalcorr <= 0.2, na.rm=T)/n()),
+                     PvalRatio  = (sum(Pval  <= 0.05, na.rm=T)/n()),
+                     QvalRatio  = (sum(Qval  <= 0.2, na.rm=T)/n()),
                      MeanEffect = mean(Readout, na.rm=T),
-                     MaxEffect =  max(Readout, na.rm=T),
-                     MinEffect =  min(Readout, na.rm=T),
-                     MeanPvalue = mean(Pval),
-                     MeanQvalue = mean(Pvalcorr),
-                     Pval=paste(Pval, collapse=","),
-                     Qval=paste(Qval, collapse=",")) %>%
+                     MaxEffect =  max(Readout,  na.rm=T),
+                     MinEffect =  min(Readout,  na.rm=T),
+                     Pval=paste(sprintf("%03f", Pval), collapse=","),
+                     Qval=paste(sprintf("%03f", Qval), collapse=",")) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.rat)
   res

@@ -157,7 +157,7 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
   data.table::setDT(res)[,HyperRank := cumsum(res$Hit)]
   data.table::setDT(res)[Hit == 0, HyperRank := NA_integer_]
   # p val correction
-  res <- dplyr::mutate(res, Pvalcorr=p.adjust(Pval, method=padjust))
+  res <- dplyr::mutate(res, Qval=p.adjust(Pval, method=padjust))
   invisible(res)
 }
 
