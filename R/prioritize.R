@@ -128,10 +128,12 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                      PvalRatio  = (sum(Pval  <= 0.05, na.rm=T)/n()),
                      QvalRatio  = (sum(Qval  <= 0.2, na.rm=T)/n()),
                      MeanEffect = mean(Readout, na.rm=T),
-                     MaxEffect =  max(Readout,  na.rm=T),
-                     MinEffect =  min(Readout,  na.rm=T),
-                     Pval=paste(sprintf("%03f", Pval), collapse=","),
-                     Qval=paste(sprintf("%03f", Qval), collapse=",")) %>%
+                     MaxEffect  = max(Readout,  na.rm=T),
+                     MinEffect  = min(Readout,  na.rm=T),
+                     MinPval    = min(Pval),
+                     MinQval    = min(Qval),
+                     Pval=paste(sprintf("%.03f", Pval), collapse=","),
+                     Qval=paste(sprintf("%.03f", Qval), collapse=",")) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.rat)
   res
