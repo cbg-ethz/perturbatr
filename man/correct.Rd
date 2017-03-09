@@ -18,4 +18,3 @@ correct(obj, path, drop, ...)
 \description{
 Off-target correct and rank by hit magnitude
 }
-

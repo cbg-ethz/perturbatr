@@ -14,4 +14,3 @@ show.effect.matrix(x, ...)
 \description{
 Plot the effects matrix of a PMM analysis
 }
-

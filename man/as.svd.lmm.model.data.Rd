@@ -14,4 +14,3 @@ as.svd.lmm.model.data(obj, ...)
 \description{
 Converts an object to an svd.lmm.model.data object
 }
-

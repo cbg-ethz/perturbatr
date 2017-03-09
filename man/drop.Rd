@@ -14,4 +14,3 @@ drop(obj, ...)
 \description{
 Drops columns that are not needed
 }
-

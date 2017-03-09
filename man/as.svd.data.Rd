@@ -14,4 +14,3 @@ as.svd.data(obj, ...)
 \description{
 Converts an object to an svd.data object
 }
-

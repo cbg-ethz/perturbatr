@@ -12,4 +12,3 @@ show.table(obj, nrow = 10, colored = 2, main = "", ...)
 \description{
 Plot a table to the grid
 }
-

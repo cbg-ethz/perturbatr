@@ -11,4 +11,3 @@ Analysis of high-throughput gene perturbation screens.
 Simon Dirmeier | Computational Biology Group, ETH ZURICH | \email{simon.dirmeier@bsse.ethz.ch}
 }
 \keyword{package}
-

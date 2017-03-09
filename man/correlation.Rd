@@ -19,4 +19,3 @@ correlation(x, y, method = c("pearson", "kendall", "spearman"), ...)
 \description{
 Calculate the correlation between two data-sets
 }
-

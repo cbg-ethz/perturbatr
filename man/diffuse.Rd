@@ -38,4 +38,3 @@ behaviour is not desired filter \code{obj} before}
 \description{
 Extend the results from a <code>svd.prioritized</code> object by network diffusion.
 }
-

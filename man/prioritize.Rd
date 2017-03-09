@@ -20,4 +20,3 @@ prioritize(obj, ...)
 \description{
 Select hits from an analyzed data set
 }
-

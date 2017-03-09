@@ -14,4 +14,3 @@ induced.subgraph(gene, graph)
 \description{
 Get the neighbors of a node including all edges between them
 }
-

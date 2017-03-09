@@ -14,4 +14,3 @@ readout.matrix(obj, ...)
 \description{
 Get the readout matrix (plus control indexes) as list from and svd.plate object
 }
-

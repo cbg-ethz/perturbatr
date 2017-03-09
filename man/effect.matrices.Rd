@@ -14,4 +14,3 @@ effect.matrices(obj, ...)
 \description{
 Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices
 }
-

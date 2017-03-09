@@ -14,4 +14,3 @@ plates(obj, ...)
 \description{
 Get the plates of a data-set
 }
-

@@ -18,4 +18,3 @@ concordance(obj, ...)
 \description{
 Calculate the concordance between the vectorial elements of a list.
 }
-

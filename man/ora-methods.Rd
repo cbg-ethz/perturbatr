@@ -23,4 +23,3 @@ ora(hit.list, universe, db = c("kegg", "go"), ...)
 \description{
 Do overrepresentation analysis based on the hypergeometric test
 }
-

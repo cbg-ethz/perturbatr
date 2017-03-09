@@ -11,7 +11,7 @@ Description: `knockout` does analysis of large-scale gene knockout/knockdown scr
  Eventually hits can be analyses using GSEA, etc.
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Dependency: R (>= 3.0.1)
 Imports: dplyr,
     ggplot2,

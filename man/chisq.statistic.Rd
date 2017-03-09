@@ -16,4 +16,3 @@ chisq.statistic(obj, padjust = c("BH", "bonferroni"), ...)
 \description{
 For this you should use a standardization before.
 }
-

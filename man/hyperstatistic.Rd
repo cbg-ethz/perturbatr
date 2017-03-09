@@ -5,7 +5,7 @@
 \title{Calculate statistics based on the hypergeometric-distribution to analyse the data.}
 \usage{
 hyperstatistic(obj, padjust = c("BH", "bonferroni"), summ.method = c("mean",
-  "median"), level = c("gene", "sirna"), ...)
+  "median"), level = c("gene", "sirna"), do.summarization = F, ...)
 }
 \arguments{
 \item{obj}{the data to be analysed}
@@ -14,11 +14,15 @@ hyperstatistic(obj, padjust = c("BH", "bonferroni"), summ.method = c("mean",
 
 \item{summ.method}{summarize single siRNAs using mean or median}
 
-\item{level}{do hypergeometric test on gene level or siRNA level}
+\item{level}{do hypergeometric test on gene level or siRNA level.
+If level=sirna is chosen, multiple replicates have to be given.
+If level=gene we use all the sirnas for a gene and optionally summarize
+siRNAs over replicate level.}
+
+\item{do.summarization}{boolean flag whether sirnas should be summarized if level=gene is chosen}
 
 \item{...}{additional params}
 }
 \description{
 For this you should use a standardization before.
 }
-

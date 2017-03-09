@@ -21,4 +21,3 @@ model.data.lmm(obj, drop = T, ignore = 1, weights = NULL,
 \description{
 Create model data for an LMM
 }
-

@@ -14,4 +14,3 @@ as.svd.plate(obj, ...)
 \description{
 Convert to an plate object
 }
-

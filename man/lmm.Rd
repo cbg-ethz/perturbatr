@@ -4,7 +4,8 @@
 \alias{lmm}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
-lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL, loocv = 5, ...)
+lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
+  bootstrap.cnt = F, ...)
 }
 \arguments{
 \item{obj}{an svd.data object}
@@ -15,7 +16,7 @@ lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL, loocv = 5, ...)
 
 \item{rel.mat.path}{the (optional) path to a target relation matrix that is going to be used for}
 
-\item{loocv}{the number of loocv runs you want to do in order to estimate a significance level for the gene effects}
+\item{bootstrap.cnt}{the number of loocv runs you want to do in order to estimate a significance level for the gene effects}
 
 \item{...}{additional parameters
 \itemize{
@@ -25,4 +26,3 @@ lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL, loocv = 5, ...)
 \description{
 Fit an LMM to the data and calculate local false discovery rates.
 }
-

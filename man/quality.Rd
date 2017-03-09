@@ -14,4 +14,3 @@ quality(obj, ...)
 \description{
 Calculates per-plate, per-replicate and screen quality scores
 }
-

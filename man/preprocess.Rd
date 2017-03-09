@@ -46,4 +46,3 @@ preprocess(obj, normalize = c("log", "robust-z.score"),
 \description{
 Pre-processing routine for data normalization, summarization and removal of low viability siRNAs.
 }
-

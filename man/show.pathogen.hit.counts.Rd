@@ -14,4 +14,3 @@ show.pathogen.hit.counts(x, ...)
 \description{
 Plot the hit counts of a PMM analysis for every virus as barplots
 }
-

@@ -14,4 +14,3 @@ replicates(obj, ...)
 \description{
 Get the replicates of a data-set
 }
-

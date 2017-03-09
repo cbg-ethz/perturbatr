@@ -19,4 +19,3 @@ tstatistic(obj, mu = c(NA, "Scrambled", "control"), padjust = c("BH",
 \description{
 For this you should use a standardization before.
 }
-
