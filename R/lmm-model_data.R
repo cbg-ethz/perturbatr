@@ -28,14 +28,14 @@
 #' @param ignore  ignore siRNAS that are only found \code{ignore} many times
 #' @param weights  weights to set for the siRNAs
 #' @param rel.mat.path  target-relation matrix (TODO)
-model.data.lmm <- function(obj, drop=T, ignore=1, weights=NULL, rel.mat.path=NULL)
+set.lmm.model.data <- function(obj, drop=T, ignore=1, weights=NULL, rel.mat.path=NULL)
 {
   UseMethod("model.data.lmm")
 }
 
 #' @export
-#' @method model.data.lmm svd.data
-model.data.lmm.svd.data <- function(obj, drop=T, ignore=1,
+#' @method set.lmm.model.data svd.data
+set.lmm.model.data.svd.data <- function(obj, drop=T, ignore=1,
                                     weights=NULL, rel.mat.path=NULL)
 {
   .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
