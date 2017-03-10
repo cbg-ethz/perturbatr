@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Fit an LMM to the data and calculate local false discovery rates.
 #'
 #' @export
@@ -28,13 +29,11 @@
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
 #' @param bootstrap.cnt  the number of loocv runs you want to do in order to estimate a significance level for the gene effects
+#' @param ignore  ignore siRNAs that have been seen only once per group
 #' @param ...  additional parameters
-#' \itemize{
-#'  \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
-#' }
 lmm <- function(obj, drop=T,
                 weights=NULL, rel.mat.path=NULL,
-                bootstrap.cnt=F, ...)
+                bootstrap.cnt=F, ignore=1, ...)
 {
   UseMethod("lmm")
 }
@@ -44,10 +43,10 @@ lmm <- function(obj, drop=T,
 #' @method lmm svd.data
 lmm.svd.data <- function(obj, drop=T,
                          weights=NULL, rel.mat.path=NULL,
-                         bootstrap.cnt=F, ...)
+                         bootstrap.cnt=F, ignore=1, ...)
 {
   res  <- .lmm.svd.data(obj, drop,
-                        weights, rel.mat.path, bootstrap.cnt, ...)
+                        weights, rel.mat.path, bootstrap.cnt, ignore, ...)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
   invisible(res)
 }
@@ -57,7 +56,7 @@ lmm.svd.data <- function(obj, drop=T,
 #' @method lmm svd.lmm.model.data
 lmm.svd.lmm.model.data <- function(obj, drop=T,
                                    weights=NULL, rel.mat.path=NULL,
-                                   bootstrap.cnt=F, ...)
+                                   bootstrap.cnt=F, ignore=1, ...)
 {
   res <- .lmm.model.data(obj, bootstrap.cnt)
   class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
@@ -69,11 +68,8 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 #' @importFrom methods hasArg
 .lmm.svd.data <- function(obj, drop,
                           weights=NULL, rel.mat.path=NULL,
-                          bootstrap.cnt, ...)
+                          bootstrap.cnt, ignore, ...)
 {
-  params <- list(...)
-  ignore <- ifelse(methods::hasArg(ignore) && is.numeric(params$ignore),
-                   params$ignore, 1)
   # init the data table for the LMM
   md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
   .lmm.model.data(md, bootstrap.cnt)
@@ -130,73 +126,9 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   ret
 }
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-.set.lmm.matrix <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
-{
-  # setup pmm data
-  pmm.mat <-
-    # subset the columns
-    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library,
-                  Cell, ScreenType, Design, ReadoutType) %>%
-    # only take entries that have a genesymbol
-    dplyr::filter(!is.na(GeneSymbol)) %>%
-    # dont take positive controls since these are different between the pathonges
-    # negative control on the other hand should be fine
-    dplyr::filter(Control != 1)
-  # set weights
-  data.table::setDT(pmm.mat)[, Weight := .weights(pmm.mat, weights, rel.mat.path)]
-  # set a column that concats virus and genesymbol
-  data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
-  #  remove librarz
-  data.table::setDT(pmm.mat)[, Library := NULL]
-  ## cast some columns
-  pmm.mat$Entrez        <- as.integer(pmm.mat$Entrez)
-  pmm.mat$Virus         <- as.factor(pmm.mat$Virus)
-  pmm.mat$VG            <- as.factor(pmm.mat$VG)
-  pmm.mat$Cell          <- as.factor(pmm.mat$Cell)
-  pmm.mat$ReadoutType   <- as.factor(pmm.mat$ReadoutType)
-  pmm.mat$ScreenType    <- as.factor(pmm.mat$ScreenType)
-  pmm.mat$Design        <- as.factor(pmm.mat$Design)
-  pmm.mat$GeneSymbol    <- as.factor(pmm.mat$GeneSymbol)
-  pmm.mat$Weight        <- as.double(pmm.mat$Weight)
-  pmm.mat$Control       <- as.integer(pmm.mat$Control)
-  pmm.mat <-
-    # remove entries that have nan as readout
-    dplyr::filter(pmm.mat, !is.na(Readout)) %>%
-    dplyr::group_by(VG) %>%
-    # count how often VG is in the data
-    dplyr::mutate(cnt=n()) %>%
-    ungroup %>%
-    # throw away VGs that are less than ignore
-    dplyr::filter(cnt >= ignore) %>%
-    # remove cnt column
-    dplyr::select(-cnt)
-  # drop genes that are not found in ALL pathogens
-  if (drop)
-  {
-    # count how many viruses are in the date sets
-    vir.cnt <- length(unique(pmm.mat$Virus))
-    pmm.mat <-
-      # group by genesymbol
-      dplyr::group_by(pmm.mat, GeneSymbol) %>%
-      # count if the genes are in all viruses
-      # and compare if it matches the virus count
-      dplyr::mutate(drop=(length(unique(Virus)) != vir.cnt)) %>%
-      ungroup %>%
-      # remove genes that are not in all genes
-      dplyr::filter(!drop) %>%
-      # remove drop column
-      dplyr::select(-drop)
-  }
-  pmm.mat <- droplevels(pmm.mat)
-  class(pmm.mat) <- c("svd.lmm.model.data", class(pmm.mat))
-  pmm.mat
-}
+
+
+
 
 #' @noRd
 #' @importFrom assertthat assert_that
