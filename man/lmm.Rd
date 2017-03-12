@@ -5,7 +5,7 @@
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
 lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
-  bootstrap.cnt = F, ...)
+  bootstrap.cnt = F, ignore = 1, ...)
 }
 \arguments{
 \item{obj}{an svd.data object}
@@ -18,10 +18,9 @@ lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
 
 \item{bootstrap.cnt}{the number of loocv runs you want to do in order to estimate a significance level for the gene effects}
 
-\item{...}{additional parameters
-\itemize{
- \item{ignore }{ remove sirnas that have been found less than \code{ignore} times}
-}}
+\item{ignore}{ignore siRNAs that have been seen only once per group}
+
+\item{...}{additional parameters}
 }
 \description{
 Fit an LMM to the data and calculate local false discovery rates.

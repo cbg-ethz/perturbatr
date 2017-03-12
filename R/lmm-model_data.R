@@ -40,11 +40,3 @@ set.lmm.model.data.svd.data <- function(obj, drop=T, ignore=1,
 {
   .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
 }
-
-#' @export
-#' @method model.data.lmm data.table
-model.data.lmm.data.table <- function(obj, drop=T, ignore=1,
-                                      weights=NULL, rel.mat.path=NULL)
-{
-  .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-}

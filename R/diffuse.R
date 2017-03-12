@@ -61,10 +61,13 @@ diffuse.svd.prioritized.pmm <- function(obj, method=c("neighbors", "mrw"),
   hits <- obj$gene.hits %>%
     dplyr::select(GeneSymbol, abs(Effect))
 
-  # TODO: optimize
-  bootstrap.hits <- obj$fit$fit$gene.fdrs %>%
-    dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
-    dplyr::select(-MeanBootstrap, -Pval, -FDR)
+  bootstrap.hits <- NULL
+  if (any(!is.na(obj$fit$fit$gene.fdrs$FDR)) &
+      "MeanBootstrap" %in% colnames(obj$fit$fit$gene.fdrs)) {
+    bootstrap.hits <- obj$fit$fit$gene.fdrs %>%
+      dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
+      dplyr::select(-MeanBootstrap, -Pval, -FDR)
+  }
 
   res   <- .diffuse(hits, bootstrap.hits=bootstrap.hits,
                     path=path, graph=graph,
@@ -134,7 +137,8 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 .mrw <- function(hits, bootstrap.hits, adjm, r, graph)
 {
   diffuse.data <- .do.mrw(hits, adjm, r)
-  if (!is.null(bootstrap.hits)) {
+  if (!is.null(bootstrap.hits))
+  {
     pvals <- .significance.mrw(bootstrap.hits, adjm, r)
     res   <- dplyr::left_join(diffuse.data$frame, pvals, by="GeneSymbol")
   }
@@ -149,11 +153,12 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
   return(li)
 }
 
+#' @noRd
 .do.mrw <- function(hits, adjm, r)
 {
   diffuse.data <- .init.starting.distribution(hits, adjm)
   mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
-                              as.matrix(diffuse.data$adjm), r)
+                     as.matrix(diffuse.data$adjm), r)
   diffuse.data$frame$DiffusionEffect <- mrw
   diffuse.data
 }
@@ -172,22 +177,21 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 #' @noRd
 #' @importFrom tidyr gather
 #' @import foreach
+#' @import parallel
 #' @import doParallel
 .significance.mrw <- function(bootstrap.hits, adjm, r)
 {
   boot.g <- tidyr::gather(bootstrap.hits, Boot, Effect, -GeneSymbol) %>%
     as.data.table
   li <- list()
-  cl <- makeCluster(detectCores() - 2)
-  registerDoParallel(cl)
-  foreach::foreach(lo=unique(boot.g$Boot)) %dopar%
+  foreach::foreach(lo=unique(boot.g$Boot)) %do%
   {
-    hits <- dplyr::filter(boot.g, Boot==lo) %>% dplyr::select(-Boot)
+    hits <- dplyr::filter(boot.g, Boot==lo)
+    hits <- dplyr::select(hits, -Boot)
     dd.lo <- .do.mrw(hits, adjm, r)
     dd.lo$frame$boot <- lo
     li[[lo]] <- dd.lo$frame
   }
-  stopCluster(cl)
   # TODO: how to do hypothesis test here?
   # -> calculate means -> calculate alphas -> calculate variance -> calculate alpha_0
   flat.dat <- do.call("rbind", lapply(li, function(e) e)) %>% dplyr::select(-Effect)
