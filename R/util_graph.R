@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-
 #' @noRd
 #' @import igraph
 #' @importFrom utils read.csv
@@ -71,11 +70,10 @@
 
 #' Get the neighbors of a node including all edges between them
 #'
-#' @export
 #' @param gene  the gene for which the neighborhood is searched
 #' @param graph  the graph
 #' @import igraph
-induced.subgraph <- function(gene, graph)
+.induced.subgraph <- function(gene, graph)
 {
   stop("not yet imlemented")
   fr  <- t(apply(edge.list, 1, function(e) sort(e)))

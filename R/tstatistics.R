@@ -113,7 +113,7 @@ tstatistic.svd.data <- function(obj, mu=c(NA, "Scrambled", "control"),
   )
   data.table::setDT(ret)[,Pval := as.numeric(Pval)]
   ret <- ret[order(Pval)]
-  ret <- dplyr::mutate(ret, Pvalcorr=p.adjust(Pval, method=padjust))
+  ret <- dplyr::mutate(ret, Qval=p.adjust(Pval, method=padjust))
   invisible(ret)
 }
 
