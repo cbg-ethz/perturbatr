@@ -18,3 +18,4 @@ knockout.Rproj
 .travis.yml
 .lintr
 
+^appveyor\.yml$
