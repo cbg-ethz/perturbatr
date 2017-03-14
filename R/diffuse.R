@@ -87,19 +87,23 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
                                search.depth=5, delete.nodes.on.degree=1,
                                ...)
 {
-  if ("Readout" %in% colnames(obj)) {
+  if ("Readout" %in% colnames(obj))
+  {
     hits <- obj %>%
       dplyr::select(GeneSymbol, Readout) %>%
       dplyr::rename(Effect=Readout)
-  } else if ("MeanEffect" %in% colnames(obj))
+  }
+  else if ("MeanEffect" %in% colnames(obj))
   {
     hits <- obj %>%
       dplyr::select(GeneSymbol, MeanEffect) %>%
       dplyr::rename(Effect=MeanEffect)
-  } else if ("Effect" %in% colnames(obj))
+  }
+  else if ("Effect" %in% colnames(obj))
   {
     hits <- obj %>% dplyr::select(GeneSymbol, Effect)
-  } else
+  }
+  else
   {
     stop("Neither 'Readout' nor 'Effect' found in colnames")
   }
@@ -142,7 +146,8 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
     pvals <- .significance.mrw(bootstrap.hits, adjm, r)
     res   <- dplyr::left_join(diffuse.data$frame, pvals, by="GeneSymbol")
   }
-  else {
+  else
+  {
     res  <- diffuse.data$frame
   }
   li  <- list(diffusion=dplyr::select(res, GeneSymbol, Effect, DiffusionEffect),
@@ -208,7 +213,7 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
 #' @noRd
 #' @import data.table igraph
 #' @importFrom dplyr filter mutate
-.knn <- function(hits, loocv.hits, adjm, node.start.count, search.depth, graph)
+.knn <- function(hits, bootstrap.hits, adjm, node.start.count, search.depth, graph)
 {
   # TODO diff on loocv.hits
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
@@ -216,18 +221,30 @@ diffuse.data.table <- function(obj, method=c("neighbors", "mrw"),
     as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
     as.matrix(diffuse.data$adjm), search.depth)
   res <- diffuse.data$frame
-  names(neighs) <- filter(diffuse.data$frame, Idx %in% as.integer(names(neighs)))$GeneSymbol
 
+  names(neighs) <- (diffuse.data$frame %>%
+    dplyr::filter(Idx %in% as.integer(names(neighs))))$GeneSymbol
+  # Add the effects of the neighbors
   neighs <- lapply(neighs, function(e) {
     dplyr::left_join(data.table(Idx=e), res, by="Idx") %>%
       dplyr::select(GeneSymbol, Effect)}
   )
+
   flat.dat <- do.call(
     "rbind",
     lapply(1:length(neighs),
-           function(e) data.table(Start=names(neighs)[e], neighs[[e]])))
+           function(e) data.table(Start=names(neighs)[e], neighs[[e]]))
+  )
 
-  li <- list(data=res, neighbors=flat.dat, graph=graph)
+  genes.found <- dplyr::select(flat.dat, Start, GeneSymbol) %>%
+    unlist %>% unname %>% unique
+  genes.f.table <- data.table::data.table(GeneSymbol=genes.found) %>%
+    dplyr::left_join(res, by="GeneSymbol")
+
+  li <- list(data=res,
+             neighbors=flat.dat,
+             graph=graph,
+             genes.found=genes.f.table)
   class(li) <- c("svd.diffused.knn", "svd.diffused")
   return(li)
 }
