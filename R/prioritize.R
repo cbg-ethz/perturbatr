@@ -76,10 +76,10 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 .select.hits.tt <- function(obj, ...)
 {
   # TODO here: what do do with multiple sirnas? same hit criterion as in hyper
-  params <- list(...)
-  hit.rat <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
-  read.thresh <- ifelse(methods::hasArg(readout.threshold),
-                        params$readout.threshold, 0.0)
+  params       <- list(...)
+  hit.rat      <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
+  read.thresh  <- ifelse(methods::hasArg(readout.threshold),
+                         params$readout.threshold, 0.0)
   p.val.thresh <- ifelse(methods::hasArg(p.value.threshold),
                          params$p.value.threshold, 0.05)
   message(paste("Prioritizing on hit.ratio ", hit.rat,
@@ -98,7 +98,7 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                     GeneSymbol, Entrez) %>%
     # TODO this should be as in hyper. the means dont make sense here
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
-                     PvalRatio  = (sum(Pval     <= 0.05, na.rm=T)/n()),
+                     PvalRatio  = (sum(Pval <= p.val.thresh, na.rm=T)/n()),
                      QvalRatio  = (sum(Qval <= 0.2, na.rm=T)/n()),
                      MeanEffect = mean(Readout, na.rm=T),
                      MaxEffect  = max(Readout, na.rm=T),
@@ -116,8 +116,8 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
 .select.hits.hyper <- function(obj, ...)
 {
   # TODO add variable pval and qval
-  params <- list(...)
-  hit.rat        <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
+  params  <- list(...)
+  hit.rat <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
 
   message(paste("Prioritizing on hit.ratio ", hit.rat, sep=""))
   res <- dplyr::group_by(obj, Virus, Screen, Library,
@@ -125,8 +125,8 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
                          Design, Cell,
                          GeneSymbol, Entrez) %>%
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
-                     PvalRatio  = (sum(Pval  <= 0.05, na.rm=T)/n()),
-                     QvalRatio  = (sum(Qval  <= 0.2, na.rm=T)/n()),
+                     PvalRatio  = (sum(Pval  <= p.val.thresh, na.rm=T)/n()),
+                     QvalRatio  = (sum(Qval  <= fdr.thresh, na.rm=T)/n()),
                      MeanEffect = mean(Readout,na.rm=T),
                      MaxEffect  = max(Readout, na.rm=T),
                      MinEffect  = min(Readout, na.rm=T),
