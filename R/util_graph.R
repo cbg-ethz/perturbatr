@@ -67,19 +67,3 @@
   assertthat::assert_that(all(ret >= 0) & all(!is.nan(ret@x)))
   invisible(ret)
 }
-
-#' Get the neighbors of a node including all edges between them
-#'
-#' @param gene  the gene for which the neighborhood is searched
-#' @param graph  the graph
-#' @import igraph
-.induced.subgraph <- function(gene, graph)
-{
-  stop("not yet imlemented")
-  fr  <- t(apply(edge.list, 1, function(e) sort(e)))
-
-  edge.list <- igraph::get.edgelist(graph)
-  idxs <- edge.list[,1] == gene | edge.list[,2] == gene
-  genes <- edge.list[idxs, ]
-  genes
-}

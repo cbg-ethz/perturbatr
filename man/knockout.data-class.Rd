@@ -6,11 +6,12 @@
 \alias{knockout.data}
 \title{Data wrapper for knockout data}
 \description{
-Data wrapper for knockout data
+Class \code{knockout.data} is a wrapper for a \code{data.table} object
+containing the knockout data
 }
 \section{Slots}{
 
 \describe{
-\item{\code{data}}{the RNAi data-set}
+\item{\code{.data}}{the knockout data-set}
 }}
 

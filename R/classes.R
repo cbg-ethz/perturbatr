@@ -20,7 +20,10 @@
 
 #' Data wrapper for knockout data
 #'
-#' @slot data the RNAi data-set
+#' Class \code{knockout.data} is a wrapper for a \code{data.table} object
+#' containing the knockout data
+#'
+#' @slot .data the knockout data-set
 knockout.data <- setClass(
   "knockout.data",
   slots     = list(.data="data.table"),
@@ -33,14 +36,18 @@ knockout.data <- setClass(
              "Cell", "ScreenType", "Design",
              "Entrez", "Readout"))
     if (any(sort(colnames(object@.data)) != cls))
-      stop(paste0("Your data needs to have the following colnames:\n", paste0(cls, collapse=", ")))
+      stop(paste0("Your data needs to have the following colnames:\n",
+                  paste0(cls, collapse=", ")))
     return (TRUE)
   }
 )
 
-#' Data wrapper for knockout data
+#' Data wrapper for unnormalized knockout data
 #'
-#' @slot data the raw unnormalized RNAi data-set
+#' Class \code{knockout.data.raw} is a wrapper for a \code{data.table} object
+#' containing the unnormalized knockout data
+#'
+#' @slot .data the unnormalized knockout data-set
 knockout.data.raw <- setClass(
   "knockout.data.raw",
   slots     = list(.data="data.table"),
@@ -53,7 +60,8 @@ knockout.data.raw <- setClass(
                   "Cell", "ScreenType", "Design",
                   "Entrez", "Readout", "NumCells"))
     if (any(sort(colnames(object@.data)) != cls))
-      stop(paste0("Your data needs to have the following colnames:\n", paste0(cls, collapse=", ")))
+      stop(paste0("Your data needs to have the following colnames:\n",
+                  paste0(cls, collapse=", ")))
     return (TRUE)
   }
 )

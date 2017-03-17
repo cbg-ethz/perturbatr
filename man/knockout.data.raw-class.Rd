@@ -4,13 +4,14 @@
 \name{knockout.data.raw-class}
 \alias{knockout.data.raw-class}
 \alias{knockout.data.raw}
-\title{Data wrapper for knockout data}
+\title{Data wrapper for unnormalized knockout data}
 \description{
-Data wrapper for knockout data
+Class \code{knockout.data.raw} is a wrapper for a \code{data.table} object
+containing the unnormalized knockout data
 }
 \section{Slots}{
 
 \describe{
-\item{\code{data}}{the raw unnormalized RNAi data-set}
+\item{\code{.data}}{the unnormalized knockout data-set}
 }}
 
