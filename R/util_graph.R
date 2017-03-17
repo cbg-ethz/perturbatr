@@ -22,10 +22,10 @@
 #' @importFrom utils read.csv
 .read.graph <- function(path, graph)
 {
-  if (all(is.null(c(path, graph)))) {
+  if (all(is.null(c(path, graph))))
+  {
     stop("Please provide either a graph or the file-to a graph!")
   }
-
   if (!is.null(path))
   {
     if (!file.exists(path)) stop("'path' does not exist!")
@@ -46,24 +46,4 @@
     stop("Something went wrong with graph-reading.")
   }
   gra
-}
-
-#' @noRd
-#' @import Matrix
-#' @importFrom assertthat assert_that
-.stoch.col.norm <- function(m)
-{
-  col.sums  <- Matrix::colSums(m)
-  zero.cols <- Matrix::which(col.sums == 0)
-  if (length(zero.cols) != 0)
-  {
-    m[,zero.cols]       <- 1
-    col.sums[zero.cols] <- nrow(m)
-  }
-  ret <- sweep(m, 2L, col.sums, "/", check.margin = FALSE)
-  ret.col.sums <- unname(Matrix::colSums(ret))
-  assertthat::assert_that(all(ret.col.sums <= 1.001))
-  assertthat::assert_that(all(ret.col.sums >= 0.999))
-  assertthat::assert_that(all(ret >= 0) & all(!is.nan(ret@x)))
-  invisible(ret)
 }
