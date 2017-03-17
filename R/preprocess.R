@@ -21,17 +21,18 @@
 #' @include classes.R
 
 
-#' Pre-processing routine for data normalization, summarization and removal
+#' @title Pre-processing routine for data normalization, summarization and removal
 #' of low viability siRNAs.
 #'
 #' @description \code{preproces} normalizes the data for comparable phenotypes.
 #' TODO
 #'
 #' @export
-#'
 #' @import data.table
+#' @docType methods
+#' @rdname preprocess-methods
 #'
-#' @param obj  the data.table to be analysed
+#' @param obj  the object to be normalized
 #' @param normalize  a vector with normalization methods
 #' \itemize{
 #'  \item{\emph{log} }{ does a log transformation}
@@ -54,11 +55,14 @@
 #'  testet (e.g. \emph{Scrambled} or \emph{PIK3CA}), etc.
 #' @param rm.outlier.wells  remove wells that have a extreme number of cells
 #'  (outliers), e.g. by taking quantiles or absolute numbers
-#' @param z.score.level
-#' @param z.score.mu
-#' @param poc.ctrl
-#' @param background.row
-#' @param background.column
+#' @param z.score.level  if z-scores are used for normalisation, choose either
+#'   'plate' or 'control' to calculate statistics for
+#' @param z.score.mu  the gene you want to compare to, e.g. 'scrambled', 'tp53'
+#' @param poc.ctrl  the control used for poc-normalization, e.g. 'scrambled'
+#' @param background.row  index of the row to correct backgorund against
+#' @param background.column  index of column to correct backgorund against
+#' @param outlier.well.range outlier cells will be removed based on this range
+#' @param summarization  method of how to summarize screens (needed where? :/)
 #' @param drop  boolean if rows that are not needed should be dropped or
 #'   kept (e.g. if you want to check whether all worked out correctly)
 setGeneric(
@@ -82,9 +86,10 @@ setGeneric(
   package="knockout"
 )
 
-#' @name preprocess-methods
+
 #' @rdname preprocess-methods
-#' @export
+#' @aliases preprocess,knockout.data.raw-method
+#'
 #' @import data.table
 #' @importFrom tidyr spread
 #' @importFrom methods hasArg new
