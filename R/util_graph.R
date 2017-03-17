@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' @noRd
-#' @import igraph
+#' @importFrom igraph graph_from_adjacency_matrix graph.data.frame
 #' @importFrom utils read.csv
 .read.graph <- function(path, graph)
 {
@@ -39,7 +40,8 @@
   }
   else if(!is.null(graph))
   {
-    gra <- graph_from_adjacency_matrix(graph, weighted=T, mode="undirected")
+    gra <- igraph::graph_from_adjacency_matrix(
+      graph, weighted=T, mode="undirected")
   }
   else
   {
