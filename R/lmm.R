@@ -17,23 +17,32 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' @include classes.R
 
-#' Fit an LMM to the data and calculate local false discovery rates.
+#' @include class-knockout_data.R
+
+
+#' @title Fit an LMM to the data and calculate local false discovery rates.
+#'
+#' @description \code{lmm} TODO
 #'
 #' @export
+#' @docType methods
+#' @rdname lmm-methods
 #'
 #' @import data.table
 #'
 #' @param obj  an svd.data object
-#' @param drop  boolean flag if all entries should be dropped that are not found in every virus
+#' @param drop  boolean flag if all entries should be dropped that are not
+#'  found in every virus
 #' @param weights a list of weights
-#' @param rel.mat.path  the (optional) path to a target relation matrix that is going to be used for
-#' @param bootstrap.cnt  the number of loocv runs you want to do in order to estimate a significance level for the gene effects
+#' @param rel.mat.path  the (optional) path to a target relation matrix that is
+#'  going to be used for
+#' @param bootstrap.cnt  the number of loocv runs you want to do in order to
+#'  estimate a significance level for the gene effects
 #' @param ignore  ignore siRNAs that have been seen only once per group
 #' @param ...  additional parameters
 setGeneric(
-  "preprocess",
+  "lmm",
   function(obj,
            drop=T,
            weights=NULL,
@@ -41,40 +50,55 @@ setGeneric(
            bootstrap.cnt=F,
            ignore=1, ...)
   {
-    standardGeneric("preprocess")
+    standardGeneric("lmm")
   },
   package="knockout"
 )
 
-#' @export
+#' @rdname lmm-methods
+#' @aliases lmm,knockout.data-method
 #' @import data.table
-#' @method lmm svd.data
-lmm.svd.data <- function(obj, drop=T,
-                         weights=NULL, rel.mat.path=NULL,
-                         bootstrap.cnt=F, ignore=1, ...)
-{
-  res  <- .lmm.svd.data(obj, drop,
-                        weights, rel.mat.path, bootstrap.cnt, ignore, ...)
-  class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
-  invisible(res)
-}
+setMethod(
+  "lmm",
+  signature = signature(obj="knockout.data"),
+  function(obj,
+           drop=T,
+           weights=NULL,
+           rel.mat.path=NULL,
+           bootstrap.cnt=F,
+           ignore=1,
+           ...)
+  {
+    res  <- .lmm.knockout.data(obj, drop, weights,
+                               rel.mat.path, bootstrap.cnt, ignore, ...)
+    class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
+    res
+  }
+)
 
-#' @export
+#' @rdname lmm-methods
+#' @aliases lmm,knockout.lmm.data-method
 #' @import data.table
-#' @method lmm svd.lmm.model.data
-lmm.svd.lmm.model.data <- function(obj, drop=T,
-                                   weights=NULL, rel.mat.path=NULL,
-                                   bootstrap.cnt=F, ignore=1, ...)
-{
-  res <- .lmm.model.data(obj, bootstrap.cnt)
-  class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
-  invisible(res)
-}
+setMethod(
+  "lmm",
+  signature = signature(obj="knockout.lmm.data"),
+  function(obj,
+           drop=T,
+           weights=NULL,
+           rel.mat.path=NULL,
+           bootstrap.cnt=F,
+           ignore=1,
+           ...)
+  {
+    res <- .lmm.model.data(obj, bootstrap.cnt)
+    class(res) <- c("svd.analysed.pmm","svd.analysed", class(res))
+    res
+  }
+)
 
 #' @noRd
 #' @import data.table
-#' @importFrom methods hasArg
-.lmm.svd.data <- function(obj, drop,
+.lmm.knockout.data <- function(obj, drop,
                           weights=NULL, rel.mat.path=NULL,
                           bootstrap.cnt, ignore, ...)
 {
@@ -92,7 +116,7 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   {
     stop("Please use at least 10 bootstrap runs (better 100/1000).")
   }
-    # save gene control mappings
+  # save gene control mappings
   gene.control.map <-
     dplyr::select(md, GeneSymbol, Control) %>%
     unique %>%
@@ -134,31 +158,6 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
   ret
 }
 
-
-
-
-
-#' @noRd
-#' @importFrom assertthat assert_that
-.weights <- function(obj, weights, rel.mat.path)
-{
-  if (is.null(weights)) return(1)
-  else if (!is.list(weights)) stop("Please give a list argument")
-  els <- names(weights)
-  ret <- rep(1, nrow(obj))
-  for (el in els)
-  {
-    idxs <- switch(el,
-                   "pooled"  =which(obj$Design == "pooled"),
-                   "single"=which(obj$Design == "single"),
-                   stop("Please provide 'single'/'pooled' list names for setting weights"))
-    ret[idxs] <- as.numeric(weights[[el]])
-    message(paste("Setting", length(idxs), el,  "well weights to:", as.numeric(weights[[el]])))
-  }
-  assertthat::assert_that(length(ret) == nrow(obj))
-  ret
-}
-
 #' @noRd
 .init.formula <- function()
 {
@@ -176,51 +175,6 @@ lmm.svd.lmm.model.data <- function(obj, drop=T,
 {
   lme4::lmer(stats::as.formula(.init.formula()),
              data = md, weights = md$Weight, verbose = F)
-}
-
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr mutate select left_join
-#' @importFrom tidyr spread
-#' @importFrom lme4 ranef
-.lmm.significant.hits <- function(model.data, bootstrap.cnt, padj=c("BH", "bonf"))
-{
-  padj <- match.arg(padj)
-  li <- list()
-  i <- 1
-  ctr <- 1
-  mistrial.cnt <- bootstrap.cnt * 10
-  repeat
-  {
-    ctr <- ctr + 1
-    tryCatch({
-      bt.sample <- as.svd.lmm.model.data(bootstrap(model.data))
-      # here use the lmer params
-      lmm.fit <- .lmm(bt.sample)
-      re <- .ranef(lmm.fit)
-      da <- data.table::data.table(bootstrap=paste0("Bootstrap_", sprintf("%03i", i)),
-                                   Effect=re$gene.effects$Effect,
-                                   GeneSymbol=re$gene.effects$GeneSymbol)
-      li[[i]] <- da
-      i <- i + 1
-    }, error=function(e) { print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000 },
-    warning=function(e) { print(e)})
-    if (i > bootstrap.cnt)
-      break
-    if (ctr == mistrial.cnt)
-      stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
-  }
-  flat.dat <- do.call("rbind", lapply(li, function(e) e))
-  # TODO modify that accordingly
-  dat <-  flat.dat %>%
-    dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarise(MeanBootstrap=mean(Effect, na.rm=T),
-                     Pval=.ttest(GeneSymbol, Effect, 0)) %>%
-    ungroup %>%
-    dplyr::mutate(FDR=p.adjust(Pval, method=padj)) %>%
-    .[order(FDR)]
-  dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, bootstrap, Effect), by="GeneSymbol")
-  dat
 }
 
 #' @noRd

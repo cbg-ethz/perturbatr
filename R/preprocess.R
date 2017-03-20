@@ -18,7 +18,7 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include classes.R
+#' @include class-knockout_data.R
 
 
 #' @title Pre-processing routine for data normalization, summarization and removal
@@ -28,9 +28,10 @@
 #' TODO
 #'
 #' @export
-#' @import data.table
 #' @docType methods
 #' @rdname preprocess-methods
+#'
+#' @import data.table
 #'
 #' @param obj  the object to be normalized
 #' @param normalize  a vector with normalization methods

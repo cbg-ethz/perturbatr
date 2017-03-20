@@ -70,3 +70,25 @@ knockout.data.raw <- setClass(
   }
 )
 
+#' Data wrapper for knockout linear mixed model data.
+#'
+#' @rdname knockout_lmm_data-class
+#'
+#' @description Class \code{knockout.lmm.data} is a wrapper the data used by
+#'  LMM.
+#'
+#' @slot .data the knockout data-set
+knockout.lmm.data <- setClass(
+  "knockout.lmm.data",
+  slots     = list(.data="data.table"),
+  validity  = function(object)
+  {
+    cls <- sort(c("Virus", "Entrez",
+                  "GeneSymbol", "Control", "VG", "Weight", "ReadoutType",
+                  "Cell", "ScreenType", "Design", "Readout"))
+    if (any(sort(colnames(object@.data)) != cls))
+      stop(paste0("Your data needs to have the following colnames:\n",
+                  paste0(cls, collapse=", ")))
+    return (TRUE)
+  }
+)
