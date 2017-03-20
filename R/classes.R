@@ -20,7 +20,9 @@
 
 #' Data wrapper for knockout data
 #'
-#' Class \code{knockout.data} is a wrapper for a \code{data.table} object
+#' @rdname knockout_data-class
+#'
+#' @description Class \code{knockout.data} is a wrapper for a \code{data.table} object
 #' containing the knockout data
 #'
 #' @slot .data the knockout data-set
@@ -44,7 +46,9 @@ knockout.data <- setClass(
 
 #' Data wrapper for unnormalized knockout data
 #'
-#' Class \code{knockout.data.raw} is a wrapper for a \code{data.table} object
+#' @rdname knockout_raw_data-class
+#'
+#' @description Class \code{knockout.data.raw} is a wrapper for a \code{data.table} object
 #' containing the unnormalized knockout data
 #'
 #' @slot .data the unnormalized knockout data-set

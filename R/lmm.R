@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+#' @include classes.R
 
 #' Fit an LMM to the data and calculate local false discovery rates.
 #'
@@ -31,12 +32,19 @@
 #' @param bootstrap.cnt  the number of loocv runs you want to do in order to estimate a significance level for the gene effects
 #' @param ignore  ignore siRNAs that have been seen only once per group
 #' @param ...  additional parameters
-lmm <- function(obj, drop=T,
-                weights=NULL, rel.mat.path=NULL,
-                bootstrap.cnt=F, ignore=1, ...)
-{
-  UseMethod("lmm")
-}
+setGeneric(
+  "preprocess",
+  function(obj,
+           drop=T,
+           weights=NULL,
+           rel.mat.path=NULL,
+           bootstrap.cnt=F,
+           ignore=1, ...)
+  {
+    standardGeneric("preprocess")
+  },
+  package="knockout"
+)
 
 #' @export
 #' @import data.table
