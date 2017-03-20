@@ -97,7 +97,7 @@ setGeneric(
 #' @importFrom dplyr group_by mutate filter select
 setMethod(
   "preprocess",
-  signature = signature(obj="knockout.data.raw"),
+  signature = signature(obj="svd.raw"),
   function(obj,
           normalize          = c("log", "robust-z.score"),
           normalize.viability= F,
@@ -130,8 +130,8 @@ setMethod(
     res <- .drop(res, drop)
     res <- data.table::as.data.table(res)
 
-    ret <- new("knockout.data", .data=res)
-    ret
+    class(res) <- c("svd.data", class(res))
+    res
   }
 )
 
