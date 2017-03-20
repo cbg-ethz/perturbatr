@@ -1,12 +1,18 @@
 language: r
+r: bioc-develi
 
 sudo: false
 
 cache: packages
 
+is:
+  - osx
+  - linux
+
 r_packages:
   - covr
   - testthat
+  - lintr
 
 bioc_packages:
   - limma
@@ -16,8 +22,7 @@ bioc_packages:
   - GOstats
   - org.Hs.eg.db
   - RankAggreg
-  
-r_github_packages: dirmeier/diffusr
+  - BiocCheck
 
 env:
   global:
@@ -26,3 +31,5 @@ env:
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
+  - Rscript -e 'lintr::lint_package()'
+  - R CMD BiocCheck $PKG_TARBALL
