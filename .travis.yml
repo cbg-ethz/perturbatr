@@ -1,5 +1,5 @@
 language: r
-r: bioc-develi
+r: bioc-devel
 
 sudo: false
 

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by
@@ -49,13 +50,14 @@
     loessed.readout <- readout
   }
   else
-  {  tryCatch({
-    res <- stats::lowess(n.cells[good.idxs], readout[good.idxs])
-    loessed.readout[good.idxs] <-
-      readout[good.idxs] - res$y[sorted.n.cells.idx$ix] },
-    warning = function(war) { message(paste("WARNING: ", war, "\n")); },
-    error = function(err)   { message(paste("ERROR: ", err,  "\n")); }
-  )
+  {
+    tryCatch({
+      res <- stats::lowess(n.cells[good.idxs], readout[good.idxs])
+      loessed.readout[good.idxs] <-
+        readout[good.idxs] - res$y[sorted.n.cells.idx$ix] },
+      warning = function(war) { message(paste("WARNING: ", war, "\n")); },
+      error = function(err)   { message(paste("ERROR: ", err,  "\n")); }
+    )
   }
   if (all(is.na(loessed.readout))) loessed.readout <- readout
   invisible(loessed.readout)

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by mutate filter select
@@ -27,7 +28,7 @@
     message(paste0("Removing un-viable genes by comparing to ",
                   rm.cytotoxic, " viability."))
     message(paste0("\tUsing t-test with mu=85*mean(viability(",
-                  rm.cytotoxic ,")) and alternative=less"))
+                  rm.cytotoxic, ")) and alternative=less"))
     obj <-
       dplyr::group_by(obj, Virus, Screen, Library,
                       ScreenType, ReadoutType,
@@ -38,13 +39,12 @@
                                           Plate, RowIdx, ColIdx,
                                           rm.cytotoxic)) %>%
       ungroup
-    # %>%
-    #   dplyr::filter(Remove==F)
   }
   invisible(obj)
 }
 
-#' Summarize the sirna readouts and then decide whether sirnas should be removed from the analysis.
+#' Summarize the sirna readouts and then decide whether sirnas should be
+#'  removed from the analysis.
 #'
 #' @noRd
 #'
@@ -58,8 +58,9 @@
 {
   # against which gene should viability be compared
   comp.to <- tolower(comp.to)
-  genes <- tolower(genes)
-  remarr <- rep(F, length(re))
+  genes   <- tolower(genes)
+  remarr  <- rep(F, length(re))
+
   if (!all(is.na(val)))
   {
     cont.idx <- which(ctrl == -1 & genes == comp.to)

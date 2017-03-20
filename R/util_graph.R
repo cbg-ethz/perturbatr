@@ -19,8 +19,8 @@
 
 
 #' @noRd
-#' @importFrom igraph graph_from_adjacency_matrix graph.data.frame
 #' @importFrom utils read.csv
+#' @importFrom igraph graph_from_adjacency_matrix graph.data.frame
 .read.graph <- function(path, graph)
 {
   if (all(is.null(c(path, graph))))

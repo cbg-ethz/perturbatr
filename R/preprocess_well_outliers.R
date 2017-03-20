@@ -32,7 +32,7 @@
 {
   switch(rm.outlier.wells,
          "quantile" = .rm.wells.quantile(obj, outlier.well.range),
-         "absolute" = stop("not yey implmenented"),
+         "absolute" = stop("not yet implmenented"),
          stop("Wrong flag."))
 }
 
@@ -45,15 +45,14 @@
   obj <- dplyr::group_by(obj, Virus, Screen, Library,
                          ScreenType, ReadoutType, ReadoutClass,
                          Cell, Design) %>%
-    dplyr::mutate(
-      Readout=.rm.wells.quantile.screen(Readout, NumCells, probs)) %>%
+    dplyr::mutate(Readout=.rmwqs(Readout, NumCells, probs)) %>%
     ungroup
   obj
 }
 
 #' @noRd
 #' @importFrom stats quantile
-.rm.wells.quantile.screen <- function(read, num, probs)
+.rmwqs <- function(read, num, probs)
 {
   re <- read
   if (!all(is.na(num)))
@@ -64,4 +63,3 @@
   }
   re
 }
-
