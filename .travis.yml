@@ -1,11 +1,11 @@
 language: r
-r: bioc-devel
+r: bioc-release
 
 sudo: false
 
 cache: packages
 
-is:
+os:
   - osx
   - linux
 
@@ -17,7 +17,6 @@ r_packages:
 bioc_packages:
   - limma
   - gespeR
-  - pmm
   - AnnotationDbi
   - GOstats
   - org.Hs.eg.db
