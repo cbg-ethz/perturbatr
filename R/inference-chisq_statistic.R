@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' Calculate statistics based on the chi-square-distribution to analyse the data.
+#' Calculate statistics based on the chi-square-distribution to analyse the
+#'  data.
 #'
 #' For this you should use a standardization before.
 #'
@@ -38,12 +39,12 @@ chisq.statistic <- function(obj, padjust=c("BH", "bonferroni"), ...)
 chisq.statistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"), ...)
 {
   warning("this is a protoype. limited usability")
+  stopifnot(length(maha) == nrow(obj))
+  stopifnot(length(pvals) == nrow(obj))
   padjust <- match.arg(padjust)
-  maha  <- .mahalanobis(obj$Readout)
-  pvals <- .chisq(maha)
-  if (length(maha)  != nrow(obj)) stop("length(mahalanobis distance) != nrow(obj)")
-  if (length(pvals) != nrow(obj)) stop("length(pvals) != nrow(obj)")
-  ret <- obj
+  maha    <- .mahalanobis(obj$Readout)
+  pvals   <- .chisq(maha)
+  ret     <- obj
   data.table::setDT(ret)[, Pval := pvals]
   data.table::setDT(ret)[, Qval := p.adjust(pvals, method=padjust)]
   class(ret) <- c("svd.analysed.chisq", class(ret))
