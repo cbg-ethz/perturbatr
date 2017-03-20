@@ -11,11 +11,12 @@
 .gitignore
 .Rproj.user
 \.tar.gz$
-README.md
-VERSIONS.md
+README.md$
+VERSIONS.md$
 LICENSE
 knockout.Rproj
 .travis.yml
 .lintr
 
 ^appveyor\.yml$
+^codecov\.yml$

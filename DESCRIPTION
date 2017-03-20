@@ -39,7 +39,8 @@ Imports: dplyr,
     methods,
     diffusr
 biocViews: geneticperturbation
-Suggests: testthat,
+Suggests: 
+    testthat,
     lintr,
     knitr,
     rmarkdown
