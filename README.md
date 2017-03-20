@@ -2,6 +2,7 @@
 
 [![Project Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Build Status](https://travis-ci.org/dirmeier/knockout.svg?branch=master)](https://travis-ci.org/dirmeier/knockout)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/dirmeier/knockout?branch=master&svg=true)](https://ci.appveyor.com/project/dirmeier/knockout)
 [![codecov](https://codecov.io/gh/dirmeier/knockout/branch/master/graph/badge.svg)](https://codecov.io/gh/dirmeier/knockout)
 
 Analysis of high-throughput gene perturbation screens in R.
