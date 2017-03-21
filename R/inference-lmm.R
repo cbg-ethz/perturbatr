@@ -60,7 +60,7 @@ setGeneric(
 #' @import data.table
 setMethod(
   "lmm",
-  signature = signature(obj="knockout.data"),
+  signature = signature(obj="svd.data"),
   function(obj,
            drop=T,
            weights=NULL,

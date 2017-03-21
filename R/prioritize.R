@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Select hits from an analyzed data set
 #'
 #' @export
@@ -118,7 +119,8 @@ prioritize.svd.analysed.pmm <- function(obj, ...)
   # TODO add variable pval and qval
   params  <- list(...)
   hit.rat <- ifelse(methods::hasArg(hit.ratio), params$hit.ratio, 0.5)
-
+  p.val.thresh <- ifelse(methods::hasArg(p.val.thresh), params$p.val.thresh, 0.05)
+  fdr.thresh   <- ifelse(methods::hasArg(fdr.thresh), params$fdr.thresh, 0.2)
   message(paste("Prioritizing on hit.ratio ", hit.rat, sep=""))
   res <- dplyr::group_by(obj, Virus, Screen, Library,
                          ScreenType, ReadoutType,

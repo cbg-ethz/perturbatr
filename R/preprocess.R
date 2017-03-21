@@ -118,10 +118,10 @@ setMethod(
     summarization    <- match.arg(summarization)
     stopifnot(is.logical(drop))
     stopifnot(is.logical(normalize.viability))
-
+    res <- obj
     # do outlier removal based on cell numbers
     if (rm.outlier.wells != "none")
-      res <- .remove.outliers(obj, rm.outlier.wells, outlier.well.range)
+      res <- .remove.outliers(res, rm.outlier.wells, outlier.well.range)
     # do normalization
     res <- .normalize(res, normalize, normalize.viability)
 
