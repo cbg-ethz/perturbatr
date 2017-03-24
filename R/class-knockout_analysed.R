@@ -28,25 +28,16 @@
 #' @slot .data the knockout data-set
 knockout.data <- setClass(
   "knockout.data",
-  slots     = list(.data="data.table", .type="character"),
+  slots     = list(.data="data.table",
+                   .type="character"),
   validity  = function(object)
   {
-    if (object@.type == .data.types()$NORMALIZED |
-        object@.type == .data.types()$RAW)
-    {
-      cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
-                    "GeneSymbol", "ReadoutType", "Control", "Library",
-                    "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
-                    "Entrez", "Readout")
-    }
-    else if (object@.type == .data.types()$RAW)
-    {
-      cls <- c(cls, c("ReadoutClass", "NumCells"))
-    }
-    else stop(paste0("Use one of either ",
-                     paste0(.data.types(), collapse="/"),
-                     " as data-type."))
-    cls <- sort(cls)
+    cls <- sort(c("Virus", "Replicate", "Plate",
+                  "RowIdx", "ColIdx",
+                  "GeneSymbol", "ReadoutType", "Control",
+                  "Library", "siRNAIDs", "Screen",
+                  "Cell", "ScreenType", "Design",
+                  "Entrez", "Readout"))
     if (any(sort(colnames(object@.data)) != cls))
       stop(paste0("Your data needs to have the following colnames:\n",
                   paste0(cls, collapse=", ")))
@@ -54,24 +45,29 @@ knockout.data <- setClass(
   }
 )
 
-#' Data wrapper for knockout linear mixed model data.
+#' Data wrapper for unnormalized knockout data
 #'
-#' @rdname knockout_lmm_data-class
+#' @rdname knockout_raw_data-class
 #'
-#' @description Class \code{knockout.lmm.data} is a wrapper the data used by
-#'  LMM.
+#' @description Class \code{knockout.data.raw} is a wrapper for a \code{data.table} object
+#' containing the unnormalized knockout data
 #'
-#' @slot .data the knockout data-set
-knockout.lmm.data <- setClass(
-  "knockout.lmm.data",
+#' @slot .data the unnormalized knockout data-set
+knockout.data.raw <- setClass(
+  "knockout.data.raw",
   slots     = list(.data="data.table"),
   validity  = function(object)
   {
-    cls <- sort(c("Virus", "Entrez", "GeneSymbol", "Control", "VG", "Weight",
-                  "ReadoutType", "Cell", "ScreenType", "Design", "Readout"))
+    cls <- sort(c("Virus", "Replicate", "Plate",
+                  "RowIdx", "ColIdx",
+                  "GeneSymbol", "ReadoutClass", "ReadoutType", "Control",
+                  "Library", "siRNAIDs", "Screen",
+                  "Cell", "ScreenType", "Design",
+                  "Entrez", "Readout", "NumCells"))
     if (any(sort(colnames(object@.data)) != cls))
       stop(paste0("Your data needs to have the following colnames:\n",
                   paste0(cls, collapse=", ")))
     return (TRUE)
   }
 )
+
