@@ -97,7 +97,7 @@ setGeneric(
 #' @importFrom dplyr group_by mutate filter select
 setMethod(
   "preprocess",
-  signature = signature(obj="svd.raw"),
+  signature = signature(obj="knockout.data"),
   function(obj,
           normalize          = c("log", "robust-z.score"),
           normalize.viability= F,
@@ -112,26 +112,29 @@ setMethod(
           summarization      = c("mean", "median"),
           drop               = T)
   {
+    if(obj@.type != .data.types()$RAW) stop("Data is already normalized.")
+
+    res <- obj@.data
+
+    stopifnot(is.logical(drop))
+    stopifnot(is.logical(normalize.viability))
 
     rm.outlier.wells <- match.arg(rm.outlier.wells)
     z.score.level    <- match.arg(z.score.level)
     summarization    <- match.arg(summarization)
-    stopifnot(is.logical(drop))
-    stopifnot(is.logical(normalize.viability))
-    res <- obj
+
     # do outlier removal based on cell numbers
     if (rm.outlier.wells != "none")
       res <- .remove.outliers(res, rm.outlier.wells, outlier.well.range)
     # do normalization
-    res <- .normalize(res, normalize, normalize.viability)
+    res   <- .normalize(res, normalize, normalize.viability)
 
     # remove outliers based on cytotoxicity
     res <- .rm.cytotoxic(res, rm.cytotoxic)
     res <- .drop(res, drop)
     res <- data.table::as.data.table(res)
 
-    class(res) <- c("svd.data", class(res))
-    res
+    new("knockout.data", .data=res, .type="normalized")
   }
 )
 

@@ -46,7 +46,7 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'class-knockout_analysed.R'
     'class-knockout_data.R'
     'data.R'
@@ -61,6 +61,8 @@ Collate:
     'inference-ora.R'
     'inference-tstatistic.R'
     'knockout-package.R'
+    'methods-combine.R'
+    'methods-filter.R'
     'plot-analysed.R'
     'plot-data.R'
     'plot-diffusion.R'
@@ -95,7 +97,6 @@ Collate:
     'util-correlation.R'
     'util-effect_matrix.R'
     'util-enums.R'
-    'util-filter.R'
     'util-plates.R'
     'util-quality.R'
     'util-rank.R'

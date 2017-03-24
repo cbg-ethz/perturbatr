@@ -20,17 +20,16 @@
 
 #' @aliases rbind,knockout.data-method
 #' @import data.table
-#' @importFrom dplyr select as.tibble
 setMethod(
-  "show",
+  "rbind",
   "knockout.data",
-  function(object)
+  function(...)
   {
-    cat(paste0("A '", object@.type, "' knockout data-set\n\n"))
-    object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
-      dplyr::select(Virus, GeneSymbol, Readout, Library,
-                    ReadoutType, Screen, Cell, ScreenType, Design) %>%
-      print
-
+    args  <- list(...)
+    if (length(args) < 2) return(args[[1]])
+    types <- unlist(lapply(args, function(e) e@.type))
+    if(all(types == types[1])) stop("Data-types do not agree")
+    dat   <- data.table::rbindlist(lapply(args, function(e) e@.data))
+    new("knockout.data", .data=dat, .type=types[1])
   }
 )

@@ -23,9 +23,7 @@
 #' @description \code{lmm} TODO
 #'
 #' @export
-#' @docType methods
 #' @rdname filter-methods
-#'
 #' @import data.table
 #'
 #' @param obj  the object to be filtered
@@ -39,7 +37,6 @@ filter <- function(obj, ...) UseMethod("filter")
 #' @importFrom lazyeval lazy_dots
 filter.knockout.data <- function(obj, ...)
 {
-    filt.dat <- dplyr::filter_(obj@.data, .dots = lazyeval::lazy_dots(...))
-    new("knockout.data", .data=filt.dat, .type=obj@.type)
+  filt.dat <- dplyr::filter_(obj@.data, .dots = lazyeval::lazy_dots(...))
+  new("knockout.data", .data=filt.dat, .type=obj@.type)
 }
-
