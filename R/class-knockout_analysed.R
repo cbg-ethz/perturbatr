@@ -20,18 +20,34 @@
 
 #' Data wrapper for knockout data
 #'
-#' @rdname knockout_data-class
+#' @rdname knockout_analysed-class
 #'
-#' @description Class \code{knockout.data} is a wrapper for a \code{data.table} object
+#' @description Class \code{knockout.data} is a wrapper for a
+#'   \code{data.table} object
 #' containing the knockout data
 #'
 #' @slot .data the knockout data-set
-knockout.data <- setClass(
-  "knockout.data",
+knockout.analysed <- setClass(
+  "knockout.analysed",
   slots     = list(.data="data.table",
-                   .type="character"),
+                   .inference="character"),
   validity  = function(object)
   {
+    if (object@.inference == .inference.types()$MIXED.MODEL)
+    {
+
+    }
+    else if (object@.inference == .inference.types()$HYPERGEOMETRIC.TEST)
+    {
+
+    }
+    else if (object@.inference == .inference.types()$T.TEST)
+    {
+
+    }
+    else stop(paste0("Use one of either ",
+                     paste0(.data.types(), collapse="/"),
+                     " as data-type."))
     cls <- sort(c("Virus", "Replicate", "Plate",
                   "RowIdx", "ColIdx",
                   "GeneSymbol", "ReadoutType", "Control",
@@ -44,30 +60,3 @@ knockout.data <- setClass(
     return (TRUE)
   }
 )
-
-#' Data wrapper for unnormalized knockout data
-#'
-#' @rdname knockout_raw_data-class
-#'
-#' @description Class \code{knockout.data.raw} is a wrapper for a \code{data.table} object
-#' containing the unnormalized knockout data
-#'
-#' @slot .data the unnormalized knockout data-set
-knockout.data.raw <- setClass(
-  "knockout.data.raw",
-  slots     = list(.data="data.table"),
-  validity  = function(object)
-  {
-    cls <- sort(c("Virus", "Replicate", "Plate",
-                  "RowIdx", "ColIdx",
-                  "GeneSymbol", "ReadoutClass", "ReadoutType", "Control",
-                  "Library", "siRNAIDs", "Screen",
-                  "Cell", "ScreenType", "Design",
-                  "Entrez", "Readout", "NumCells"))
-    if (any(sort(colnames(object@.data)) != cls))
-      stop(paste0("Your data needs to have the following colnames:\n",
-                  paste0(cls, collapse=", ")))
-    return (TRUE)
-  }
-)
-

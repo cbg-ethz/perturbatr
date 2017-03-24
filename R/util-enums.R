@@ -20,3 +20,8 @@
 
 #' @noRd
 .data.types <- function() list(RAW="raw", NORMALIZED="normalized")
+
+#' @noRd
+.inference.types <- function() list(MIXED.MODEL="mixed.model",
+                                    HYPERGEOMETRIC.TEST="hypergeometric.test",
+                                    T.TEST="t.test")
