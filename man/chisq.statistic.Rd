@@ -2,7 +2,8 @@
 % Please edit documentation in R/inference-chisq_statistic.R
 \name{chisq.statistic}
 \alias{chisq.statistic}
-\title{Calculate statistics based on the chi-square-distribution to analyse the data.}
+\title{Calculate statistics based on the chi-square-distribution to analyse the
+ data.}
 \usage{
 chisq.statistic(obj, padjust = c("BH", "bonferroni"), ...)
 }

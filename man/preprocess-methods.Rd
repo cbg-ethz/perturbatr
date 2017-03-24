@@ -3,6 +3,7 @@
 \docType{methods}
 \name{preprocess}
 \alias{preprocess}
+\alias{preprocess,svd.raw-method}
 \alias{preprocess,knockout.data.raw-method}
 \title{Pre-processing routine for data normalization, summarization and removal
 of low viability siRNAs.}
@@ -15,8 +16,8 @@ preprocess(obj, normalize = c("log", "robust-z.score"),
   outlier.well.range = c(0.05, 0.95), summarization = c("mean", "median"),
   drop = T)
 
-\S4method{preprocess}{knockout.data.raw}(obj, normalize = c("log",
-  "robust-z.score"), normalize.viability = F, rm.cytotoxic = NULL,
+\S4method{preprocess}{svd.raw}(obj, normalize = c("log", "robust-z.score"),
+  normalize.viability = F, rm.cytotoxic = NULL,
   rm.outlier.wells = c("none", "quantile", "absolute"),
   z.score.level = c("plate", "control"), z.score.mu = "scrambled",
   poc.ctrl = "scrambled", background.row = NULL, background.column = NULL,

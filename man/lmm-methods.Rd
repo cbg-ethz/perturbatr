@@ -3,15 +3,11 @@
 \docType{methods}
 \name{lmm}
 \alias{lmm}
-\alias{lmm,knockout.data-method}
 \alias{lmm,knockout.lmm.data-method}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
 lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
   bootstrap.cnt = F, ignore = 1, ...)
-
-\S4method{lmm}{knockout.data}(obj, drop = T, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1, ...)
 
 \S4method{lmm}{knockout.lmm.data}(obj, drop = T, weights = NULL,
   rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1, ...)

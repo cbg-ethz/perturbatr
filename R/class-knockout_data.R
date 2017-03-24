@@ -39,7 +39,7 @@ knockout.data <- setClass(
                     "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
                     "Entrez", "Readout")
     }
-    else if (object@.type == .data.types()$RAW)
+    if (object@.type == .data.types()$RAW)
     {
       cls <- c(cls, c("ReadoutClass", "NumCells"))
     }

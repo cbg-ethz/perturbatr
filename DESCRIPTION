@@ -37,15 +37,17 @@ Imports: dplyr,
     doParallel,
     RankAggreg,
     methods,
-    diffusr
+    diffusr,
+    lazyeval
 biocViews: geneticperturbation
-Suggests: 
+Suggests:
     testthat,
     lintr,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Collate: 
+Collate:
+    'class-knockout_analysed.R'
     'class-knockout_data.R'
     'data.R'
     'inference-chisq_statistic.R'
@@ -92,6 +94,8 @@ Collate:
     'util-concordance.R'
     'util-correlation.R'
     'util-effect_matrix.R'
+    'util-enums.R'
+    'util-filter.R'
     'util-plates.R'
     'util-quality.R'
     'util-rank.R'
