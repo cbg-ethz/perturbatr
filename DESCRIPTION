@@ -63,6 +63,7 @@ Collate:
     'knockout-package.R'
     'methods-combine.R'
     'methods-filter.R'
+    'methods-select.R'
     'plot-analysed.R'
     'plot-data.R'
     'plot-diffusion.R'

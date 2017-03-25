@@ -20,7 +20,7 @@
 
 #' @aliases rbind,knockout.data-method
 #' @import data.table
-#' @importFrom dplyr select as.tibble
+#' @importFrom dplyr select
 setMethod(
   "show",
   "knockout.data",

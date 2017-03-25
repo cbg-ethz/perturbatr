@@ -19,7 +19,9 @@
 
 
 #' @noRd
-.data.types <- function() list(RAW="raw", NORMALIZED="normalized")
+.data.types <- function() list(RAW="raw",
+                               NORMALIZED="normalized",
+                               ELSE="else")
 
 #' @noRd
 .inference.types <- function() list(MIXED.MODEL="mixed.model",

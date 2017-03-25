@@ -31,25 +31,32 @@ knockout.data <- setClass(
   slots     = list(.data="data.table", .type="character"),
   validity  = function(object)
   {
-    if (object@.type == .data.types()$NORMALIZED |
-        object@.type == .data.types()$RAW)
+    ty    <- object@.type
+    types <- .data.types()
+    norm  <- .data.types()$NORMALIZED
+    raw   <- .data.types()$RAW
+    el    <- .data.types()$ELSE
+    if (ty %in% c(raw, norm))
     {
       cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
                     "GeneSymbol", "ReadoutType", "Control", "Library",
                     "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
                     "Entrez", "Readout")
     }
-    if (object@.type == .data.types()$RAW)
+    if (ty == raw)
     {
       cls <- c(cls, c("ReadoutClass", "NumCells"))
     }
-    else stop(paste0("Use one of either ",
-                     paste0(.data.types(), collapse="/"),
-                     " as data-type."))
-    cls <- sort(cls)
-    if (any(sort(colnames(object@.data)) != cls))
-      stop(paste0("Your data needs to have the following colnames:\n",
-                  paste0(cls, collapse=", ")))
+    if (!(ty %in% unlist(types)))
+      stop(paste0("Use one of either ",
+                  paste0(types, collapse="/"),
+                  " as .type."))
+    if (ty != el)
+    {
+      if (any(sort(colnames(object@.data)) != sort(cls)))
+        stop(paste0("Your data needs to have the following colnames:\n",
+                    paste0(cls, collapse=", ")))
+    }
     return (TRUE)
   }
 )

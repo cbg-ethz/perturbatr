@@ -18,40 +18,24 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @title Combine objects.
+#' @title Select columns of a knockout data set
 #'
-#' @description
+#' @description \code{lmm} TODO
 #'
 #' @export
-#' @docType methods
-#' @rdname rbind-methods
-#'
+#' @rdname select-methods
 #' @import data.table
 #'
-#' @param ... the objects to be combined
-setGeneric(
-  "rbind",
-  function(...)
-  {
-    standardGeneric("rbind")
-  },
-  package="knockout"
-)
+#' @param obj  the object of which columns should be selected
+#' @param ...  additional parameters
+select <- function(obj, ...) UseMethod("select")
 
-#' @rdname rbind-methods
-#' @aliases rbind,knockout.data-method
-#'
-#' @import data.table
-setMethod(
-  "rbind",
-  "knockout.data",
-  function(..., deparse.level=1)
-  {
-    args  <- list(...)
-    if (length(args) < 2) return(args[[1]])
-    types <- unlist(lapply(args, function(e) e@.type))
-    if(any(types != types[1])) stop("Data-types do not agree")
-    dat   <- data.table::rbindlist(lapply(args, function(e) e@.data))
-    new("knockout.data", .data=dat, .type=types[1])
-  }
-)
+
+#' @export
+#' @method select knockout.data
+#' @importFrom dplyr select_
+#' @importFrom lazyeval lazy_dots
+select.knockout.data <- function(obj, ...)
+{
+  dplyr::select_(obj@.data, .dots = lazyeval::lazy_dots(...))
+}
