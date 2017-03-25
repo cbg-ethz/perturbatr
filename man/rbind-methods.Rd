@@ -4,15 +4,15 @@
 \name{rbind}
 \alias{rbind}
 \alias{rbind,knockout.data-method}
-\title{Combine objects.}
+\title{Combine objects}
 \usage{
 rbind(...)
 
-\S4method{rbind}{knockout.data}(..., deparse.level = 1)
+\S4method{rbind}{knockout.data}(...)
 }
 \arguments{
 \item{...}{the objects to be combined}
 }
 \description{
-
+Combine several objects to a single objects.
 }

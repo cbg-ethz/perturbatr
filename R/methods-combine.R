@@ -18,7 +18,9 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @title Combine objects.
+#' @title Combine objects
+#'
+#' @description Combine several objects to a single objects.
 #'
 #' @export
 #' @docType methods
