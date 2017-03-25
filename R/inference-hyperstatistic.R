@@ -56,7 +56,7 @@ setGeneric(
 #' @import data.table
 setMethod(
   "hyper.statistic",
-  signature=signature(list(obh="knockout.data")),
+  signature=signature(list(obj="knockout.data")),
   function(obj,
            padjust=c("BH", "bonferroni"),
            summ.method=c("mean", "median"),

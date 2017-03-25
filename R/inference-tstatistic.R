@@ -18,11 +18,14 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Calculate statistics based on the t-test to analyse the data.
+#' @title Calculate statistics based on the t-test to analyse the data.
 #'
-#' For this you should use a standardization before.
+#' @description For this you should use a standardization before.
 #'
 #' @export
+#' @docType methods
+#' @rdname t_statistic-methods
+#'
 #' @import data.table
 #'
 #' @param obj  the data to be analysed
@@ -32,13 +35,11 @@
 setGeneric(
   "t.statistic",
   function(obj,
+           mu=c(0, "scrambled", "control"),
            padjust=c("BH", "bonferroni"),
-           summ.method=c("mean", "median"),
-           level=c("gene", "sirna"),
-           do.summarization=F,
            ...)
   {
-    standardGeneric("hyper.statistic")
+    standardGeneric("t.statistic")
   },
   package="knockout"
 )
