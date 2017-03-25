@@ -3,13 +3,14 @@
 \docType{methods}
 \name{chisq.statistic}
 \alias{chisq.statistic}
+\alias{chisq.statistic,knockout.data-method}
 \alias{chisq.statistic,knockout.lmm.data-method}
 \title{Calculate statistics based on the chi-square-distribution to analyse the
  data.}
 \usage{
 chisq.statistic(obj, padjust = c("BH", "bonferroni"), ...)
 
-\S4method{chisq.statistic}{knockout.lmm.data}(obj, padjust = c("BH",
+\S4method{chisq.statistic}{knockout.data}(obj, padjust = c("BH",
   "bonferroni"), ...)
 }
 \arguments{

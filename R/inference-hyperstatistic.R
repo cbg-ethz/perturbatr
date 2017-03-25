@@ -96,7 +96,8 @@ hyperstatistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"),
                                          grp.dat$Design[1],
                                          grp.dat$Library[1],
                                          sep=", ")))
-        fr <- .do.hyperstatistic(grp.dat, padjust, summ.method, do.summarization, level)
+        fr <- .do.hyperstatistic(grp.dat, padjust, summ.method,
+                                 do.summarization, level)
         fr
       }
     )

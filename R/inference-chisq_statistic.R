@@ -53,30 +53,59 @@ setMethod(
       stop(paste0("You provided a data-set with several replicates. ",
                   "Summarize these first or use another method."))
     padjust <- match.arg(padjust)
-    maha    <- .mahalanobis(dat$Readout)
-    pvals   <- .chisq(maha)
-    stopifnot(length(maha) == nrow(dat), length(pvals) == nrow(dat))
-    data.table::setDT(dat)[, Effect := maha]
-    data.table::setDT(dat)[, Pval   := pvals]
-    data.table::setDT(dat)[, Qval   := p.adjust(pvals, method=padjust)]
-
-    ret <- new("knockout.analysed",
-               .inference=.inference.types()$CHISQ.TEST,
-               .data=dat)
-
+    res     <- .chisq.statistic(dat, padjust)
+    ret     <- new("knockout.analysed",
+                   .inference=.inference.types()$CHISQ.TEST,
+                   .data=res)
+    ret
   }
 )
 
-#' @export
-#' @method chisq.statistic numeric
-#' @importFrom stats p.adjust
-chisq.statistic.numeric <- function(obj, padjust=c("BH", "bonferroni"), ...)
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr mutate group_indices filter
+.chisq.statistic <- function(obj, padjust)
 {
-  warning("this is a protoype. limited usability")
-  padjust  <- match.arg(padjust)
-  maha     <- .mahalanobis(obj)
-  p.vals   <- .chisq(maha)
-  list(p.vals=p.vals, q.vals=stats::p.adjust(p.vals, method=padjust))
+  grp.indexes <- dplyr::group_indices(obj, Virus, Screen, ReadoutType,
+                                      ScreenType, Library, Design, Cell)
+  ret  <-  dplyr::mutate(obj, grp=grp.indexes)
+  grps <- unique(ret$grp)
+  ret  <- do.call(
+    "rbind",
+    lapply
+    (
+      grps,
+      function (g)
+      {
+        grp.dat <- dplyr::filter(ret, grp==g)
+        message(paste("Doing grp: ", paste(grp.dat$Virus[1],
+                                           grp.dat$Screen[1],
+                                           grp.dat$ScreenType[1],
+                                           grp.dat$ReadoutType[1],
+                                           grp.dat$Cell[1],
+                                           grp.dat$Design[1],
+                                           grp.dat$Library[1],
+                                           sep=", ")))
+        fr <- .do.chisq(grp.dat, padjust)
+        fr
+      }
+    )
+  )
+  ret
+}
+
+#' @noRd
+#' @import data.table
+#' @importFrom assertthat assert_that
+.do.chisq <- function(obj, padjust)
+{
+  maha    <- .mahalanobis(obj$Readout)
+  pvals   <- .chisq(maha)
+  assertthat::assert_that(length(maha) == nrow(obj), length(pvals) == nrow(obj))
+  data.table::setDT(obj)[, Effect := maha]
+  data.table::setDT(obj)[, Pval   := pvals]
+  data.table::setDT(obj)[, Qval   := p.adjust(pvals, method=padjust)]
+  obj
 }
 
 #' @noRd
@@ -86,7 +115,7 @@ chisq.statistic.numeric <- function(obj, padjust=c("BH", "bonferroni"), ...)
   sd   <- stats::sd(vals, na.rm=T)
   mu   <- mean(vals, na.rm=T)
   rm   <- (vals - mu)
-  maha <- sqrt( rm * rm / sd)
+  maha <- sqrt(rm * rm / sd)
   maha
 }
 
