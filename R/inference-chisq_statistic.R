@@ -52,8 +52,7 @@ setMethod(
     if (.leuniq(dat$Replicate) !=  1)
       stop(paste0("You provided a data-set with several replicates. ",
                   "Summarize these first or use another method."))
-    padjust <- match.arg(padjust)
-    res     <- .chisq.statistic(dat, padjust)
+    res     <- .chisq.statistic(dat, match.arg(padjust))
     ret     <- new("knockout.analysed",
                    .inference=.inference.types()$CHISQ.TEST,
                    .data=res)

@@ -24,7 +24,8 @@
 #'
 #' @param obj  a summarized data.table
 #' @param path  path (or file) to the target-relation matrices
-#' @param drop  drops all genes that are not found in every screen, i.e. a gene has to be found over all pathogens to be used
+#' @param drop  drops all genes that are not found in every screen, i.e. a
+#'  gene has to be found over all pathogens to be used
 #' @param ... additional arguments
 correct <- function(obj, path, drop, ...)
 {

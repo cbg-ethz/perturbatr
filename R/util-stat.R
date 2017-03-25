@@ -19,24 +19,14 @@
 
 
 #' @noRd
-.remove.suffix <- function(s)
+#' @importFrom stats median
+.summarization.method <- function(summ.method)
 {
-  if (length(grep("\\.[[:alpha:]]+$", s, perl=T)) != 0)
-  {
-    s <- sub("\\.[[:alpha:]]+$", "", s)
-  }
-  s
+  f <- switch(as.character(summ.method),
+              "mean"=base::mean,
+              "median"=stats::median,
+              "min"=base::min,
+              `NA`=NA,
+              stop("wrong method given"))
+  f
 }
-
-#' @noRd
-.is.whole <- function(a)
-{
-  is.numeric(a) && floor(a) == a
-}
-
-#' @noRd
-.leuniq <- function(obj)
-{
-  length(unique(obj))
-}
-

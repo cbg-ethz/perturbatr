@@ -60,6 +60,29 @@ setGeneric(
 #' @import data.table
 setMethod(
   "lmm",
+  signature = signature(obj="knockout.data"),
+  function(obj,
+           drop=T,
+           weights=NULL,
+           rel.mat.path=NULL,
+           bootstrap.cnt=F,
+           ignore=1,
+           ...)
+  {
+    .check.data(obj)
+    res <- .lmm.knockout.data(obj@.data, bootstrap.cnt)
+    ret <- new("knockout.analysed",
+               .inference=.inference.types()$MIXED.MODEL,
+               .data=res)
+    ret
+  }
+)
+
+#' @rdname lmm-methods
+#' @aliases lmm,knockout.lmm.data-method
+#' @import data.table
+setMethod(
+  "lmm",
   signature = signature(obj="knockout.lmm.data"),
   function(obj,
            drop=T,
@@ -71,7 +94,7 @@ setMethod(
   {
     res <- .lmm.model.data(obj@.data, bootstrap.cnt)
     ret <- new("knockout.analysed",
-               .inference=.inference.types()$MIXED.MODELS,
+               .inference=.inference.types()$MIXED.MODEL,
                .data=res)
     ret
   }

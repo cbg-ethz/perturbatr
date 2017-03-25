@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Calculate statistics based on the t-test to analyse the data.
 #'
 #' For this you should use a standardization before.
@@ -28,6 +29,21 @@
 #' @param mu  side to which the mean of a siRNA is compared to
 #' @param padjust  multiple testing correction method
 #' @param ...   additional params
+setGeneric(
+  "t.statistic",
+  function(obj,
+           padjust=c("BH", "bonferroni"),
+           summ.method=c("mean", "median"),
+           level=c("gene", "sirna"),
+           do.summarization=F,
+           ...)
+  {
+    standardGeneric("hyper.statistic")
+  },
+  package="knockout"
+)
+
+
 tstatistic <- function(obj, mu=c(NA, "Scrambled", "control"),
                        padjust=c("BH", "bonferroni"), ...)
 {

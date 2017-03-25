@@ -27,4 +27,4 @@
 .inference.types <- function() list(MIXED.MODEL="mixed.model",
                                     HYPERGEOMETRIC.TEST="hypergeometric.test",
                                     T.TEST="t.test",
-                                    CHISQ.TEST="chist.test")
+                                    CHISQ.TEST="chisq.test")
