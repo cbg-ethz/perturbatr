@@ -30,7 +30,6 @@
 #' @param ...  additional parameters
 select <- function(obj, ...) UseMethod("select")
 
-
 #' @export
 #' @method select knockout.data
 #' @importFrom dplyr select_

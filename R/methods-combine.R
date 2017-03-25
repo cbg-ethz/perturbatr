@@ -18,40 +18,15 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @title Combine objects
-#'
-#' @description Combine several objects to a single objects.
-#'
 #' @export
-#' @docType methods
-#' @rdname rbind-methods
-#'
+#' @method rbind knockout.data
 #' @import data.table
-#'
-#' @param ... the objects to be combined
-setGeneric(
-  "rbind",
-  function(...)
-  {
-    standardGeneric("rbind")
-  },
-  package="knockout"
-)
-
-#' @rdname rbind-methods
-#' @aliases rbind,knockout.data-method
-#'
-#' @import data.table
-setMethod(
-  "rbind",
-  "knockout.data",
-  function(...)
-  {
+rbind.knockout.data <-  function(...)
+{
     args  <- list(...)
     if (length(args) < 2) return(args[[1]])
     types <- unlist(lapply(args, function(e) e@.type))
     if(any(types != types[1])) stop("Data-types do not agree")
     dat   <- data.table::rbindlist(lapply(args, function(e) e@.data))
     new("knockout.data", .data=dat, .type=types[1])
-  }
-)
+}
