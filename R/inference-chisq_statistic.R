@@ -17,39 +17,55 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' Calculate statistics based on the chi-square-distribution to analyse the
+
+#' @title Calculate statistics based on the chi-square-distribution to analyse the
 #'  data.
 #'
-#' For this you should use a standardization before.
+#' @description TODO
 #'
 #' @export
-#' @import data.table
+#' @docType methods
+#' @rdname chisq_statistic-methods
 #'
 #' @param obj  the data to be analysed
 #' @param padjust  multiple testing correction method
 #' @param ...   additional params
-chisq.statistic <- function(obj, padjust=c("BH", "bonferroni"), ...)
-{
-  UseMethod("chisq.statistic", obj)
-}
+setGeneric(
+  "chisq.statistic",
+  function(obj, padjust=c("BH", "bonferroni"), ...)
+  {
+      standardGeneric("chisq.statistic")
+  },
+  package="knockout"
+)
 
-#' @export
+#' @rdname chisq_statistic-methods
+#' @aliases chisq.statistic,knockout.lmm.data-method
 #' @import data.table
-#' @method chisq.statistic svd.data
-chisq.statistic.svd.data <- function(obj, padjust=c("BH", "bonferroni"), ...)
-{
-  warning("this is a protoype. limited usability")
-  stopifnot(length(maha) == nrow(obj))
-  stopifnot(length(pvals) == nrow(obj))
-  padjust <- match.arg(padjust)
-  maha    <- .mahalanobis(obj$Readout)
-  pvals   <- .chisq(maha)
-  ret     <- obj
-  data.table::setDT(ret)[, Pval := pvals]
-  data.table::setDT(ret)[, Qval := p.adjust(pvals, method=padjust)]
-  class(ret) <- c("svd.analysed.chisq", class(ret))
-  ret
-}
+setMethod(
+  "chisq.statistic",
+  signature = signature(obj="knockout.data"),
+  function(obj, padjust=c("BH", "bonferroni"), ...)
+  {
+    .check.data(obj)
+    dat <- obj@.data
+    if (.leuniq(dat$Replicate) !=  1)
+      stop(paste0("You provided a data-set with several replicates. ",
+                  "Summarize these first or use another method."))
+    padjust <- match.arg(padjust)
+    maha    <- .mahalanobis(dat$Readout)
+    pvals   <- .chisq(maha)
+    stopifnot(length(maha) == nrow(dat), length(pvals) == nrow(dat))
+    data.table::setDT(dat)[, Effect := maha]
+    data.table::setDT(dat)[, Pval   := pvals]
+    data.table::setDT(dat)[, Qval   := p.adjust(pvals, method=padjust)]
+
+    ret <- new("knockout.analysed",
+               .inference=.inference.types()$CHISQ.TEST,
+               .data=dat)
+
+  }
+)
 
 #' @export
 #' @method chisq.statistic numeric

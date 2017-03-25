@@ -3,7 +3,6 @@
 S3method(as.svd.data,data.table)
 S3method(as.svd.lmm.model.data,data.table)
 S3method(chisq.statistic,numeric)
-S3method(chisq.statistic,svd.data)
 S3method(correct,svd.data)
 S3method(correlation,svd.replicates)
 S3method(diffuse,data.table)

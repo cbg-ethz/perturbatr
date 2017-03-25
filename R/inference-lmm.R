@@ -71,7 +71,7 @@ setMethod(
   {
     res <- .lmm.model.data(obj@.data, bootstrap.cnt)
     ret <- new("knockout.analysed",
-               .inference="mixed.model",
+               .inference=.inference.types()$MIXED.MODELS,
                .data=res)
     ret
   }

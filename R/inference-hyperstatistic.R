@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Calculate statistics based on the hypergeometric-distribution to analyse the data.
 #'
 #' For this you should use a standardization before.

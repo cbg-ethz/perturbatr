@@ -17,14 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-
 #' @noRd
-.data.types <- function() list(RAW="raw",
-                               NORMALIZED="normalized",
-                               ELSE="else")
-
-#' @noRd
-.inference.types <- function() list(MIXED.MODEL="mixed.model",
-                                    HYPERGEOMETRIC.TEST="hypergeometric.test",
-                                    T.TEST="t.test",
-                                    CHISQ.TEST="chist.test")
+.leuniq <- function(obj)
+{
+  length(unique(obj))
+}

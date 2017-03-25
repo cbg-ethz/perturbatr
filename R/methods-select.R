@@ -23,12 +23,12 @@
 #' @description \code{lmm} TODO
 #'
 #' @export
-#' @rdname select-methods
 #' @import data.table
 #'
 #' @param obj  the object of which columns should be selected
 #' @param ...  additional parameters
 select <- function(obj, ...) UseMethod("select")
+
 
 #' @export
 #' @method select knockout.data
