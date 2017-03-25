@@ -18,6 +18,9 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include class-knockout_data.R
+
+
 #' @title Calculate statistics based on the t-test to analyse the data.
 #'
 #' @description For this you should use a standardization before.
@@ -33,23 +36,23 @@
 #' @param padjust  multiple testing correction method
 #' @param ...   additional params
 setGeneric(
-  "t.statistic",
+  "tstatistic",
   function(obj,
            mu=c(0, "scrambled", "control"),
            padjust=c("BH", "bonferroni"),
            ...)
   {
-    standardGeneric("t.statistic")
+    standardGeneric("tstatistic")
   },
   package="knockout"
 )
 
 #' @rdname t_statistic-methods
-#' @aliases t.statistic,knockout.lmm.data-method
+#' @aliases tstatistic,knockout.data-method
 #' @import data.table
 setMethod(
-  "t.statistic",
-  signature=signature(list(obj="knockout.data")),
+  "tstatistic",
+  signature = signature(obj="knockout.data"),
   function(obj,
            mu=c(0, "scrambled", "control"),
            padjust=c("BH", "bonferroni"),
@@ -108,7 +111,7 @@ setMethod(
 #' @import data.table
 #' @importFrom dplyr mutate group_by summarize ungroup
 #' @importFrom stats p.adjust
-#' @importFrom asserthat assert_that
+#' @importFrom assertthat assert_that
 .do.t.statistic <- function(obj, padjust, mu)
 {
   res <- obj %>% ungroup %>%
@@ -160,7 +163,8 @@ setMethod(
     cont.tab <- dplyr::filter(ret, Control  == -1)
     if (tolower(mu.gene) == "scrambled")
       cont.tab <- dplyr::filter(cont.tab, tolower(GeneSymbol) == "scrambled")
-    if (nrow(cont.tab) == 0) stop("No controls found for criteria!")
+    if (nrow(cont.tab) == 0)
+      stop("No controls found for criteria!")
     if (nrow(cont.tab) < 3)
       stop("Less than three controls found better take mu=0!")
     mu <- cont.tab$Readout
@@ -201,4 +205,3 @@ setMethod(
   }
   tst
 }
-

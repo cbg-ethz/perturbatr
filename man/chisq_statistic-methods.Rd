@@ -4,7 +4,6 @@
 \name{chisq.statistic}
 \alias{chisq.statistic}
 \alias{chisq.statistic,knockout.data-method}
-\alias{chisq.statistic,knockout.lmm.data-method}
 \title{Calculate statistics based on the chi-square-distribution to analyse the
  data.}
 \usage{

@@ -18,6 +18,9 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include class-knockout_data.R
+
+
 #' @title Calculate statistics based on the hypergeometric-distribution to
 #'  analyse the data.
 #'
@@ -52,11 +55,11 @@ setGeneric(
 )
 
 #' @rdname hyper_statistic-methods
-#' @aliases hyper.statistic,knockout.lmm.data-method
+#' @aliases hyper.statistic,knockout.data-method
 #' @import data.table
 setMethod(
   "hyper.statistic",
-  signature=signature(list(obj="knockout.data")),
+  signature = signature(obj="knockout.data"),
   function(obj,
            padjust=c("BH", "bonferroni"),
            summ.method=c("mean", "median"),

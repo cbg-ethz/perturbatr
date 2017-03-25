@@ -18,6 +18,9 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include class-knockout_data.R
+
+
 #' @title Calculate statistics based on the chi-square-distribution to analyse the
 #'  data.
 #'
@@ -29,7 +32,7 @@
 #'
 #' @param obj  the data to be analysed
 #' @param padjust  multiple testing correction method
-#' @param ...   additional params
+#' @param ...  additional params
 setGeneric(
   "chisq.statistic",
   function(obj, padjust=c("BH", "bonferroni"), ...)
@@ -40,7 +43,7 @@ setGeneric(
 )
 
 #' @rdname chisq_statistic-methods
-#' @aliases chisq.statistic,knockout.lmm.data-method
+#' @aliases chisq.statistic,knockout.data-method
 #' @import data.table
 setMethod(
   "chisq.statistic",
