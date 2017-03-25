@@ -44,164 +44,161 @@ setGeneric(
   package="knockout"
 )
 
-
-tstatistic <- function(obj, mu=c(NA, "Scrambled", "control"),
-                       padjust=c("BH", "bonferroni"), ...)
-{
-  UseMethod("tstatistic", obj)
-}
+#' @rdname t_statistic-methods
+#' @aliases t.statistic,knockout.lmm.data-method
+#' @import data.table
+setMethod(
+  "t.statistic",
+  signature=signature(list(obj="knockout.data")),
+  function(obj,
+           mu=c(0, "scrambled", "control"),
+           padjust=c("BH", "bonferroni"),
+           ...)
+  {
+    .check.data(obj)
+    dat <- obj@.data
+    res <- .t.statistic(dat,
+                       mu=match.arg(mu),
+                       padjust=match.arg(padjust),
+                       ...)
+    ret <- new("knockout.analysed",
+               .inference=.inference.types()$T.TEST,
+               .data=res)
+    ret
+  }
+)
 
 #' @noRd
-#' @export
 #' @import data.table
-tstatistic.svd.data <- function(obj, mu=c(NA, "Scrambled", "control"),
-                                padjust=c("BH", "bonferroni"), ...)
-{
-  mu <- match.arg(mu)
-  padjust <- match.arg(padjust)
-  ret <- .tstatistic(obj, mu=mu, padjust=padjust, ...)
-  class(ret) <- c("svd.analysed.tt", "svd.analysed", class(ret))
-  invisible(ret)
-}
-
-#' @noRd
-#' @import data.table
-.tstatistic <- function(obj, mu, padjust, ...)
+.t.statistic <- function(obj, mu, padjust, ...)
 {
   message(paste("Correcting with ", padjust, "!", sep=""))
-  message(paste("Taking", mu, "for t-test!"))
-  ret <- dplyr::group_by(obj, Virus, Screen, Library,
-                         ReadoutType, ScreenType,
+  message(paste("Taking", mu, "for t-test mu!"))
+
+  ret <- dplyr::group_by(obj, Virus, Screen, Library, ReadoutType, ScreenType,
                          Design, Cell) %>%
     dplyr::mutate(grp=.GRP) %>%
     ungroup
   grps <- unique(ret$grp)
   res <- do.call(
     "rbind",
-    lapply
-    (
+    lapply(
       grps,
       function (g)
       {
         grp.dat <- dplyr::filter(ret, grp==g) %>% ungroup
         message(paste("Doing grp: ", paste(grp.dat$Virus[1],
-                                         grp.dat$Screen[1],
-                                         grp.dat$ScreenType[1],
-                                         grp.dat$ReadoutType[1],
-                                         grp.dat$Cell[1],
-                                         grp.dat$Design[1],
-                                         grp.dat$Library[1],
-                                         sep=", ")))
-        fr <- .do.tstatistic(grp.dat, padjust, mu)
+                                           grp.dat$Screen[1],
+                                           grp.dat$ScreenType[1],
+                                           grp.dat$ReadoutType[1],
+                                           grp.dat$Cell[1],
+                                           grp.dat$Design[1],
+                                           grp.dat$Library[1],
+                                           sep=", ")))
+        fr <- .do.t.statistic(grp.dat, padjust, mu)
         fr
       }
     )
   )
-  invisible(res)
+  res
 }
 
 
 #' @noRd
 #' @import data.table
-#' @importFrom dplyr mutate
-#' @importFrom dplyr group_by
-#' @importFrom dplyr summarize
-#' @importFrom dplyr ungroup
+#' @importFrom dplyr mutate group_by summarize ungroup
 #' @importFrom stats p.adjust
-.do.tstatistic <- function(obj, padjust, mu)
+#' @importFrom asserthat assert_that
+.do.t.statistic <- function(obj, padjust, mu)
 {
-  res <- obj %>% ungroup
-  # unfortunately it is needed (but works bcs siRNAs are always on the same plates)
-  res <- dplyr::group_by(res, Plate) %>%
+  res <- obj %>% ungroup %>%
+    dplyr::group_by(Plate) %>%
     dplyr::mutate(grp=.GRP)
   grps <- unique(res$grp)
-  ret <- do.call(
+  ret  <- do.call(
     "rbind",
-    lapply
-    (
+    lapply(
       grps,
       function(g)
       {
         grp.dat <- dplyr::filter(res, grp==g) %>% ungroup
-        fr <- .tstatisic.plate(grp.dat, mu)
+        fr      <- .t.statisic.plate(grp.dat, mu)
         fr
       }
     )
   )
   data.table::setDT(ret)[,Pval := as.numeric(Pval)]
-  ret <- ret[order(Pval)]
-  ret <- dplyr::mutate(ret, Qval=p.adjust(Pval, method=padjust))
-  invisible(ret)
+  data.table::setDT(ret)[,Qval := p.adjust(Pval, method=padjust)]
+  assertthat::assert_that(all(order(ret$Pval) == order(ret$Qval)))
+  ret
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter group_by mutate summarize
-.tstatisic.plate <- function(obj, mu)
+.t.statisic.plate <- function(obj, mu)
 {
   ret <- obj %>% ungroup
   mu <- .set.mu(ret, mu)
   ret <- dplyr::group_by(ret, Virus, Screen, Library,
-                         ReadoutType, ScreenType,
-                         Cell, Design,
+                         ReadoutType, ScreenType, Cell, Design,
                          GeneSymbol, Entrez, Plate, Control,
                          RowIdx, ColIdx, siRNAIDs) %>%
-    dplyr::summarize(Pval=.ttest(GeneSymbol, Readout, mu),
+    dplyr::summarize(Pval=.t.test(GeneSymbol, Readout, mu),
                      Readout=mean(Readout, na.rm=T))  %>%
     ungroup
   ret
 }
 
-#' Calculate the mean of the negative controls or the scrambled RNA
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter
-.set.mu <- function(ret,mu.gene)
+.set.mu <- function(ret, mu.gene)
 {
-  if (!is.na(mu.gene))
+  if (mu.gene != "0")
   {
     cont.tab <- dplyr::filter(ret, Control  == -1)
-    if (toupper(mu.gene) == "SCRAMBLED")
-      cont.tab <- dplyr::filter(cont.tab, GeneSymbol == "Scrambled")
+    if (tolower(mu.gene) == "scrambled")
+      cont.tab <- dplyr::filter(cont.tab, tolower(GeneSymbol) == "scrambled")
     if (nrow(cont.tab) == 0) stop("No controls found for criteria!")
     if (nrow(cont.tab) < 3)
-      stop(paste("Less than three controls found,",
-                 "better standardize data and take mu=0!"))
-    mu <- mean(cont.tab$Readout, na.rm=T)
-    message(paste("\t..taking mu from all controls(",mu.gene, "): ",
-                  mu, sep=""))
+      stop("Less than three controls found better take mu=0!")
+    mu <- cont.tab$Readout
   }
-  else if (is.na(mu.gene))
+  else if (mu.gene == "0")
   {
-    message("\t..taking mu=0.")
     mu <- 0
   }
   else message(paste("\t..taking mu=", mu, ".",sep=""))
   if (!is.numeric(mu)) stop("Please provide a numeric mu!")
+
   mu
 }
 
 #' @noRd
 #' @importFrom stats t.test
-.ttest <- function(g, val, mu)
+.t.test <- function(g, val, mu)
 {
   tst <- 1
   if (length(val) < 3)
   {
-    warning(paste("Only", length(val),
-                  "value(s) provided for" , g, "->returning 1"))
+    warning(paste("<3 values provided for" , g, " -> returning 1"))
   }
   else
   {
     tryCatch ({
-      tst <- stats::t.test(val, mu=mu,
-                           alternative="two.sided", paired=F)$p.value
+      if (mu == 0) {
+        tst <- stats::t.test(val, mu=0, alternative="two.sided")$p.value
+      }
+      else {
+        tst <- stats::t.test(val, y=mu, alternative="two.sided")$p.value
+      }
+
     }, warning = function(war)
       { warning(paste(war, " -> setting one for", g)); },
        error = function(err)
-      { warning(paste(err, " -> setting one for", g)); }
-    )
+      { warning(paste(err, " -> setting one for", g)); })
   }
-  invisible(tst)
+  tst
 }
 

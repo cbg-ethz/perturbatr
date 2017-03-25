@@ -101,27 +101,27 @@ setMethod(
 
   res <- do.call(
     "rbind",
-    lapply
-    (
+    lapply(
       grps,
       function (g)
       {
         grp.dat <- dplyr::filter(ret, grp==g)
         message(paste("Doing grp: ", paste(grp.dat$Virus[1],
-                                         grp.dat$Screen[1],
-                                         grp.dat$ScreenType[1],
-                                         grp.dat$ReadoutType[1],
-                                         grp.dat$Cell[1],
-                                         grp.dat$Design[1],
-                                         grp.dat$Library[1],
-                                         sep=", ")))
+                                           grp.dat$Screen[1],
+                                           grp.dat$ScreenType[1],
+                                           grp.dat$ReadoutType[1],
+                                           grp.dat$Cell[1],
+                                           grp.dat$Design[1],
+                                           grp.dat$Library[1],
+                                           sep=", ")))
         fr <- .do.hyperstatistic(grp.dat, padjust, summ.method,
                                  do.summarization, level)
         fr
       }
     )
   )
-  invisible(res)
+
+ res
 }
 
 #' @noRd
@@ -166,13 +166,14 @@ setMethod(
   if ("grp" %in% colnames(res)) res <- dplyr::select(res, -grp)
 
   data.table::setDT(res)[,Pval := as.numeric(Pval)]
+  data.table::setDT(res)[,Qval := p.adjust(Pval, method=padjust)]
   data.table::setDT(res)[,Hit  := as.logical(as.numeric(Hit))]
   res <- res[order(Pval)]
   data.table::setDT(res)[,HyperRank := cumsum(res$Hit)]
   data.table::setDT(res)[Hit == 0, HyperRank := NA_integer_]
-  res <- dplyr::mutate(res, Qval=p.adjust(Pval, method=padjust))
+  assertthat::assert_that(all(order(obj$Pval) == order(obj$Qval)))
 
-  invisible(res)
+  res
 }
 
 #' @noRd

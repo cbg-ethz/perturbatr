@@ -103,7 +103,8 @@ setMethod(
   assertthat::assert_that(length(maha) == nrow(obj), length(pvals) == nrow(obj))
   data.table::setDT(obj)[, Effect := maha]
   data.table::setDT(obj)[, Pval   := pvals]
-  data.table::setDT(obj)[, Qval   := p.adjust(pvals, method=padjust)]
+  data.table::setDT(obj)[, Qval   := p.adjust(Pval, method=padjust)]
+  assertthat::assert_that(all(order(obj$Pval) == order(obj$Qval)))
   obj
 }
 
