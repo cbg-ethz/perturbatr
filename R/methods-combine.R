@@ -20,8 +20,6 @@
 
 #' @title Combine objects.
 #'
-#' @description
-#'
 #' @export
 #' @docType methods
 #' @rdname rbind-methods
@@ -45,7 +43,7 @@ setGeneric(
 setMethod(
   "rbind",
   "knockout.data",
-  function(..., deparse.level=1)
+  function(...)
   {
     args  <- list(...)
     if (length(args) < 2) return(args[[1]])
