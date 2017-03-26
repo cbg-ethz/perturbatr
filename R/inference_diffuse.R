@@ -18,7 +18,7 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include util-enums.R
+#' @include util_enums.R
 
 
 #' @title Extend the results from an analysis using network diffusion

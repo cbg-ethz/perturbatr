@@ -18,17 +18,19 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Data wrapper for knockout data
+#' @include util_enums.R
+
+
+#' @title Data wrapper for knockout data
 #'
-#' @name Knockout-data
-#' @rdname knockout_data-class
+#' @name KnockoutData-class
 #'
-#' @description Class \code{knockout.data} is a wrapper for a \code{data.table} object
-#' containing the knockout data
+#' @description Class \code{knockout.data} is a wrapper for a
+#' \code{data.table} object containing the knockout data
 #'
 #' @slot .data the knockout data-set
 setClass(
-  "knockout.data",
+  "KnockoutData",
   slots     = list(.data="data.table", .type="character"),
   validity  = function(object)
   {
@@ -40,9 +42,9 @@ setClass(
     if (ty %in% c(raw, norm))
     {
       cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
-                    "GeneSymbol", "ReadoutType", "Control", "Library",
-                    "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
-                    "Entrez", "Readout")
+               "GeneSymbol", "ReadoutType", "Control", "Library",
+               "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
+               "Entrez", "Readout")
     }
     if (ty == raw)
     {
@@ -62,17 +64,16 @@ setClass(
   }
 )
 
-#' Data wrapper for knockout linear mixed model data.
+#' @title Data wrapper for knockout linear mixed model data.
 #'
-#' @name Knockout-data
-#' @rdname knockout_lmm_data-class
+#' @name LMMKnockoutData-class
 #'
 #' @description Class \code{knockout.lmm.data} is a wrapper the data used by
 #'  LMM.
 #'
 #' @slot .data the knockout data-set
 setClass(
-  "knockout.lmm.data",
+  "LMMKnockoutData",
   slots     = list(.data="data.table"),
   validity  = function(object)
   {

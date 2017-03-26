@@ -18,13 +18,12 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include util-enums.R
+#' @include util_enums.R
 
 
 #' Data wrapper for analysed knockout data
 #'
-#' @name Analysed-knockout-data
-#' @rdname knockout_analysed-class
+#' @name AnalysedKnockoutData-class
 #'
 #' @description Abstract class \code{knockout.analysed} is a wrapper for a
 #'   \code{data.table} object
@@ -33,7 +32,7 @@
 #' @slot .data the knockout data-set
 #' @slot .inference the method for inferenced that has been used
 setClass(
-  "knockout.analysed",
+  "AnalysedKnockoutData",
   contains="VIRTUAL",
   slots     = list(.data="data.table", .inference="character"),
   validity=function(object)
@@ -44,8 +43,7 @@ setClass(
 
 #' Data wrapper for analysed knockout data using an LMM
 #'
-#' @name Analysed-knockout-data
-#' @rdname knockout_analysed-class
+#' @name LMMAnalysedKnockoutData-class
 #'
 #' @description Class \code{knockout.analysed.lmm} is a wrapper for a
 #'   \code{data.table} object
@@ -53,8 +51,8 @@ setClass(
 #'
 #' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
 setClass(
-  "knockout.analysed.lmm",
-  contains  = "knockout.analysed",
+  "LMMAnalysedKnockoutData",
+  contains  = "AnalysedKnockoutData",
   slots     = list(.is.bootstrapped="logical"),
   prototype = prototype(.is.bootstrapped=FALSE,
                         .inference=.inference.types()$MIXED.MODEL)
@@ -62,8 +60,7 @@ setClass(
 
 #' Data wrapper for analysed knockout data using network diffusion
 #'
-#' @name Analysed-knockout-data
-#' @rdname knockout_analysed-class
+#' @name DiffusionAnalysedKnockoutData-class
 #'
 #' @description Class \code{knockout.analysed.diffusion} is a wrapper for a
 #'   \code{data.table} object
@@ -71,8 +68,8 @@ setClass(
 #'
 #' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
 setClass(
-  "knockout.analysed.diffusion",
-  contains  = "knockout.analysed",
+  "DiffusionAnalysedKnockoutData",
+  contains  = "AnalysedKnockoutData",
   slots     = list(.is.bootstrapped="logical"),
   prototype = prototype(.is.bootstrapped=FALSE)
 )

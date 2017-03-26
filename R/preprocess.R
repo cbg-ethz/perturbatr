@@ -18,7 +18,7 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include class-knockout_data.R
+#' @include class_knockout_data.R
 
 
 #' @title Pre-processing routine for data normalization, summarization and removal

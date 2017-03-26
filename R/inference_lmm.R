@@ -18,7 +18,7 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include class-knockout_data.R
+#' @include class_knockout_data.R
 
 
 #' @title Fit an LMM to the data and calculate local false discovery rates.
