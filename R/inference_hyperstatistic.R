@@ -240,3 +240,31 @@ setMethod(
   is.hit <- as.numeric(seq(ndrawn) <= hi[min.idx,2])
   paste(min.prob, is.hit, sep="_")
 }
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr group_by summarize ungroup filter select
+.prioritize.hyper.statistic <- function(obj,
+                                        hit.ratio=0.5,
+                                        effect.size=0,
+                                        pval.threshold=0.05,
+                                        qval.threshold=1)
+{
+  res <- dplyr::group_by(obj, Virus, Screen, Library,
+                         ScreenType, ReadoutType,
+                         Design, Cell,
+                         GeneSymbol, Entrez) %>%
+    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
+                     PvalRatio  = (sum(Pval  <= pval.threshold, na.rm=T)/n()),
+                     QvalRatio  = (sum(Qval  <= qval.threshold, na.rm=T)/n()),
+                     MeanEffect = mean(Readout,na.rm=T),
+                     MaxEffect  = max(Readout, na.rm=T),
+                     MinEffect  = min(Readout, na.rm=T),
+                     MinPval    = min(Pval, na.rm=T),
+                     MinQval    = min(Qval, na.rm=T),
+                     Pval=paste(sprintf("%.03f", Pval), collapse=","),
+                     Qval=paste(sprintf("%.03f", Qval), collapse=",")) %>%
+    ungroup %>%
+    dplyr::filter(HitRatio >= hit.ratio)
+  res
+}

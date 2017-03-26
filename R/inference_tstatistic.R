@@ -205,3 +205,39 @@ setMethod(
   }
   tst
 }
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr group_by summarize ungroup filter select mutate
+.prioritize.tstatistic <- function(obj,
+                                   hit.ratio=0.5,
+                                   effect.size=0,
+                                   pval.threshold=0.05,
+                                   qval.threshold=1)
+{
+  # TODO here: what do do with multiple sirnas? same hit criterion as in hyper
+
+  res <- dplyr::group_by(obj, Virus, Screen, Library,
+                         ScreenType, ReadoutType,
+                         Design, Cell,
+                         GeneSymbol, Entrez,
+                         Plate, RowIdx, ColIdx, siRNAIDs) %>%
+    dplyr::mutate(Hit=(Pval <= pval.threshold & abs(Readout) >= effect.size)) %>%
+    ungroup %>%
+    dplyr::group_by(Virus, Screen, Library,
+                    ReadoutType, ScreenType,
+                    Design, Cell,
+                    GeneSymbol, Entrez) %>%
+    # TODO this should be as in hyper. the means dont make sense here
+    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
+                     PvalRatio  = (sum(Pval <= pval.threshold, na.rm=T)/n()),
+                     QvalRatio  = (sum(Qval <= qval.threshold, na.rm=T)/n()),
+                     MeanEffect = mean(Readout, na.rm=T),
+                     MaxEffect  = max(Readout, na.rm=T),
+                     MinEffect  = min(Readout, na.rm=T),
+                     Pval=paste(sprintf("%03f", Pval), collapse=","),
+                     Qval=paste(sprintf("%03f", Qval), collapse=",")) %>%
+    ungroup %>%
+    dplyr::filter(HitRatio >= hit.rat)
+  res
+}

@@ -125,3 +125,16 @@ setMethod(
 #' @noRd
 #' @importFrom stats pchisq
 .chisq <- function(vals) pchisq(vals, df=1, lower.tail=F)
+
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr group_by summarize ungroup filter select mutate
+.prioritize.chisq.tstatistic <- function(obj,
+                                   hit.ratio=0.5,
+                                   effect.size=0,
+                                   pval.threshold=0.05,
+                                   qval.threshold=1)
+{
+  stop("TODO")
+}

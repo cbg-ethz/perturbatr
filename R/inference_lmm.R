@@ -215,3 +215,24 @@ setMethod(
        gene.pathogen.effects=ga,
        infection.effects=ie)
 }
+
+#' @noRd
+#' @import data.table
+#' @importFrom dplyr filter select group_by mutate summarize full_join
+.prioritize.lmm <- function(obj,
+                            effect.size=0,
+                            pval.threshold=0.05,
+                            qval.threshold=1)
+{
+  ge <-
+    obj$gene.effects %>%
+    dplyr::filter(abs(Effect) >= effect.size)  %>%
+    .[order(-abs(Effect))]
+  if (!all(is.na(ge$FDR))) ge <- dplyr::filter(ge, FDR <= fdrt)
+  gpe <- obj$gene.pathogen.effects %>%
+    dplyr::filter(abs(Effect) >= eft)  %>%
+    .[order(-abs(Effect))]
+  if (!all(is.na(gpe$FDR))) gpe <- dplyr::filter(gpe, FDR <= fdrt)
+  list(gene.hits=ge, gene.pathogen.hits=gpe)
+
+}
