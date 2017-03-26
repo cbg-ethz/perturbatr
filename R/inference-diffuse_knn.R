@@ -26,14 +26,17 @@
 {
   # TODO diff on bootstrap hits
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
+
   neighs <- diffusr::nearest.neighbors(
     as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
     as.matrix(diffuse.data$adjm), search.depth)
-  res <- diffuse.data$frame
+
+    res <- diffuse.data$frame
 
   names(neighs) <-
     (diffuse.data$frame %>%
        dplyr::filter(Idx %in% as.integer(names(neighs))))$GeneSymbol
+
   # Add the effects of the neighbors
   neighs <- lapply(neighs, function(e) {
     dplyr::left_join(data.table(Idx=e), res, by="Idx") %>%
@@ -48,6 +51,7 @@
 
   genes.found <- dplyr::select(flat.dat, Start, GeneSymbol) %>%
     unlist %>% unname %>% unique
+
   genes.f.table <- data.table::data.table(GeneSymbol=genes.found) %>%
     dplyr::left_join(res, by="GeneSymbol")
 
@@ -55,8 +59,8 @@
              neighbors=flat.dat,
              graph=graph,
              genes.found=genes.f.table)
-  class(li) <- c("svd.diffused.knn", "svd.diffused")
-  return(li)
+
+  li
 }
 
 #' @noRd
@@ -71,7 +75,9 @@
     .[order(-abs(Effect))] %>%
     dplyr::mutate(Idx = 1:.N) %>%
     dplyr::mutate(Select = (Idx <= node.start.count))
+
   data.table::setDT(res)[Effect == 0  , Select := FALSE]
   data.table::setDT(res)[is.na(Select), Select := FALSE]
-  return(list(frame=res, adjm=adjm))
+
+  list(frame=res, adjm=adjm)
 }
