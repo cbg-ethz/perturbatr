@@ -23,14 +23,15 @@
 
 #' @title Data wrapper for knockout data
 #'
-#' @name KnockoutData-class
+#' @name Knockout-data
+#' @rdname class_knockout_data
 #'
 #' @description Class \code{knockout.data} is a wrapper for a
 #' \code{data.table} object containing the knockout data
 #'
 #' @slot .data the knockout data-set
 setClass(
-  "KnockoutData",
+  "knockout.data",
   slots     = list(.data="data.table", .type="character"),
   validity  = function(object)
   {
@@ -66,14 +67,15 @@ setClass(
 
 #' @title Data wrapper for knockout linear mixed model data.
 #'
-#' @name LMMKnockoutData-class
+#' @name Knockout-LMM-data
+#' @rdname class_knockout_lmm_data
 #'
 #' @description Class \code{knockout.lmm.data} is a wrapper the data used by
 #'  LMM.
 #'
 #' @slot .data the knockout data-set
 setClass(
-  "LMMKnockoutData",
+  "knockout.lmm.data",
   slots     = list(.data="data.table"),
   validity  = function(object)
   {

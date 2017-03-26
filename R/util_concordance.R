@@ -18,6 +18,8 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+# TODO
+
 #' Calculate the concordance between the vectorial elements of a list.
 #'
 #' @export

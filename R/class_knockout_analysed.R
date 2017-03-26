@@ -21,9 +21,10 @@
 #' @include util_enums.R
 
 
-#' Data wrapper for analysed knockout data
+#' @title Data wrapper for analysed knockout data
 #'
-#' @name AnalysedKnockoutData-class
+#' @name KnockoutAnalysis-class
+#' @rdname knockout_analysis-class
 #'
 #' @description Abstract class \code{knockout.analysed} is a wrapper for a
 #'   \code{data.table} object
@@ -32,10 +33,10 @@
 #' @slot .data the knockout data-set
 #' @slot .inference the method for inferenced that has been used
 setClass(
-  "AnalysedKnockoutData",
-  contains="VIRTUAL",
-  slots     = list(.data="data.table", .inference="character"),
-  validity=function(object)
+  "knockout.analysed",
+  contains = "VIRTUAL",
+  slots    = list(.data="data.table", .inference="character"),
+  validity = function(object)
   {
     stopifnot(object@.inference %in% .inference.types())
   }
@@ -43,7 +44,8 @@ setClass(
 
 #' Data wrapper for analysed knockout data using an LMM
 #'
-#' @name LMMAnalysedKnockoutData-class
+#' @name LMMAnalysis-class
+#' @rdname lmm_kockout_analysis-class
 #'
 #' @description Class \code{knockout.analysed.lmm} is a wrapper for a
 #'   \code{data.table} object
@@ -51,8 +53,8 @@ setClass(
 #'
 #' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
 setClass(
-  "LMMAnalysedKnockoutData",
-  contains  = "AnalysedKnockoutData",
+  "knockout.analysed.lmm",
+  contains  = "knockout.analysed",
   slots     = list(.is.bootstrapped="logical"),
   prototype = prototype(.is.bootstrapped=FALSE,
                         .inference=.inference.types()$MIXED.MODEL)
@@ -60,7 +62,8 @@ setClass(
 
 #' Data wrapper for analysed knockout data using network diffusion
 #'
-#' @name DiffusionAnalysedKnockoutData-class
+#' @name DiffusionAnalysis-class
+#' @rdname diffusion_kockout_analysis-class
 #'
 #' @description Class \code{knockout.analysed.diffusion} is a wrapper for a
 #'   \code{data.table} object
@@ -68,8 +71,8 @@ setClass(
 #'
 #' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
 setClass(
-  "DiffusionAnalysedKnockoutData",
-  contains  = "AnalysedKnockoutData",
+  "knockout.analysed.diffusion",
+  contains  = "knockout.analysed",
   slots     = list(.is.bootstrapped="logical"),
   prototype = prototype(.is.bootstrapped=FALSE)
 )

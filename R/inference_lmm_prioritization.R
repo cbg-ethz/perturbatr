@@ -18,14 +18,3 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr group_by summarize ungroup filter select
-.prioritize.gespeR <- function(obj,
-                                        hit.ratio=0.5,
-                                        effect.size=0,
-                                        pval.threshold=0.05,
-                                        qval.threshold=1)
-{
-  stop("TODO")
-}
