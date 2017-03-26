@@ -47,6 +47,7 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Collate: 
+    'util-enums.R'
     'class-knockout_analysed.R'
     'class-knockout_data.R'
     'data.R'
@@ -98,7 +99,6 @@ Collate:
     'util-concordance.R'
     'util-correlation.R'
     'util-effect_matrix.R'
-    'util-enums.R'
     'util-functions.R'
     'util-plates.R'
     'util-quality.R'

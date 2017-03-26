@@ -18,45 +18,61 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Data wrapper for knockout data
+#' @include util-enums.R
+
+
+#' Data wrapper for analysed knockout data
 #'
+#' @name Analysed-knockout-data
 #' @rdname knockout_analysed-class
 #'
-#' @description Class \code{knockout.data} is a wrapper for a
+#' @description Abstract class \code{knockout.analysed} is a wrapper for a
 #'   \code{data.table} object
 #' containing the knockout data
 #'
 #' @slot .data the knockout data-set
-knockout.analysed <- setClass(
+#' @slot .inference the method for inferenced that has been used
+setClass(
   "knockout.analysed",
-  slots     = list(.data="data.table",
-                   .inference="character"),
-  validity  = function(object)
+  contains="VIRTUAL",
+  slots     = list(.data="data.table", .inference="character"),
+  validity=function(object)
   {
-    if (object@.inference == .inference.types()$MIXED.MODEL)
-    {
-
-    }
-    else if (object@.inference == .inference.types()$HYPERGEOMETRIC.TEST)
-    {
-
-    }
-    else if (object@.inference == .inference.types()$T.TEST)
-    {
-
-    }
-    else stop(paste0("Use one of either ",
-                     paste0(.data.types(), collapse="/"),
-                     " as data-type."))
-    cls <- sort(c("Virus", "Replicate", "Plate",
-                  "RowIdx", "ColIdx",
-                  "GeneSymbol", "ReadoutType", "Control",
-                  "Library", "siRNAIDs", "Screen",
-                  "Cell", "ScreenType", "Design",
-                  "Entrez", "Readout"))
-    if (any(sort(colnames(object@.data)) != cls))
-      stop(paste0("Your data needs to have the following colnames:\n",
-                  paste0(cls, collapse=", ")))
-    return (TRUE)
+    stopifnot(object@.inference %in% .inference.types())
   }
+)
+
+#' Data wrapper for analysed knockout data using an LMM
+#'
+#' @name Analysed-knockout-data
+#' @rdname knockout_analysed-class
+#'
+#' @description Class \code{knockout.analysed.lmm} is a wrapper for a
+#'   \code{data.table} object
+#' containing the knockout data
+#'
+#' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
+setClass(
+  "knockout.analysed.lmm",
+  contains  = "knockout.analysed",
+  slots     = list(.is.bootstrapped="logical"),
+  prototype = prototype(.is.bootstrapped=FALSE,
+                        .inference=.inference.types()$MIXED.MODEL)
+)
+
+#' Data wrapper for analysed knockout data using network diffusion
+#'
+#' @name Analysed-knockout-data
+#' @rdname knockout_analysed-class
+#'
+#' @description Class \code{knockout.analysed.diffusion} is a wrapper for a
+#'   \code{data.table} object
+#' containing the knockout data
+#'
+#' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
+setClass(
+  "knockout.analysed.diffusion",
+  contains  = "knockout.analysed",
+  slots     = list(.is.bootstrapped="logical"),
+  prototype = prototype(.is.bootstrapped=FALSE)
 )

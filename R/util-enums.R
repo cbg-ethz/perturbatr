@@ -19,12 +19,18 @@
 
 
 #' @noRd
-.data.types <- function() list(RAW="raw",
-                               NORMALIZED="normalized",
-                               ELSE="else")
+.data.types <- function()
+{
+  list(RAW="raw", NORMALIZED="normalized", ELSE="else")
+}
 
 #' @noRd
-.inference.types <- function() list(MIXED.MODEL="mixed.model",
-                                    HYPERGEOMETRIC.TEST="hypergeometric.test",
-                                    T.TEST="t.test",
-                                    CHISQ.TEST="chisq.test")
+.inference.types <- function()
+{
+  list(MIXED.MODEL         = "mixed.model",
+       HYPERGEOMETRIC.TEST = "hypergeometric.test",
+       T.TEST              = "t.test",
+       CHISQ.TEST          = "chisq.test",
+       MRW.DIFFUSION       = "mrw.diffusion",
+       NN.DIFFUSION        = "knn.diffusion")
+}
