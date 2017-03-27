@@ -18,7 +18,7 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @aliases rbind,knockout.data-method
+#' @aliases show,knockout.data-method
 #' @import data.table
 #' @importFrom dplyr select
 setMethod(
@@ -26,7 +26,7 @@ setMethod(
   "knockout.data",
   function(object)
   {
-    cat(paste0("A '", object@.type, "' knockout data-set\n\n"))
+    cat(paste0("A '", object@.type, "' knockout data-set for lmm-analysis\n\n"))
     object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
       dplyr::select(Virus, GeneSymbol, Readout, Library,
                     ReadoutType, Screen, Cell, ScreenType, Design) %>%
@@ -34,3 +34,21 @@ setMethod(
 
   }
 )
+
+#' @aliases show,knockout.lmm.data-method
+#' @import data.table
+#' @importFrom dplyr select
+setMethod(
+  "show",
+  "knockout.lmm.data",
+  function(object)
+  {
+    cat(paste0("A '", object@.type, "' knockout data-set\n\n"))
+    object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
+      dplyr::select(Virus, GeneSymbol, Readout, Weight,
+                    ReadoutType, Cell, ScreenType, Design) %>%
+      print
+
+  }
+)
+
