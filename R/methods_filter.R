@@ -38,5 +38,5 @@ filter <- function(obj, ...) UseMethod("filter")
 filter.knockout.data <- function(obj, ...)
 {
   filt.dat <- dplyr::filter_(obj@.data, .dots = lazyeval::lazy_dots(...))
-  new("knockout.data", .data=filt.dat, .type=obj@.type)
+  new(class(obj)[1], .data=filt.dat)
 }

@@ -6,8 +6,7 @@
 \title{Data wrapper for analysed knockout data using network diffusion}
 \description{
 Class \code{knockout.analysed.diffusion} is a wrapper for a
-  \code{data.table} object
-containing the knockout data
+  \code{data.table} object containing the knockout data
 }
 \section{Slots}{
 

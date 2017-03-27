@@ -89,7 +89,7 @@ setGeneric(
 
 
 #' @rdname preprocess-methods
-#' @aliases preprocess,knockout.data.raw-method
+#' @aliases preprocess,knockout.raw.data-method
 #'
 #' @import data.table
 #' @importFrom tidyr spread
@@ -97,7 +97,7 @@ setGeneric(
 #' @importFrom dplyr group_by mutate filter select
 setMethod(
   "preprocess",
-  signature = signature(obj="knockout.data"),
+  signature = signature(obj="knockout.raw.data"),
   function(obj,
           normalize          = c("log", "robust-z.score"),
           normalize.viability= F,

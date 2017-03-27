@@ -55,27 +55,20 @@ setGeneric(
 )
 
 #' @rdname lmm-methods
-#' @aliases lmm,knockout.lmm.data-method
+#' @aliases lmm,knockout.normalized.data-method
 #' @import data.table
 setMethod(
   "lmm",
-  signature = signature(obj="knockout.data"),
+  signature = signature(obj="knockout.normalized.data"),
   function(obj,
            drop=T,
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=F,
-           ignore=1,
-           ...)
+           ignore=1)
   {
-    .check.data(obj)
-    res <- .lmm.knockout.data(obj@.data, drop,
-                              weights, rel.mat.path,
-                              bootstrap.cnt, ignore)
-    ret <- new("knockout.analysed",
-               .inference=.inference.types()$MIXED.MODEL,
-               .data=res)
-    ret
+    md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
+    lmm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore)
   }
 )
 
@@ -90,27 +83,13 @@ setMethod(
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=F,
-           ignore=1,
-           ...)
+           ignore=1)
   {
-    res <- .lmm.model.data(obj@.data, bootstrap.cnt)
-    ret <- new("knockout.analysed",
-               .inference=.inference.types()$MIXED.MODEL,
+    res <- .lmm.model.data(obj@.dat, bootstrap.cnt)
+    ret <- new("knockout.analysed.lmm",
                .data=res)
-    ret
   }
 )
-
-#' @noRd
-#' @import data.table
-.lmm.knockout.data <- function(obj, drop,
-                               weights=NULL, rel.mat.path=NULL,
-                               bootstrap.cnt, ignore)
-{
-  # init the data table for the LMM
-  md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-  .lmm.model.data(md, bootstrap.cnt)
-}
 
 #' @noRd
 #' @import data.table

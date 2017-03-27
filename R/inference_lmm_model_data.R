@@ -96,7 +96,8 @@ set.lmm.model.data.svd.data <- function(obj, drop=T, ignore=1,
   }
   lmm.mat <- droplevels(lmm.mat)
 
-  new("knockout.lmm.data", .data=data.table::as.data.table(lmm.mat))
+  new("knockout.lmm.data",
+      .data=data.table::as.data.table(lmm.mat))
 
 }
 

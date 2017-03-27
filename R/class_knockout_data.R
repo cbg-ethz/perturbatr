@@ -21,67 +21,79 @@
 #' @include util_enums.R
 
 
-#' @title Data wrapper for knockout data
-#'
-#' @name Knockout-data
-#' @rdname class_knockout_data
-#'
-#' @description Class \code{knockout.data} is a wrapper for a
-#' \code{data.table} object containing the knockout data
-#'
+#' @noRd
 #' @slot .data the knockout data-set
 setClass(
   "knockout.data",
-  slots     = list(.data="data.table", .type="character"),
+  contains = "VIRTUAL",
+  slots    = list(.data="data.table"),
+)
+
+#' @title Data wrapper for raw knockout data
+#'
+#' @description Class \code{knockout.raw.data} is a wrapper for a
+#' \code{data.table} object containing the raw data-set
+#'
+#' @name Raw-data
+#' @rdname knockout_raw_data-class
+#'
+setClass(
+  "knockout.raw.data",
+  contains  = "knockout.data",
   validity  = function(object)
   {
-    ty    <- object@.type
-    types <- .data.types()
-    norm  <- .data.types()$NORMALIZED
-    raw   <- .data.types()$RAW
-    el    <- .data.types()$ELSE
-    if (ty %in% c(raw, norm))
-    {
+    cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
+             "GeneSymbol", "ReadoutType", "Control", "Library",
+             "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
+             "Entrez", "Readout", "ReadoutClass", "NumCells")
+    if (any(sort(colnames(object@.data)) != sort(cls)))
+      stop(paste0("Your data needs to have the following colnames:\n",
+                  paste0(cls, collapse=", ")))
+
+  return (TRUE)
+  }
+)
+
+#' @title Data wrapper for normalized knockout data
+#'
+#' @description Class \code{knockout.normalized.data} is a wrapper for a
+#' \code{data.table} object containing the normalized data-set
+#'
+#' @name Normalized-data
+#' @rdname knockout_normalized_data-class
+#'
+setClass(
+  "knockout.normalized.data",
+  contains  = "knockout.data",
+  validity  = function(object)
+  {
       cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
                "GeneSymbol", "ReadoutType", "Control", "Library",
                "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
                "Entrez", "Readout")
-    }
-    if (ty == raw)
-    {
-      cls <- c(cls, c("ReadoutClass", "NumCells"))
-    }
-    if (!(ty %in% unlist(types)))
-      stop(paste0("Use one of either ",
-                  paste0(types, collapse="/"),
-                  " as .type."))
-    if (ty != el)
-    {
       if (any(sort(colnames(object@.data)) != sort(cls)))
         stop(paste0("Your data needs to have the following colnames:\n",
                     paste0(cls, collapse=", ")))
-    }
     return (TRUE)
   }
 )
 
-#' @title Data wrapper for knockout linear mixed model data.
+#' @title Data wrapper for linear-mixed-model knockout data
 #'
-#' @name Knockout-LMM-data
-#' @rdname class_knockout_lmm_data
+#' @description Class \code{knockout.lmm.data} is a wrapper for a
+#' \code{data.table} object containing the normalized data-set
 #'
-#' @description Class \code{knockout.lmm.data} is a wrapper the data used by
-#'  LMM.
+#' @name LMM-data
+#' @rdname knockout_lmm_data-class
 #'
-#' @slot .data the knockout data-set
 setClass(
   "knockout.lmm.data",
-  slots     = list(.data="data.table"),
+  contains  = "knockout.data",
   validity  = function(object)
   {
-    cls <- sort(c("Virus", "Entrez", "GeneSymbol", "Control", "VG", "Weight",
-                  "ReadoutType", "Cell", "ScreenType", "Design", "Readout"))
-    if (any(sort(colnames(object@.data)) != cls))
+    cls <- c("Virus", "GeneSymbol", "ReadoutType", "Control", "Weight",
+             "Cell", "ScreenType", "Design", "Entrez", "Readout", "VG")
+    if (any(!(colnames(object@.data) %in% sort(cls))))
       stop(paste0("Your data needs to have the following colnames:\n",
                   paste0(cls, collapse=", ")))
     return (TRUE)

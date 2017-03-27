@@ -3,19 +3,18 @@
 \docType{methods}
 \name{lmm}
 \alias{lmm}
-\alias{lmm,knockout.data-method}
-\alias{lmm,knockout.lmm.data-method}
+\alias{lmm,knockout.normalized.data-method}
 \alias{lmm,knockout.lmm.data-method}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
 lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
-  bootstrap.cnt = F, ignore = 1, ...)
+  bootstrap.cnt = F, ignore = 1)
 
-\S4method{lmm}{knockout.data}(obj, drop = T, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1, ...)
+\S4method{lmm}{knockout.normalized.data}(obj, drop = T, weights = NULL,
+  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1)
 
 \S4method{lmm}{knockout.lmm.data}(obj, drop = T, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1, ...)
+  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1)
 }
 \arguments{
 \item{obj}{an svd.data object}
@@ -32,8 +31,6 @@ going to be used for}
 estimate a significance level for the gene effects}
 
 \item{ignore}{ignore siRNAs that have been seen only once per group}
-
-\item{...}{additional parameters}
 }
 \description{
 \code{lmm} TODO

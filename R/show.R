@@ -26,12 +26,11 @@ setMethod(
   "knockout.data",
   function(object)
   {
-    cat(paste0("A '", object@.type, "' knockout data-set for lmm-analysis\n\n"))
-    object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
-      dplyr::select(Virus, GeneSymbol, Readout, Library,
-                    ReadoutType, Screen, Cell, ScreenType, Design) %>%
-      print
-
+    cat(paste0("A knockout data-set\n\n"))
+      object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
+        dplyr::select(Virus, GeneSymbol, Readout, Library,
+                      ReadoutType, Screen, Cell, ScreenType, Design) %>%
+        print
   }
 )
 
@@ -43,12 +42,11 @@ setMethod(
   "knockout.lmm.data",
   function(object)
   {
-    cat(paste0("A '", object@.type, "' knockout data-set\n\n"))
+    cat(paste0("A knockout data-set for LMMs\n\n"))
     object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
       dplyr::select(Virus, GeneSymbol, Readout, Weight,
                     ReadoutType, Cell, ScreenType, Design) %>%
       print
-
   }
 )
 

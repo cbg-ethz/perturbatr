@@ -25,8 +25,8 @@ rbind.knockout.data <-  function(...)
 {
     args  <- list(...)
     if (length(args) < 2) return(args[[1]])
-    types <- unlist(lapply(args, function(e) e@.type))
+    types <- unlist(lapply(args, function(e) class(e[1])))
     if(any(types != types[1])) stop("Data-types do not agree")
     dat   <- data.table::rbindlist(lapply(args, function(e) e@.data))
-    new("knockout.data", .data=dat, .type=types[1])
+    new(types[1], .data=dat)
 }
