@@ -112,8 +112,6 @@ setMethod(
           summarization      = c("mean", "median"),
           drop               = T)
   {
-    if(obj@.type != .data.types()$RAW) stop("Data is already normalized.")
-
     res <- obj@.data
 
     stopifnot(is.logical(drop))
@@ -134,7 +132,7 @@ setMethod(
     res <- .drop(res, drop)
     res <- data.table::as.data.table(res)
 
-    new("knockout.data", .data=res, .type="normalized")
+    new("knockout.normalized.data", .data=res)
   }
 )
 
