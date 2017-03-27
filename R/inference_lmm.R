@@ -88,6 +88,7 @@ setMethod(
     res <- .lmm.model.data(obj@.dat, bootstrap.cnt)
     ret <- new("knockout.analysed.lmm",
                .data=res)
+    ret
   }
 )
 
@@ -214,5 +215,4 @@ setMethod(
     .[order(-abs(Effect))]
   if (!all(is.na(gpe$FDR))) gpe <- dplyr::filter(gpe, FDR <= fdrt)
   list(gene.hits=ge, gene.pathogen.hits=gpe)
-
 }
