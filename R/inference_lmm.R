@@ -40,7 +40,6 @@
 #' @param bootstrap.cnt  the number of loocv runs you want to do in order to
 #'  estimate a significance level for the gene effects
 #' @param ignore  ignore siRNAs that have been seen only once per group
-#' @param ...  additional parameters
 setGeneric(
   "lmm",
   function(obj,
@@ -48,7 +47,7 @@ setGeneric(
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=F,
-           ignore=1, ...)
+           ignore=1)
   {
     standardGeneric("lmm")
   },
@@ -70,7 +69,9 @@ setMethod(
            ...)
   {
     .check.data(obj)
-    res <- .lmm.knockout.data(obj@.data, bootstrap.cnt)
+    res <- .lmm.knockout.data(obj@.data, drop,
+                              weights, rel.mat.path,
+                              bootstrap.cnt, ignore)
     ret <- new("knockout.analysed",
                .inference=.inference.types()$MIXED.MODEL,
                .data=res)
@@ -103,8 +104,8 @@ setMethod(
 #' @noRd
 #' @import data.table
 .lmm.knockout.data <- function(obj, drop,
-                          weights=NULL, rel.mat.path=NULL,
-                          bootstrap.cnt, ignore, ...)
+                               weights=NULL, rel.mat.path=NULL,
+                               bootstrap.cnt, ignore)
 {
   # init the data table for the LMM
   md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)

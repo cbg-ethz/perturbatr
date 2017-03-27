@@ -66,8 +66,7 @@ setClass(
 #' @rdname diffusion_kockout_analysis-class
 #'
 #' @description Class \code{knockout.analysed.diffusion} is a wrapper for a
-#'   \code{data.table} object
-#' containing the knockout data
+#'   \code{data.table} object containing the knockout data
 #'
 #' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
 setClass(

@@ -24,11 +24,13 @@
 #' @import data.table
 #'
 #' @param obj  an object for which LMM model.data is created
-#' @param drop  decide if genes that are not found in every virus should be dropped
+#' @param drop  decide if genes that are not found in every virus should
+#'  be dropped
 #' @param ignore  ignore siRNAS that are only found \code{ignore} many times
 #' @param weights  weights to set for the siRNAs
 #' @param rel.mat.path  target-relation matrix (TODO)
-set.lmm.model.data <- function(obj, drop=T, ignore=1, weights=NULL, rel.mat.path=NULL)
+set.lmm.model.data <- function(obj, drop=T, ignore=1,
+                               weights=NULL, rel.mat.path=NULL)
 {
   UseMethod("set.lmm.model.data")
 }
@@ -49,64 +51,53 @@ set.lmm.model.data.svd.data <- function(obj, drop=T, ignore=1,
 #' @importFrom dplyr mutate
 .set.lmm.matrix <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
 {
-  # setup pmm data
-  pmm.mat <-
-    # subset the columns
-    dplyr::select(obj, Entrez, GeneSymbol, Virus, Readout, Control, Library,
+  lmm.mat <-
+    dplyr::select(obj@.data, Entrez, GeneSymbol,
+                  Virus, Readout, Control, Library,
                   Cell, ScreenType, Design, ReadoutType) %>%
-    # only take entries that have a genesymbol
     dplyr::filter(!is.na(GeneSymbol)) %>%
-    # dont take positive controls since these are different between the pathonges
-    # negative control on the other hand should be fine
+    # dont take positive controls since these are different between
+    # the pathonges negative control on the other hand should be fine
     dplyr::filter(Control != 1)
-  # set weights
-  data.table::setDT(pmm.mat)[, Weight := .weights(pmm.mat, weights, rel.mat.path)]
-  # set a column that concats virus and genesymbol
-  data.table::setDT(pmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
-  #  remove librarz
-  data.table::setDT(pmm.mat)[, Library := NULL]
-  ## cast some columns
-  pmm.mat$Entrez        <- as.integer(pmm.mat$Entrez)
-  pmm.mat$Virus         <- as.factor(pmm.mat$Virus)
-  pmm.mat$VG            <- as.factor(pmm.mat$VG)
-  pmm.mat$Cell          <- as.factor(pmm.mat$Cell)
-  pmm.mat$ReadoutType   <- as.factor(pmm.mat$ReadoutType)
-  pmm.mat$ScreenType    <- as.factor(pmm.mat$ScreenType)
-  pmm.mat$Design        <- as.factor(pmm.mat$Design)
-  pmm.mat$GeneSymbol    <- as.factor(pmm.mat$GeneSymbol)
-  pmm.mat$Weight        <- as.double(pmm.mat$Weight)
-  pmm.mat$Control       <- as.integer(pmm.mat$Control)
-  pmm.mat <-
-    # remove entries that have nan as readout
-    dplyr::filter(pmm.mat, !is.na(Readout)) %>%
+  data.table::setDT(lmm.mat)[, Weight :=
+                                .weights(lmm.mat, weights, rel.mat.path)]
+  data.table::setDT(lmm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
+  #  remove library: not needed any more due to setting of weights
+  data.table::setDT(lmm.mat)[, Library := NULL]
+
+  lmm.mat$Entrez        <- as.integer(lmm.mat$Entrez)
+  lmm.mat$Virus         <- as.factor(lmm.mat$Virus)
+  lmm.mat$VG            <- as.factor(lmm.mat$VG)
+  lmm.mat$Cell          <- as.factor(lmm.mat$Cell)
+  lmm.mat$ReadoutType   <- as.factor(lmm.mat$ReadoutType)
+  lmm.mat$ScreenType    <- as.factor(lmm.mat$ScreenType)
+  lmm.mat$Design        <- as.factor(lmm.mat$Design)
+  lmm.mat$GeneSymbol    <- as.factor(lmm.mat$GeneSymbol)
+  lmm.mat$Weight        <- as.double(lmm.mat$Weight)
+  lmm.mat$Control       <- as.integer(lmm.mat$Control)
+  lmm.mat <-
+    dplyr::filter(lmm.mat, !is.na(Readout)) %>%
     dplyr::group_by(VG) %>%
-    # count how often VG is in the data
     dplyr::mutate(cnt=n()) %>%
     ungroup %>%
-    # throw away VGs that are less than ignore
     dplyr::filter(cnt >= ignore) %>%
-    # remove cnt column
     dplyr::select(-cnt)
-  # drop genes that are not found in ALL pathogens
+
   if (drop)
   {
-    # count how many viruses are in the date sets
-    vir.cnt <- length(unique(pmm.mat$Virus))
-    pmm.mat <-
-      # group by genesymbol
-      dplyr::group_by(pmm.mat, GeneSymbol) %>%
+    vir.cnt <- .leuniq(lmm.mat$Virus)
+    lmm.mat <- dplyr::group_by(lmm.mat, GeneSymbol) %>%
       # count if the genes are in all viruses
       # and compare if it matches the virus count
       dplyr::mutate(drop=(length(unique(Virus)) != vir.cnt)) %>%
       ungroup %>%
-      # remove genes that are not in all genes
       dplyr::filter(!drop) %>%
-      # remove drop column
       dplyr::select(-drop)
   }
-  pmm.mat <- droplevels(pmm.mat)
-  class(pmm.mat) <- c("svd.lmm.model.data", class(pmm.mat))
-  pmm.mat
+  lmm.mat <- droplevels(lmm.mat)
+
+  new("knockout.lmm.data", .data=data.table::as.data.table(lmm.mat))
+
 }
 
 #' @noRd
@@ -119,10 +110,11 @@ set.lmm.model.data.svd.data <- function(obj, drop=T, ignore=1,
   ret <- rep(1, nrow(obj))
   for (el in els)
   {
-    idxs <- switch(el,
-                   "pooled"  =which(obj$Design == "pooled"),
-                   "single"=which(obj$Design == "single"),
-                   stop("Please provide 'single'/'pooled' list names for setting weights"))
+    idxs <- switch(
+      el,
+      "pooled" = which(obj$Design == "pooled"),
+      "single" = which(obj$Design == "single"),
+      stop("Please provide 'single'/'pooled' list names for setting weights"))
     ret[idxs] <- as.numeric(weights[[el]])
     message(paste("Setting", length(idxs), el,
                   "well weights to:", as.numeric(weights[[el]])))
