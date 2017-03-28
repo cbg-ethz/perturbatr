@@ -15,5 +15,8 @@ containing the knockout data
 \item{\code{.data}}{the knockout data-set}
 
 \item{\code{.inference}}{the method for inferenced that has been used}
+
+\item{\code{.is.bootstrapped}}{boolean whether bootstrap intervals have been
+created or not}
 }}
 

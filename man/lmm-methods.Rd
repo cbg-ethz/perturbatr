@@ -8,13 +8,16 @@
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
 lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
-  bootstrap.cnt = F, ignore = 1)
+  bootstrap.cnt = F, ignore = 1, effect.size = 0.05,
+  qval.threshold = 0.2)
 
 \S4method{lmm}{knockout.normalized.data}(obj, drop = T, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1)
+  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1,
+  effect.size = 0.05, qval.threshold = 0.2)
 
 \S4method{lmm}{knockout.lmm.data}(obj, drop = T, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1)
+  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1,
+  effect.size = 0.05, qval.threshold = 0.2)
 }
 \arguments{
 \item{obj}{an svd.data object}
@@ -27,10 +30,15 @@ found in every virus}
 \item{rel.mat.path}{the (optional) path to a target relation matrix that is
 going to be used for}
 
-\item{bootstrap.cnt}{the number of loocv runs you want to do in order to
-estimate a significance level for the gene effects}
+\item{bootstrap.cnt}{the number of bootstrap runs you want to do in order
+to estimate a significance level for the gene effects}
 
 \item{ignore}{ignore siRNAs that have been seen only once per group}
+
+\item{qval.threshold}{the q-value threshold used for hit prioritization
+if bootstrap.cnt is set}
+
+\item{effect}{size  the relative effect size used for hit prioritization}
 }
 \description{
 \code{lmm} TODO

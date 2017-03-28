@@ -96,14 +96,15 @@ setMethod(
            qval.threshold=.2)
   {
     res     <- .lmm.model.data(obj@.data, bootstrap.cnt)
-    priorit <-  .prioritize.lmm(res, effect.size, qval.threshold)
+    priorit < knockout:::.prioritize.lmm(res, effect.size, qval.threshold)
 
     ret <- new("knockout.analysed.lmm",
-               .gene.effects=res$gene.effects,
-               .gene.pathogen.effects=res$gene.pathogen.effects,
-               .infectivity.effects=res$infection.effects,
-               .data=res$model.data,
-               .model.fit=res$fit)
+               .gene.effects          = res$gene.effects,
+               .gene.pathogen.effects = res$gene.pathogen.effects,
+               .infectivity.effects   = res$infection.effects,
+               .data                  = res$model.data,
+               .model.fit             = res$fit,
+               .is.bootstrapped       = res$btst)
     ret
   }
 )
@@ -143,7 +144,8 @@ setMethod(
     message("Bootstrap for significance estimation")
     ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)
   }
-  else ge.fdrs <- data.table(GeneSymbol=ref$gene.effects$GeneSymbol, FDR=NA_real_)
+  else ge.fdrs <- data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
+                             FDR=NA_real_)
   # set together the gene/fdr/effects and the mappings
   gene.effects <- dplyr::full_join(ref$gene.effects, gene.control.map,
                                    by="GeneSymbol") %>%
@@ -187,27 +189,26 @@ setMethod(
   random.effects <- lme4::ranef(fit.lmm)
   # create the data table with gene effects
   ge <- data.table::data.table(
-    Effect = random.effects[["GeneSymbol"]][,1],
-    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
+    Effect     = random.effects[["GeneSymbol"]][,1],
+    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]]))
+  )
+
   # create the data.table with gene-pathogen effects
   gpe <- data.table::data.table(
     gpe = random.effects[["Virus:GeneSymbol"]][,1],
     GenePathID =
       as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
-  # table for infection types
+
   ie <- data.table::data.table(
     Effect = random.effects[["ScreenType"]][,1],
     ScreenType = as.character(rownames(random.effects[["ScreenType"]])))
-  # table for virus-infection types
-  # ipe <- data.table::data.table(
-  #   ie = random.effects[["Virus:ScreenType"]][,1],
-  #   InfectionPathID = as.character(rownames(random.effects[["Virus:ScreenType"]])))
-  # create the table with gene-pathogen effects
-  ga <- base::merge(gpe, ge, by = "GeneSymbol") %>%
+
+  ga <- merge(gpe, ge, by = "GeneSymbol") %>%
     dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
                   GeneVirusEffect = Effect + gpe) %>%
     dplyr::select(-GenePathID, -gpe, -Effect)
+
   list(gene.effects=ge,
        gene.pathogen.effects=ga,
        infection.effects=ie)
@@ -215,19 +216,16 @@ setMethod(
 
 #' @noRd
 #' @import data.table
-#' @importFrom dplyr filter select group_by mutate summarize full_join
-.prioritize.lmm <- function(obj,
-                            effect.size=0,
-                            qval.threshold=1)
+#' @importFrom dplyr filter group_by mutate
+.prioritize.lmm <- function(obj, eft, fdrt)
 {
-  ge <-
-    obj$gene.effects %>%
-    dplyr::filter(abs(Effect) >= effect.size)  %>%
+  ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]
-  if (!all(is.na(ge$FDR))) ge <- dplyr::filter(ge, FDR <= fdrt)
+  if (obj$btst)
+    ge <- dplyr::filter(ge, FDR <= fdrt)
   gpe <- obj$gene.pathogen.effects %>%
-    dplyr::filter(abs(Effect) >= eft)  %>%
+    dplyr::filter(abs(Effect) >= eft, FDR <= fdrt)  %>%
     .[order(-abs(Effect))]
-  if (!all(is.na(gpe$FDR))) gpe <- dplyr::filter(gpe, FDR <= fdrt)
+
   list(gene.hits=ge, gene.pathogen.hits=gpe)
 }

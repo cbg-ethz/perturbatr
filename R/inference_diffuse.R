@@ -68,12 +68,12 @@ setGeneric(
 )
 
 #' @rdname diffuse-methods
-#' @aliases diffuse,knockout.analysed-method
+#' @aliases diffuse,knockout.lmm.analysed-method
 #' @import data.table
 #' @importFrom dplyr select filter
 setMethod(
   "diffuse",
-  signature=signature(obj="knockout.analysed.lmm"),
+  signature=signature(obj="knockout.lmm.analysed"),
   function(obj,
            method=c("knn", "mrw"),
            path=NULL,
@@ -108,6 +108,8 @@ setMethod(
     ret <- new("knockout.analysed.diffusion",
                .data=res,
                .inference=paste0(method, ".diffusion"))
+
+    ret
   }
 )
 

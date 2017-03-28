@@ -3,15 +3,14 @@
 \docType{methods}
 \name{diffuse}
 \alias{diffuse}
-\alias{diffuse,knockout.analysed.lmm-method}
-\alias{diffuse,knockout.analysed-method}
+\alias{diffuse,knockout.lmm.analysed-method}
 \title{Extend the results from an analysis using network diffusion}
 \usage{
 diffuse(obj, method = c("knn", "mrw"), path = NULL, graph = NULL,
   r = 0.5, node.start.count = 25, search.depth = 5,
   delete.nodes.on.degree = 0, ...)
 
-\S4method{diffuse}{knockout.analysed.lmm}(obj, method = c("knn", "mrw"),
+\S4method{diffuse}{knockout.lmm.analysed}(obj, method = c("knn", "mrw"),
   path = NULL, graph = NULL, r = 0.5, node.start.count = 25,
   search.depth = 5, delete.nodes.on.degree = 0, ...)
 }

@@ -5,13 +5,25 @@
 \alias{LMMAnalysis-class}
 \title{Data wrapper for analysed knockout data using an LMM}
 \description{
-Class \code{knockout.analysed.lmm} is a wrapper for a
-  \code{data.table} object
-containing the knockout data
+Class \code{knockout.lmm.analysed} is a wrapper for a
+  \code{data.table} object containing the knockout data
 }
 \section{Slots}{
 
 \describe{
-\item{\code{.is.bootstrapped}}{boolean whether bootstrapping has been done or not}
+\item{\code{.gene.effects}}{the estimated effect sizes for genes}
+
+\item{\code{.gene.pathogen.effects}}{the estimated effect sizes for genes on a
+viral level}
+
+\item{\code{.infectivity.effects}}{the  estimated effect sizes for different
+infectivity levels}
+
+\item{\code{.gene.hits}}{prioritized genes}
+
+\item{\code{.gene.pathogen.hits}}{prioritized genes on a viral level}
+
+\item{\code{.model.fit}}{the fitted model with gene fdrs and gene-pathogen
+fdrs}
 }}
 
