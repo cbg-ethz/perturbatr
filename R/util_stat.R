@@ -30,3 +30,16 @@
               stop("wrong method given"))
   f
 }
+
+#' @noRd
+#' @importFrom tibble data_frame
+#' @importFrom stats t.test
+conf.int <- function(eff, cnt)
+{
+  # TODO: maybe compute directly on the quantiles for cnt > 1000
+  t          <- stats::t.test(eff, mu=0, na.rm=T)
+  tibble::data_frame(Mean= mean(eff, na.rm=T),
+                     Pval=t$p.value,
+                     Lower=t$conf.int[1],
+                     Upper=t$conf.int[2])
+}

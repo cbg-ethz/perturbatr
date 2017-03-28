@@ -48,15 +48,20 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
     ctr <- ctr + 1
     tryCatch(
     {
+
       bt.sample <- bootstrap(md)
       lmm.fit   <- .lmm(bt.sample)
       re        <- .ranef(lmm.fit)
+
       da <- data.table::data.table(
         bootstrap  = paste0("Bootstrap_", sprintf("%03i", i)),
         Effect     = re$gene.effects$Effect,
-        GeneSymbol = re$gene.effects$GeneSymbol)
+        GeneSymbol = re$gene.effects$GeneSymbol
+      )
+
       li[[i]] <- da
       i <- i + 1
+
       }, error = function(e) {
         cat(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
       }, warning = function(e) {
@@ -68,10 +73,12 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
       stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
   }
   btst.dat <- data.table::rbindlist(li)
-  # TODO modify that accordingly
   fdrs <- .ge.fdrs(btst.dat, bootstrap.cnt)
+
+  # join bootstrap table with fdr table
   ret  <- dplyr::left_join(
     fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
+
   ret
 }
 
@@ -81,24 +88,12 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
 {
   res <-
     dplyr::group_by(btst.dat, GeneSymbol) %>%
-    dplyr::do(.ge.confint(.$Effect, cnt)) %>%
+    dplyr::do(conf.int(.$Effect, cnt)) %>%
     ungroup %>%
     .[order(Pval)] %>%
     dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
   assertthat::assert_that(all(order(res$Pval)  == order(res$Qval)))
 
   res
-}
-
-#' @noRd
-#' @importFrom tibble data_frame
-#' @importFrom stats t.test
-.ge.confint <- function(eff, cnt)
-{
-  t          <- stats::t.test(eff, mu=0, na.rm=T)
-  tibble::data_frame(Mean= mean(eff, na.rm=T),
-                     Pval=t$p.value,
-                     Lower=t$conf.int[1],
-                     Upper=t$conf.int[2])
 }
 
