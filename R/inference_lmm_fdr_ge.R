@@ -23,9 +23,22 @@
 #' @importFrom dplyr mutate select left_join
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
-.lmm.significant.hits <- function(model.data,
+ge.fdrs <- function(model.data,
                                   bootstrap.cnt, padj=c("BH", "bonf"))
 {
+
+  if (is.numeric(bootstrap.cnt) & bootstrap.cnt >= 10)
+  {
+    btst <- TRUE
+    message("Bootstrap for significance estimation")
+    ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)
+  }
+  else {
+
+    ge.fdrs <- data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
+                          FDR=NA_real_)
+  }
+
   padj <- match.arg(padj)
   li <- list()
   i <- 1

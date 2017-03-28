@@ -96,7 +96,7 @@ setMethod(
            qval.threshold=.2)
   {
     res     <- .lmm.model.data(obj@.data, bootstrap.cnt)
-    priorit < knockout:::.prioritize.lmm(res, effect.size, qval.threshold)
+    priorit <- knockout:::.prioritize.lmm(res, effect.size, qval.threshold)
 
     ret <- new("knockout.analysed.lmm",
                .gene.effects          = res$gene.effects,
@@ -118,6 +118,7 @@ setMethod(
   {
     stop("Please use at least 10 bootstrap runs (better 100/1000).")
   }
+
   # save gene control mappings
   gene.control.map <-
     dplyr::select(md, GeneSymbol, Control) %>%
@@ -132,25 +133,18 @@ setMethod(
     warning("Found multiple gene-control entries for several genes,
             i.e. several genes are both control and not control!")
   }
-  # fit the LMM
+
   message("Fitting LMM")
   fit.lmm <- .lmm(md)
-  ref <- .ranef(fit.lmm)
-  # calculate fdrs
-  gp.fdrs <- .fdr(ref$gene.pathogen.effects)
-  # TODO make this consistent to previous FDR
-  if (is.numeric(bootstrap.cnt) & bootstrap.cnt >= 10)
-  {
-    message("Bootstrap for significance estimation")
-    ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)
-  }
-  else ge.fdrs <- data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
-                             FDR=NA_real_)
+  ref     <- .ranef(fit.lmm)
+  gp.fdrs <- .gp.fdrs(ref$gene.pathogen.effects)
+  message("Bootstrap for significance estimation")
+  ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)
   # set together the gene/fdr/effects and the mappings
-  gene.effects <- dplyr::full_join(ref$gene.effects, gene.control.map,
+  ges     <- dplyr::full_join(ref$gene.effects, gene.control.map,
                                    by="GeneSymbol") %>%
     dplyr::full_join(dplyr::select(ge.fdrs, GeneSymbol, FDR), by="GeneSymbol")
-  gene.path.effs <- dplyr::full_join(gp.fdrs$gene.pathogen.matrix,
+  gps     <- dplyr::full_join(gp.fdrs$gene.pathogen.matrix,
                                      gene.control.map, by="GeneSymbol")
   ret <- list(gene.effects=gene.effects,
               gene.pathogen.effects=gene.path.effs,
