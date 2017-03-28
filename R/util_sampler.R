@@ -20,6 +20,8 @@
 
 #' Create a bootstrap sample from a data-set
 #'
+#' @export
+#'
 #' @param obj  the object which data should be bootstrapped
 #' @param level  boostrap either on sirnas or on pathogens
 bootstrap <- function(obj, level=c("sirna", "pathogen"))
@@ -27,7 +29,7 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
   UseMethod("bootstrap")
 }
 
-#' @method bootstrap knockout.lmm.data
+#' @method bootstrap knockout.data
 #' @import data.table
 #' @importFrom dplyr left_join mutate select group_by filter
 bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
@@ -36,19 +38,20 @@ bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
     dplyr::group_by(obj@.data, Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>%
     ungroup
-  res  <- do.call(
-    "rbind",
+
+  res  <- data.table::rbindlist(
     lapply(
       unique(dat$grp),
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
-        idx <- sample(seq(grp.dat$cnt[1]), replace=T) %>% unique
+        idx     <- sample(seq(grp.dat$cnt[1]), replace=T) %>% unique
         grp.dat[idx]
       }
     )
   )
-  res <- as.svd.lmm.model.data(res)
+
+  res <- new(class(obj)[1], .data=dplyr::select(res, -cnt, -grp))
   res
 }
 
