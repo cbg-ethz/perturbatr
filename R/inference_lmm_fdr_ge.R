@@ -23,35 +23,34 @@
 #' @importFrom dplyr mutate select left_join
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
-ge.fdrs <- function(model.data,
-                                  bootstrap.cnt, padj=c("BH", "bonf"))
+.ge.fdrs <- function(md, ref, bootstrap.cnt)
 {
 
   if (is.numeric(bootstrap.cnt) & bootstrap.cnt >= 10)
   {
     btst <- TRUE
-    message("Bootstrap for significance estimation")
-    ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)
+    message("Bootstrapping...")
   }
-  else {
-
-    ge.fdrs <- data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
-                          FDR=NA_real_)
+  else
+  {
+    btst <- FALSE
+    dt <- data.table::data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
+                                 FDR=NA_real_)
+    return(list(dt=dt, btst=btst))
   }
 
-  padj <- match.arg(padj)
-  li <- list()
-  i <- 1
-  ctr <- 1
+  li   <- list()
+  i    <- 1
+  ctr  <- 1
   mistrial.cnt <- bootstrap.cnt * 10
   repeat
   {
     ctr <- ctr + 1
     tryCatch({
-      bt.sample <- as.svd.lmm.model.data(bootstrap(model.data))
+      bt.sample <- bootstrap(md)
       # here use the lmer params
       lmm.fit <- .lmm(bt.sample)
-      re <- .ranef(lmm.fit)
+      re      <- .ranef(lmm.fit)
       da <- data.table::data.table(bootstrap=paste0("Bootstrap_", sprintf("%03i", i)),
                                    Effect=re$gene.effects$Effect,
                                    GeneSymbol=re$gene.effects$GeneSymbol)

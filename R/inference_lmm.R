@@ -137,17 +137,20 @@ setMethod(
   message("Fitting LMM")
   fit.lmm <- .lmm(md)
   ref     <- .ranef(fit.lmm)
+
+  #calc fdrs
   gp.fdrs <- .gp.fdrs(ref$gene.pathogen.effects)
-  message("Bootstrap for significance estimation")
-  ge.fdrs <- .lmm.significant.hits(md, bootstrap.cnt)
+  ge.fdrs <- .ge.fdrs(md, ref, bootstrap.cnt)
+
   # set together the gene/fdr/effects and the mappings
   ges     <- dplyr::full_join(ref$gene.effects, gene.control.map,
-                                   by="GeneSymbol") %>%
+                              by="GeneSymbol") %>%
     dplyr::full_join(dplyr::select(ge.fdrs, GeneSymbol, FDR), by="GeneSymbol")
   gps     <- dplyr::full_join(gp.fdrs$gene.pathogen.matrix,
-                                     gene.control.map, by="GeneSymbol")
-  ret <- list(gene.effects=gene.effects,
-              gene.pathogen.effects=gene.path.effs,
+                              gene.control.map, by="GeneSymbol")
+
+  ret <- list(gene.effects=ges,
+              gene.pathogen.effects=gps,
               infection.effects=ref$infection.effects,
               model.data=md, fit=list(model=fit.lmm,
                                       gene.pathogen.fdrs=gp.fdrs$fdrs,

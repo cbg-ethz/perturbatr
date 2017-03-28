@@ -23,15 +23,13 @@ bootstrap <- function(model.data, level=c("sirna", "pathogen"))
   UseMethod("bootstrap")
 }
 
+#' @method bootstrap knockout.lmm.data
 #' @import data.table
 #' @importFrom dplyr left_join mutate select group_by filter
-#' @method bootstrap svd.lmm.model.data
-bootstrap.svd.lmm.model.data <- function(model.data,
-                                         level=c("sirna", "pathogen"))
+bootstrap.knockout.lmm.data <- function(md, level=c("sirna", "pathogen"))
 {
   dat <-
-    model.data %>%
-    dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
+    dplyr::group_by(md@.data, Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>%
     ungroup
   grps <- unique(dat$grp)
