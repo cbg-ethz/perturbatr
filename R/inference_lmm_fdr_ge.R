@@ -35,8 +35,8 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
   {
     btst <- FALSE
     dt <- data.table::data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
-                                 FDR=NA_real_)
-    return(list(dt=dt, btst=btst))
+                                 Qval=NA_real_)
+    return(list(ret=dt, btst=btst))
   }
 
   li   <- list()
@@ -79,7 +79,7 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
   ret  <- dplyr::left_join(
     fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
 
-  ret
+  list(ret=ret, btst=btst)
 }
 
 #' @noRd

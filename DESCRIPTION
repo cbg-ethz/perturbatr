@@ -39,7 +39,8 @@ Imports: dplyr,
     RankAggreg,
     methods,
     diffusr,
-    lazyeval
+    lazyeval,
+    tibble
 biocViews: geneticperturbation
 Suggests:
     testthat,
@@ -47,7 +48,7 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Collate: 
+Collate:
     'util_enums.R'
     'class_knockout_analysed.R'
     'class_knockout_data.R'

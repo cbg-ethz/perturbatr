@@ -65,6 +65,9 @@ gp.fdrs <- function(obj, ...)
   gene.pathogen.matrix <-
     dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Virus"))
 
+  colnames(ccg.matrix) <- gsub( "fdr\\.", "Qval.", colnames(ccg.matrix))
+  gene.pathogen.matrix <- dplyr::rename(gene.pathogen.matrix, Qval=FDR)
+
   list(ccg.matrix=ccg.matrix,
        fdrs=fdrs,
        gene.pathogen.matrix=gene.pathogen.matrix )

@@ -29,9 +29,11 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
   UseMethod("bootstrap")
 }
 
+#' @export
 #' @method bootstrap knockout.data
 #' @import data.table
 #' @importFrom dplyr left_join mutate select group_by filter
+#' @importFrom parallel mclapply detectCores
 bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
 {
   dat <-
@@ -40,14 +42,16 @@ bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
     ungroup
 
   res  <- data.table::rbindlist(
-    lapply(
+    parallel::mclapply(
       unique(dat$grp),
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
         idx     <- sample(seq(grp.dat$cnt[1]), replace=T) %>% unique
         grp.dat[idx]
-      }
+      },
+      mc.cores=ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),
+                      max(1, parallel::detectCores() - 1), 1L)
     )
   )
 

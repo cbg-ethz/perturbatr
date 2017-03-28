@@ -49,7 +49,7 @@ setGeneric(
            drop=T,
            weights=NULL,
            rel.mat.path=NULL,
-           bootstrap.cnt=F,
+           bootstrap.cnt=0,
            ignore=1,
            effect.size=0.05,
            qval.threshold=.2)
@@ -69,7 +69,7 @@ setMethod(
            drop=T,
            weights=NULL,
            rel.mat.path=NULL,
-           bootstrap.cnt=F,
+           bootstrap.cnt=0,
            ignore=1,
            effect.size=0.05,
            qval.threshold=.2)
@@ -95,10 +95,12 @@ setMethod(
            effect.size=0.05,
            qval.threshold=.2)
   {
-    res     <- .lmm.model.data(obj@.data, bootstrap.cnt)
-    priorit <- knockout:::.prioritize.lmm(res, effect.size, qval.threshold)
+    res     <- .lmm.model.data(obj, bootstrap.cnt)
+    priorit <- .prioritize.lmm(res, effect.size, qval.threshold)
 
-    ret <- new("knockout.analysed.lmm",
+    ret <- new("knockout.lmm.analysed",
+               .gene.hits             = priorit$gene.hits,
+               .gene.pathogen.hits    = priorit$gene.pathogen.hits,
                .gene.effects          = res$gene.effects,
                .gene.pathogen.effects = res$gene.pathogen.effects,
                .screen.type.effects   = res$infection.effects,
@@ -121,7 +123,7 @@ setMethod(
 
   # save gene control mappings
   gene.control.map <-
-    dplyr::select(md, GeneSymbol, Control) %>%
+    dplyr::select(md@.data, GeneSymbol, Control) %>%
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   mult.gen.cnt <- (gene.control.map %>%
@@ -145,16 +147,16 @@ setMethod(
   # set together the gene/fdr/effects and the mappings
   ges     <- dplyr::full_join(ref$gene.effects, gene.control.map,
                               by="GeneSymbol") %>%
-    dplyr::full_join(dplyr::select(ge.fdrs, GeneSymbol, FDR), by="GeneSymbol")
+    dplyr::full_join(dplyr::select(ge.fdrs$ret, GeneSymbol, Qval), by="GeneSymbol")
   gps     <- dplyr::full_join(gp.fdrs$gene.pathogen.matrix,
                               gene.control.map, by="GeneSymbol")
 
   ret <- list(gene.effects=ges,
               gene.pathogen.effects=gps,
-              infection.effects=ref$infection.effects,
-              model.data=md, fit=list(model=fit.lmm,
-                                      gene.pathogen.fdrs=gp.fdrs$fdrs,
-                                      gene.fdrs=ge.fdrs))
+              screen.type.effects=ref$screen.type.effects,
+              model.data=md,
+              model=list(fit=fit.lmm, gp.qvals=gp.fdrs, ge.qvals=ge.fdrs),
+              btst=ge.fdrs$btst)
   ret
 }
 
@@ -208,7 +210,7 @@ setMethod(
 
   list(gene.effects=ge,
        gene.pathogen.effects=ga,
-       infection.effects=ie)
+       screen.type.effects=ie)
 }
 
 #' @noRd
@@ -219,9 +221,9 @@ setMethod(
   ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]
   if (obj$btst)
-    ge <- dplyr::filter(ge, FDR <= fdrt)
+    ge <- dplyr::filter(ge, Qval <= fdrt)
   gpe <- obj$gene.pathogen.effects %>%
-    dplyr::filter(abs(Effect) >= eft, FDR <= fdrt)  %>%
+    dplyr::filter(abs(Effect) >= eft, Qval <= fdrt)  %>%
     .[order(-abs(Effect))]
 
   list(gene.hits=ge, gene.pathogen.hits=gpe)
