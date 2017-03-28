@@ -48,9 +48,8 @@
     ctr <- ctr + 1
     tryCatch({
       bt.sample <- bootstrap(md)
-      # here use the lmer params
-      lmm.fit <- .lmm(bt.sample)
-      re      <- .ranef(lmm.fit)
+      lmm.fit   <- .lmm(bt.sample)
+      re        <- .ranef(lmm.fit)
       da <- data.table::data.table(bootstrap=paste0("Bootstrap_", sprintf("%03i", i)),
                                    Effect=re$gene.effects$Effect,
                                    GeneSymbol=re$gene.effects$GeneSymbol)

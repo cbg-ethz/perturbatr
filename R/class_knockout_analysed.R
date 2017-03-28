@@ -68,7 +68,7 @@ setClass(
   contains  = "knockout.analysed",
   slots     = list(.gene.effects          = "data.table",
                    .gene.pathogen.effects = "data.table",
-                   .infectivity.effects   = "data.table",
+                   .screen.type.effects   = "data.table",
                    .gene.hits             = "data.table",
                    .gene.pathogen.hits    = "data.table",
                    .data                  = "data.table",

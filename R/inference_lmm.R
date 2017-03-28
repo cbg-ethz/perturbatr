@@ -101,7 +101,7 @@ setMethod(
     ret <- new("knockout.analysed.lmm",
                .gene.effects          = res$gene.effects,
                .gene.pathogen.effects = res$gene.pathogen.effects,
-               .infectivity.effects   = res$infection.effects,
+               .screen.type.effects   = res$infection.effects,
                .data                  = res$model.data,
                .model.fit             = res$fit,
                .is.bootstrapped       = res$btst)

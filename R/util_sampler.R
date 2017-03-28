@@ -17,8 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' @noRd
-bootstrap <- function(model.data, level=c("sirna", "pathogen"))
+
+#' Create a bootstrap sample from a data-set
+#'
+#' @param obj  the object which data should be bootstrapped
+#' @param level  boostrap either on sirnas or on pathogens
+bootstrap <- function(obj, level=c("sirna", "pathogen"))
 {
   UseMethod("bootstrap")
 }
@@ -26,17 +30,16 @@ bootstrap <- function(model.data, level=c("sirna", "pathogen"))
 #' @method bootstrap knockout.lmm.data
 #' @import data.table
 #' @importFrom dplyr left_join mutate select group_by filter
-bootstrap.knockout.lmm.data <- function(md, level=c("sirna", "pathogen"))
+bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
 {
   dat <-
-    dplyr::group_by(md@.data, Virus, ScreenType, GeneSymbol) %>%
+    dplyr::group_by(obj@.data, Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>%
     ungroup
-  grps <- unique(dat$grp)
-  res <- do.call(
+  res  <- do.call(
     "rbind",
     lapply(
-      grps,
+      unique(dat$grp),
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
