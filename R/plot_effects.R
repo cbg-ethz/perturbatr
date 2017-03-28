@@ -45,7 +45,7 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
 
   LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
   pl1 <-
-    ggplot2::ggplot(v, aes(Pathogen, GeneSymbol)) +
+    ggplot2::ggplot(v, aes(Virus, GeneSymbol)) +
     ggplot2::geom_tile(aes(fill=Effect), colour=LDcolors[1]) +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +
@@ -62,7 +62,7 @@ show.effect.matrix.svd.prioritized.pmm <- function(x, ...)
   colnames(v) <- c("GeneSymbol", "Virus", "Effect")
   v$GeneSymbol <- factor(v$GeneSymbol, levels=rev(unique(v$GeneSymbol)))
   pl2 <-
-    ggplot2::ggplot(v, aes(GeneSymbol, Pathogen)) +
+    ggplot2::ggplot(v, aes(GeneSymbol, Virus)) +
     ggplot2::geom_tile(aes(fill = Effect), colour=LDcolors[1]) +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +

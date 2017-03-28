@@ -17,12 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' @noRd
 #' @import data.table
 .poc <- function(obj, method, ctrl.gene)
 {
   ctrl.gene <- tolower(ctrl.gene)
-  if (!is.na(ctrl.gene)) message(paste0("Calculating POC on gene ", ctrl.gene, "!"))
+  if (!is.na(ctrl.gene))
+    message(paste0("Calculating POC on gene ", ctrl.gene, "!"))
   else message("Calculating POC on negative controls!")
   f <- .summarization.method(method)
   ret <-

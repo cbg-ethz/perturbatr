@@ -19,14 +19,14 @@
 
 
 #' @noRd
-#' @import igraph
 #' @importFrom utils read.csv
+#' @importFrom igraph graph_from_adjacency_matrix graph.data.frame
 .read.graph <- function(path, graph)
 {
-  if (all(is.null(c(path, graph)))) {
+  if (all(is.null(c(path, graph))))
+  {
     stop("Please provide either a graph or the file-to a graph!")
   }
-
   if (!is.null(path))
   {
     if (!file.exists(path)) stop("'path' does not exist!")
@@ -40,48 +40,12 @@
   }
   else if(!is.null(graph))
   {
-    gra <- graph_from_adjacency_matrix(graph, weighted=T, mode="undirected")
+    gra <- igraph::graph_from_adjacency_matrix(
+      graph, weighted=T, mode="undirected")
   }
   else
   {
     stop("Something went wrong with graph-reading.")
   }
   gra
-}
-
-#' @noRd
-#' @import Matrix
-#' @importFrom assertthat assert_that
-.stoch.col.norm <- function(m)
-{
-  col.sums  <- Matrix::colSums(m)
-  zero.cols <- Matrix::which(col.sums == 0)
-  if (length(zero.cols) != 0)
-  {
-    m[,zero.cols]       <- 1
-    col.sums[zero.cols] <- nrow(m)
-  }
-  ret <- sweep(m, 2L, col.sums, "/", check.margin = FALSE)
-  ret.col.sums <- unname(Matrix::colSums(ret))
-  assertthat::assert_that(all(ret.col.sums <= 1.001))
-  assertthat::assert_that(all(ret.col.sums >= 0.999))
-  assertthat::assert_that(all(ret >= 0) & all(!is.nan(ret@x)))
-  invisible(ret)
-}
-
-#' Get the neighbors of a node including all edges between them
-#'
-#' @export
-#' @param gene  the gene for which the neighborhood is searched
-#' @param graph  the graph
-#' @import igraph
-induced.subgraph <- function(gene, graph)
-{
-  stop("not yet imlemented")
-  fr  <- t(apply(edge.list, 1, function(e) sort(e)))
-
-  edge.list <- igraph::get.edgelist(graph)
-  idxs <- edge.list[,1] == gene | edge.list[,2] == gene
-  genes <- edge.list[idxs, ]
-  genes
 }

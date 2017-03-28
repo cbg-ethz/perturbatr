@@ -1,23 +1,27 @@
 language: r
+r: bioc-release
 
 sudo: false
 
 cache: packages
 
+os:
+  - osx
+  - linux
+
 r_packages:
   - covr
   - testthat
+  - lintr
 
 bioc_packages:
   - limma
   - gespeR
-  - pmm
   - AnnotationDbi
   - GOstats
   - org.Hs.eg.db
   - RankAggreg
-  
-r_github_packages: dirmeier/diffusr
+  - BiocCheck
 
 env:
   global:
@@ -26,3 +30,5 @@ env:
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
+  - Rscript -e 'lintr::lint_package()'
+  - R CMD BiocCheck $PKG_TARBALL

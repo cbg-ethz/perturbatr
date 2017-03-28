@@ -1,14 +1,15 @@
 Package: knockout
 Type: Package
 Title: Analysis of high-throughput gene perturbation screens
-Version: 0.1.0
+Version: 0.2.0
 Date: 2015-12-10
-Authors@R: person("Simon", "Dirmeier", email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
+Authors@R: person("Simon", "Dirmeier", 
+    email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
 Description: `knockout` does analysis of large-scale gene knockout/knockdown screens.
- For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented.
- On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*.
- The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
- Eventually hits can be analyses using GSEA, etc.
+    For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented.
+    On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*.
+    The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
+    Eventually hits can be analyses using GSEA, etc.
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1
@@ -37,10 +38,69 @@ Imports: dplyr,
     doParallel,
     RankAggreg,
     methods,
-    diffusr
+    diffusr,
+    lazyeval,
+    tibble
 biocViews: geneticperturbation
-Suggests: testthat,
+Suggests:
+    testthat,
     lintr,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Collate:
+    'util_enums.R'
+    'class_knockout_analysed.R'
+    'class_knockout_data.R'
+    'data.R'
+    'inference_chisqstatistic.R'
+    'inference_diffuse.R'
+    'inference_diffuse_knn.R'
+    'inference_diffuse_mrw.R'
+    'inference_gesper.R'
+    'inference_hyperstatistic.R'
+    'inference_lmm.R'
+    'inference_lmm_fdr_ge.R'
+    'inference_lmm_fdr_gpe.R'
+    'inference_lmm_model_data.R'
+    'inference_ora.R'
+    'inference_tstatistic.R'
+    'knockout_package.R'
+    'methods_combine.R'
+    'methods_filter.R'
+    'methods_select.R'
+    'plot.R'
+    'plot_analysed.R'
+    'plot_data.R'
+    'plot_diffusion.R'
+    'plot_effects.R'
+    'plot_hist.R'
+    'plot_hit_counts.R'
+    'plot_other.R'
+    'plot_prioritized.R'
+    'preprocess.R'
+    'preprocess_background.R'
+    'preprocess_bscore.R'
+    'preprocess_loess.R'
+    'preprocess_log.R'
+    'preprocess_low_viability.R'
+    'preprocess_poc.R'
+    'preprocess_quantile.R'
+    'preprocess_raw_data.R'
+    'preprocess_well_outliers.R'
+    'preprocess_zscore.R'
+    'print.R'
+    'show.R'
+    'util_as.R'
+    'util_concordance.R'
+    'util_correlation.R'
+    'util_effect_matrix.R'
+    'util_functions.R'
+    'util_graph.R'
+    'util_plates.R'
+    'util_quality.R'
+    'util_rank.R'
+    'util_readout_matrix.R'
+    'util_replicates.R'
+    'util_sampler.R'
+    'util_stat.R'
