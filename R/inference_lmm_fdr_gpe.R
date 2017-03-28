@@ -45,6 +45,7 @@ gp.fdrs <- function(obj, ...)
     ccg.matrix <- merge(ccg.matrix, sub.ccg.matrix[, c("GeneSymbol", fr)],
                         by = "GeneSymbol")
   }
+
   # parse the result matrix into a gene matrix
   # TODO: extra function
   gene.effect.mat <-
@@ -63,6 +64,7 @@ gp.fdrs <- function(obj, ...)
   # join both matrices
   gene.pathogen.matrix <-
     dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Virus"))
+
   list(ccg.matrix=ccg.matrix,
        fdrs=fdrs,
        gene.pathogen.matrix=gene.pathogen.matrix )
