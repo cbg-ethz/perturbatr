@@ -37,9 +37,12 @@
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is
 #'  going to be used for
-#' @param bootstrap.cnt  the number of loocv runs you want to do in order to
-#'  estimate a significance level for the gene effects
+#' @param bootstrap.cnt  the number of bootstrap runs you want to do in order
+#'  to estimate a significance level for the gene effects
 #' @param ignore  ignore siRNAs that have been seen only once per group
+#' @param effect size  the relative effect size used for hit prioritization
+#' @param qval.threshold  the q-value threshold used for hit prioritization
+#'  if bootstrap.cnt is set
 setGeneric(
   "lmm",
   function(obj,
@@ -47,7 +50,9 @@ setGeneric(
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=F,
-           ignore=1)
+           ignore=1,
+           effect.size=0.05,
+           qval.threshold=.2)
   {
     standardGeneric("lmm")
   },
@@ -65,10 +70,13 @@ setMethod(
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=F,
-           ignore=1)
+           ignore=1,
+           effect.size=0.05,
+           qval.threshold=.2)
   {
     md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
-    lmm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore)
+    lmm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore,
+        effect.size, qval.threshold)
   }
 )
 
@@ -83,11 +91,19 @@ setMethod(
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=F,
-           ignore=1)
+           ignore=1,
+           effect.size=0.05,
+           qval.threshold=.2)
   {
-    res <- .lmm.model.data(obj@.dat, bootstrap.cnt)
+    res     <- .lmm.model.data(obj@.data, bootstrap.cnt)
+    priorit <-  .prioritize.lmm(res, effect.size, qval.threshold)
+
     ret <- new("knockout.analysed.lmm",
-               .data=res)
+               .gene.effects=res$gene.effects,
+               .gene.pathogen.effects=res$gene.pathogen.effects,
+               .infectivity.effects=res$infection.effects,
+               .data=res$model.data,
+               .model.fit=res$fit)
     ret
   }
 )
@@ -202,7 +218,6 @@ setMethod(
 #' @importFrom dplyr filter select group_by mutate summarize full_join
 .prioritize.lmm <- function(obj,
                             effect.size=0,
-                            pval.threshold=0.05,
                             qval.threshold=1)
 {
   ge <-

@@ -30,12 +30,16 @@
 #'   \code{data.table} object
 #' containing the knockout data
 #'
-#' @slot .data the knockout data-set
-#' @slot .inference the method for inferenced that has been used
+#' @slot .data  the knockout data-set
+#' @slot .inference  the method for inferenced that has been used
+#' @slot .is.bootstrapped  boolean whether bootstrap intervals have been
+#'  created or not
 setClass(
   "knockout.analysed",
   contains = "VIRTUAL",
-  slots    = list(.data="data.table", .inference="character"),
+  slots    = list(.data="data.table",
+                  .inference="character",
+                  .is.bootstrapped="logical"),
   validity = function(object)
   {
     stopifnot(object@.inference %in% .inference.types())
@@ -47,17 +51,29 @@ setClass(
 #' @name LMMAnalysis-class
 #' @rdname lmm_kockout_analysis-class
 #'
-#' @description Class \code{knockout.analysed.lmm} is a wrapper for a
-#'   \code{data.table} object
-#' containing the knockout data
+#' @description Class \code{knockout.lmm.analysed} is a wrapper for a
+#'   \code{data.table} object containing the knockout data
 #'
-#' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
+#' @slot .gene.effects  the estimated effect sizes for genes
+#' @slot .gene.pathogen.effects  the estimated effect sizes for genes on a
+#'  viral level
+#' @slot .infectivity.effects the  estimated effect sizes for different
+#'  infectivity levels
+#' @slot .gene.hits  prioritized genes
+#' @slot .gene.pathogen.hits  prioritized genes on a viral level
+#' @slot .model.fit  the fitted model with gene fdrs and gene-pathogen
+#'  fdrs
 setClass(
-  "knockout.analysed.lmm",
+  "knockout.lmm.analysed",
   contains  = "knockout.analysed",
-  slots     = list(.is.bootstrapped="logical"),
-  prototype = prototype(.is.bootstrapped=FALSE,
-                        .inference=.inference.types()$MIXED.MODEL)
+  slots     = list(.gene.effects          = "data.table",
+                   .gene.pathogen.effects = "data.table",
+                   .infectivity.effects   = "data.table",
+                   .gene.hits             = "data.table",
+                   .gene.pathogen.hits    = "data.table",
+                   .data                  = "data.table",
+                   .model.fit             = "list"),
+  prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
 )
 
 #' Data wrapper for analysed knockout data using network diffusion
@@ -70,7 +86,7 @@ setClass(
 #'
 #' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
 setClass(
-  "knockout.analysed.diffusion",
+  "knockout..diffusion.analysed",
   contains  = "knockout.analysed",
   slots     = list(.is.bootstrapped="logical"),
   prototype = prototype(.is.bootstrapped=FALSE)
