@@ -40,7 +40,7 @@
 #' @param bootstrap.cnt  the number of bootstrap runs you want to do in order
 #'  to estimate a significance level for the gene effects
 #' @param ignore  ignore siRNAs that have been seen only once per group
-#' @param effect size  the relative effect size used for hit prioritization
+#' @param effect.size  the relative effect size used for hit prioritization
 #' @param qval.threshold  the q-value threshold used for hit prioritization
 #'  if bootstrap.cnt is set
 setGeneric(
@@ -99,13 +99,19 @@ setMethod(
     priorit <- .prioritize.lmm(res, effect.size, qval.threshold)
 
     ret <- new("knockout.lmm.analysed",
-               .gene.hits             = priorit$gene.hits,
-               .gene.pathogen.hits    = priorit$gene.pathogen.hits,
-               .gene.effects          = res$gene.effects,
-               .gene.pathogen.effects = res$gene.pathogen.effects,
-               .screen.type.effects   = res$infection.effects,
-               .data                  = res$model.data,
-               .model.fit             = res$fit,
+               .gene.hits             =
+                 data.table::as.data.table(priorit$gene.hits),
+               .gene.pathogen.hits    =
+                 data.table::as.data.table(priorit$gene.pathogen.hits),
+               .gene.effects          = data.table::
+                 as.data.table(res$gene.effects),
+               .gene.pathogen.effects =
+                 data.table::as.data.table(res$gene.pathogen.effects),
+               .screen.type.effects   = data.table::
+                 as.data.table(res$infection.effects),
+               .data                  = data.table::
+                 as.data.table(res$model.data@.data),
+               .model.fit             = res$model,
                .is.bootstrapped       = res$btst)
     ret
   }

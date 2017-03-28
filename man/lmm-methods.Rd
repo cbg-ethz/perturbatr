@@ -8,11 +8,11 @@
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
 lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
-  bootstrap.cnt = F, ignore = 1, effect.size = 0.05,
+  bootstrap.cnt = 0, ignore = 1, effect.size = 0.05,
   qval.threshold = 0.2)
 
 \S4method{lmm}{knockout.normalized.data}(obj, drop = T, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1,
+  rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
   effect.size = 0.05, qval.threshold = 0.2)
 
 \S4method{lmm}{knockout.lmm.data}(obj, drop = T, weights = NULL,
@@ -35,10 +35,10 @@ to estimate a significance level for the gene effects}
 
 \item{ignore}{ignore siRNAs that have been seen only once per group}
 
+\item{effect.size}{the relative effect size used for hit prioritization}
+
 \item{qval.threshold}{the q-value threshold used for hit prioritization
 if bootstrap.cnt is set}
-
-\item{effect}{size  the relative effect size used for hit prioritization}
 }
 \description{
 \code{lmm} TODO
