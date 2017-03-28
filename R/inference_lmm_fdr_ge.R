@@ -23,7 +23,7 @@
 #' @importFrom dplyr mutate select left_join
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
-.ge.fdrs <- function(md, ref, bootstrap.cnt)
+ge.fdrs <- function(md, ref, bootstrap.cnt)
 {
 
   if (is.numeric(bootstrap.cnt) & bootstrap.cnt >= 10)
@@ -46,31 +46,59 @@
   repeat
   {
     ctr <- ctr + 1
-    tryCatch({
+    tryCatch(
+    {
       bt.sample <- bootstrap(md)
       lmm.fit   <- .lmm(bt.sample)
       re        <- .ranef(lmm.fit)
-      da <- data.table::data.table(bootstrap=paste0("Bootstrap_", sprintf("%03i", i)),
-                                   Effect=re$gene.effects$Effect,
-                                   GeneSymbol=re$gene.effects$GeneSymbol)
+      da <- data.table::data.table(
+        bootstrap  = paste0("Bootstrap_", sprintf("%03i", i)),
+        Effect     = re$gene.effects$Effect,
+        GeneSymbol = re$gene.effects$GeneSymbol)
       li[[i]] <- da
       i <- i + 1
-    }, error=function(e) { print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000 },
-    warning=function(e) { print(e)})
-    if (i > bootstrap.cnt)
-      break
+      }, error = function(e) {
+        cat(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
+      }, warning = function(e) {
+        cat(e)
+      }
+    )
+    if (i > bootstrap.cnt) break
     if (ctr == mistrial.cnt)
       stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
   }
-  flat.dat <- do.call("rbind", lapply(li, function(e) e))
+  btst.dat <- data.table::rbindlist(li)
   # TODO modify that accordingly
-  dat <-  flat.dat %>%
-    dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarise(MeanBootstrap=mean(Effect, na.rm=T),
-                     Pval=.ttest(GeneSymbol, Effect, 0)) %>%
-    ungroup %>%
-    dplyr::mutate(FDR=p.adjust(Pval, method=padj)) %>%
-    .[order(FDR)]
-  dat <- dplyr::left_join(dat, tidyr::spread(flat.dat, bootstrap, Effect), by="GeneSymbol")
-  dat
+  fdrs <- .ge.fdrs(btst.dat, bootstrap.cnt)
+  ret  <- dplyr::left_join(
+    fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
+  ret
 }
+
+#' @noRd
+#' @importFrom assertthat assert_that
+.ge.fdrs <- function(btst.dat, cnt)
+{
+  res <-
+    dplyr::group_by(btst.dat, GeneSymbol) %>%
+    dplyr::do(.ge.confint(.$Effect, cnt)) %>%
+    ungroup %>%
+    .[order(Pval)] %>%
+    dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
+  assertthat::assert_that(all(order(res$Pval)  == order(res$Qval)))
+
+  res
+}
+
+#' @noRd
+#' @importFrom tibble data_frame
+#' @importFrom stats t.test
+.ge.confint <- function(eff, cnt)
+{
+  t          <- stats::t.test(eff, mu=0, na.rm=T)
+  tibble::data_frame(Mean= mean(eff, na.rm=T),
+                     Pval=t$p.value,
+                     Lower=t$conf.int[1],
+                     Upper=t$conf.int[2])
+}
+

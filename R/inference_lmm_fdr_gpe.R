@@ -23,7 +23,7 @@
 #' @noRd
 #' @importFrom stats reshape
 #' @importFrom stats na.omit
-.gp.fdrs <- function(obj, ...)
+gp.fdrs <- function(obj, ...)
 {
   # reshape the data matrix
   ccg.matrix <- stats::reshape(as.data.frame(obj), direction = "wide",

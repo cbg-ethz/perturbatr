@@ -147,7 +147,7 @@ setMethod(
                          ReadoutType, ScreenType, Cell, Design,
                          GeneSymbol, Entrez, Plate, Control,
                          RowIdx, ColIdx, siRNAIDs) %>%
-    dplyr::summarize(Pval=.t.test(GeneSymbol, Readout, mu),
+    dplyr::summarize(Pval=.t.test(GeneSymbol, Readout, mu)$p.value,
                      Readout=mean(Readout, na.rm=T))  %>%
     ungroup
   ret
@@ -192,10 +192,10 @@ setMethod(
   {
     tryCatch ({
       if (mu == 0) {
-        tst <- stats::t.test(val, mu=0, alternative="two.sided")$p.value
+        tst <- stats::t.test(val, mu=0, alternative="two.sided")
       }
       else {
-        tst <- stats::t.test(val, y=mu, alternative="two.sided")$p.value
+        tst <- stats::t.test(val, y=mu, alternative="two.sided")
       }
 
     }, warning = function(war)
@@ -203,6 +203,7 @@ setMethod(
        error = function(err)
       { warning(paste(err, " -> setting one for", g)); })
   }
+
   tst
 }
 

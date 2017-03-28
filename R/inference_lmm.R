@@ -139,8 +139,8 @@ setMethod(
   ref     <- .ranef(fit.lmm)
 
   #calc fdrs
-  gp.fdrs <- .gp.fdrs(ref$gene.pathogen.effects)
-  ge.fdrs <- .ge.fdrs(md, ref, bootstrap.cnt)
+  gp.fdrs <- gp.fdrs(ref$gene.pathogen.effects)
+  ge.fdrs <- ge.fdrs(md, ref, bootstrap.cnt)
 
   # set together the gene/fdr/effects and the mappings
   ges     <- dplyr::full_join(ref$gene.effects, gene.control.map,
@@ -174,7 +174,7 @@ setMethod(
 .lmm <- function(md)
 {
   lme4::lmer(stats::as.formula(.init.formula()),
-             data = md, weights = md$Weight, verbose = F)
+             data = md@.data, weights = md@.data$Weight, verbose = F)
 }
 
 #' @noRd
