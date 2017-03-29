@@ -4,7 +4,7 @@
 \name{diffuse}
 \alias{diffuse}
 \alias{diffuse,knockout.lmm.analysed-method}
-\title{Extend the results from an analysis using network diffusion}
+\title{Smooth the results from an analysis using network diffusion}
 \usage{
 diffuse(obj, method = c("knn", "mrw"), path = NULL, graph = NULL,
   r = 0.5, node.start.count = 25, search.depth = 5,

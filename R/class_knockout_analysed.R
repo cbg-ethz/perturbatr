@@ -85,7 +85,7 @@ setClass(
 #'
 #' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
 setClass(
-  "knockout..diffusion.analysed",
+  "knockout.diffusion.analysed",
   contains  = "knockout.analysed",
   slots     = list(.is.bootstrapped="logical"),
   prototype = prototype(.is.bootstrapped=FALSE)

@@ -29,7 +29,9 @@ mrw <- function(hits, bootstrap.hits, adjm, r, graph)
   if (!is.null(bootstrap.hits))
   {
     boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
-    res   <- dplyr::left_join(diffuse.data$frame, boot.intrvls, by="GeneSymbol")
+    res   <- dplyr::left_join(diffuse.data$frame,
+                              boot.intrvls,
+                              by="GeneSymbol")
   }
 
   list(diffusion = res,
