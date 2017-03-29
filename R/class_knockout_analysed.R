@@ -20,6 +20,8 @@
 
 #' @include util_enums.R
 
+#' Make igraph recognizable by S4
+setOldClass("igraph")
 
 #' @title Data wrapper for analysed knockout data
 #'
@@ -91,11 +93,7 @@ setClass(
 setClass(
   "knockout.diffusion.analysed",
   contains  = "knockout.analysed",
-  slots     = list(.parameters="list",
-                   .initial.model="ANY",
-                   .graph="ANY"),
-  validity  = function(object)
-  {
-    return("igraph" %in% class(object@.graph))
-  }
+  slots     = list(.parameters    = "list",
+                   .initial.model = "ANY",
+                   .graph         = "igraph")
 )
