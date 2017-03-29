@@ -19,7 +19,8 @@
 
 
 #' @include util_enums.R
-
+#' @include class_knockout_data.R
+#' @include class_knockout_analysed.R
 
 #' @title Smooth the results from an analysis using network diffusion
 #'
@@ -97,7 +98,8 @@ setMethod(
         dplyr::select(-Mean, -Pval, -Qval, -Lower, -Upper)
     }
 
-    res   <- .diffuse(hits,
+    ret   <- .diffuse(hits,
+                      mod=obj,
                       bootstrap.hits=bootstrap.hits,
                       path=path,
                       graph=graph,
@@ -107,18 +109,13 @@ setMethod(
                       search.depth=search.depth,
                       delete.nodes.on.degree=delete.nodes.on.degree)
 
-    ret <- new("knockout.diffusion.analysed",
-               .data  = res$diffusion,
-               .graph = res$graph,
-               .inference=paste0(method, ".diffusion"))
-
-    ret
+   ret
   }
 )
 
 #' @noRd
 #' @import data.table igraph
-.diffuse <- function(hits, bootstrap.hits, path, graph, method, r,
+.diffuse <- function(hits, mod, bootstrap.hits, path, graph, method, r,
                      node.start.count, search.depth, delete.nodes.on.degree)
 {
   graph <- .read.graph(path=path, graph=graph)
@@ -129,8 +126,14 @@ setMethod(
 
   l <- switch(method,
          "knn" = knn(hits, bootstrap.hits, adjm,
-                      node.start.count, search.depth, graph),
-         "mrw" = mrw(hits, bootstrap.hits, adjm, r, graph),
+                     node.start.count, search.depth, graph),
+         "mrw" = mrw(hits,
+                     delete.nodes.on.degree=delete.nodes.on.degree,
+                     mod=mod,
+                     bootstrap.hits=bootstrap.hits,
+                     adjm=adjm,
+                     r=r,
+                     graph=graph),
          stop("No suitable method found. Pick either from [knn/mrw]."))
 
   l

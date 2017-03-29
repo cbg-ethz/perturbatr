@@ -18,11 +18,22 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include class_knockout_data.R
+#' @include class_knockout_analysed.R
+
+
 #' @noRd
 #' @import data.table
 #' @importFrom diffusr random.walk
-mrw <- function(hits, bootstrap.hits, adjm, r, graph)
+mrw <- function(hits,
+                mod,
+                bootstrap.hits,
+                delete.nodes.on.degree,
+                r,
+                adjm,
+                graph)
 {
+  message("Diffusion using Markov random walks.")
   diffuse.data <- .do.mrw(hits, adjm, r)
   res  <- diffuse.data$frame
 
@@ -34,9 +45,18 @@ mrw <- function(hits, bootstrap.hits, adjm, r, graph)
                               by="GeneSymbol")
   }
 
-  list(diffusion = res,
-       lmm.hits  = hits,
-       graph     = graph)
+  ret <- new("knockout.diffusion.analysed",
+             .graph           = graph,
+             .initial.model   = mod,
+             .parameters      = list(
+               restart.probaility     = r,
+               delete.nodes.on.degree = delete.nodes.on.degree),
+             .inference       = .inference.types()$MRW.DIFFUSION,
+             .data            = data.table::as.data.table(res),
+             .is.bootstrapped = mod@.is.bootstrapped
+  )
+
+  ret
 }
 
 #' @noRd

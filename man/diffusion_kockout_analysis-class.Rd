@@ -5,12 +5,16 @@
 \alias{DiffusionAnalysis-class}
 \title{Data wrapper for analysed knockout data using network diffusion}
 \description{
-Class \code{knockout.analysed.diffusion} is a wrapper for a
+Class \code{knockout.diffusion.analysed} is a wrapper for a
   \code{data.table} object containing the knockout data
 }
 \section{Slots}{
 
 \describe{
-\item{\code{.is.bootstrapped}}{boolean whether bootstrapping has been done or not}
+\item{\code{.parameters}}{the parameters used for network analysis}
+
+\item{\code{.intitial.model}}{the model that was provided for analysis}
+
+\item{\code{.graph}}{an igraph object that served for the diffusion process}
 }}
 
