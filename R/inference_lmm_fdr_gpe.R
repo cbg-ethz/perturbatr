@@ -70,7 +70,7 @@ gp.fdrs <- function(obj, ...)
 
   list(ccg.matrix=ccg.matrix,
        fdrs=fdrs,
-       gene.pathogen.matrix=gene.pathogen.matrix )
+       gene.pathogen.matrix=gene.pathogen.matrix)
 }
 
 

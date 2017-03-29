@@ -50,3 +50,24 @@ setMethod(
   }
 )
 
+#' @aliases show,knockout.lmm.analysed-method
+#' @import data.table
+#' @importFrom dplyr select left_join
+#' @importFrom tidyr spread
+setMethod(
+  "show",
+  "knockout.lmm.analysed",
+  function(object)
+  {
+    cat(paste0("An LMM-analyed knockout data-set\n\n"))
+    gps <- object@.gene.pathogen.effects %>%
+      dplyr::select(GeneSymbol, Virus, Effect) %>%
+      tidyr::spread(Virus, Effect)
+    ges <- object@.gene.effects %>%
+      dplyr::select(GeneSymbol, Effect, Qval)
+    mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
+    print(data.table::as.data.table(mer))
+  }
+)
+
+
