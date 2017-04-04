@@ -69,9 +69,10 @@ setClass(
 #' @slot .model.fit  the fitted model with gene fdrs and gene-pathogen
 #'  fdrs
 setClass(
-  "knockout.hyper.analysed",
+  .classes()$KNOCKOUT.HYPER.ANALYSED,
   contains  = "knockout.analysed",
-  prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST)
+  prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST,
+                        .is.bootstrapped=FALSE)
 )
 
 

@@ -18,6 +18,9 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include util_enums.R
+
+
 #' @aliases show,knockout.data-method
 #' @import data.table
 #' @importFrom dplyr select
@@ -34,6 +37,7 @@ setMethod(
   }
 )
 
+
 #' @aliases show,knockout.lmm.data-method
 #' @import data.table
 #' @importFrom dplyr select
@@ -49,6 +53,7 @@ setMethod(
       print
   }
 )
+
 
 #' @aliases show,knockout.lmm.analysed-method
 #' @import data.table
@@ -70,4 +75,22 @@ setMethod(
   }
 )
 
+
+#' @import data.table
+setMethod(
+  "show",
+  .classes()$KNOCKOUT.HYPER.ANALYSED,
+  function(object)
+  {
+    cat(paste0("An analyed knockout data-set using an ",
+               "iterative hypergeometric test\n\n"))
+    gps <- object@.gene.pathogen.effects %>%
+      dplyr::select(GeneSymbol, Virus, Effect) %>%
+      tidyr::spread(Virus, Effect)
+    ges <- object@.gene.effects %>%
+      dplyr::select(GeneSymbol, Effect, Qval)
+    mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
+    print(data.table::as.data.table(mer))
+  }
+)
 
