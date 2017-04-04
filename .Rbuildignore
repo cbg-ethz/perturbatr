@@ -17,6 +17,6 @@ LICENSE
 knockout.Rproj
 .travis.yml
 .lintr
-
+^inst/test_calls.R$
 ^appveyor\.yml$
 ^codecov\.yml$

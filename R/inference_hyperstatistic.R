@@ -39,15 +39,14 @@
 #'  siRNAs over replicate level.
 #' @param do.summarization  boolean flag whether sirnas should be summarized
 #'  if level=gene is chosen
-#' @param ...   additional params
+#'
 setGeneric(
   "hyper.statistic",
   function(obj,
-           padjust=c("BH", "bonferroni"),
-           summ.method=c("mean", "median"),
-           level=c("gene", "sirna"),
-           do.summarization=F,
-           ...)
+           padjust          = c("BH", "bonferroni"),
+           summ.method      = c("mean", "median"),
+           level            = c("gene", "sirna"),
+           do.summarization = F)
   {
     standardGeneric("hyper.statistic")
   },
@@ -59,23 +58,20 @@ setGeneric(
 #' @import data.table
 setMethod(
   "hyper.statistic",
-  signature = signature(obj="knockout.data"),
+  signature = signature(obj="knockout.normalized.data"),
   function(obj,
-           padjust=c("BH", "bonferroni"),
-           summ.method=c("mean", "median"),
-           level=c("gene", "sirna"),
-           do.summarization=F,
-           ...)
+           padjust          = c("BH", "bonferroni"),
+           summ.method      = c("mean", "median"),
+           level            = c("gene", "sirna"),
+           do.summarization = F)
   {
-    .check.data(obj)
-    dat <- obj@.data
     stopifnot(is.logical(do.summarization))
+    dat <- obj@.data
     res <- .hyper.statistic(dat,
-                            padjust=match.arg(padjust),
-                            summ.method=match.arg(summ.method),
-                            level=match.arg(level),
-                            do.summarization=do.summarization,
-                            ...)
+                            padjust          = match.arg(padjust),
+                            summ.method      = match.arg(summ.method),
+                            level            = match.arg(level),
+                            do.summarization = do.summarization)
     ret     <- new("knockout.analysed",
                    .inference=.inference.types()$HYPERGEOMETRIC.TEST,
                    .data=res)

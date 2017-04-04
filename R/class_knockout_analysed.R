@@ -20,8 +20,10 @@
 
 #' @include util_enums.R
 
+
 #' Make igraph recognizable by S4
 setOldClass("igraph")
+
 
 #' @title Data wrapper for analysed knockout data
 #'
@@ -48,10 +50,35 @@ setClass(
   }
 )
 
+
+#' Data wrapper for analysed knockout data using a standard hypothesis test
+#'
+#' @name HyperAnalysis-class
+#' @rdname hyper_knockout_analysis-class
+#'
+#' @description Class \code{knockout.lmm.analysed} is a wrapper for a
+#'   \code{data.table} object containing the knockout data
+#'
+#' @slot .gene.effects  the estimated effect sizes for genes
+#' @slot .gene.pathogen.effects  the estimated effect sizes for genes on a
+#'  viral level
+#' @slot .infectivity.effects the  estimated effect sizes for different
+#'  infectivity levels
+#' @slot .gene.hits  prioritized genes
+#' @slot .gene.pathogen.hits  prioritized genes on a viral level
+#' @slot .model.fit  the fitted model with gene fdrs and gene-pathogen
+#'  fdrs
+setClass(
+  "knockout.hyper.analysed",
+  contains  = "knockout.analysed",
+  prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST)
+)
+
+
 #' Data wrapper for analysed knockout data using an LMM
 #'
 #' @name LMMAnalysis-class
-#' @rdname lmm_kockout_analysis-class
+#' @rdname lmm_knockout_analysis-class
 #'
 #' @description Class \code{knockout.lmm.analysed} is a wrapper for a
 #'   \code{data.table} object containing the knockout data
@@ -77,10 +104,11 @@ setClass(
   prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
 )
 
+
 #' @title Data wrapper for analysed knockout data using network diffusion
 #'
 #' @name DiffusionAnalysis-class
-#' @rdname diffusion_kockout_analysis-class
+#' @rdname diffusion_knockout_analysis-class
 #'
 #' @import igraph
 #'

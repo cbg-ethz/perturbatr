@@ -3,17 +3,18 @@
 \docType{methods}
 \name{hyper.statistic}
 \alias{hyper.statistic}
+\alias{hyper.statistic,knockout.normalized.data-method}
 \alias{hyper.statistic,knockout.data-method}
 \title{Calculate statistics based on the hypergeometric-distribution to
  analyse the data.}
 \usage{
 hyper.statistic(obj, padjust = c("BH", "bonferroni"),
   summ.method = c("mean", "median"), level = c("gene", "sirna"),
-  do.summarization = F, ...)
+  do.summarization = F)
 
-\S4method{hyper.statistic}{knockout.data}(obj, padjust = c("BH",
+\S4method{hyper.statistic}{knockout.normalized.data}(obj, padjust = c("BH",
   "bonferroni"), summ.method = c("mean", "median"), level = c("gene",
-  "sirna"), do.summarization = F, ...)
+  "sirna"), do.summarization = F)
 }
 \arguments{
 \item{obj}{the data to be analysed}
@@ -29,8 +30,6 @@ siRNAs over replicate level.}
 
 \item{do.summarization}{boolean flag whether sirnas should be summarized
 if level=gene is chosen}
-
-\item{...}{additional params}
 }
 \description{
 TODO
