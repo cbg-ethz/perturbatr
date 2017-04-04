@@ -18,6 +18,9 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include util_enums.R
+
+
 #' @aliases show,knockout.data-method
 #' @import data.table
 #' @importFrom dplyr select
@@ -34,6 +37,7 @@ setMethod(
   }
 )
 
+
 #' @aliases show,knockout.lmm.data-method
 #' @import data.table
 #' @importFrom dplyr select
@@ -46,6 +50,43 @@ setMethod(
     object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
       dplyr::select(Virus, GeneSymbol, Readout, Weight,
                     ReadoutType, Cell, ScreenType, Design) %>%
+      print
+  }
+)
+
+
+#' @aliases show,knockout.lmm.analysed-method
+#' @import data.table
+#' @importFrom dplyr select left_join
+#' @importFrom tidyr spread
+setMethod(
+  "show",
+  "knockout.lmm.analysed",
+  function(object)
+  {
+    cat(paste0("An LMM-analyed knockout data-set\n\n"))
+    gps <- object@.gene.pathogen.effects %>%
+      dplyr::select(GeneSymbol, Virus, Effect) %>%
+      tidyr::spread(Virus, Effect)
+    ges <- object@.gene.effects %>%
+      dplyr::select(GeneSymbol, Effect, Qval)
+    mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
+    print(data.table::as.data.table(mer))
+  }
+)
+
+
+#' @import data.table
+setMethod(
+  "show",
+  "knockout.hyper.analysed",
+  function(object)
+  {
+    cat(paste0("An analyed knockout data-set using an ",
+               "iterative hypergeometric test\n\n"))
+    data.table::setorder(object@.gene.hits, -HitRatio, MinQval)
+    object@.gene.hits[ ,head(.SD, 2L), by="Virus"] %>%
+      dplyr::select(Virus, GeneSymbol, MeanEffect, HitRatio, MinQval) %>%
       print
   }
 )

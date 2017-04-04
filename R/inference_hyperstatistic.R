@@ -19,7 +19,7 @@
 
 
 #' @include class_knockout_data.R
-
+#' @include class_knockout_analysed.R
 
 #' @title Calculate statistics based on the hypergeometric-distribution to
 #'  analyse the data.
@@ -39,15 +39,25 @@
 #'  siRNAs over replicate level.
 #' @param do.summarization  boolean flag whether sirnas should be summarized
 #'  if level=gene is chosen
-#' @param ...   additional params
+#' @param hit.ratio  ratio of succesful hits such that a gene is considered a
+#'  'hit'
+#' @param effect.size  the mean effect size used for hit prioritization
+#' @param pval.threshold  p-value threshold when a siRNA should be considered a
+#'  'hit'
+#' @param qval.threshold  q-value threshold when a siRNA should be considered a
+#'  'hit'
+#'
 setGeneric(
   "hyper.statistic",
   function(obj,
-           padjust=c("BH", "bonferroni"),
-           summ.method=c("mean", "median"),
-           level=c("gene", "sirna"),
-           do.summarization=F,
-           ...)
+           padjust          = c("BH", "bonferroni"),
+           summ.method      = c("mean", "median"),
+           level            = c("gene", "sirna"),
+           do.summarization = F,
+           hit.ratio        = 0.5,
+           effect.size      = 0,
+           pval.threshold   = 0.05,
+           qval.threshold   = 1)
   {
     standardGeneric("hyper.statistic")
   },
@@ -59,26 +69,31 @@ setGeneric(
 #' @import data.table
 setMethod(
   "hyper.statistic",
-  signature = signature(obj="knockout.data"),
+  signature = signature(obj="knockout.normalized.data"),
   function(obj,
-           padjust=c("BH", "bonferroni"),
-           summ.method=c("mean", "median"),
-           level=c("gene", "sirna"),
-           do.summarization=F,
-           ...)
+           padjust          = c("BH", "bonferroni"),
+           summ.method      = c("mean", "median"),
+           level            = c("gene", "sirna"),
+           do.summarization = F,
+           hit.ratio        = 0.5,
+           effect.size      = 0,
+           pval.threshold   = 0.05,
+           qval.threshold   = 1)
   {
-    .check.data(obj)
-    dat <- obj@.data
     stopifnot(is.logical(do.summarization))
-    res <- .hyper.statistic(dat,
-                            padjust=match.arg(padjust),
-                            summ.method=match.arg(summ.method),
-                            level=match.arg(level),
-                            do.summarization=do.summarization,
-                            ...)
-    ret     <- new("knockout.analysed",
-                   .inference=.inference.types()$HYPERGEOMETRIC.TEST,
-                   .data=res)
+
+    res <- .hyper.statistic(
+      obj   = obj@.data,
+      padjust          = match.arg(padjust),
+      summ.method      = match.arg(summ.method),
+      level            = match.arg(level),
+      do.summarization = do.summarization)
+    priorit <- .prioritize.hyper.statistic(
+      res, hit.ratio, effect.size, pval.threshold, qval.threshold)
+
+    ret     <- new("knockout.hyper.analysed",
+                   .gene.hits = data.table::as.data.table(priorit),
+                   .data      =  data.table::as.data.table(obj@.data))
     ret
   }
 )
@@ -88,8 +103,11 @@ setMethod(
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_by
 #' @importFrom dplyr mutate
-.hyper.statistic <- function(obj, padjust, summ.method, level,
-                             do.summarization, ...)
+.hyper.statistic <- function(obj,
+                             padjust,
+                             summ.method,
+                             level,
+                             do.summarization)
 {
   if (do.summarization & level=="sirna")
     stop("Cant do summarization on sirna level. Choose level=gene")
@@ -102,8 +120,7 @@ setMethod(
   ret <-  dplyr::mutate(obj, grp=grp.indexes)
   grps <- unique(ret$grp)
 
-  res <- do.call(
-    "rbind",
+  res <- data.table::rbindlist(
     lapply(
       grps,
       function (g)
@@ -174,7 +191,7 @@ setMethod(
   res <- res[order(Pval)]
   data.table::setDT(res)[,HyperRank := cumsum(res$Hit)]
   data.table::setDT(res)[Hit == 0, HyperRank := NA_integer_]
-  assertthat::assert_that(all(order(obj$Pval) == order(obj$Qval)))
+  assertthat::assert_that(all(order(res$Pval) == order(res$Qval)))
 
   res
 }
@@ -235,9 +252,10 @@ setMethod(
     cutoff <- i
     c(prob=prob, cutoff=cutoff)
   }))
-  min.idx <- which.min(hi[,1])
+  min.idx  <- which.min(hi[,1])
   min.prob <- hi[min.idx,1]
-  is.hit <- as.numeric(seq(ndrawn) <= hi[min.idx,2])
+  # TODO maybe change this to q-values
+  is.hit   <- as.numeric(seq(ndrawn) <= hi[min.idx,2])
   paste(min.prob, is.hit, sep="_")
 }
 
@@ -245,18 +263,18 @@ setMethod(
 #' @import data.table
 #' @importFrom dplyr group_by summarize ungroup filter select
 .prioritize.hyper.statistic <- function(obj,
-                                        hit.ratio=0.5,
-                                        effect.size=0,
-                                        pval.threshold=0.05,
-                                        qval.threshold=1)
+                                        hit.ratio,
+                                        effect.size,
+                                        pval.threshold,
+                                        qval.threshold)
 {
-  res <- dplyr::group_by(obj, Virus, Screen, Library,
-                         ScreenType, ReadoutType,
-                         Design, Cell,
-                         GeneSymbol, Entrez) %>%
-    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
-                     PvalRatio  = (sum(Pval  <= pval.threshold, na.rm=T)/n()),
-                     QvalRatio  = (sum(Qval  <= qval.threshold, na.rm=T)/n()),
+  if (effect.size != 0)    stop("Effect size not yet implemented")
+  if (qval.threshold != 1) stop("Q-value not  yet implemented")
+  res <- dplyr::group_by(obj, Virus, Screen, Library, ScreenType, ReadoutType,
+                         Design, Cell, GeneSymbol, Entrez) %>%
+    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T) / n()),
+                     PvalRatio  = (sum(Pval <= pval.threshold, na.rm=T)/n()),
+                     QvalRatio  = (sum(Qval <= qval.threshold, na.rm=T)/n()),
                      MeanEffect = mean(Readout,na.rm=T),
                      MaxEffect  = max(Readout, na.rm=T),
                      MinEffect  = min(Readout, na.rm=T),
@@ -266,5 +284,6 @@ setMethod(
                      Qval=paste(sprintf("%.03f", Qval), collapse=",")) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.ratio)
+
   res
 }

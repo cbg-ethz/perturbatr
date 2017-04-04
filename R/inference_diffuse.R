@@ -19,9 +19,10 @@
 
 
 #' @include util_enums.R
+#' @include class_knockout_data.R
+#' @include class_knockout_analysed.R
 
-
-#' @title Extend the results from an analysis using network diffusion
+#' @title Smooth the results from an analysis using network diffusion
 #'
 #' @description TODO
 #'
@@ -85,17 +86,20 @@ setMethod(
            ...)
   {
     method <- match.arg(method)
-    hits   <- dplyr::select(obj@.data$gene.hitsGeneSymbol, abs(Effect))
+    hits   <- dplyr::select(obj@.gene.hits, GeneSymbol, abs(Effect))
+    if (nrow(hits) == 0)
+      stop("Your prior analysis did not yield hits for genes")
 
     bootstrap.hits <- NULL
     if (obj@.is.bootstrapped)
     {
-      bootstrap.hits <- obj@.fit$fit$gene.fdrs %>%
+      bootstrap.hits <- obj@.model.fit$ge.fdrs$ret %>%
         dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
-        dplyr::select(-MeanBootstrap, -Pval, -FDR)
+        dplyr::select(-Mean, -Pval, -Qval, -Lower, -Upper)
     }
 
-    res   <- .diffuse(hits,
+    ret   <- .diffuse(hits,
+                      mod=obj,
                       bootstrap.hits=bootstrap.hits,
                       path=path,
                       graph=graph,
@@ -105,17 +109,13 @@ setMethod(
                       search.depth=search.depth,
                       delete.nodes.on.degree=delete.nodes.on.degree)
 
-    ret <- new("knockout.analysed.diffusion",
-               .data=res,
-               .inference=paste0(method, ".diffusion"))
-
-    ret
+   ret
   }
 )
 
 #' @noRd
 #' @import data.table igraph
-.diffuse <- function(hits, bootstrap.hits, path, graph, method, r,
+.diffuse <- function(hits, mod, bootstrap.hits, path, graph, method, r,
                      node.start.count, search.depth, delete.nodes.on.degree)
 {
   graph <- .read.graph(path=path, graph=graph)
@@ -125,147 +125,16 @@ setMethod(
   adjm  <- igraph::get.adjacency(graph, attr="weight")
 
   l <- switch(method,
-         "neighbors"= .knn(hits, bootstrap.hits, adjm,
-                           node.start.count, search.depth, graph),
-         "mrw"      = .mrw(hits, bootstrap.hits, adjm, r, graph),
-         stop("No suitable method found"))
+         "knn" = knn(hits, bootstrap.hits, adjm,
+                     node.start.count, search.depth, graph),
+         "mrw" = mrw(hits,
+                     delete.nodes.on.degree=delete.nodes.on.degree,
+                     mod=mod,
+                     bootstrap.hits=bootstrap.hits,
+                     adjm=adjm,
+                     r=r,
+                     graph=graph),
+         stop("No suitable method found. Pick either from [knn/mrw]."))
 
   l
-}
-
-#' @noRd
-#' @import data.table
-#' @importFrom diffusr random.walk
-.mrw <- function(hits, bootstrap.hits, adjm, r, graph)
-{
-  diffuse.data <- .do.mrw(hits, adjm, r)
-  if (!is.null(bootstrap.hits))
-  {
-    pvals <- .significance.mrw(bootstrap.hits, adjm, r)
-    res   <- dplyr::left_join(diffuse.data$frame, pvals, by="GeneSymbol")
-  }
-  else
-  {
-    res  <- diffuse.data$frame
-  }
-  li  <- list(diffusion=dplyr::select(res, GeneSymbol, Effect, DiffusionEffect),
-              diffusion.model=res,
-              lmm.hits=hits,
-              graph=graph)
-  li
-}
-
-#' @noRd
-#' @importFrom diffusr random.walk
-.do.mrw <- function(hits, adjm, r)
-{
-  diffuse.data <- .init.starting.distribution(hits, adjm)
-  mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
-                              as.matrix(diffuse.data$adjm), r)
-  diffuse.data$frame$DiffusionEffect <- mrw
-  diffuse.data
-}
-
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr left_join
-.init.starting.distribution <- function(hits, adjm)
-{
-  res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
-                           hits, by="GeneSymbol")
-  data.table::setDT(res)[is.na(Effect), Effect := 0]
-  list(frame=res, adjm=adjm)
-}
-
-#' @noRd
-#' @importFrom tidyr gather
-#' @import foreach
-#' @import parallel
-#' @import doParallel
-.significance.mrw <- function(bootstrap.hits, adjm, r)
-{
-  boot.g <- tidyr::gather(bootstrap.hits, Boot, Effect, -GeneSymbol) %>%
-    as.data.table
-  li <- list()
-  # TODO: parallel
-  foreach::foreach(lo=unique(boot.g$Boot)) %do%
-  {
-    hits <- dplyr::filter(boot.g, Boot==lo)
-    hits <- dplyr::select(hits, -Boot)
-    dd.lo <- .do.mrw(hits, adjm, r)
-    dd.lo$frame$boot <- lo
-    li[[lo]] <- dd.lo$frame
-  }
-  # TODO: how to do hypothesis test here?
-  # -> calculate means -> calculate alphas -> calculate variance -> calculate alpha_0
-  # prolly as with lmm, however ttest is a ad choice here, since it depends on
-  # the graph size
-  flat.dat <- do.call("rbind", lapply(li, function(e) e)) %>%
-    dplyr::select(-Effect)
-  dat <- flat.dat  %>%
-    dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarise(MeanBootstrapDiffusionEffect=
-                       mean(DiffusionEffect, na.rm=T)) %>%
-    ungroup
-  dat <- dplyr::left_join(dat,
-                          tidyr::spread(flat.dat, boot, DiffusionEffect),
-                          by="GeneSymbol")
-  dat
-}
-
-#' @noRd
-#' @import data.table igraph
-#' @importFrom dplyr filter mutate
-.knn <- function(hits, bootstrap.hits, adjm, node.start.count,
-                 search.depth, graph)
-{
-  # TODO diff on loocv.hits
-  diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
-  neighs <- diffusr::nearest.neighbors(
-    as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
-    as.matrix(diffuse.data$adjm), search.depth)
-  res <- diffuse.data$frame
-
-  names(neighs) <- (diffuse.data$frame %>%
-    dplyr::filter(Idx %in% as.integer(names(neighs))))$GeneSymbol
-  # Add the effects of the neighbors
-  neighs <- lapply(neighs, function(e) {
-    dplyr::left_join(data.table(Idx=e), res, by="Idx") %>%
-      dplyr::select(GeneSymbol, Effect)}
-  )
-
-  flat.dat <- do.call(
-    "rbind",
-    lapply(1:length(neighs),
-           function(e) data.table(Start=names(neighs)[e], neighs[[e]]))
-  )
-
-  genes.found <- dplyr::select(flat.dat, Start, GeneSymbol) %>%
-    unlist %>% unname %>% unique
-  genes.f.table <- data.table::data.table(GeneSymbol=genes.found) %>%
-    dplyr::left_join(res, by="GeneSymbol")
-
-  li <- list(data=res,
-             neighbors=flat.dat,
-             graph=graph,
-             genes.found=genes.f.table)
-  class(li) <- c("svd.diffused.knn", "svd.diffused")
-  return(li)
-}
-
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr left_join mutate select
-.init.starting.indexes <- function(hits, adjm, node.start.count)
-{
-  res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
-                           hits, by="GeneSymbol")
-  data.table::setDT(res)[is.na(Effect), Effect := 0]
-  res <- res %>%
-    .[order(-abs(Effect))] %>%
-    dplyr::mutate(Idx = 1:.N) %>%
-    dplyr::mutate(Select = (Idx <= node.start.count))
-  data.table::setDT(res)[Effect == 0  , Select := FALSE]
-  data.table::setDT(res)[is.na(Select), Select := FALSE]
-  return(list(frame=res, adjm=adjm))
 }

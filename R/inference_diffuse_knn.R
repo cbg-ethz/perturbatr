@@ -21,7 +21,7 @@
 #' @noRd
 #' @import data.table igraph
 #' @importFrom dplyr filter mutate
-.knn <- function(hits, bootstrap.hits, adjm, node.start.count,
+knn <- function(hits, bootstrap.hits, adjm, node.start.count,
                  search.depth, graph)
 {
   # TODO diff on bootstrap hits

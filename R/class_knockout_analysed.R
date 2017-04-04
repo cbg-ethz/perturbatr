@@ -21,6 +21,10 @@
 #' @include util_enums.R
 
 
+#' Make igraph recognizable by S4
+setOldClass("igraph")
+
+
 #' @title Data wrapper for analysed knockout data
 #'
 #' @name KnockoutAnalysis-class
@@ -46,10 +50,30 @@ setClass(
   }
 )
 
+
+#' Data wrapper for analysed knockout data using a standard hypothesis test
+#'
+#' @name HyperAnalysis-class
+#' @rdname hyper_knockout_analysis-class
+#'
+#' @description Class \code{knockout.lmm.analysed} is a wrapper for a
+#'   \code{data.table} object containing the knockout data
+#'
+#' @slot .gene.hits  prioritized genes
+#'
+setClass(
+  "knockout.hyper.analysed",
+  contains  = "knockout.analysed",
+  slots     = list(.gene.hits="data.table"),
+  prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST,
+                        .is.bootstrapped=FALSE)
+)
+
+
 #' Data wrapper for analysed knockout data using an LMM
 #'
 #' @name LMMAnalysis-class
-#' @rdname lmm_kockout_analysis-class
+#' @rdname lmm_knockout_analysis-class
 #'
 #' @description Class \code{knockout.lmm.analysed} is a wrapper for a
 #'   \code{data.table} object containing the knockout data
@@ -75,18 +99,24 @@ setClass(
   prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
 )
 
-#' Data wrapper for analysed knockout data using network diffusion
+
+#' @title Data wrapper for analysed knockout data using network diffusion
 #'
 #' @name DiffusionAnalysis-class
-#' @rdname diffusion_kockout_analysis-class
+#' @rdname diffusion_knockout_analysis-class
 #'
-#' @description Class \code{knockout.analysed.diffusion} is a wrapper for a
+#' @import igraph
+#'
+#' @description Class \code{knockout.diffusion.analysed} is a wrapper for a
 #'   \code{data.table} object containing the knockout data
 #'
-#' @slot .is.bootstrapped boolean whether bootstrapping has been done or not
+#' @slot .parameters  the parameters used for network analysis
+#' @slot .intitial.model  the model that was provided for analysis
+#' @slot .graph  an igraph object that served for the diffusion process
 setClass(
-  "knockout..diffusion.analysed",
+  "knockout.diffusion.analysed",
   contains  = "knockout.analysed",
-  slots     = list(.is.bootstrapped="logical"),
-  prototype = prototype(.is.bootstrapped=FALSE)
+  slots     = list(.parameters    = "list",
+                   .initial.model = "ANY",
+                   .graph         = "igraph")
 )

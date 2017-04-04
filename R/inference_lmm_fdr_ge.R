@@ -73,7 +73,7 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
       stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
   }
   btst.dat <- data.table::rbindlist(li)
-  fdrs <- .ge.fdrs(btst.dat, bootstrap.cnt)
+  fdrs     <- .ge.fdrs(btst.dat, bootstrap.cnt)
 
   # join bootstrap table with fdr table
   ret  <- dplyr::left_join(

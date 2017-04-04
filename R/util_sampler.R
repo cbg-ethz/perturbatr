@@ -55,8 +55,8 @@ bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
     )
   )
 
-  res <- new(class(obj)[1], .data=dplyr::select(res, -cnt, -grp))
-  res
+  ret <- new(class(obj)[1], .data=dplyr::select(res, -cnt, -grp))
+  ret
 }
 
 #' @noRd
@@ -94,6 +94,7 @@ loocv.svd.lmm.model.data <- function(model.data, idx)
       }
     )
   )
-  res <- as.svd.lmm.model.data(res)
-  res
+
+  ret <- as.svd.lmm.model.data(res)
+  ret
 }

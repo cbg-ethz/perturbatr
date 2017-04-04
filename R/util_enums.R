@@ -27,3 +27,10 @@
        MRW.DIFFUSION       = "mrw.diffusion",
        NN.DIFFUSION        = "knn.diffusion")
 }
+
+.classes <- function()
+{
+  list(KNOCKOUT.HYPER.ANALYSED="knockout.hyper.analysed"
+
+  )
+}

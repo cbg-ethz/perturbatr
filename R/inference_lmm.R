@@ -99,20 +99,21 @@ setMethod(
     priorit <- .prioritize.lmm(res, effect.size, qval.threshold)
 
     ret <- new("knockout.lmm.analysed",
-               .gene.hits             =
-                 data.table::as.data.table(priorit$gene.hits),
-               .gene.pathogen.hits    =
-                 data.table::as.data.table(priorit$gene.pathogen.hits),
-               .gene.effects          = data.table::
-                 as.data.table(res$gene.effects),
-               .gene.pathogen.effects =
-                 data.table::as.data.table(res$gene.pathogen.effects),
-               .screen.type.effects   = data.table::
-                 as.data.table(res$infection.effects),
-               .data                  = data.table::
-                 as.data.table(res$model.data@.data),
-               .model.fit             = res$model,
-               .is.bootstrapped       = res$btst)
+           .gene.hits             =
+             data.table::as.data.table(priorit$gene.hits),
+           .gene.pathogen.hits    =
+             data.table::as.data.table(priorit$gene.pathogen.hits),
+           .gene.effects          = data.table::
+             as.data.table(res$gene.effects),
+           .gene.pathogen.effects =
+             data.table::as.data.table(res$gene.pathogen.effects),
+           .screen.type.effects   = data.table::
+             as.data.table(res$infection.effects),
+           .data                  = data.table::
+             as.data.table(res$model.data@.data),
+           .model.fit             = res$model,
+           .is.bootstrapped       = res$btst)
+
     ret
   }
 )
@@ -153,7 +154,8 @@ setMethod(
   # set together the gene/fdr/effects and the mappings
   ges     <- dplyr::full_join(ref$gene.effects, gene.control.map,
                               by="GeneSymbol") %>%
-    dplyr::full_join(dplyr::select(ge.fdrs$ret, GeneSymbol, Qval), by="GeneSymbol")
+    dplyr::full_join(dplyr::select(ge.fdrs$ret, GeneSymbol, Qval),
+                     by="GeneSymbol")
   gps     <- dplyr::full_join(gp.fdrs$gene.pathogen.matrix,
                               gene.control.map, by="GeneSymbol")
 
@@ -161,7 +163,7 @@ setMethod(
               gene.pathogen.effects=gps,
               screen.type.effects=ref$screen.type.effects,
               model.data=md,
-              model=list(fit=fit.lmm, gp.qvals=gp.fdrs, ge.qvals=ge.fdrs),
+              model=list(fit=fit.lmm, gp.fdrs=gp.fdrs, ge.fdrs=ge.fdrs),
               btst=ge.fdrs$btst)
   ret
 }
