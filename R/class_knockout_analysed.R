@@ -59,18 +59,12 @@ setClass(
 #' @description Class \code{knockout.lmm.analysed} is a wrapper for a
 #'   \code{data.table} object containing the knockout data
 #'
-#' @slot .gene.effects  the estimated effect sizes for genes
-#' @slot .gene.pathogen.effects  the estimated effect sizes for genes on a
-#'  viral level
-#' @slot .infectivity.effects the  estimated effect sizes for different
-#'  infectivity levels
 #' @slot .gene.hits  prioritized genes
-#' @slot .gene.pathogen.hits  prioritized genes on a viral level
-#' @slot .model.fit  the fitted model with gene fdrs and gene-pathogen
-#'  fdrs
+#'
 setClass(
-  .classes()$KNOCKOUT.HYPER.ANALYSED,
+  "knockout.hyper.analysed",
   contains  = "knockout.analysed",
+  slots     = list(.gene.hits="data.table"),
   prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST,
                         .is.bootstrapped=FALSE)
 )

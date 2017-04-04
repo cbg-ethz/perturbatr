@@ -79,18 +79,15 @@ setMethod(
 #' @import data.table
 setMethod(
   "show",
-  .classes()$KNOCKOUT.HYPER.ANALYSED,
+  "knockout.hyper.analysed",
   function(object)
   {
     cat(paste0("An analyed knockout data-set using an ",
                "iterative hypergeometric test\n\n"))
-    gps <- object@.gene.pathogen.effects %>%
-      dplyr::select(GeneSymbol, Virus, Effect) %>%
-      tidyr::spread(Virus, Effect)
-    ges <- object@.gene.effects %>%
-      dplyr::select(GeneSymbol, Effect, Qval)
-    mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
-    print(data.table::as.data.table(mer))
+    data.table::setorder(object@.gene.hits, -HitRatio, MinQval)
+    object@.gene.hits[ ,head(.SD, 2L), by="Virus"] %>%
+      dplyr::select(Virus, GeneSymbol, MeanEffect, HitRatio, MinQval) %>%
+      print
   }
 )
 

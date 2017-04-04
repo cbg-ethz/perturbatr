@@ -10,11 +10,13 @@
 \usage{
 hyper.statistic(obj, padjust = c("BH", "bonferroni"),
   summ.method = c("mean", "median"), level = c("gene", "sirna"),
-  do.summarization = F)
+  do.summarization = F, hit.ratio = 0.5, effect.size = 0,
+  pval.threshold = 0.05, qval.threshold = 1)
 
 \S4method{hyper.statistic}{knockout.normalized.data}(obj, padjust = c("BH",
   "bonferroni"), summ.method = c("mean", "median"), level = c("gene",
-  "sirna"), do.summarization = F)
+  "sirna"), do.summarization = F, hit.ratio = 0.5, effect.size = 0,
+  pval.threshold = 0.05, qval.threshold = 1)
 }
 \arguments{
 \item{obj}{the data to be analysed}
@@ -30,6 +32,17 @@ siRNAs over replicate level.}
 
 \item{do.summarization}{boolean flag whether sirnas should be summarized
 if level=gene is chosen}
+
+\item{hit.ratio}{ratio of succesful hits such that a gene is considered a
+'hit'}
+
+\item{effect.size}{the mean effect size used for hit prioritization}
+
+\item{pval.threshold}{p-value threshold when a siRNA should be considered a
+'hit'}
+
+\item{qval.threshold}{q-value threshold when a siRNA should be considered a
+'hit'}
 }
 \description{
 TODO
