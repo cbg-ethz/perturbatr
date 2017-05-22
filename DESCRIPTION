@@ -5,20 +5,21 @@ Version: 0.2.0
 Date: 2015-12-10
 Authors@R: person("Simon", "Dirmeier", 
     email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
-Description: `knockout` does analysis of large-scale gene knockout/knockdown 
+Description: `knockout` does analysis of large-scale gene knockout/knockdown
     screens. For this several preprocessing and data normalization techniques
-    such as *median-polish* or *quantile-quantile normalization* are 
+    such as *median-polish* or *quantile-quantile normalization* are
     implemented. On the normalized data-set essential hits can be prioritized
-    using state-of-the-art analysis tools, such as *gespeR* or *pmm*. The 
-    resulting hit lists can be further extended using network diffusion 
-    algorithms, such as *Markov random walks with restarts* or the 
-    well-known *heat equation*. Eventually hits can be analyses 
+    using state-of-the-art analysis tools, such as *gespeR* or *pmm*. The
+    resulting hit lists can be further extended using network diffusion
+    algorithms, such as *Markov random walks with restarts* or the
+    well-known *heat equation*. Eventually hits can be analyses
     using GSEA, etc.
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1
 Dependency: R (>= 3.0.1)
-Imports: dplyr,
+Imports:
+    dplyr,
     ggplot2,
     data.table,
     tidyr,
@@ -52,7 +53,7 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'util_enums.R'
     'class_knockout_analysed.R'
     'class_knockout_data.R'

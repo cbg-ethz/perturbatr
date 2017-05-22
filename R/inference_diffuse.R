@@ -119,6 +119,17 @@ setMethod(
                      node.start.count, search.depth, delete.nodes.on.degree)
 {
   graph <- .read.graph(path=path, graph=graph)
+  if (igraph::is.directed(graph))
+    stop("Please provide an undirected graph")
+
+  # get connected components
+  comps        <- igraph::components(graph)
+  # get the genes that are not in the largest component
+  non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
+  # remove the genes that are not in the largest component
+  # this is needed to ensure ergocity
+  graph <- igraph::delete.vertices(graph, non.max.comp.genes)
+
   graph <- igraph::delete.vertices(
     graph, igraph::V(graph)[
       igraph::degree(graph) <= delete.nodes.on.degree  ])

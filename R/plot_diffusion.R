@@ -24,7 +24,11 @@
 #' @importFrom methods hasArg
 #' @importFrom assertthat assert_that
 #' @method plot svd.diffused.mrw
-plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
+plot.svd.diffused.mrw <- function(x,
+                                  y,
+                                  graph.size = 20,
+                                  show.node.labels = FALSE,
+                                  ...)
 {
   pars        <- list(...)
   sz          <- ifelse(methods::hasArg(size), pars$size, -1)
@@ -46,22 +50,25 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
     if (length(igraph::V(obj)) >= 100) break
     v.cnt <- v.cnt + 1
   }
-  comps        <- igraph::components(obj)
-  good.genes   <- names(which(comps$membership !=   which.max(comps$csize)))
-  obj <- igraph::delete.vertices(obj, good.genes)
+  # get the connected components
+  comps              <- igraph::components(obj)
+  # get the genes that are not in the largest component
+  non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
+  # remove the genes that are not in the largest component
+  obj <- igraph::delete.vertices(obj, non.max.comp.genes)
   # node colors (LMM identified genes are blue, rest orange)
   blue.genes   <- best.100$GeneSymbol[best.100$GeneSymbol %in%
                                         x$lmm.hits$GeneSymbol]
   # set some vis params
 
   size <- .size(obj)
-  igraph::V(obj)$color[size<=10] <- "#fe9929"
-  igraph::V(obj)$color[size==3] <- "#fed98e"
+  igraph::V(obj)$color[size <= 10] <- "#fe9929"
+  igraph::V(obj)$color[size == 3] <- "#fed98e"
   igraph::V(obj)[igraph::V(obj)$name %in% blue.genes] $color <- "blue"
   # igraph::V(obj)$color[igraph::V(obj)$name %in% blue.genes] <- "lightblue"
   igraph::E(obj)$width <- 2
   # plot all the the nodes
-  .plot.graph(obj, sz, size)
+  .plot.graph(obj, sz, size, show.node.labels)
 }
 
 #' @noRd
@@ -97,15 +104,32 @@ plot.svd.diffused.mrw <- function(x, y, graph.size=20, ...)
 }
 
 #' @noRd
-.plot.graph <- function(obj, sz, size)
+#' @importFrom graphics plot par legend
+#' @importFrom igraph V
+.plot.graph <- function(obj, sz, size, show.node.labels)
 {
-  op                 <- par(family = "Helvetica", font=2)
-  if (sz != -1) size <- rep(sz, length(size))
-  igraph::V(obj)$name <- rep(NA, length(igraph::V(obj)$name))
-  graphics::plot(obj, vertex.size=size,layout= igraph::layout.kamada.kawai,
-                 edge.curved=-.05)
-  legend("bottomleft",fill=c("blue", "#e34a33", "#fdbb84"),
-         legend=c( "Identified host factors by LMM",
-                   "Additional identified host factors by network analysis"))
-  par(op)
+  op                  <- graphics::par(family = "Helvetica", font=1)
+  if (sz != -1) size  <- rep(sz, length(size))
+  if (!show.node.labels)
+    igraph::V(obj)$name <- rep(NA, length(igraph::V(obj)$name))
+  else {
+    lbgens <- length(igraph::V(obj)$name[igraph::V(obj)$color == "blue"])
+    igraph::V(obj)$name[igraph::V(obj)$color == "blue"] <- rep(NA, lbgens)
+  }
+  graphics::plot(
+    obj,
+    vertex.size = size,
+    layout = igraph::layout.kamada.kawai,
+    edge.curved = -.05
+  )
+  graphics::legend(
+    "topleft",
+    box.lty=NULL,
+    bty = "n",
+    border = FALSE,
+    fill = c("blue", "#e34a33", "#fdbb84"),
+    legend = c("Host factors identified by LMM",
+               "Host factors identified by MRW")
+  )
+  graphics::par(op)
 }

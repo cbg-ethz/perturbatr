@@ -27,7 +27,7 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   pl <- .plot.svd.prioritized.pmm(x$gene.hits, main="Gene effects", ...)
   gen.pat <- x$gene.pathogen.hits
   pl2 <-
-    .plot.svd.prioritized.pmm(gen.pat, main="Gene-virus effects", ...) +
+    .plot.svd.prioritized.pmm(gen.pat, main="") +
     ggplot2::facet_wrap( ~ Virus, ncol=ceiling(length(unique(gen.pat$Virus))/2))
   return(list(pl, pl2))
 }
@@ -43,7 +43,7 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   size <- ifelse(methods::hasArg(size), pars$size, 10)
   if ("Virus" %in% colnames(x))
   {
-    x <- filter(x, Control == 0) %>%
+    x <- dplyr::filter(x, Control == 0) %>%
       .[order(abs(Effect), decreasing=T), .SD[1:25], by=Virus] %>%
       dplyr::filter(!is.na(GeneSymbol))
   }
@@ -57,19 +57,22 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
   LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
   pl <-
     ggplot2::ggplot(x) +
-    ggplot2::geom_bar(aes(x=GeneSymbol,y=abs(Effect), fill=Effect),
+    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol,y=abs(Effect), fill=Effect),
                       stat="identity") +
     ggplot2::scale_fill_gradient2(low=LDcolors[1], high=LDcolors[11],
                                   na.value=LDcolors[6],
-                                  name="Gene effect") +
-    ylab("Effect") +
+                                  name="Effect") +
+    ggplot2::ylab("Gene effect strength") +
     ggplot2::theme_bw() +
     ggplot2::theme(axis.text.y=element_blank(),
                    axis.ticks=element_blank(),
-                   text = element_text(size = size, family = "Helvetica"),
-                   strip.text=element_text(face=x$font) )+
+                   text = element_text(size = 20, family = "Helvetica"),
+                   axis.text.x = element_text(angle=45, size = 15, family = "Helvetica"),
+                   strip.text=element_text(face=x$font))+
     ggplot2::coord_polar() +
     ggplot2::ggtitle(main)
+
+  ggsave(plot=pl, filename="~/Desktop/pl.pdf", width=8, height=8)
 
   pl
 }
