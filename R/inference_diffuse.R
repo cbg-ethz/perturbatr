@@ -50,6 +50,8 @@
 #'  \code{nearest.neighbors} is selected
 #' @param delete.nodes.on.degree  delete nodes from the graph with a degree of
 #'  less or equal than \code{delete.nodes.on.degree}
+#' @param do.bootstrap  run a diffusion on every bootstrap sample in case
+#'  bootstrap samples are available
 #' @param ...  additional parameters
 setGeneric(
   "diffuse",
@@ -61,6 +63,7 @@ setGeneric(
            node.start.count=25,
            search.depth=5,
            delete.nodes.on.degree=0,
+           do.bootstrap=FALSE,
            ...)
   {
     standardGeneric("diffuse")
@@ -83,6 +86,7 @@ setMethod(
            node.start.count=25,
            search.depth=5,
            delete.nodes.on.degree=0,
+           do.bootstrap=FALSE,
            ...)
   {
     method <- match.arg(method)
@@ -107,7 +111,8 @@ setMethod(
                       r=r,
                       node.start.count=node.start.count,
                       search.depth=search.depth,
-                      delete.nodes.on.degree=delete.nodes.on.degree)
+                      delete.nodes.on.degree=delete.nodes.on.degree,
+                      do.bootstrap=do.bootstrap)
 
    ret
   }
@@ -115,8 +120,17 @@ setMethod(
 
 #' @noRd
 #' @import data.table igraph
-.diffuse <- function(hits, mod, bootstrap.hits, path, graph, method, r,
-                     node.start.count, search.depth, delete.nodes.on.degree)
+.diffuse <- function(hits,
+                     mod,
+                     bootstrap.hits,
+                     path,
+                     graph,
+                     method,
+                     r,
+                     node.start.count,
+                     search.depth,
+                     delete.nodes.on.degree,
+                     do.bootstrap)
 {
   graph <- .read.graph(path=path, graph=graph)
   if (igraph::is.directed(graph))
@@ -124,6 +138,7 @@ setMethod(
 
   # get connected components
   comps        <- igraph::components(graph)
+  # TODO: maybe message sth regarding this. itherwise it passes unnoticed
   # get the genes that are not in the largest component
   non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
   # remove the genes that are not in the largest component
@@ -136,15 +151,21 @@ setMethod(
   adjm  <- igraph::get.adjacency(graph, attr="weight")
 
   l <- switch(method,
-         "knn" = knn(hits, bootstrap.hits, adjm,
-                     node.start.count, search.depth, graph),
-         "mrw" = mrw(hits,
+         "knn" = knn(hits=hits,
+                     bootstrap.hits=bootstrap.hits,
+                     adjm=adjm,
+                     node.start.count=node.start.count,
+                     search.depth=search.depth,
+                     graph=graph,
+                     do.bootstrap=do.bootstrap),
+         "mrw" = mrw(hits=hits,
                      delete.nodes.on.degree=delete.nodes.on.degree,
                      mod=mod,
                      bootstrap.hits=bootstrap.hits,
                      adjm=adjm,
                      r=r,
-                     graph=graph),
+                     graph=graph,
+                     do.bootstrap=do.bootstrap),
          stop("No suitable method found. Pick either from [knn/mrw]."))
 
   l

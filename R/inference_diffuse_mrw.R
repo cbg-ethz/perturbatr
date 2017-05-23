@@ -27,17 +27,19 @@
 #' @importFrom diffusr random.walk
 mrw <- function(hits,
                 mod,
+                do.bootstrap,
                 bootstrap.hits,
                 delete.nodes.on.degree,
                 r,
                 adjm,
-                graph)
+                graph,
+                do.bootstrap)
 {
   message("Diffusion using Markov random walks.")
   diffuse.data <- .do.mrw(hits, adjm, r)
   res  <- diffuse.data$frame
 
-  if (!is.null(bootstrap.hits))
+  if (!is.null(bootstrap.hits) && do.bootstrap)
   {
     boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
     res   <- dplyr::left_join(diffuse.data$frame,
@@ -64,8 +66,10 @@ mrw <- function(hits,
 .do.mrw <- function(hits, adjm, r)
 {
   diffuse.data <- .init.starting.distribution(hits, adjm)
-  mrw <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
-                              as.matrix(diffuse.data$adjm), r)
+  mrw          <- diffusr::random.walk(
+    abs(diffuse.data$frame$Effect),
+    as.matrix(diffuse.data$adjm),
+    r)
   diffuse.data$frame$DiffusionEffect <- mrw
   diffuse.data
 }
@@ -98,6 +102,7 @@ mrw <- function(hits,
     ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),
            max(1, parallel::detectCores() - 1), 1L)
   )
+  # to diffusion
   li <- foreach::foreach(lo=unique(boot.g$Boot)) %dopar%
   {
     hits  <- dplyr::filter(boot.g, Boot==lo)
@@ -106,6 +111,7 @@ mrw <- function(hits,
     dd.lo$frame$boot <- lo
     dd.lo$frame
   }
+  # stop multiprocessing
   doParallel::stopImplicitCluster()
 
   # TODO: how to do hypothesis test here?

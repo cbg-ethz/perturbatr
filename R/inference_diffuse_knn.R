@@ -21,9 +21,16 @@
 #' @noRd
 #' @import data.table igraph
 #' @importFrom dplyr filter mutate
-knn <- function(hits, bootstrap.hits, adjm, node.start.count,
-                 search.depth, graph)
+knn <- function(hits,
+                bootstrap.hits,
+                adjm,
+                node.start.count,
+                search.depth,
+                graph,
+                do.bootstrap)
 {
+  # TODO diff on bootstrap hits
+  # TODO diff on bootstrap hits
   # TODO diff on bootstrap hits
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
 
