@@ -63,9 +63,9 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
       i <- i + 1
 
       }, error = function(e) {
-        cat(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
+        print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
       }, warning = function(e) {
-        cat(e)
+        print(e)
       }
     )
     if (i > bootstrap.cnt) break
