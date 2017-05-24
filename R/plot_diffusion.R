@@ -23,27 +23,27 @@
 #' @importFrom graphics plot legend
 #' @importFrom methods hasArg
 #' @importFrom assertthat assert_that
-#' @method plot svd.diffused.mrw
-plot.svd.diffused.mrw <- function(x,
-                                  y,
-                                  graph.size = 20,
-                                  show.node.labels = FALSE,
-                                  ...)
+#' @method plot knockout.diffusion.analysed
+plot.knockout.diffusion.analysed <- function(x,
+                                             y,
+                                             graph.size = 20,
+                                             show.node.labels = FALSE,
+                                             ...)
 {
   pars        <- list(...)
   sz          <- ifelse(methods::hasArg(size), pars$size, -1)
-  obj         <- x$graph
+  obj         <- x@.graph
   stopifnot(igraph::is.igraph(obj))
   # get the best 100 hits according to their ranking
   v.cnt <- 100
   repeat
   {
-    best.100 <- x$diffusion %>%
+    best.100 <- x@.data %>%
       .[order(-DiffusionEffect)] %>%
       .[1:v.cnt] %>%
       dplyr::filter(!is.na(DiffusionEffect))
     # index of edges that are gonna be plotted
-    edge.list    <- igraph::get.edgelist(x$graph)
+    edge.list    <- igraph::get.edgelist(x@.graph)
     idxs         <- .edge.indexes(edge.list, best.100)
     obj          <- igraph::graph.data.frame(.edge.subset(edge.list, idxs), directed=F)
 
@@ -58,7 +58,7 @@ plot.svd.diffused.mrw <- function(x,
   obj <- igraph::delete.vertices(obj, non.max.comp.genes)
   # node colors (LMM identified genes are blue, rest orange)
   blue.genes   <- best.100$GeneSymbol[best.100$GeneSymbol %in%
-                                        x$lmm.hits$GeneSymbol]
+                                        x@.initial.model@.gene.hits$GeneSymbol]
   # set some vis params
 
   size <- .size(obj)

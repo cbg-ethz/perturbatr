@@ -27,7 +27,6 @@
 #' @importFrom diffusr random.walk
 mrw <- function(hits,
                 mod,
-                do.bootstrap,
                 bootstrap.hits,
                 delete.nodes.on.degree,
                 r,
@@ -39,8 +38,10 @@ mrw <- function(hits,
   diffuse.data <- .do.mrw(hits, adjm, r)
   res  <- diffuse.data$frame
 
+  is.boot <- FALSE
   if (!is.null(bootstrap.hits) && do.bootstrap)
   {
+    is.boot <- TRUE
     boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
     res   <- dplyr::left_join(diffuse.data$frame,
                               boot.intrvls,
@@ -55,7 +56,7 @@ mrw <- function(hits,
                delete.nodes.on.degree = delete.nodes.on.degree),
              .inference       = .inference.types()$MRW.DIFFUSION,
              .data            = data.table::as.data.table(res),
-             .is.bootstrapped = mod@.is.bootstrapped
+             .is.bootstrapped = is.boot
   )
 
   ret

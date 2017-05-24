@@ -8,11 +8,11 @@
 \usage{
 diffuse(obj, method = c("knn", "mrw"), path = NULL, graph = NULL,
   r = 0.5, node.start.count = 25, search.depth = 5,
-  delete.nodes.on.degree = 0, ...)
+  delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 
 \S4method{diffuse}{knockout.lmm.analysed}(obj, method = c("knn", "mrw"),
   path = NULL, graph = NULL, r = 0.5, node.start.count = 25,
-  search.depth = 5, delete.nodes.on.degree = 0, ...)
+  search.depth = 5, delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 }
 \arguments{
 \item{obj}{an analysed object}
@@ -40,6 +40,9 @@ behaviour is not desired filter \code{obj} before.}
 
 \item{delete.nodes.on.degree}{delete nodes from the graph with a degree of
 less or equal than \code{delete.nodes.on.degree}}
+
+\item{do.bootstrap}{run a diffusion on every bootstrap sample in case
+bootstrap samples are available}
 
 \item{...}{additional parameters}
 }
