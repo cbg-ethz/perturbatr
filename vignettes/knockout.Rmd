@@ -1,21 +1,55 @@
 ---
-title: "The knockout tutorial"
+title: "Knockout cookbook"
 author: "Simon Dirmeier"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_document
+output: rmarkdown::pdf_document
 vignette: >
-  %\VignetteIndexEntry{The knockout tutorial}
+  %\VignetteIndexEntry{Knockout cookbook}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-## Introduction
 
-`knockout` does analysis of large-scale gene knockout/knockdown screens. 
-For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented.
-On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*. 
-The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
-Eventually hits can be analyses using *GSEA*, etc.
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(echo = TRUE)
+  library(data.table)
+  library(dplyr)
+  library(methods)
+  library(knockout)
+  raw.dat <- readRDS("../data/rnai_screen_raw.rds")
+  my.data <- raw.dat@.data %>% 
+    dplyr::select(Replicate, Plate, RowIdx, ColIdx, 
+                  GeneSymbol, Readout, Control, siRNAIDs) %>% 
+    .[1:5]
+```
 
-## Tutorial
+# Introduction
 
-This has to be done at some point...
+`knockout` does analysis of large-scale gene knockout/knockdown screens.
+ For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented.
+ On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*. 
+ The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
+ Eventually hits can be analyses using *GSEA*, etc.
+
+# Tutorial
+
+This tutorial walks you to the basic functionality of `knockout`. 
+
+## Creating a raw data-set
+
+You supposedly start with something like a `data.frame`. In order to create a `knockout-data`-set you need to transfrom it into a `data.table` with at least the following columns:
+
+```{r, include=TRUE}
+  print(my.data)
+```
+
+You can then use your data-set `my.data` and cast it to a `knockout.data` object:
+
+```{r, include=TRUE}
+  my.knockout.data <- as(my.data, "knockout.data")
+```
+
+## Preprocessing
+
+
+## Data-analysis
+
