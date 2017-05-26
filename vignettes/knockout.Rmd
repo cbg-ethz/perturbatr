@@ -15,8 +15,9 @@ vignette: >
   library(dplyr)
   library(methods)
   library(knockout)
-  raw.dat <- readRDS("../data/rnai_screen_raw.rds")
-  my.data <- raw.dat@.data %>% 
+  data("rnai_screen_raw")
+  my.data <- rnai.screen.raw@.data %>% 
+    dplyr::filter(Virus=="HCV") %>%
     dplyr::select(Replicate, Plate, RowIdx, ColIdx, 
                   GeneSymbol, Readout, Control, siRNAIDs) %>% 
     .[1:5]
@@ -32,7 +33,7 @@ vignette: >
 
 # Tutorial
 
-This tutorial walks you to the basic functionality of `knockout`. 
+This tutorial walks you to the basic functionality of `knockout` with hand-on examples
 
 ## Creating a raw data-set
 
@@ -45,11 +46,19 @@ You supposedly start with something like a `data.frame`. In order to create a `k
 You can then use your data-set `my.data` and cast it to a `knockout.data` object:
 
 ```{r, include=TRUE}
-  my.knockout.data <- as(my.data, "knockout.data")
+  my.knockout.data <- methods::as(my.data, "knockout.data")
 ```
+
+Coercing your `data.table` to `knockout.data` will automatically warn you if your table is formatted wrongly.
 
 ## Preprocessing
 
+Raw image-based screens have usually to be normalized in order to ensure comparability between plates. Normalization can be done using the `preprocess` method. We use a provided raw dataset for that.
+
+```{r}
+  data("rnai_screen_raw")
+  rnai.screen.raw
+```
 
 ## Data-analysis
 
