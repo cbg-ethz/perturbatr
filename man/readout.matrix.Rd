@@ -2,7 +2,7 @@
 % Please edit documentation in R/util_readout_matrix.R
 \name{readout.matrix}
 \alias{readout.matrix}
-\title{Get the readout matrix (plus control indexes) as list from and svd.plate object}
+\title{Get the readout matrix (plus control indexes) from an object}
 \usage{
 readout.matrix(obj, ...)
 }
@@ -12,5 +12,5 @@ readout.matrix(obj, ...)
 \item{...}{additional params}
 }
 \description{
-Get the readout matrix (plus control indexes) as list from and svd.plate object
+Get the readout matrix (plus control indexes) from an object
 }

@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' Get the readout matrix (plus control indexes) as list from and svd.plate object
+
+#' Get the readout matrix (plus control indexes) from an object
 #'
 #' @export
 #'
@@ -25,29 +26,32 @@
 #' @param ...  additional params
 readout.matrix <- function(obj, ...) UseMethod("readout.matrix")
 
-#' @noRd
 #' @export
+#' @method readout.matrix knockout.plate
 #' @import data.table
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
-readout.matrix.svd.plate <- function(obj, ...)
+readout.matrix.knockout.plate <- function(obj, ...)
 {
-  col.size <- max(obj$ColIdx)
-  row.size <- max(obj$RowIdx)
+  col.size <- max(obj@.data$ColIdx)
+  row.size <- max(obj@.data$RowIdx)
   m <- idx <- genes <- matrix(0, row.size, col.size)
   for (i in 1:row.size)
   {
-    row <- dplyr::filter(obj, RowIdx==i)
+    row <- dplyr::filter(obj@.data, RowIdx==i)
     for (j in 1:col.size)
     {
       col <- dplyr::filter(row, ColIdx==j)
-      if (nrow(col) == 0) {
-        m[i, j] <- NA_real_
-        idx[i, j] <- 0
+      if (nrow(col) == 0)
+      {
+        m[i, j]    <- NA_real_
+        idx[i, j]  <- 0
         genes[i,j] <- NA_character_
-      }  else {
-        m[i, j]   <- dplyr::select(col, Readout) %>% unlist
-        idx[i, j] <- dplyr::select(col, Control)  %>% unlist
+      }
+      else
+      {
+        m[i, j]     <- dplyr::select(col, Readout) %>% unlist
+        idx[i, j]   <- dplyr::select(col, Control)  %>% unlist
         genes[i, j] <- dplyr::select(col, GeneSymbol) %>% unlist
       }
     }

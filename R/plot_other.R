@@ -143,58 +143,21 @@ plot.svd.replicate <- function(x, y, ...)
   pl
 }
 
-
-#' @export
-#' @import data.table
-#' @importFrom graphics par
-#' @importFrom methods hasArg
-#' @method plot svd.plates
-plot.svd.plates <- function(x, y, ...)
-{
-  params <- list(...)
-  count <- ifelse(methods::hasArg(count), params$count, NA)
-  show.controls <- ifelse(methods::hasArg(show.controls) &
-                            is.logical(params$show.controls),
-                          params$show.controls, T)
-  show.gene.names <- ifelse(methods::hasArg(show.gene.names) &
-                              is.logical(params$show.gene.names),
-                            params$show.gene.names, T)
-  obj.len <- length(x)
-  if (is.na(count)) count <- obj.len
-  if (obj.len == count) { plates <- seq(obj.len) }
-  else { plates <- sort(sample(seq(obj.len), count)) }
-  message(paste("Plotting", count, "random plates."), "\n")
-  for (i in plates)
-  {
-    plate <- x[[i]]
-    plate.name <- paste("Virus: ", plate$Virus[1],
-                        ", screen:", plate$Screen[1],
-                        ", replicate:", plate$Replicate[1],
-                        ", plate:", plate$Plate[1],
-                        ", readout:", plate$ReadoutType[1],
-                        ", infection:", plate$ScreenType[1],
-                        sep="")
-    print(plot.svd.plate(plate, main=plate.name,
-                         show.controls=show.controls,
-                         show.gene.names=show.gene.names))
-  }
-}
-
-#' @export
+#' Plot a \code{knockout.plate}
+#'
+#'   @export
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr full_join
 #' @importFrom methods hasArg
-#' @method plot svd.plate
-plot.svd.plate <- function(x, y, ..., ylab="Row idx", xlab="Column idx", main="")
+#' @method plot knockout.plate
+plot.knockout.plate <- function(x, y,
+                                show.controls=FALSE,
+                                show.gene.names=FALSE,
+                                ylab="Row idx", xlab="Column idx",
+                                main="", ...)
 {
-  params <- list(...)
-  show.controls <- ifelse(methods::hasArg(show.controls) &
-                            is.logical(params$show.controls),
-                          params$show.controls, T)
-  show.gene.names <- ifelse(methods::hasArg(show.gene.names) &
-                              is.logical(params$show.gene.names),
-                            params$show.gene.names, T)
+
   mat <- readout.matrix(x)
   mat$genes[is.na(mat$genes)] <- ""
   dr  <- data.table::melt(mat$readout)
@@ -205,12 +168,15 @@ plot.svd.plate <- function(x, y, ..., ylab="Row idx", xlab="Column idx", main=""
   colnames(df) <- c("Row", "Column", "Readout", "Control", "Gene")
   pl <-
     ggplot2::ggplot(df, aes(x=Column, y=rev(Row)))
-  if (show.controls) {
+  if (show.controls)
+  {
     ctrl <- df$Control
     lwd <- ctrl
     lwd[lwd != 0] <- 1
     pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black", lwd=lwd)
-  } else {
+  }
+  else
+  {
     pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black")
   }
   pl <- pl +
@@ -221,59 +187,6 @@ plot.svd.plate <- function(x, y, ..., ylab="Row idx", xlab="Column idx", main=""
                               limits=df$Row,
                               labels=rev(df$Row),
                               name="Row index") +
-    ggplot2::scale_fill_distiller(palette="Spectral", na.value="white") +
-    ggplot2::ggtitle(main) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(text = element_text(size = 12, family = "Helvetica"),
-                   aspect.ratio=.75)
-  if (show.gene.names) pl <- pl + ggplot2::geom_text(aes(label=df$Gene), size=3)
-  pl
-}
-
-#' @export
-#' @import data.table
-#' @import ggplot2
-#' @importFrom dplyr full_join select rename left_join
-#' @importFrom methods hasArg
-#' @method plot svd.plate.rows
-plot.svd.plate.rows <- function(x, y, ..., ylab="Plate idx", xlab="Column idx", main="")
-{
-  params <- list(...)
-  show.controls <- ifelse(methods::hasArg(show.controls) &
-                            is.logical(params$show.controls),
-                          params$show.controls, T)
-  show.gene.names <- ifelse(methods::hasArg(show.gene.names) &
-                              is.logical(params$show.gene.names),
-                            params$show.gene.names, T)
-  mat <- readout.matrix(x)
-  mat$genes[is.na(mat$genes)] <- ""
-  dr  <- data.table::melt(mat$readout)
-  di  <- data.table::melt(mat$idx)
-  dg  <- data.table::melt(mat$genes)
-  df  <- dplyr::full_join(dr, di, by=c("Var1", "Var2"))
-  df  <- dplyr::full_join(df, dg, by=c("Var1", "Var2"))
-  dp  <- x %>% dplyr::select(Plate, RowIdx) %>% unique %>% dplyr::rename(Row=RowIdx)
-  colnames(df) <- c("Row", "Column", "Readout", "Control", "Gene")
-  df <- left_join(df, dp, by="Row")
-  pl <-  ggplot2::ggplot(df, aes(x=Column, y=rev(Row)))
-  if (show.controls) {
-    ctrl <- df$Control
-    lwd <- ctrl
-    lwd[lwd != 0] <- 1
-    pl <- pl + ggplot2::geom_tile(aes(fill=Readout),
-                                  color="black",
-                                  lwd=lwd)
-  } else {
-    pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black")
-  }
-  pl <- pl +
-    ggplot2::scale_x_discrete(expand = c(0,0),
-                              limits=df$Column,
-                              name=xlab) +
-    ggplot2::scale_y_discrete(expand = c(0,0),
-                              limits=df$Row,
-                              labels=rev(df$Plate),
-                              name=ylab) +
     ggplot2::scale_fill_distiller(palette="Spectral", na.value="white") +
     ggplot2::ggtitle(main) +
     ggplot2::theme_bw() +

@@ -119,7 +119,7 @@ Furthermore we know the genes are ordered randomly and not, for example, alphabe
 
 ```{r, eval=TRUE, include=TRUE}
   plates <- plates(hcv.kinome.raw)
-  plot(plates[[1]])
+  plot(plates[1])
 ```
 
 ## Data-analysis

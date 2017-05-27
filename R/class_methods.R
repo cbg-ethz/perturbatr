@@ -24,6 +24,8 @@ setMethod(
   signature=signature(x="knockout.plates", i="numeric"),
   function(x, i)
   {
+    stopifnot(length(i) == 1)
+    stopifnot(i >= 1)
     res <- x@.data
     if (max(res$PlateIndex) < i) stop("ArrayIndexOutOfBounds")
     res <- dplyr::filter(res, PlateIndex==i)
