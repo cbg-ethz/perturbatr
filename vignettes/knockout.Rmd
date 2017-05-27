@@ -94,8 +94,6 @@ logarithm on every plate and afterwards computes a more robust version of the st
 
 The result object has class `knockout.normalized.data` which can be used for analysis. 
 
-### How to normalize pan-pathogenic data
-
 In the example above we just computed the log and robust Z-scores for every 
 plate separately. Often, when we have for instance information of cell-counts, 
 cell-viability or expect spatial effects due to several batch effects other 
@@ -120,7 +118,8 @@ For the *HCV*-screen we know that it is a single-pooled screen and as cell numbe
 Furthermore we know the genes are ordered randomly and not, for example, alphabetically or by gene funtion:
 
 ```{r, eval=TRUE, include=TRUE}
-
+  plates <- plates(hcv.kinome.raw)
+  plot(plates[[1]])
 ```
 
 ## Data-analysis

@@ -17,18 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' @noRd
-.inference.types <- function()
-{
-  list(MIXED.MODEL         = "mixed.model",
-       HYPERGEOMETRIC.TEST = "hypergeometric.test",
-       T.TEST              = "t.test",
-       CHISQ.TEST          = "chisq.test",
-       MRW.DIFFUSION       = "mrw.diffusion",
-       NN.DIFFUSION        = "knn.diffusion")
-}
 
-.classes <- function()
-{
-  list(KNOCKOUT.HYPER.ANALYSED="knockout.hyper.analysed")
-}
+#' @title Class that indexes plates on a \code{knockout.data} object
+#' @noRd
+setClass(
+  "knockout.plates",
+  contains = "knockout.data"
+)
+
+
+#' @title Class that holds a single plate
+#' @noRd
+setClass(
+  "knockout.plate",
+  contains = "knockout.data"
+)

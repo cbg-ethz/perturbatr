@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Get the plates of a data-set
 #'
 #' @export
@@ -28,34 +29,30 @@ plates <- function(obj, ...)
   UseMethod("plates", obj)
 }
 
-#' @noRd
 #' @export
-#'
+#' @method plates knockout.raw.data
 #' @import data.table
 #' @importFrom dplyr filter
-plates.svd.raw <- function(obj, ...)
+plates.knockout.raw.data <- function(obj, ...)
 {
-  obj <- dplyr::filter(obj, ReadoutClass=="Readout") %>%
-    as.data.table
-  plates.svd.data(obj, ...)
+  obj <- filter(obj, ReadoutClass=="Readout")
+  plates.knockout.normalized.data(obj, ...)
 }
 
-#' @noRd
 #' @export
-#'
+#' @method plates knockout.normalized.data
 #' @import data.table
 #' @importFrom dplyr group_by
 #' @importFrom dplyr mutate
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_indices
-plates.svd.data <- function(obj, ...)
+plates.knockout.normalized.data <- function(obj, ...)
 {
-  g <-
-    dplyr::group_indices(obj, Virus, Screen, Replicate, Plate,
-                         ReadoutType, ScreenType) %>%
+  g <- dplyr::group_indices(obj@.data, Virus, Screen, Replicate, Plate,
+                            ReadoutType, ScreenType) %>%
     as.data.table
-  plate.frame <- obj
+  plate.frame     <- obj
   plate.frame$grp <- g
   grps <- unique(plate.frame$grp)
   plates <- lapply(grps, function(i)
