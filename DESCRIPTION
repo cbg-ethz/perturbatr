@@ -57,6 +57,7 @@ Collate:
     'util_enums.R'
     'class_knockout_analysed.R'
     'class_knockout_data.R'
+    'class_knockout_plates.R'
     'data.R'
     'inference_chisqstatistic.R'
     'inference_diffuse.R'

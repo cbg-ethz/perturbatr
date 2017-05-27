@@ -49,29 +49,11 @@ plates.knockout.raw.data <- function(obj, ...)
 #' @importFrom dplyr group_indices
 plates.knockout.normalized.data <- function(obj, ...)
 {
-  g <- dplyr::group_indices(obj@.data, Virus, Screen, Replicate, Plate,
-                            ReadoutType, ScreenType) %>%
-    as.data.table
-  plate.frame     <- obj
-  plate.frame$grp <- g
-  grps <- unique(plate.frame$grp)
-  plates <- lapply(grps, function(i)
-  {
-    pl <- data.table::as.data.table(dplyr::filter(plate.frame, grp==i))
-    class(pl) <- c("svd.plate", class(pl))
-    pl
-  })
-  class(plates) <- "svd.plates"
-  invisible(plates)
-}
-
-#' @noRd
-#' @export
-#' @method plates default
-plates.default <- function(obj, ...)
-{
-  # TODO make better
-  plate.frame <- obj
-  class(plate.frame) <- c("svd.plate.rows", "svd.plate", class(plate.frame))
-  plate.frame
+  res <- obj@.data
+  g   <- dplyr::group_indices(res,
+                              Virus, Screen, Replicate, Plate,
+                              Cell, Design, ReadoutType, Library,
+                              ReadoutType, ScreenType)
+  res$PlateIndex <- g
+  new("knockout.plates", .data=res)
 }
