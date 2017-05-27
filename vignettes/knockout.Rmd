@@ -117,9 +117,9 @@ For the *HCV*-screen we know that it is a single-pooled screen and as cell numbe
 ```
 Furthermore we know the genes are ordered randomly and not, for example, alphabetically or by gene funtion:
 
-```{r, eval=TRUE, include=TRUE}
+```{r, eval=TRUE, include=TRUE, fig.align="center", fig.width=6}
   plates <- plates(hcv.kinome.raw)
-  plot(plates[1])
+  plot(plates[1], show.gene.names=T, gene.text.size=2)
 ```
 
 ## Data-analysis

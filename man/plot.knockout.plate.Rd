@@ -2,12 +2,27 @@
 % Please edit documentation in R/plot_other.R
 \name{plot.knockout.plate}
 \alias{plot.knockout.plate}
-\title{Plot a \code{knockout.plate}}
+\title{Plot a \code{knockout.plate} object}
 \usage{
-\method{plot}{knockout.plate}(x, y, show.controls = FALSE,
+\method{plot}{knockout.plate}(x, show.controls = FALSE,
   show.gene.names = FALSE, ylab = "Row idx", xlab = "Column idx",
   main = "", ...)
 }
+\arguments{
+\item{x}{the object to plot}
+
+\item{show.controls}{show which wells are controls}
+
+\item{show.gene.names}{show the gene names for every well}
+
+\item{ylab}{a title for the ylab}
+
+\item{xlab}{a title for the xlab}
+
+\item{main}{the title of the plot}
+
+\item{...}{additional params}
+}
 \description{
-@export
+Plot a \code{knockout.plate} object on a 2D grid
 }

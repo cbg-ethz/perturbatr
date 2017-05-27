@@ -143,21 +143,36 @@ plot.svd.replicate <- function(x, y, ...)
   pl
 }
 
-#' Plot a \code{knockout.plate}
+#' Plot a \code{knockout.plate} object
 #'
-#'   @export
+#' @description Plot a \code{knockout.plate} object on a 2D grid
+#'
+#' @export
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr full_join
 #' @importFrom methods hasArg
 #' @method plot knockout.plate
-plot.knockout.plate <- function(x, y,
+#'
+#' @param x  the object to plot
+#' @param show.controls  show which wells are controls
+#' @param show.gene.names  show the gene names for every well
+#' @param xlab  a title for the xlab
+#' @param ylab  a title for the ylab
+#' @param main  the title of the plot
+#' @param axis.text.size  text size of axis labels
+#' @param gene.text.size  the size of the gene names within each well
+#' @param ...  additional params
+plot.knockout.plate <- function(x,
                                 show.controls=FALSE,
                                 show.gene.names=FALSE,
-                                ylab="Row idx", xlab="Column idx",
-                                main="", ...)
+                                ylab="Row idx",
+                                xlab="Column idx",
+                                main="",
+                                axis.text.size=12,
+                                gene.text.size=3,
+                                ...)
 {
-
   mat <- readout.matrix(x)
   mat$genes[is.na(mat$genes)] <- ""
   dr  <- data.table::melt(mat$readout)
@@ -167,17 +182,20 @@ plot.knockout.plate <- function(x, y,
   df  <- dplyr::full_join(df, dg, by=c("Var1", "Var2"))
   colnames(df) <- c("Row", "Column", "Readout", "Control", "Gene")
   pl <-
-    ggplot2::ggplot(df, aes(x=Column, y=rev(Row)))
+    ggplot2::ggplot(df, ggplot2::aes(x=Column, y=rev(Row)))
   if (show.controls)
   {
     ctrl <- df$Control
     lwd <- ctrl
     lwd[lwd != 0] <- 1
-    pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black", lwd=lwd)
+    pl <- pl + ggplot2::geom_tile(ggplot2::aes(fill=Readout),
+                                  color="black",
+                                  lwd=lwd)
   }
   else
   {
-    pl <- pl + ggplot2::geom_tile(aes(fill=Readout), color="black")
+    pl <- pl + ggplot2::geom_tile(ggplot2::aes(fill=Readout),
+                                  color="black")
   }
   pl <- pl +
     ggplot2::scale_x_discrete(expand = c(0,0),
@@ -190,9 +208,11 @@ plot.knockout.plate <- function(x, y,
     ggplot2::scale_fill_distiller(palette="Spectral", na.value="white") +
     ggplot2::ggtitle(main) +
     ggplot2::theme_bw() +
-    ggplot2::theme(text = element_text(size = 12, family = "Helvetica"),
-                   aspect.ratio=.75)
-  if (show.gene.names) pl <- pl + ggplot2::geom_text(aes(label=df$Gene), size=3)
+    ggplot2::theme(text = ggplot2::element_text(
+      size = axis.text.size, family = "Helvetica"), aspect.ratio=.75)
+  if (show.gene.names)
+    pl <- pl + ggplot2::geom_text(ggplot2::aes(label=df$Gene),
+                                  size=gene.text.size)
   pl
 }
 
