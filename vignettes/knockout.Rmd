@@ -20,24 +20,29 @@ vignette: >
     dplyr::filter(Virus=="HCV") %>%
     dplyr::select(Replicate, Plate, RowIdx, ColIdx, 
                   GeneSymbol, Readout, Control, siRNAIDs) %>% 
-    .[1:5]
+    .[,.SD[sample(.N, 5)]]
 ```
 
 # Introduction
 
 `knockout` does analysis of large-scale gene knockout/knockdown screens.
- For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented.
- On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*. 
- The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
- Eventually hits can be analyses using *GSEA*, etc.
+ For this several preprocessing and data normalization techniques such as
+ *median-polish* or *quantile-quantile normalization* are implemented.
+ On the normalized data-set essential hits can be prioritized using 
+ state-of-the-art analysis tools, such as *gespeR* or *pmm*. 
+ The resulting hit lists can be further extended using network diffusion 
+ algorithms, such as *Markov random walks with restarts* or the well-known
+ *heat equation*. Eventually hits can be analyses using *GSEA*, etc.
 
 # Tutorial
 
-This tutorial walks you to the basic functionality of `knockout` with hand-on examples
+This tutorial walks you to the basic functionality of `knockout`.
 
 ## Creating a raw data-set
 
-You supposedly start with something like a `data.frame`. In order to create a `knockout-data`-set you need to transfrom it into a `data.table` with at least the following columns:
+You supposedly start with something like a `data.frame`. In order to create a 
+`knockout-data`-set you need to transfrom it into a `data.table` with at least 
+the following columns:
 
 ```{r, include=TRUE}
   print(my.data)
@@ -45,19 +50,77 @@ You supposedly start with something like a `data.frame`. In order to create a `k
 
 You can then use your data-set `my.data` and cast it to a `knockout.data` object:
 
-```{r, include=TRUE}
+```{r, include=TRUE, eval=TRUE}
   my.knockout.data <- methods::as(my.data, "knockout.data")
 ```
 
-Coercing your `data.table` to `knockout.data` will automatically warn you if your table is formatted wrongly.
+Coercing your `data.table` to `knockout.data` will automatically warn you if 
+your table is formatted wrongly.
+
+## Working with `knockout.data` S4 objects
+
+For objects that inherit the abstract `knockout.data` class, we provide basic 
+`select`, `filter`, `group_by` and `rbind` functionality:
+
+```{r, eval=TRUE, include=TRUE}
+  select(my.knockout.data, GeneSymbol, Readout)
+  rbind(filter(my.knockout.data, Readout > 0),
+        filter(my.knockout.data, Readout < 0))
+```
+
+If you want to work directly on the data-set you shoult access it on the `.data` attribute though:
+
+```{r, eval=FALSE}
+  my.knockout.data@.data
+```
 
 ## Preprocessing
 
-Raw image-based screens have usually to be normalized in order to ensure comparability between plates. Normalization can be done using the `preprocess` method. We use a provided raw dataset for that.
+Raw image-based screens have usually to be normalized in order to ensure
+comparability between plates. Normalization can be done using the `preprocess` 
+method. We use one of the provided data-sets for this.
 
-```{r}
+```{r, eval=FALSE, include=T}
   data("rnai_screen_raw")
-  rnai.screen.raw
+```
+
+The `preprocess` method offers a collection of common techniques to normalize 
+RNAi-screening data. We just call it with the standard parameters, which takes the natural 
+logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
+
+```{r, eval=TRUE, include=T}
+  rnai.screen.normalized <- preprocess(rnai.screen.raw)
+```
+
+The result object has class `knockout.normalized.data` which can be used for analysis. 
+
+### How to normalize pan-pathogenic data
+
+In the example above we just computed the log and robust Z-scores for every 
+plate separately. Often, when we have for instance information of cell-counts, 
+cell-viability or expect spatial effects due to several batch effects other 
+normalization methods are more suitable. Furthermore when your data-set 
+comprises multiple different screens, you might want to normalize every screen 
+separately. 
+
+In this case you would first filter the data-set by single experiments. For our provided 
+filtering by `Virus` and `Screen` results int a single experiment; 
+*for your data this might be different though*.
+
+```{r, eval=TRUE, include=T}
+  hcv.kinome.raw  <- filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
+  chikv.kinome.raw <- filter(rnai.screen.raw, Virus=="CHIKV", Screen=="Kinome")
+```
+
+For the *HCV*-screen we know that it is a single-pooled screen and as cell numbers per plate available:
+
+```{r, eval=TRUE, include=TRUE}
+  dplyr::select(hcv.kinome.raw@.data, Design, NumCells) %>% .[1:5]
+```
+Furthermore we know the genes are ordered randomly and not, for example, alphabetically or by gene funtion:
+
+```{r, eval=TRUE, include=TRUE}
+
 ```
 
 ## Data-analysis

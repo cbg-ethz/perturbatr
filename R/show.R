@@ -31,8 +31,7 @@ setMethod(
   {
     cat(paste0("A knockout data-set\n\n"))
       object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
-        dplyr::select(Virus, GeneSymbol, Readout, Library,
-                      ReadoutType, Screen, Cell, ScreenType, Design) %>%
+        dplyr::select(Virus, GeneSymbol, Readout, ScreenType) %>%
         print
   }
 )
@@ -48,8 +47,7 @@ setMethod(
   {
     cat(paste0("A knockout data-set for LMMs\n\n"))
     object@.data[ ,.SD[sample(.N, 2)], by="Virus"] %>%
-      dplyr::select(Virus, GeneSymbol, Readout, Weight,
-                    ReadoutType, Cell, ScreenType, Design) %>%
+      dplyr::select(Virus, GeneSymbol, Readout, ScreenType, Weight) %>%
       print
   }
 )
