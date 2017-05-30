@@ -36,6 +36,7 @@ readout.matrix.knockout.plate <- function(obj, ...)
   col.size <- max(obj@.data$ColIdx)
   row.size <- max(obj@.data$RowIdx)
   m <- idx <- genes <- matrix(0, row.size, col.size)
+  # highly inefficient: Rcpp?
   for (i in 1:row.size)
   {
     row <- dplyr::filter(obj@.data, RowIdx==i)
