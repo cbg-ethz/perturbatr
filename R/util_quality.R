@@ -30,30 +30,24 @@ quality <- function(obj, ...)
 }
 
 #' @export
-#' @noRd
+#' @method quality knockout.raw.data
 #' @import data.table
 #' @importFrom dplyr filter
-quality.svd.raw <-function(obj, ...)
+quality.knockout.raw.data <-function(obj, ...)
 {
-  ret <- obj %>%
+  obj@.data <- obj@.data %>%
     dplyr::filter(ReadoutClass == "Readout")
-  quality.svd.data(ret)
+  quality.knockout.normalized.data(obj)
 }
 
 #' @export
-#' @noRd
+#' @method quality knockout.normalized.data
 #' @import data.table
 #' @importFrom dplyr select
-quality.svd.data <- function(obj, ...)
+quality.knockout.normalized.data <- function(obj, ...)
 {
-  q <- .quality(obj)
-  res <- dplyr::select(obj, Virus, Screen, Library, Cell,
-                       ScreenType, ReadoutType,
-                       Replicate, Plate, Control, Readout)
-  res <- data.table::as.data.table(res)
-  ret <- list(quality=q, data=res)
-  class(ret) <- "svd.quality"
-  invisible(ret)
+  q <- .quality(obj@.data)
+  new("knockout.quality", .quality=q, .data=obj@.data)
 }
 
 #' @noRd
@@ -64,9 +58,9 @@ quality.svd.data <- function(obj, ...)
   q.plate <- obj %>%
     dplyr::group_by(Virus, Screen, Library, Replicate,
                     Plate, ReadoutType, ScreenType, Cell, Design) %>%
-    dplyr::summarize(z.fac.control=.z.factor(Readout, Control),
-                     ssmd=.ssmd(Readout, Control),
-                     z.fac.plate=.z.factor(Readout, Control, "plate")) %>%
+    dplyr::summarize(z.fac.control = .z.factor(Readout, Control),
+                     ssmd          = .ssmd(Readout, Control),
+                     z.fac.plate   = .z.factor(Readout, Control, "plate")) %>%
     ungroup
   q.rep <- obj %>%
     dplyr::group_by(Virus, Screen, Library, Replicate,
@@ -83,9 +77,9 @@ quality.svd.data <- function(obj, ...)
                      z.fac.plate=.z.factor(Readout, Control, "plate")) %>%
     ungroup
 
-  list(plate.quality=q.plate,
-       replicate.quality=q.rep,
-       screen.quality=q.screen)
+  list(plate.quality     = q.plate,
+       replicate.quality = q.rep,
+       screen.quality    = q.screen)
 }
 
 #' @noRd

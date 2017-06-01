@@ -17,39 +17,48 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+#' Plot a knockout dataset
+#'
 #' @export
 #' @import data.table
-#' @method plot svd.raw
-plot.svd.raw <- function(x, y, ...)
+#' @method plot knockout.raw.data
+#' @param x  the object to plot
+#' @param ...  additional parameters
+plot.knockout.raw.data <- function(x, ...)
 {
-  x <- dplyr::filter(x, ReadoutClass=="Readout")
-  plot.svd.data(x, ...)
+  x@.data <- dplyr::filter(x@.data, ReadoutClass=="Readout")
+  plot.knockout.normalized.data(x, ...)
 }
 
+#' Plot a knockout data-set
+#'
 #' @export
+#' @method plot knockout.normalized.data
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr summarize
 #' @importFrom dplyr group_by
 #' @importFrom tidyr gather
-#' @method plot svd.data
-plot.svd.data <- function(x, y, ...)
+#' @param x  the object to plot
+#' @param ...  additional parameters
+plot.knockout.normalized.data <- function(x, ...)
 {
   numb.frame <-
-    dplyr::group_by(x, Virus, Screen) %>%
-    dplyr::summarize(Replicates=length(unique(Replicate)),
-                     Genes=length(unique(GeneSymbol))) %>%
+    dplyr::group_by(x@.data, Virus, Screen) %>%
+    dplyr::summarize(Replicates = length(unique(Replicate)),
+                     Genes      = length(unique(GeneSymbol))) %>%
     tidyr::gather(Type, Count, Replicates, Genes)
+
   numb.frame$Count <- as.integer(numb.frame$Count)
   pl <-
-    ggplot2::ggplot(numb.frame, aes(x=Virus, y = Count)) +
-    ggplot2::geom_bar(aes(fill=Virus), stat="identity") +
+    ggplot2::ggplot(numb.frame, ggplot2::aes(x=Virus, y = Count)) +
+    ggplot2::geom_bar(ggplot2::aes(fill=Virus), stat="identity") +
     ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
     ggplot2::scale_fill_brewer(palette="Spectral") +
-    ggplot2::geom_text(aes(label = Count, y = Count), size = 2, vjust=0) +
+    ggplot2::geom_text(ggplot2::aes(label = Count, y = Count), size = 5, vjust=0) +
     ggplot2::theme_bw() +
-    ggplot2::theme(strip.text = element_text(size = 10),
-                   text  = element_text(size = 10))
+    ggplot2::theme(strip.text = ggplot2::element_text(size = 16),
+                   text       = ggplot2::element_text(size = 16))
 
   pl
 }

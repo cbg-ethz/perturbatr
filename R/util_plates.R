@@ -55,5 +55,6 @@ plates.knockout.normalized.data <- function(obj, ...)
                               Cell, Design, ReadoutType, Library,
                               ReadoutType, ScreenType)
   res$PlateIndex <- g
+
   new("knockout.plates", .data=res)
 }

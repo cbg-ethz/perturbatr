@@ -17,31 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
+#' @title Class that holds information of quality scores for the experiment
 #' @noRd
-#' @import grid
-.multiplot <- function(..., plotlist=NULL, cols=2, layout=NULL)
-{
-  plots <- c(..., plotlist)
-  numPlots <- length(plots)
-  if (is.null(layout))
-  {
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-  if (numPlots==1)
-  {
-    return(plots[[1]])
-  }
-  else
-  {
-    grid::grid.newpage()
-    grid::pushViewport(
-      grid::viewport(layout = grid::grid.layout(nrow(layout), ncol(layout))))
-    for (i in 1:numPlots)
-    {
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      print(plots[[i]], vp = grid::viewport(layout.pos.row = matchidx$row,
-                                            layout.pos.col = matchidx$col))
-    }
-  }
-}
+setClass(
+  "knockout.quality",
+  contains = "knockout.data",
+  slots    =  list(.quality="list")
+)

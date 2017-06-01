@@ -78,10 +78,24 @@ If you want to work directly on the data-set you shoult access it on the `.data`
 
 Raw image-based screens have usually to be normalized in order to ensure
 comparability between plates. Normalization can be done using the `preprocess` 
-method. We use one of the provided data-sets for this.
+method. We use one of the provided data-sets for this. But before we do any normalisations 
+we should have a look at quality scores and single plates before:
 
-```{r, eval=FALSE, include=T}
+```{r, eval=F, include=T}
   data("rnai_screen_raw")
+```
+
+```{r, eval=T, include=T, fig.align="center", fig.width=6}
+  hcv.kinome.raw          <- filter(rnai.screen.raw, Virus=="HCV",  Screen=="Kinome")
+  hcv.kinome.raw.quality  <- quality(hcv.kinome.raw)
+  plot(hcv.kinome.raw.quality)
+```
+
+Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates
+
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
+  plates <- plates(hcv.kinome.raw)
+  plot(plates[44], show.gene.names=T, gene.text.size=2)
 ```
 
 The `preprocess` method offers a collection of common techniques to normalize 
@@ -90,6 +104,19 @@ logarithm on every plate and afterwards computes a more robust version of the st
 
 ```{r, eval=TRUE, include=T}
   rnai.screen.normalized <- preprocess(rnai.screen.raw)
+  hcv.kinome.norm       <- knockout::preprocess(
+    hcv.kinome.raw,
+    normalize=c("log","loess", "b.score", "robust-z.score"))
+```
+
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
+  hcv.kinome.norm.quality <- quality(hcv.kinome.norm)
+  plot(hcv.kinome.norm.quality)
+```
+
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
+  plates <- plates(hcv.kinome.norm)
+  plot(plates[44], show.gene.names=T, gene.text.size=2)
 ```
 
 The result object has class `knockout.normalized.data` which can be used for analysis. 
@@ -106,7 +133,7 @@ filtering by `Virus` and `Screen` results int a single experiment;
 *for your data this might be different though*.
 
 ```{r, eval=TRUE, include=T}
-  hcv.kinome.raw  <- filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
+  hcv.kinome.normalized   <- filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
   chikv.kinome.raw <- filter(rnai.screen.raw, Virus=="CHIKV", Screen=="Kinome")
 ```
 

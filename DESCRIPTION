@@ -58,6 +58,7 @@ Collate:
     'class_knockout_analysed.R'
     'class_knockout_data.R'
     'class_knockout_plates.R'
+    'class_knockout_quality.R'
     'class_methods.R'
     'data.R'
     'inference_chisqstatistic.R'

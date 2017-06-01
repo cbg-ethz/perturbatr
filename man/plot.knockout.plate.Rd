@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{knockout.plate}(x, show.controls = FALSE,
   show.gene.names = FALSE, ylab = "Row idx", xlab = "Column idx",
-  main = "", ...)
+  main = "", axis.text.size = 12, gene.text.size = 3, ...)
 }
 \arguments{
 \item{x}{the object to plot}
@@ -20,6 +20,10 @@
 \item{xlab}{a title for the xlab}
 
 \item{main}{the title of the plot}
+
+\item{axis.text.size}{text size of axis labels}
+
+\item{gene.text.size}{the size of the gene names within each well}
 
 \item{...}{additional params}
 }
