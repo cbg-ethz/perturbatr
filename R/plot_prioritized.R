@@ -1,4 +1,4 @@
-# knockout: analysis of high-throughput gene perturbation screens
+plot(1,1, main=expression(paste(method, "(", rho,"=", corr, ")")))# knockout: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
 #

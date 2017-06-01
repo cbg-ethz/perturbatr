@@ -1,16 +1,3 @@
-#' @export
-#' @import data.table
-#' @importFrom graphics hist
-#' @method hist svd.plate
-hist.svd.plate <- function(x,  ...)
-{
-  .hist(x, ...)
-}
-
-#' @export
-#' @import data.table
-#' @importFrom dplyr filter
-#' @method hist svd.raw
 # knockout: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
@@ -30,6 +17,19 @@ hist.svd.plate <- function(x,  ...)
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+#' @export
+#' @import data.table
+#' @importFrom graphics hist
+#' @method hist svd.plate
+hist.svd.plate <- function(x,  ...)
+{
+  .hist(x, ...)
+}
+
+#' @export
+#' @import data.table
+#' @importFrom dplyr filter
+#' @method hist svd.raw
 hist.svd.raw <- function(x,  ...)
 {
   ret <- dplyr::filter(x, ReadoutClass=="Readout")

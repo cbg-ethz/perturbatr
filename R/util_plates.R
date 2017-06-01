@@ -52,7 +52,7 @@ plates.knockout.normalized.data <- function(obj, ...)
   res <- obj@.data
   g   <- dplyr::group_indices(res,
                               Virus, Screen, Replicate, Plate,
-                              Cell, Design, ReadoutType, Library,
+                              Cell, Design, Library,
                               ReadoutType, ScreenType)
   res$PlateIndex <- g
 

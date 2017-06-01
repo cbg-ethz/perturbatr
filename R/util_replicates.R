@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Get the replicates of a data-set
 #'
 #' @export
@@ -25,38 +26,28 @@
 #' @param ...  additional params
 replicates <- function(obj, ...) UseMethod("replicates")
 
-#' @noRd
 #' @export
-#'
+#' @method replicates knockout.raw.data
 #' @import data.table
 #' @importFrom dplyr filter
-replicates.svd.raw <- function(obj, ...)
+replicates.knockout.raw.data <- function(obj, ...)
 {
-  obj <- dplyr::filter(obj, ReadoutClass=="Readout") %>% as.data.table
-  replicates.svd.data(obj, ...)
+  obj@.data <- dplyr::filter(obj@.data, ReadoutClass=="Readout") %>%
+    as.data.table
+  replicates.knockout.normalized.data(obj, ...)
 }
 
-#' @noRd
 #' @export
-#'
+#' @method replicates knockout.normalized.data
 #' @import data.table
 #' @importFrom dplyr filter
-replicates.svd.data <- function(obj, ...)
+replicates.knockout.normalized.data <- function(obj, ...)
 {
-  g <-
-    dplyr::group_indices(obj, Virus, Screen, Replicate,
-                         Design, Library,
-                         ReadoutType, ScreenType) %>%
-    as.data.table
-  rep.frame <- obj
-  rep.frame$grp <- g
-  grps <- unique(rep.frame$grp)
-  ret <- lapply(grps, function(i)
-  {
-    pl <- data.table::as.data.table(dplyr::filter(rep.frame, grp==i))
-    class(pl) <- c("svd.replicate", class(pl))
-    pl
-  })
-  class(ret) <- "svd.replicates"
-  invisible(ret)
+  res <- obj@.data
+  g <- dplyr::group_indices(res, Virus, Screen, Replicate,
+                            Cell, Design, Library,
+                            ReadoutType, ScreenType)
+  res$ReplicateIndex <- g
+
+  new("knockout.replicates", .data=res)
 }

@@ -19,6 +19,8 @@
 
 #' Plot the hit counts of a PMM analysis for every virus as barplots
 #'
+#' @deprecated
+#'
 #' @export
 #' @import data.table
 #'

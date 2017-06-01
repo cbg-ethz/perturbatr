@@ -2,7 +2,7 @@
 % Please edit documentation in R/util_effect_matrix.R
 \name{effect.matrices}
 \alias{effect.matrices}
-\title{Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices}
+\title{Calculcate the LMM-prioritized effect matrices for gene and pathogen-gene matrices}
 \usage{
 effect.matrices(obj, ...)
 }
@@ -12,5 +12,5 @@ effect.matrices(obj, ...)
 \item{...}{additional parameters}
 }
 \description{
-Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices
+Calculcate the LMM-prioritized effect matrices for gene and pathogen-gene matrices
 }

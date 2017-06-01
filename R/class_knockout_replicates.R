@@ -18,34 +18,17 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @title Class that indexes plates on a \code{knockout.data} object
 #' @noRd
-#' @importFrom dplyr filter
-setMethod(
-  "[",
-  signature=signature(x="knockout.plates", i="numeric"),
-  function(x, i)
-  {
-    stopifnot(length(i) == 1)
-    stopifnot(i >= 1)
-    res <- x@.data
-    if (max(res$PlateIndex) < i) stop("ArrayIndexOutOfBounds")
-    res <- dplyr::filter(res, PlateIndex==i)
-    new("knockout.plate", .data=res)
-  }
+setClass(
+  "knockout.replicates",
+  contains = "knockout.data"
 )
 
+
+#' @title Class that holds a single replicate
 #' @noRd
-#' @importFrom dplyr filter
-setMethod(
-  "[",
-  signature=signature(x="knockout.replicates", i="numeric"),
-  function(x, i)
-  {
-    stopifnot(length(i) == 1)
-    stopifnot(i >= 1)
-    res <- x@.data
-    if (max(res$ReplicateIndex) < i) stop("ArrayIndexOutOfBounds")
-    res <- dplyr::filter(res, ReplicateIndex==i)
-    new("knockout.replicate", .data=res)
-  }
+setClass(
+  "knockout.replicate",
+  contains = "knockout.data"
 )

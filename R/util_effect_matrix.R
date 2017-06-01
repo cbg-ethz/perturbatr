@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' Calculcate the PMM-prioritized effect matrices for gene and pathogen-gene matrices
+#' Calculcate the LMM-prioritized effect matrices for gene and pathogen-gene matrices
 #'
 #' @export
 #' @import data.table
