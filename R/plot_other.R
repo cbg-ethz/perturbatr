@@ -94,7 +94,7 @@ plot.knockout.replicate <- function(x, y, method=c("Scatterplot", "QQ-plot"))
          ggplot2::ylab("Replicate 2") +
          ggplot2::theme_bw() +
         ggplot2::theme(text = ggplot2::element_text(size=20), aspect.ratio=.75) +
-        ggplot2::ggtitle(paste0(method, " (\u03C1=", corr, ")"))
+        ggplot2::ggtitle(bquote(paste(.(method), " (", rho == .(corr), ")")))
 
   pl
 }
@@ -129,7 +129,7 @@ plot.knockout.plate <- function(x,
                                 gene.text.size=3,
                                 ...)
 {
-  mat <- readout.matrix(x)
+  mat <- plate.matrix(x)
   mat$genes[is.na(mat$genes)] <- ""
   dr  <- data.table::melt(mat$readout)
   di  <- data.table::melt(mat$idx)

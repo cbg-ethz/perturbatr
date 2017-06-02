@@ -18,21 +18,24 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Get the readout matrix (plus control indexes) from an object
+#' Get the plate matrix (plus control indexes) from an object
 #'
-#' @export
 #'
-#' @param obj  the object for which you want to have the readout matrix
+#' @param obj  the object for which you want to have the readout plate.matrix
 #' @param ...  additional params
-readout.matrix <- function(obj, ...) UseMethod("readout.matrix")
+.plate.matrix <- function(obj, ...) UseMethod(".plate.matrix")
 
 #' @export
-#' @method readout.matrix knockout.plate
+#' @method .plate.matrix knockout.plate
 #' @import data.table
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
-readout.matrix.knockout.plate <- function(obj, ...)
+.plate.matrix.knockout.plate <- function(obj, ...)
 {
+
+  # highly inefficient method!!
+  # :(
+
   col.size <- max(obj@.data$ColIdx)
   row.size <- max(obj@.data$RowIdx)
   m <- idx <- genes <- matrix(0, row.size, col.size)

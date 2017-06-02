@@ -1,4 +1,3 @@
-plot(1,1, main=expression(paste(method, "(", rho,"=", corr, ")")))# knockout: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
 #
@@ -17,19 +16,28 @@ plot(1,1, main=expression(paste(method, "(", rho,"=", corr, ")")))# knockout: an
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
+#' Plot an \code{knockout.lmm.analysed} object
+#'
+#' The method returns three individual plots as a list.
+#'
 #' @export
+#' @method plot knockout.lmm.analysed
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr filter
-#' @method plot svd.prioritized.pmm
-plot.svd.prioritized.pmm <- function(x, y, ...)
+#' @param x  the object to be plotted
+#' @param ...  additional parameters
+plot.knockout.lmm.analysed <- function(x, ...)
 {
-  pl <- .plot.svd.prioritized.pmm(x$gene.hits, main="Gene effects", ...)
-  gen.pat <- x$gene.pathogen.hits
+  pl <- .plot.knockout.lmm.analysed (x@.gene.hits, main="Gene effects", ...)
   pl2 <-
-    .plot.svd.prioritized.pmm(gen.pat, main="") +
-    ggplot2::facet_wrap( ~ Virus, ncol=ceiling(length(unique(gen.pat$Virus))/2))
-  return(list(pl, pl2))
+    .plot.knockout.lmm.analysed(x@.gene.pathogen.hits, main="") +
+    ggplot2::facet_wrap(
+      ~ Virus,
+      ncol=ceiling(length(unique(x@.gene.pathogen.hits$Virus))/2))
+  pl3 <- .plot.effect.matrices.knockout.analysed.lmm(x)
+  return(list(pl, pl2, pl3))
 }
 
 #' @noRd
@@ -37,7 +45,7 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
 #' @import ggplot2
 #' @importFrom dplyr filter
 #' @importFrom methods hasArg
-.plot.svd.prioritized.pmm <- function(x, main, ...)
+.plot.knockout.lmm.analysed  <- function(x, main, ...)
 {
   pars <- list(...)
   size <- ifelse(methods::hasArg(size), pars$size, 10)
@@ -72,8 +80,45 @@ plot.svd.prioritized.pmm <- function(x, y, ...)
     ggplot2::coord_polar() +
     ggplot2::ggtitle(main)
 
-  ggsave(plot=pl, filename="~/Desktop/pl.pdf", width=8, height=8)
+  pl
+}
 
+#' @export
+#' @import data.table
+#' @import ggplot2
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom tidyr gather
+.plot.effect.matrices.knockout.analysed.lmm <- function(x, ...)
+{
+
+  effect.matrices <- .effect.matrices(x)
+  ge <- effect.matrices$gene.effects %>%
+    .[order(-abs(Effect))]  %>%
+    .[1:25]
+  gpe <-  effect.matrices$gene.pathogen.effects %>%
+    dplyr::filter(GeneSymbol %in% ge$GeneSymbol) %>%
+    tidyr::gather(GeneSymbol)
+  colnames(gpe) <- c("GeneSymbol", "Pathogen", "Effect")
+  gpe$GeneSymbol <- factor(gpe$GeneSymbol, levels=rev(unique(gpe$GeneSymbol)))
+  LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
+
+  pl <-
+    ggplot2::ggplot(gpe, ggplot2::aes(GeneSymbol, Pathogen)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = Effect), colour=LDcolors[1]) +
+    ggplot2::scale_x_discrete(expand = c(0,0)) +
+    ggplot2::scale_y_discrete(expand = c(0,0)) +
+    ggplot2::scale_fill_gradient2(low      = LDcolors[1],
+                                  high     = LDcolors[11],
+                                  na.value = LDcolors[6],
+                                  name     = "Gene virus\neffect") +
+    ggplot2::coord_flip() +
+    ggplot2::theme_bw() +
+    ggplot2::theme(text = ggplot2::element_text(size = 8, family = "Helvetica"),
+                   aspect.ratio = 2,
+                   axis.text.x  = ggplot2::element_text(angle=45,  hjust = 1, size=9),
+                   axis.text.y  = ggplot2::element_text(size=9),
+                   axis.title   = ggplot2::element_blank(),
+                   axis.ticks   = ggplot2::element_blank())
   pl
 }
 

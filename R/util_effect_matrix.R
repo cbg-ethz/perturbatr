@@ -17,33 +17,27 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' Calculcate the LMM-prioritized effect matrices for gene and pathogen-gene matrices
-#'
-#' @export
-#' @import data.table
+
+#' @noRd
 #' @param obj  the object to calculate the effect matrices for
 #' @param ...  additional parameters
-effect.matrices <- function(obj, ...)
+.effect.matrices <- function(obj, ...)
 {
-  UseMethod("effect.matrices")
+  UseMethod(".effect.matrices")
 }
 
 #' @noRd
-#' @export
+#' @method .effect.matrices knockout.lmm.analysed
 #' @import data.table
 #' @importFrom dplyr filter select
-effect.matrices.svd.prioritized.pmm <- function(obj, ...)
+.effect.matrices.knockout.lmm.analysed <- function(obj, ...)
 {
-
-  gene.top <- obj$gene.hits %>%
+  g <- obj@.gene.hits %>%
     dplyr::select(GeneSymbol, Effect) %>%
-    .[order(-abs(Effect))] %>%
-    .[, .SD[1:min(25,.N)]]
-  pgs <- obj$fit$gene.pathogen.effects %>%
-    dplyr::filter(GeneSymbol %in% gene.top$GeneSymbol) %>%
+    .[order(-abs(Effect))]
+  pg <- obj@.gene.pathogen.effects %>%
     dplyr::select(Virus, GeneSymbol, Effect) %>%
     tidyr::spread(Virus, Effect)
-  res <- list(gene.effects=gene.top, gene.pathogen.hits=pgs)
-  class(res) <- "svd.prioritized.pmm.effect.matrices"
-  res
+
+  list(gene.effects=g, gene.pathogen.effects=pg)
 }
