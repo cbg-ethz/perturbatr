@@ -87,7 +87,9 @@ we should have a look at quality scores and single plates before:
 
 ```{r, eval=T, include=T, fig.align="center", fig.width=6}
   hcv.kinome.raw          <- filter(rnai.screen.raw, Virus=="HCV",  Screen=="Kinome")
+  hcv.genome.raw          <- filter(rnai.screen.raw, Virus=="HCV",  Screen=="Genome")
   hcv.kinome.raw.quality  <- quality(hcv.kinome.raw)
+  hcv.genome.raw.quality  <- quality(hcv.genome.raw)
   plot(hcv.kinome.raw.quality)
 ```
 
