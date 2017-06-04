@@ -47,7 +47,7 @@ bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
-        idx     <- sample(seq(grp.dat$cnt[1]), replace=T) %>% unique
+        idx     <- sample(seq(grp.dat$cnt[1]), replace=T)
         grp.dat[idx]
       },
       mc.cores=ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),

@@ -20,11 +20,12 @@
 
 #' Get the plate matrix (plus control indexes) from an object
 #'
-#'
+#' @noRd
 #' @param obj  the object for which you want to have the readout plate.matrix
 #' @param ...  additional params
 .plate.matrix <- function(obj, ...) UseMethod(".plate.matrix")
 
+#' @noRd
 #' @export
 #' @method .plate.matrix knockout.plate
 #' @import data.table

@@ -35,9 +35,10 @@
 #' @importFrom methods hasArg
 .normalize.within <- function(obj, normalize, normalize.viability, ...)
 {
+  # REMOVE NASTY DOTS
   if (!("Readout" %in% colnames(obj))) stop("No 'Readout' column given!")
   read.dat <- dplyr::filter(obj, ReadoutClass == "Readout")
-  via.dat <- dplyr::filter(obj, ReadoutClass == "Viability")
+  via.dat  <- dplyr::filter(obj, ReadoutClass == "Viability")
   # pars arguments
   params <- list(...)
   z.score.level <- ifelse(methods::hasArg(z.score.level),

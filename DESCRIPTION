@@ -82,7 +82,6 @@ Collate:
     'plot_analysed.R'
     'plot_data.R'
     'plot_diffusion.R'
-    'plot_effects.R'
     'plot_hist.R'
     'plot_hit_counts.R'
     'plot_other.R'

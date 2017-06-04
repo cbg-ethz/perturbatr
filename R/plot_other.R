@@ -182,7 +182,7 @@ plot.knockout.plate <- function(x,
 #' @importFrom dplyr select mutate group_indices filter summarize group_by
 #' @importFrom tidyr gather
 #' @method plot knockout.quality
-plot.knockout.quality <- function(x, ...)
+plot.knockout.quality <- function(x, axis.text.size=12)
 {
   # plot the raw plate values as boxplot
   qual <- x@.data
@@ -198,7 +198,9 @@ plot.knockout.quality <- function(x, ...)
     ggplot2::geom_boxplot() +
     ggplot2::facet_grid(Virus ~ Screen) +
     ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.x = ggplot2::element_blank()) +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                   text = ggplot2::element_text(
+                     size = axis.text.size, family = "Helvetica"), aspect.ratio=.75) +
     ggplot2::ggtitle("Plate readouts")
 
   # plot control densities
@@ -208,8 +210,8 @@ plot.knockout.quality <- function(x, ...)
                   !is.na(Control),
                   Control != 0) %>%
     dplyr::mutate(Control = as.character(Control))
-  data.table::setDT(df)[Control == "-1", Control := "Negative control"]
-  data.table::setDT(df)[Control == "1",  Control := "Positive control"]
+  data.table::setDT(df)[Control == "-1", Control := "negative"]
+  data.table::setDT(df)[Control == "1",  Control := "positive"]
   data.table::setDT(df)[Control == "0",  Control := "Normal"]
   pl2 <- ggplot2::ggplot() + ggplot2::theme_bw()
   if (nrow(df) != 0)
@@ -221,6 +223,9 @@ plot.knockout.quality <- function(x, ...)
         position="identity", bins=42) +
       ggplot2::facet_grid(Virus ~ Screen) +
       ggplot2::theme_bw() +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     text = ggplot2::element_text(
+                       size = axis.text.size, family = "Helvetica"), aspect.ratio=.75) +
       ggplot2::ylab("Density") +
       ggplot2::ggtitle("Control densities")
   }
@@ -264,11 +269,14 @@ plot.knockout.quality <- function(x, ...)
       ggplot2::theme_bw() +
       ggplot2::geom_line(ggplot2::aes(x=Plate, y=Readout)) +
       ggplot2::facet_grid(Virus ~ Screen) +
-      ggplot2::theme(axis.text.x = ggplot2::element_blank()) +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     text = ggplot2::element_text(
+                       size = axis.text.size, family = "Helvetica"), aspect.ratio=.75) +
       ggplot2::scale_color_discrete(breaks = c("-1", "1"),
-                                    labels = c("Negative control",
-                                               "Positive control")) +
+                                    labels = c("negative",
+                                               "positive")) +
       ggplot2::ggtitle("Plate controls")
   }
-  .multiplot(plotlist=list(pl, pl2, pl3, pl4),cols=2)
+
+  list(pl, pl2, pl3, pl4)
 }

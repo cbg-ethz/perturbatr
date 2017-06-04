@@ -43,6 +43,7 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
   i    <- 1
   ctr  <- 1
   mistrial.cnt <- bootstrap.cnt * 10
+  # TODO: parallelize
   repeat
   {
     ctr <- ctr + 1

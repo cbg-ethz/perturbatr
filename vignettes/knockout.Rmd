@@ -146,7 +146,7 @@ filtering by `Virus` and `Screen` results int a single experiment;
 
 ```{r, eval=TRUE, include=T}
   hcv.kinome.normalized   <- filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
-  chikv.kinome.raw <- filter(rnai.screen.raw, Virus=="CHIKV", Screen=="Kinome")
+  chikv.kinome.raw        <- filter(rnai.screen.raw, Virus=="CHIKV", Screen=="Kinome")
 ```
 
 For the *HCV*-screen we know that it is a single-pooled screen and as cell numbers per plate available:

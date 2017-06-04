@@ -4,7 +4,7 @@
 \alias{plot.knockout.lmm.analysed}
 \title{Plot an \code{knockout.lmm.analysed} object}
 \usage{
-\method{plot}{knockout.lmm.analysed}(x)
+\method{plot}{knockout.lmm.analysed}(x, ...)
 }
 \arguments{
 \item{x}{the object to be plotted}
