@@ -87,10 +87,8 @@ we should have a look at quality scores and single plates before:
 
 ```{r, eval=T, include=T, fig.align="center", fig.width=6}
   hcv.kinome.raw          <- filter(rnai.screen.raw, Virus=="HCV",  Screen=="Kinome")
-  hcv.genome.raw          <- filter(rnai.screen.raw, Virus=="HCV",  Screen=="Genome")
   hcv.kinome.raw.quality  <- quality(hcv.kinome.raw)
-  hcv.genome.raw.quality  <- quality(hcv.genome.raw)
-  plot(hcv.kinome.raw.quality)
+  pl <- plot(hcv.kinome.raw.quality)
 ```
 
 Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates
@@ -110,7 +108,6 @@ RNAi-screening data. We just call it with the standard parameters, which takes t
 logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
 
 ```{r, eval=TRUE, include=T}
-  rnai.screen.normalized <- preprocess(rnai.screen.raw)
   hcv.kinome.norm       <- knockout::preprocess(
     hcv.kinome.raw,
     normalize=c("log","loess", "b.score", "robust-z.score"))
@@ -118,7 +115,7 @@ logarithm on every plate and afterwards computes a more robust version of the st
 
 ```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
   hcv.kinome.norm.quality <- quality(hcv.kinome.norm)
-  plot(hcv.kinome.norm.quality)
+  pl <- plot(hcv.kinome.norm.quality)
 ```
 
 ```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
