@@ -50,11 +50,12 @@ plates.knockout.raw.data <- function(obj, ...)
 plates.knockout.normalized.data <- function(obj, ...)
 {
   res <- obj@.data
-  g   <- dplyr::group_indices(res,
-                              Virus, Screen, Replicate, Plate,
-                              Cell, Design, Library,
-                              ReadoutType, ScreenType)
-  res$PlateIndex <- g
+  res   <- dplyr::group_by(res,
+                         Virus, Screen, Replicate, Plate,
+                         Cell, Design, Library,
+                         ReadoutType, ScreenType) %>%
+    dplyr::mutate(grp=.GRP)
+  res$PlateIndex <- res$GRP
 
   new("knockout.plates", .data=res)
 }

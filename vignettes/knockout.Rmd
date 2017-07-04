@@ -15,12 +15,11 @@ vignette: >
   library(dplyr)
   library(methods)
   library(knockout)
-  data("rnai_screen_raw")
-  my.data <- rnai.screen.raw@.data %>% 
-    dplyr::filter(Virus=="HCV") %>%
+  data(rnaiscreen)
+  my.data <- rnaiscreen@.data %>% 
+    dplyr::filter(Virus=="V1") %>%
     dplyr::select(Replicate, Plate, RowIdx, ColIdx, 
-                  GeneSymbol, Readout, Control, siRNAIDs) %>% 
-    .[,.SD[sample(.N, 5)]]
+                  GeneSymbol, Readout, Control, siRNAIDs)
 ```
 
 # Introduction
@@ -81,25 +80,25 @@ comparability between plates. Normalization can be done using the `preprocess`
 method. We use one of the provided data-sets for this. But before we do any normalisations 
 we should have a look at quality scores and single plates before:
 
-```{r, eval=F, include=T}
-  data("rnai_screen_raw")
+```{r, eval=T, include=T}
+  data(rnaiscreen)
 ```
 
 ```{r, eval=T, include=T, fig.align="center", fig.width=6}
-  hcv.kinome.raw          <- filter(rnai.screen.raw, Virus=="HCV",  Screen=="Kinome")
-  hcv.kinome.raw.quality  <- quality(hcv.kinome.raw)
-  pl <- plot(hcv.kinome.raw.quality)
+  v1.data         <- filter(rnaiscreen, Virus == "V1")
+  v1.data.quality <- quality(v1.data)
+  pl              <- plot(v1.data.quality)
 ```
 
 Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates
 
 ```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
-  plates <- plates(hcv.kinome.raw)
-  plot(plates[44], show.gene.names=T, gene.text.size=2)
+  plates <- plates(v1.data)
+  plot(plates[1], show.gene.names=T, gene.text.size=2)
 ```
 
 ```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
-  repls <- replicates(hcv.kinome.raw)
+  repls <- replicates(v1.data)
   plot(repls[1], repls[2])
 ```
 
@@ -108,55 +107,42 @@ RNAi-screening data. We just call it with the standard parameters, which takes t
 logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
 
 ```{r, eval=TRUE, include=T}
-  hcv.kinome.norm       <- knockout::preprocess(
-    hcv.kinome.raw,
-    normalize=c("log","loess", "b.score", "robust-z.score"))
+  v1.data.norm <- knockout::preprocess(
+    v1.data, normalize=c("log", "robust-z.score"))
 ```
 
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
-  hcv.kinome.norm.quality <- quality(hcv.kinome.norm)
-  pl <- plot(hcv.kinome.norm.quality)
-```
+The result shouldn't be too different from before since we use artificial data. But for completeness' sake let's do the full analysis. We do the same as
+before (this time w/o plots, though)
 
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
-  plates <- plates(hcv.kinome.norm)
-  plot(plates[44], show.gene.names=T, gene.text.size=2)
-```
+```{r, eval=FALSE, include=TRUE}
+  v1.data.norm.quality <- quality(v1.data.norm)
+  pl <- plot(v1.data.norm.quality)
 
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
-  repls <- replicates(hcv.kinome.norm)
+  plates <- plates(v1.data.norm)
+  plot(plates[1], show.gene.names=T, gene.text.size=2)
+
+  repls <- replicates(v1.data.norm)
   plot(repls[1], repls[2])
 ```
 
-The result object has class `knockout.normalized.data` which can be used for analysis. 
+The result object has class `knockout.normalized.data` which can be used for analysis.
 
 In the example above we just computed the log and robust Z-scores for every 
 plate separately. Often, when we have for instance information of cell-counts, 
 cell-viability or expect spatial effects due to several batch effects other 
 normalization methods are more suitable. Furthermore when your data-set 
 comprises multiple different screens, you might want to normalize every screen 
-separately. 
+separately.
 
 In this case you would first filter the data-set by single experiments. For our provided 
 filtering by `Virus` and `Screen` results int a single experiment; 
 *for your data this might be different though*.
 
 ```{r, eval=TRUE, include=T}
-  hcv.kinome.normalized   <- filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
-  chikv.kinome.raw        <- filter(rnai.screen.raw, Virus=="CHIKV", Screen=="Kinome")
-```
-
-For the *HCV*-screen we know that it is a single-pooled screen and as cell numbers per plate available:
-
-```{r, eval=TRUE, include=TRUE}
-  dplyr::select(hcv.kinome.raw@.data, Design, NumCells) %>% .[1:5]
-```
-Furthermore we know the genes are ordered randomly and not, for example, alphabetically or by gene funtion:
-
-```{r, eval=TRUE, include=TRUE, fig.align="center", fig.width=6}
-  plates <- plates(hcv.kinome.raw)
-  plot(plates[1], show.gene.names=T, gene.text.size=2)
+  v1.dat <- filter(rnaiscreen, Virus=="V1")
+  v2.dat <- filter(rnaiscreen, Virus=="V2")
 ```
 
 ## Data-analysis
+
 

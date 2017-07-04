@@ -4,7 +4,7 @@
 \alias{plot.knockout.quality}
 \title{Plot a \code{knockout.quality} object}
 \usage{
-\method{plot}{knockout.quality}(x, ...)
+\method{plot}{knockout.quality}(x, axis.text.size = 12)
 }
 \description{
 Plot a \code{knockout.quality} object on a 2D grid

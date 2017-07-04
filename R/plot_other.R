@@ -186,9 +186,11 @@ plot.knockout.quality <- function(x, axis.text.size=12)
 {
   # plot the raw plate values as boxplot
   qual <- x@.data
-  grps <- dplyr::group_indices(qual, Virus, Screen, Library,
+  qual <- dplyr::group_by(qual, Virus, Screen, Library,
                                ScreenType, ReadoutType,
-                               Replicate, Plate)
+                               Replicate, Plate) %>%
+    dplyr::mutate(grp = .GRP)
+  grps <- qual$grp
   df   <- dplyr::mutate(qual, Plate=grps) %>%
     dplyr::select(Virus, Screen, Readout, Plate) %>%
     dplyr::mutate(Plate=as.factor(Plate)) %>%
@@ -208,8 +210,8 @@ plot.knockout.quality <- function(x, axis.text.size=12)
     dplyr::filter(!is.na(Readout),
                   !is.infinite(Readout),
                   !is.na(Control),
-                  Control != 0) %>%
-    dplyr::mutate(Control = as.character(Control))
+                  Control != 0)
+  df$Control <- as.character(df$Control)
   data.table::setDT(df)[Control == "-1", Control := "negative"]
   data.table::setDT(df)[Control == "1",  Control := "positive"]
   data.table::setDT(df)[Control == "0",  Control := "Normal"]
