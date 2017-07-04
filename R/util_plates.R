@@ -54,8 +54,8 @@ plates.knockout.normalized.data <- function(obj, ...)
                          Virus, Screen, Replicate, Plate,
                          Cell, Design, Library,
                          ReadoutType, ScreenType) %>%
-    dplyr::mutate(grp=.GRP)
-  res$PlateIndex <- res$GRP
+    dplyr::mutate(PlateIndex=.GRP) %>%
+    ungroup
 
   new("knockout.plates", .data=res)
 }

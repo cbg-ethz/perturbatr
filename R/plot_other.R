@@ -17,48 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
-#' @export
-#' @import ggplot2
-#' @import data.table
-#' @importFrom RColorBrewer brewer.pal
-#' @importFrom methods hasArg
-#' @method plot svd.concordance
-plot.svd.concordance <- function(x, y, ...)
-{
-  params <- list(...)
-  type <- ifelse(methods::hasArg(type), params$type, "jaccard")
-  size <- ifelse(methods::hasArg(size), params$size, 14)
-  mrix <- switch(type,
-                 "jaccard"=x$jaccard.matrix,
-                 "overlap"=x$overlap.matrix,
-                 stop("Wrong type given, give either: jaccard/overlap!"))
-  mrix[upper.tri(mrix)] <- NA
-  df <- data.table::melt(mrix)
-  pl <-
-    ggplot2::ggplot(df, aes(factor(Var1), factor(Var2), fill = value)) +
-    ggplot2::geom_tile(aes(fill = value), colour = "black") +
-    ggplot2::scale_x_discrete(expand = c(0,0), labels=x$names) +
-    ggplot2::scale_y_discrete(expand = c(0,0), labels=x$names) +
-    ggplot2::scale_fill_gradient2(low = "white",
-                                  high = "#3182bd",
-                                  na.value="white",
-                                  limits = c(0,1),
-                                  name="Concordance") +
-    ggplot2::coord_fixed() +
-    ggplot2::theme_bw() +
-    ggplot2::theme(text = element_text(size = size, family = "Helvetica"),
-                   aspect.ratio=1,
-                   axis.title=element_blank(),
-                   axis.title.x=element_blank(),
-                   axis.title.y=element_blank(),
-                   panel.background=element_blank()) +
-    ggplot2::ggtitle(ifelse(methods::hasArg("main"), params$main, "")) +
-    ggplot2::guides(fill = guide_colorbar(
-      title.position = "top", title.hjust = 0.5))
-
-  pl
-}
-
 
 #' Plot two \code{knockout.replicate} objects
 #'

@@ -44,10 +44,11 @@ replicates.knockout.raw.data <- function(obj, ...)
 replicates.knockout.normalized.data <- function(obj, ...)
 {
   res <- obj@.data
-  g <- dplyr::group_indices(res, Virus, Screen, Replicate,
+  res <- dplyr::group_by(res, Virus, Screen, Replicate,
                             Cell, Design, Library,
-                            ReadoutType, ScreenType)
-  res$ReplicateIndex <- g
+                            ReadoutType, ScreenType) %>%
+    dplyr::mutate(ReplicateIndex = .GRP) %>%
+    ungroup
 
   new("knockout.replicates", .data=res)
 }
