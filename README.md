@@ -9,28 +9,25 @@ Analysis of high-throughput gene perturbation screens in R.
 
 ## Introduction
 
-`knockout` does analysis of large-scale gene knockout/knockdown screens.
-For this several preprocessing and data normalization techniques such as *median-polish* or *quantile-quantile normalization* are implemented. 
-On the normalized data-set essential hits can be prioritized using state-of-the-art analysis tools, such as *gespeR* or *pmm*. 
-The resulting hit lists can be further extended using network diffusion algorithms, such as *Markov random walks with restarts* or the well-known *heat equation*.
-Eventually hits can be analyses using *GSEA*, etc.
+`knockout` does analysis of large-scale RNAi interference screens for pan-pathogenic datasets.
+The package provides various tools for normalisation, plotting and analysis. For single pathogen
+screens classical analyses using hypothesis testing are implemented. For pan-pathogenic 
+screens we developed a random effects model that exploits the different biological settings
+the data are derived from. The resulting hit lists can be further extended using network diffusion 
+algorithms, such as *Markov random walks with restarts*.
 
 ## Installation
  
-Install `knockout` using:
-```{r}
-devtools::install_github("dirmeier/knockout") 
+Download the latest `knockout` release and install the package using:
+
+```bash
+  R CMD install <netreg.tar.gz>
 ```
-from the R-console.
+wher <netreg.tar.gz> is the downloaded tarball.
 
 ## Usage
 
-Load the package using `library(knockout)`. We (maybe if I already was in the mood) provide a vignette for the package that can be called using: `vignette("knockout")`.
-Basically that is all you have to know.
-
-## References
-
-
+Load the package using `library(knockout)`. We provide a vignette for the package that can be called using: `vignette("knockout")`. Basically that is all you have to know.
 
 ## Author
 

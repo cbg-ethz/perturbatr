@@ -90,7 +90,7 @@ Raw image-based screens have usually to be normalized in order to ensure
 comparability between plates. Normalization can be done using the `preprocess` 
 method. Before we do any normalisations we should have a look at quality scores and single plates before:
 
-```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=3}
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4}
   v1.data         <- knockout::filter(rnaiscreen, Virus == "V1")
   v1.data.quality <- quality(v1.data)
   pl              <- plot(v1.data.quality)
@@ -166,7 +166,7 @@ likelihood approach.
 Suppose we normalized our data-set and centered the data around zero. One way to find significant genes
 is to use a standard `t-test`:
 
-```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.width=3}
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width=4}
   v1.dat <- knockout::filter(rnaiscreen, Virus=="V1")
   v1.res <- tstatistic(v1.dat)
   plot(v1.res)
@@ -195,7 +195,7 @@ random effects model using:
 
 If we `plot` our result we are getting a list three different plots. The most informative one that shows the top 25 pen-pathogenic host factors:
 
-```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=3, warning=FALSE, message=FALSE}
+```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=4, warning=FALSE, message=FALSE}
   pl <- plot(res)
   print(pl[[1]])
 ```
@@ -204,7 +204,7 @@ Since our screen had only some few genes, we might want to *smooth* the effect f
 we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualisation of the graph and newly detected hits using
 the diffusion:
 
-```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=3, message=FALSE}
+```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   graph.file <- system.file("extdata", "graph_file.tsv", package = "knockout")
   diffu <- diffuse(res, method="mrw", path=graph.file)
   plot(diffu)
