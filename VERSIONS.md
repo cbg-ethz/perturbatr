@@ -1,9 +1,3 @@
 ## Versions
 
-### 0.99.0 
-
-* Writing of vignette
-* Setup of routines for plotting, analysis, preprocessing
-* Basic setup of all required files, like code of conduct, README, etc.
-* Packaging
-* Registration to travis, etc.
+For news and versioning have a look at `inst/NEWS`.

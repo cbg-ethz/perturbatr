@@ -36,7 +36,8 @@ Imports:
     diffusr,
     lazyeval,
     tibble,
-    metap
+    metap,
+    limma
 biocViews: geneticperturbation
 Suggests:
     testthat,
@@ -63,7 +64,6 @@ Collate:
     'inference_lmm_fdr_ge.R'
     'inference_lmm_fdr_gpe.R'
     'inference_lmm_model_data.R'
-    'inference_ora.R'
     'inference_tstatistic.R'
     'knockout_package.R'
     'methods_combine.R'
