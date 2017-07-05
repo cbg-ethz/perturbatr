@@ -3,6 +3,7 @@ title: "Knockout cookbook"
 author: "Simon Dirmeier"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
+bibliography: knockout.bib
 vignette: >
   %\VignetteIndexEntry{Knockout cookbook}
   %\VignetteEngine{knitr::rmarkdown}
@@ -43,7 +44,7 @@ You supposedly start with something like a `data.frame`. In order to create a
 `knockout-data`-set you need to transfrom it into a `data.table` with at least 
 the following columns:
 
-```{r, include=TRUE}
+```{r, include=TRUE, size="tiny"}
   print(my.data)
 ```
 
@@ -75,6 +76,8 @@ If you want to work directly on the data-set you shoult access it on the `.data`
 
 ## Preprocessing
 
+### Quality control plots
+
 Raw image-based screens have usually to be normalized in order to ensure
 comparability between plates. Normalization can be done using the `preprocess` 
 method. We use one of the provided data-sets for this.
@@ -85,31 +88,37 @@ method. We use one of the provided data-sets for this.
 
 Before we do any normalisations we should have a look at quality scores and single plates before:
 
-```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=6}
-  v1.data         <- filter(rnaiscreen, Virus == "V1")
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4}
+  v1.data         <- knockout::filter(rnaiscreen, Virus == "V1")
   v1.data.quality <- quality(v1.data)
   pl              <- plot(v1.data.quality)
+  pl[[2]]
 ```
 
-Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates
+This, surprisingly, does not show any separation, since we use an artificial dataset.
+Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates:
 
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=4}
   plates <- plates(v1.data)
-  plot(plates[1], show.gene.names=T, gene.text.size=2)
+  plot(plates[1], show.gene.names=FALSE)
 ```
 
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=6}
+As before, no surprises here. We can also check if two replicates are somewhat similar, by looking
+at Spearman's correlation coefficient.
+
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=4}
   repls <- replicates(v1.data)
   plot(repls[1], repls[2])
 ```
+
+### Normalisation
 
 The `preprocess` method offers a collection of common techniques to normalize 
 RNAi-screening data. We just call it with the standard parameters, which takes the natural 
 logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
 
-```{r, eval=TRUE, include=T}
-  v1.data.norm <- knockout::preprocess(
-    v1.data, normalize=c("log", "robust-z.score"))
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  v1.data.norm <- knockout::preprocess(v1.data, normalize=c("log", "robust-z.score"))
 ```
 
 The result shouldn't be too different from before since we use artificial data. But for completeness' sake let's do the full analysis. We do the same as
@@ -155,10 +164,29 @@ likelihood approach.
 Suppose we normalized our data-set and centered the data around zero. One way to find significant genes
 is to use a standard `t-test`:
 
-```{r, eval=TRUE, include=T}
-  v1.dat <- filter(rnaiscreen, Virus=="V1")
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  v1.dat <- knockout::filter(rnaiscreen, Virus=="V1")
   v1.res <- tstatistic(v1.dat)
+  #plot(v1.res)
 ```
+
+Alternatively you can also use an iterative hyper-geometric test with `hyper.statistic` [@konig2007probability]
+or a test using a <i>Chi-squared<i> distributed test statistic using `chisq.statistic`. 
+We've also implemented prioritized detection of hits using a penalized linear model by [@schmich2015gesper]
+using the `gespeR` function.
+
+### Maximum likelihood inference
+
+If we want to analyse several pathogens add once and detect host factors common to all of those other appraoches might make more sense.
+We can either use again a linear model (`gespeR`) or use a random effects model that separately treats biological effects from different settings called `lmm`.
+We describe the phenotype/readout by a linear combination of fixed effects and random effects (inspired by [@ramo2014simultaneous])
+
+
+
+
+## References
+
+
 
 
 

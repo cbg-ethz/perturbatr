@@ -29,7 +29,7 @@
 #' @param x  a \code{knockout.replicate} object
 #' @param y  another \code{knockout.replicate} object
 #' @param method either \code{Scatterplot} or \code{QQ-plot}
-plot.knockout.replicate <- function(x, y, method=c("Scatterplot", "QQ-plot"))
+plot.knockout.replicate <- function(x, y, method=c("Scatterplot", "QQ-plot"), size=10)
 {
   method <- match.arg(method)
   if (missing(x) | missing(y)) stop("Please provide two arguments (x and y)!")
@@ -51,7 +51,7 @@ plot.knockout.replicate <- function(x, y, method=c("Scatterplot", "QQ-plot"))
          ggplot2::xlab("Replicate 1") +
          ggplot2::ylab("Replicate 2") +
          ggplot2::theme_bw() +
-        ggplot2::theme(text = ggplot2::element_text(size=20), aspect.ratio=.75) +
+        ggplot2::theme(text = ggplot2::element_text(size=size), aspect.ratio=.75) +
         ggplot2::ggtitle(bquote(paste(.(method), " (", rho == .(corr), ")")))
 
   pl

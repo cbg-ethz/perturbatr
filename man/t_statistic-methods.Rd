@@ -7,10 +7,12 @@
 \title{Calculate statistics based on the t-test to analyse the data.}
 \usage{
 tstatistic(obj, mu = c(0, "scrambled", "control"), padjust = c("BH",
-  "bonferroni"), ...)
+  "bonferroni"), hit.ratio = 0.5, effect.size = 0, pval.threshold = 0.05,
+  qval.threshold = 1)
 
 \S4method{tstatistic}{knockout.data}(obj, mu = c(0, "scrambled", "control"),
-  padjust = c("BH", "bonferroni"), ...)
+  padjust = c("BH", "bonferroni"), hit.ratio = 0.5, effect.size = 0,
+  pval.threshold = 0.05, qval.threshold = 1)
 }
 \arguments{
 \item{obj}{the data to be analysed}
@@ -19,7 +21,18 @@ tstatistic(obj, mu = c(0, "scrambled", "control"), padjust = c("BH",
 
 \item{padjust}{multiple testing correction method}
 
-\item{...}{additional params}
+\item{hit.ratio}{the ratio of siRNAs}
+
+\item{effect.size}{the relative strength of a signal to count as a hit,
+i. e. the biological significance of a gene/sirna}
+
+\item{pval.threshold}{the significance level for a sirna/gene,
+i. e. the statistical significance of a gene/sirna
+to be counted as significant}
+
+\item{qval.threshold}{the significance level of the multiple testing
+corrected p-value. This should be set to an appropriate significance level
+just like the \code{pval.threshold} as well.}
 }
 \description{
 For this you should use a standardization before.

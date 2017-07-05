@@ -34,40 +34,54 @@
 #' @param obj  the data to be analysed
 #' @param mu  side to which the mean of a siRNA is compared to
 #' @param padjust  multiple testing correction method
-#' @param ...   additional params
+#' @param hit.ratio  the ratio of siRNAs
+#' @param effect.size  the relative strength of a signal to count as a hit,
+#'  i. e. the biological significance of a gene/sirna
+#' @param pval.threshold  the significance level for a sirna/gene,
+#'  i. e. the statistical significance of a gene/sirna
+#'  to be counted as significant
+#' @param qval.threshold  the significance level of the multiple testing
+#'  corrected p-value. This should be set to an appropriate significance level
+#'  just like the \code{pval.threshold} as well.
 setGeneric(
   "tstatistic",
   function(obj,
            mu=c(0, "scrambled", "control"),
            padjust=c("BH", "bonferroni"),
-           ...)
+           hit.ratio=0.5,
+           effect.size=0,
+           pval.threshold=0.05,
+           qval.threshold=1)
   {
     standardGeneric("tstatistic")
   },
   package="knockout"
 )
 
+
 #' @rdname t_statistic-methods
 #' @aliases tstatistic,knockout.data-method
 #' @import data.table
 setMethod(
   "tstatistic",
-  signature = signature(obj="knockout.data"),
+  signature = signature(obj = "knockout.data"),
   function(obj,
            mu=c(0, "scrambled", "control"),
            padjust=c("BH", "bonferroni"),
-           ...)
+           hit.ratio=0.5,
+           effect.size=0,
+           pval.threshold=0.05,
+           qval.threshold=1)
   {
-    stop("todo")
     dat <- obj@.data
     res <- .t.statistic(dat,
                         mu=match.arg(mu),
-                        padjust=match.arg(padjust),
-                        ...)
-    priorit <- .prioritize.hyper.statistic(
+                        padjust=match.arg(padjust))
+    priorit <- .prioritize.tstatistic(
       res, hit.ratio, effect.size, pval.threshold, qval.threshold)
+
     ret <- new("knockout.tstatistic.analysed",
-               .inference=.inference.types()$T.TEST,
+               .gene.hits = data.table::as.data.table(priorit),
                .data=res)
     ret
   }
@@ -75,7 +89,7 @@ setMethod(
 
 #' @noRd
 #' @import data.table
-.t.statistic <- function(obj, mu, padjust, ...)
+.t.statistic <- function(obj, mu, padjust)
 {
   message(paste("Correcting with ", padjust, "!", sep=""))
   message(paste("Taking", mu, "for t-test mu!"))
@@ -214,6 +228,7 @@ setMethod(
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by summarize ungroup filter select mutate
+#' @importFrom metap sumlog
 .prioritize.tstatistic <- function(obj,
                                    hit.ratio=0.5,
                                    effect.size=0,
@@ -221,7 +236,6 @@ setMethod(
                                    qval.threshold=1)
 {
   # TODO here: what do do with multiple sirnas? same hit criterion as in hyper
-
   res <- dplyr::group_by(obj, Virus, Screen, Library,
                          ScreenType, ReadoutType,
                          Design, Cell,
@@ -235,14 +249,14 @@ setMethod(
                     GeneSymbol, Entrez) %>%
     # TODO this should be as in hyper. the means dont make sense here
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
-                     PvalRatio  = (sum(Pval <= pval.threshold, na.rm=T)/n()),
-                     QvalRatio  = (sum(Qval <= qval.threshold, na.rm=T)/n()),
+                     Pval       = metap::sumlog(Pval)$p,
+                     QvalRatio  = metap::sumlog(Qval)$p,
                      MeanEffect = mean(Readout, na.rm=T),
                      MaxEffect  = max(Readout, na.rm=T),
                      MinEffect  = min(Readout, na.rm=T),
                      Pval=paste(sprintf("%03f", Pval), collapse=","),
                      Qval=paste(sprintf("%03f", Qval), collapse=",")) %>%
     ungroup %>%
-    dplyr::filter(HitRatio >= hit.rat)
+    dplyr::filter(Pval <= pval.threshold & Qval <= qval.threshold)
   res
 }
