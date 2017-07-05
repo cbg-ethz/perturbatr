@@ -4,7 +4,8 @@
 \alias{plot.knockout.replicate}
 \title{Plot two \code{knockout.replicate} objects}
 \usage{
-\method{plot}{knockout.replicate}(x, y, method = c("Scatterplot", "QQ-plot"))
+\method{plot}{knockout.replicate}(x, y, method = c("Scatterplot", "QQ-plot"),
+  size = 10)
 }
 \arguments{
 \item{x}{a \code{knockout.replicate} object}

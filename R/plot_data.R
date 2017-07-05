@@ -24,10 +24,10 @@
 #' @method plot knockout.raw.data
 #' @param x  the object to plot
 #' @param ...  additional parameters
-plot.knockout.raw.data <- function(x, ...)
+plot.knockout.raw.data <- function(x, size=10, ...)
 {
   x@.data <- dplyr::filter(x@.data, ReadoutClass=="Readout")
-  plot.knockout.normalized.data(x, ...)
+  plot.knockout.normalized.data(x, size, ...)
 }
 
 #' Plot a knockout data-set
@@ -41,7 +41,7 @@ plot.knockout.raw.data <- function(x, ...)
 #' @importFrom tidyr gather
 #' @param x  the object to plot
 #' @param ...  additional parameters
-plot.knockout.normalized.data <- function(x, ...)
+plot.knockout.normalized.data <- function(x, size, ...)
 {
   numb.frame <-
     dplyr::group_by(x@.data, Virus, Screen) %>%
@@ -55,10 +55,10 @@ plot.knockout.normalized.data <- function(x, ...)
     ggplot2::geom_bar(ggplot2::aes(fill=Virus), stat="identity") +
     ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
     ggplot2::scale_fill_brewer(palette="Spectral") +
-    ggplot2::geom_text(ggplot2::aes(label = Count, y = Count), size = 5, vjust=0) +
+    ggplot2::geom_text(ggplot2::aes(label = Count, y = Count), size = floor(size/3), vjust=0) +
     ggplot2::theme_bw() +
-    ggplot2::theme(strip.text = ggplot2::element_text(size = 16),
-                   text       = ggplot2::element_text(size = 16))
+    ggplot2::theme(strip.text = ggplot2::element_text(size = size),
+                   text       = ggplot2::element_text(size = size))
 
   pl
 }

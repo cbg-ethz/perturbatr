@@ -18,7 +18,9 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-setAs(
+#' @noRd
+#' @import data.table
+methods::setAs(
   "data.table",
   "knockout.data",
   function(from)
@@ -29,7 +31,7 @@ setAs(
                     "Readout"    = c("numeric", "integer"))
 
     col.names <- colnames(from)
-    names <- names(req.els)
+    names     <- names(req.els)
     for (i in seq(req.els))
     {
       name <- names[i]
@@ -73,3 +75,14 @@ setAs(
     return(methods::new("knockout.raw.data", .data=from))
 })
 
+#' @noRd
+#' @import methods
+#' @import data.table
+methods::setAs(
+  "data.frame",
+  "knockout.data",
+  function(from)
+  {
+    methods::as(data.table::as.data.table(from), "knockout.data")
+  }
+)

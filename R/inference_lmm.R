@@ -74,7 +74,7 @@ setMethod(
            effect.size=0.05,
            qval.threshold=.2)
   {
-    md <- .set.lmm.matrix(obj, drop, ignore, weights, rel.mat.path)
+    md <- set.lmm.model.data(obj, drop, ignore, weights, rel.mat.path)
     lmm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore,
         effect.size, qval.threshold)
   }
@@ -90,7 +90,7 @@ setMethod(
            drop=T,
            weights=NULL,
            rel.mat.path=NULL,
-           bootstrap.cnt=F,
+           bootstrap.cnt=0,
            ignore=1,
            effect.size=0.05,
            qval.threshold=.2)
@@ -112,7 +112,9 @@ setMethod(
            .data                  = data.table::
              as.data.table(res$model.data@.data),
            .model.fit             = res$model,
-           .is.bootstrapped       = res$btst)
+           .is.bootstrapped       = res$btst,
+           .params                = list(effect.size=effect.size,
+                                         qval.threshold=qval.threshold))
 
     ret
   }
@@ -228,7 +230,7 @@ setMethod(
 {
   ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]
-  if (obj$btst)
+  if (obj$btst != 0)
     ge <- dplyr::filter(ge, Qval <= fdrt)
   gpe <- obj$gene.pathogen.effects %>%
     dplyr::filter(abs(Effect) >= eft, Qval <= fdrt)  %>%

@@ -83,7 +83,7 @@ plot.knockout.plate <- function(x,
                                 ylab="Row idx",
                                 xlab="Column idx",
                                 main="",
-                                axis.text.size=12,
+                                axis.text.size=9,
                                 gene.text.size=3,
                                 ...)
 {

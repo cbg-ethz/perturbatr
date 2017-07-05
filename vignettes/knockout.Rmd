@@ -76,19 +76,21 @@ If you want to work directly on the data-set you shoult access it on the `.data`
 
 ## Preprocessing
 
+Before starting to work with the data we might just want to have a plain look how many genes and replicates we have. 
+We use one of the provided artificial data-sets for this.
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=3, fig.height=4}
+  data(rnaiscreen)
+  plot(rnaiscreen)
+```
+
 ### Quality control plots
 
 Raw image-based screens have usually to be normalized in order to ensure
 comparability between plates. Normalization can be done using the `preprocess` 
-method. We use one of the provided data-sets for this.
+method. Before we do any normalisations we should have a look at quality scores and single plates before:
 
-```{r, eval=T, include=T}
-  data(rnaiscreen)
-```
-
-Before we do any normalisations we should have a look at quality scores and single plates before:
-
-```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4}
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=3}
   v1.data         <- knockout::filter(rnaiscreen, Virus == "V1")
   v1.data.quality <- quality(v1.data)
   pl              <- plot(v1.data.quality)
@@ -98,7 +100,7 @@ Before we do any normalisations we should have a look at quality scores and sing
 This, surprisingly, does not show any separation, since we use an artificial dataset.
 Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates:
 
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=4}
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=3}
   plates <- plates(v1.data)
   plot(plates[1], show.gene.names=FALSE)
 ```
@@ -106,7 +108,7 @@ Since we know that RNAi screens often suffer from batch effects we also might wa
 As before, no surprises here. We can also check if two replicates are somewhat similar, by looking
 at Spearman's correlation coefficient.
 
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=4}
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=3}
   repls <- replicates(v1.data)
   plot(repls[1], repls[2])
 ```
@@ -172,14 +174,41 @@ is to use a standard `t-test`:
 
 Alternatively you can also use an iterative hyper-geometric test with `hyper.statistic` [@konig2007probability]
 or a test using a <i>Chi-squared<i> distributed test statistic using `chisq.statistic`. 
-We've also implemented prioritized detection of hits using a penalized linear model by [@schmich2015gesper]
-using the `gespeR` function.
+We also refer the interested reader to a recent model for hit prioritization using a penalized linear model by [@schmich2015gesper].
 
 ### Maximum likelihood inference
 
 If we want to analyse several pathogens add once and detect host factors common to all of those other appraoches might make more sense.
 We can either use again a linear model (`gespeR`) or use a random effects model that separately treats biological effects from different settings called `lmm`.
-We describe the phenotype/readout by a linear combination of fixed effects and random effects (inspired by [@ramo2014simultaneous])
+We describe the phenotype/readout by a linear combination of fixed effects and random effects (inspired by [@ramo2014simultaneous]) as:
+
+$$y_{vgst} = x_v \beta + \gamma_g  + \delta_{vg} + \zeta_t + \xi_{vt} + \epsilon_{vgst},$$
+where $y_{vgst}$ is the phenotype for a virus $v$, gene $g$, siRNA $s$ and infection type $t$. 
+Since RNAi screens are prone to having large variance, we try to capture as much of the 
+variance using random effects for genes, viruses and the infection types. You call the
+random effects model using:
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
+  res                   <- lmm(rnaiscreen.normalized, effect.size=0.01)
+```
+
+If we `plot` our result we are getting a list three different plots. The most informative one that shows the top 25 pen-pathogenic host factors:
+
+```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=3, warning=FALSE, message=FALSE}
+  pl <- plot(res)
+  print(pl[[1]])
+```
+
+Since our screen had only some few genes, we might want to *smooth* the effect from the random effects model using network diffusion. For that
+we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualisation of the graph and newly detected hits using
+the diffusion:
+
+```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=3 message=FALSE}
+  graph.file <- system.file("extdata", "graph_file.tsv", package = "knockout")
+  diffu <- diffuse(res, method="mrw", path=graph.file)
+  plot(diffu)
+```
 
 
 

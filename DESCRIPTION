@@ -54,7 +54,7 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'util_enums.R'
     'class_knockout_analysed.R'
     'class_knockout_data.R'
@@ -67,7 +67,6 @@ Collate:
     'inference_diffuse.R'
     'inference_diffuse_knn.R'
     'inference_diffuse_mrw.R'
-    'inference_gesper.R'
     'inference_hyperstatistic.R'
     'inference_lmm.R'
     'inference_lmm_fdr_ge.R'
@@ -80,11 +79,8 @@ Collate:
     'methods_filter.R'
     'methods_select.R'
     'plot.R'
-    'plot_analysed.R'
     'plot_data.R'
     'plot_diffusion.R'
-    'plot_hist.R'
-    'plot_hit_counts.R'
     'plot_other.R'
     'plot_prioritized.R'
     'preprocess.R'

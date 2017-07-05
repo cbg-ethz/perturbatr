@@ -113,7 +113,8 @@ setClass(
                    .screen.type.effects   = "data.table",
                    .gene.hits             = "data.table",
                    .gene.pathogen.hits    = "data.table",
-                   .model.fit             = "list"),
+                   .model.fit             = "list",
+                   .params                = "list"),
   prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
 )
 

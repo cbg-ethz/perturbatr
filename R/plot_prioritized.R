@@ -28,16 +28,22 @@
 #' @importFrom dplyr filter
 #' @param x  the object to be plotted
 #' @param ...  additional parameters
-plot.knockout.lmm.analysed <- function(x, ...)
+plot.knockout.lmm.analysed <- function(x, size=10,...)
 {
-  pl <- .plot.knockout.lmm.analysed (x@.gene.hits, main="Gene effects", ...)
+  pl <- .plot.knockout.lmm.analysed (x@.gene.hits, main="Gene effects", size=size, ...)
   pl2 <-
-    .plot.knockout.lmm.analysed(x@.gene.pathogen.hits, main="") +
+    .plot.knockout.lmm.analysed(x@.gene.pathogen.hits, main="", size=size) +
     ggplot2::facet_wrap(
       ~ Virus,
       ncol=ceiling(length(unique(x@.gene.pathogen.hits$Virus))/2))
   pl3 <- .plot.effect.matrices.knockout.analysed.lmm(x)
-  return(list(pl, pl2, pl3))
+  pl4 <- .plot.hit.counts(x)
+  pl5 <- .plot.vulcano(x)
+  return(list(gene.effect.barplot=pl,
+              gene.pathogen.effect.barplot=pl2,
+              gene.pathogen.effect.matrix=pl3,
+              gene.pathogen.hit.counts=pl4,
+              gene.qval.volcano.plot=pl5))
 }
 
 #' @noRd
@@ -45,10 +51,9 @@ plot.knockout.lmm.analysed <- function(x, ...)
 #' @import ggplot2
 #' @importFrom dplyr filter
 #' @importFrom methods hasArg
-.plot.knockout.lmm.analysed  <- function(x, main, ...)
+.plot.knockout.lmm.analysed  <- function(x, main, size, ...)
 {
   pars <- list(...)
-  size <- ifelse(methods::hasArg(size), pars$size, 10)
   if ("Virus" %in% colnames(x))
   {
     x <- dplyr::filter(x, Control == 0) %>%
@@ -74,8 +79,8 @@ plot.knockout.lmm.analysed <- function(x, ...)
     ggplot2::theme_bw() +
     ggplot2::theme(axis.text.y=element_blank(),
                    axis.ticks=element_blank(),
-                   text = element_text(size = 20, family = "Helvetica"),
-                   axis.text.x = element_text(angle=45, size = 15, family = "Helvetica"),
+                   text = element_text(size = size, family = "Helvetica"),
+                   axis.text.x = element_text(angle=45, size = size, family = "Helvetica"),
                    strip.text=element_text(face=x$font))+
     ggplot2::coord_polar() +
     ggplot2::ggtitle(main)
@@ -119,6 +124,141 @@ plot.knockout.lmm.analysed <- function(x, ...)
                    axis.text.y  = ggplot2::element_text(size=9),
                    axis.title   = ggplot2::element_blank(),
                    axis.ticks   = ggplot2::element_blank())
+  pl
+}
+
+#' @export
+#' @importFrom dplyr group_by summarize mutate
+.plot.hit.counts <- function(x)
+{
+  obj <- x@.gene.pathogen.effects
+  single.res <- obj %>%
+    dplyr::mutate(Sign=sign(Effect)) %>%
+    dplyr::group_by(Virus, Sign) %>%
+    dplyr::summarize(cnt=n()) %>%
+    ungroup %>%
+    dplyr::mutate(Count=cnt*Sign)
+
+  pl <-
+    ggplot2::ggplot(single.res, aes(x=Virus, y=Count, fill=Sign)) +
+    ggplot2::geom_bar(stat="identity", position="dodge") +
+    ggplot2::scale_fill_distiller(palette="Spectral") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.position="none",
+                   text = element_text(size=22),
+                   axis.text.y=element_blank()) +
+    ggplot2::geom_hline(yintercept=0) +
+    ggplot2::ylab("Count hits") +
+    ggplot2::geom_text(aes(x=Virus, y=ifelse(Count>0, Count+1, Count-1),
+                           label=abs(Count)), size=5, colour="black")
+  pl
+}
+
+
+#' @noRd
+#' @import ggplot2
+.plot.vulcano <- function(obj, ...)
+{
+  obj@.gene.effects$Qval[is.na(obj@.gene.effects$Qval)] <- 1
+  gpes <- obj@.gene.effects
+  x      <- gpes$Effect
+  y      <- -log10(gpes$Qval + 0.0001)
+  ctrls  <- gpes$Control
+  genes  <- gpes$GeneSymbol
+  effect.thresh <- obj@.params$effect.size
+  sig.thresh    <- -log10(obj@.params$qval.threshold)
+
+  colors <- rep("grey", length(ctrls))
+  colors[abs(x) >= effect.thresh & y < sig.thresh] <- "blue"
+  colors[which(ctrls == -1)] <- "red"
+  colors[which(ctrls == 1)]  <- "green"
+
+  xlim         <- range(x[is.finite(x)])
+  ylim         <- range(y[is.finite(y)])
+  hits.idx     <- abs(x) >= effect.thresh & y < sig.thresh
+  pos.ctrl.idx <- which(ctrls == 1)
+  neg.ctrl.idx <- which(ctrls == -1)
+  no.hit.idx   <- which(colors == "grey")
+  nohits       <- data.frame(Effect=x[no.hit.idx],
+                             sig=y[no.hit.idx], Gene=genes[no.hit.idx])
+  hits         <- data.frame(Effect=x[hits.idx],
+                             sig=y[hits.idx], Gene=genes[hits.idx])
+  pos.ctrls    <- data.frame(Effect=x[pos.ctrl.idx],
+                             sig=y[pos.ctrl.idx], Gene=genes[pos.ctrl.idx])
+  neg.ctrls    <- data.frame(Effect=x[neg.ctrl.idx],
+                             sig=y[neg.ctrl.idx], Gene=genes[neg.ctrl.idx])
+  pl <-
+    ggplot2::ggplot() +
+    ggplot2::xlim(xlim) +
+    ggplot2::ylim(ylim) +
+    ggplot2::xlab("Readout") +
+    ggplot2::ylab("-log(q-value)")
+  if (length(nohits$Effect) != 0)
+    pl <- pl +
+    ggplot2::geom_point(aes(x=nohits$Effect, y=nohits$sig),
+                        col="grey",size=.5)
+  if (length(hits$Effect) != 0)
+    pl <- pl +
+    ggplot2::geom_point(aes(x=hits$Effect, y=hits$sig, color="Hit"),
+                        size=1.5, alpha=.75)
+  if (sig.thresh > 0)
+    pl <- pl +
+    ggplot2::geom_hline(yintercept=sig.thresh, alpha=.75, linetype="dashed") +
+    ggplot2::geom_text(aes(xlim[1], sig.thresh,
+                           label = paste("Significance threshold:", sig.thresh),
+                           vjust = -.25, hjust=0), size = 4)
+  if (effect.thresh > 0)
+  {
+    pl <- pl +
+      ggplot2::geom_vline(xintercept=effect.thresh,
+                          alpha=.75, linetype="dotdash") +
+      ggplot2::geom_vline(xintercept=-effect.thresh,
+                          alpha=.75, linetype="dotdash") +
+      ggplot2::geom_text(aes(effect.thresh, ylim[2],
+                             label = paste("Effect threshold:", effect.thresh),
+                             vjust = 0, hjust=-.01), size = 4)
+  }
+  if (length(pos.ctrls$Effect) != 0)
+  {
+    pl <- pl +
+      ggplot2::geom_point(aes(x=pos.ctrls$Effect,
+                              y=pos.ctrls$sig,
+                              col="Positive control"), size=1.5, alpha=.75)
+  }
+  if (length(neg.ctrls$Effect) != 0)
+  {
+    pl <- pl +
+      ggplot2::geom_point(aes(x=neg.ctrls$Effect,
+                              y=neg.ctrls$sig,
+                              col="Negative control"), size=1.5, alpha=.75)
+  }
+  if (length(pos.ctrls$Effect) != 0)
+  {
+    pl <- pl +
+      ggplot2::geom_text(aes(x=pos.ctrls$Effect,
+                             y=pos.ctrls$sig,
+                             label=pos.ctrls$Gene),
+                         hjust=0, vjust=0,
+                         check_overlap=TRUE,
+                         nudge_x=0.05, size=4)
+  }
+  if (length(neg.ctrls$Effect) != 0)
+  {
+    pl <- pl +
+      ggplot2::geom_text(aes(x=neg.ctrls$Effect,
+                             y=(neg.ctrls$sig),
+                             label=neg.ctrls$Gene),
+                         hjust=0, vjust=0,
+                         check_overlap=TRUE,
+                         nudge_x=0.05, size=4)
+  }
+  pl <- pl +
+    ggplot2::scale_color_manual(name="Points", values=c("blue", "red", "green")) +
+    ggplot2::guides(color=guide_legend(title=NULL)) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(axis.text=element_text(size=12),
+                   axis.title=element_text(size=14,face="bold"),
+                   legend.text=element_text(size=14))
   pl
 }
 
