@@ -16,7 +16,7 @@ Description: knockout does analysis of large-scale RNAi interference screens
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1
-Dependency: R (>= 3.0.1)
+Depends: R (>= 3.4)
 Imports:
     dplyr,
     ggplot2,

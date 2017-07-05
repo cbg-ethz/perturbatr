@@ -18,11 +18,18 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
+#' Extract parts of an object
+#'
+#' @description Extract a single plate from a \code{knockout.plates} object
+#'
 #' @importFrom dplyr filter
+#'
+#' @param x  a \code{knockout.plates} object
+#' @param i  index of the plate to subset
 setMethod(
   "[",
-  signature=signature(x="knockout.plates", i="numeric"),
+  signature=signature(x="knockout.plates", i="numeric",
+                      j="missing", drop="missing") ,
   function(x, i)
   {
     stopifnot(length(i) == 1)
@@ -30,15 +37,25 @@ setMethod(
     res <- x@.data
     if (max(res$PlateIndex) < i) stop("ArrayIndexOutOfBounds")
     res <- dplyr::filter(res, PlateIndex==i)
+
     new("knockout.plate", .data=res)
   }
 )
 
-#' @noRd
+#' Extract parts of an object
+#'
+#' Extract a single replicate from a \code{knockout.replicates} object
+#'
+#' @rdname subset-methods
+#'
 #' @importFrom dplyr filter
+#'
+#' @param x  a \code{knockout.replicates} object
+#' @param i  index of the plate to subset
 setMethod(
   "[",
-  signature=signature(x="knockout.replicates", i="numeric"),
+  signature=signature(x="knockout.replicates", i="numeric",
+                      j="missing", drop="missing"),
   function(x, i)
   {
     stopifnot(length(i) == 1)
@@ -46,6 +63,7 @@ setMethod(
     res <- x@.data
     if (max(res$ReplicateIndex) < i) stop("ArrayIndexOutOfBounds")
     res <- dplyr::filter(res, ReplicateIndex==i)
+
     new("knockout.replicate", .data=res)
   }
 )
