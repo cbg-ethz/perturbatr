@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{the object to plot}
 
+\item{size}{size of letters}
+
 \item{...}{additional parameters}
 }
 \description{

@@ -29,7 +29,13 @@
 #' @param x  a \code{knockout.replicate} object
 #' @param y  another \code{knockout.replicate} object
 #' @param method either \code{Scatterplot} or \code{QQ-plot}
-plot.knockout.replicate <- function(x, y, method=c("Scatterplot", "QQ-plot"), size=10)
+#' @param size  size of text
+#' @param ...  additional parameters
+plot.knockout.replicate <- function(x,
+                                    y,
+                                    method=c("Scatterplot", "QQ-plot"),
+                                    size=10,
+                                    ...)
 {
   method <- match.arg(method)
   if (missing(x) | missing(y)) stop("Please provide two arguments (x and y)!")
@@ -140,7 +146,11 @@ plot.knockout.plate <- function(x,
 #' @importFrom dplyr select mutate group_indices filter summarize group_by
 #' @importFrom tidyr gather
 #' @method plot knockout.quality
-plot.knockout.quality <- function(x, axis.text.size=12)
+#'
+#' @param x  the object to plot
+#' @param axis.text.size  size of axis text
+#' @param ...  additional parameters to plot
+plot.knockout.quality <- function(x, axis.text.size=12, ...)
 {
   # plot the raw plate values as boxplot
   qual <- x@.data

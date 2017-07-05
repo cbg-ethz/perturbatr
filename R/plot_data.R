@@ -19,9 +19,9 @@
 
 #' Plot a knockout dataset
 #'
+#' @method plot knockout.raw.data
 #' @export
 #' @import data.table
-#' @method plot knockout.raw.data
 #'
 #' @param x  the object to plot
 #' @param size  size of letters
@@ -34,13 +34,14 @@ plot.knockout.raw.data <- function(x, size=10, ...)
 
 #' Plot a knockout data-set
 #'
-#' @export
 #' @method plot knockout.normalized.data
+#' @export
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr summarize
 #' @importFrom dplyr group_by
 #' @importFrom tidyr gather
+#'
 #' @param x  the object to plot
 #' @param size  size of letters
 #' @param ...  additional parameters

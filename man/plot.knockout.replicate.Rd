@@ -5,7 +5,7 @@
 \title{Plot two \code{knockout.replicate} objects}
 \usage{
 \method{plot}{knockout.replicate}(x, y, method = c("Scatterplot", "QQ-plot"),
-  size = 10)
+  size = 10, ...)
 }
 \arguments{
 \item{x}{a \code{knockout.replicate} object}
@@ -13,6 +13,10 @@
 \item{y}{another \code{knockout.replicate} object}
 
 \item{method}{either \code{Scatterplot} or \code{QQ-plot}}
+
+\item{size}{size of text}
+
+\item{...}{additional parameters}
 }
 \description{
 Scatter two \code{knockout.replicate} objects against each other
