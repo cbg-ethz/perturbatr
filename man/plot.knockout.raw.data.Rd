@@ -4,7 +4,7 @@
 \alias{plot.knockout.raw.data}
 \title{Plot a knockout dataset}
 \usage{
-\method{plot}{knockout.raw.data}(x, ...)
+\method{plot}{knockout.raw.data}(x, size = 10, ...)
 }
 \arguments{
 \item{x}{the object to plot}

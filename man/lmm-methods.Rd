@@ -16,8 +16,8 @@ lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
   effect.size = 0.05, qval.threshold = 0.2)
 
 \S4method{lmm}{knockout.lmm.data}(obj, drop = T, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = F, ignore = 1,
-  effect.size = 0.05, qval.threshold = 0.2)
+  rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
+  effect.size = 0.01, qval.threshold = 0.2)
 }
 \arguments{
 \item{obj}{an svd.data object}

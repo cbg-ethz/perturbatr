@@ -82,7 +82,11 @@ setMethod(
 
     ret <- new("knockout.tstatistic.analysed",
                .gene.hits = data.table::as.data.table(priorit),
-               .data=res)
+               .data=res,
+               .params=list(effect.size=effect.size,
+                            hit.ratio=hit.ratio,
+                            pval.threshold=pval.threshold,
+                            qval.threshold=qval.threshold))
     ret
   }
 )
@@ -250,12 +254,12 @@ setMethod(
     # TODO this should be as in hyper. the means dont make sense here
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
                      Pval       = metap::sumlog(Pval)$p,
-                     QvalRatio  = metap::sumlog(Qval)$p,
+                     Qval       = metap::sumlog(Qval)$p,
                      MeanEffect = mean(Readout, na.rm=T),
                      MaxEffect  = max(Readout, na.rm=T),
                      MinEffect  = min(Readout, na.rm=T),
-                     Pval=paste(sprintf("%03f", Pval), collapse=","),
-                     Qval=paste(sprintf("%03f", Qval), collapse=",")) %>%
+                     AllPval=paste(sprintf("%03f", Pval), collapse=","),
+                     AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
     ungroup %>%
     dplyr::filter(Pval <= pval.threshold & Qval <= qval.threshold)
   res

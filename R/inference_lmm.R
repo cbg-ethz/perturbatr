@@ -92,7 +92,7 @@ setMethod(
            rel.mat.path=NULL,
            bootstrap.cnt=0,
            ignore=1,
-           effect.size=0.05,
+           effect.size=0.01,
            qval.threshold=.2)
   {
     res     <- .lmm.model.data(obj, bootstrap.cnt)

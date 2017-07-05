@@ -37,11 +37,13 @@ setOldClass("igraph")
 #' @slot .data  the knockout data-set
 #' @slot .inference  the method for inferenced that has been used
 #' @slot .is.bootstrapped  boolean whether bootstrap intervals have been
+#' @slot .params  list of some used parameters
 #'  created or not
 setClass(
   "knockout.analysed",
   contains = "VIRTUAL",
   slots    = list(.data="data.table",
+                  .params="list",
                   .inference="character",
                   .is.bootstrapped="logical"),
   validity = function(object)
@@ -113,8 +115,7 @@ setClass(
                    .screen.type.effects   = "data.table",
                    .gene.hits             = "data.table",
                    .gene.pathogen.hits    = "data.table",
-                   .model.fit             = "list",
-                   .params                = "list"),
+                   .model.fit             = "list"),
   prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
 )
 

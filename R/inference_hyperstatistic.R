@@ -93,7 +93,11 @@ setMethod(
 
     ret     <- new("knockout.hyper.analysed",
                    .gene.hits = data.table::as.data.table(priorit),
-                   .data      = data.table::as.data.table(obj@.data))
+                   .data      = data.table::as.data.table(obj@.data),
+                   .params=list(effect.size=effect.size,
+                                hit.ratio=hit.ratio,
+                                pval.threshold=pval.threshold,
+                                qval.threshold=qval.threshold))
     ret
   }
 )

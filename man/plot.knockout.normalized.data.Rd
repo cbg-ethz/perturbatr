@@ -4,7 +4,7 @@
 \alias{plot.knockout.normalized.data}
 \title{Plot a knockout data-set}
 \usage{
-\method{plot}{knockout.normalized.data}(x, ...)
+\method{plot}{knockout.normalized.data}(x, size, ...)
 }
 \arguments{
 \item{x}{the object to plot}

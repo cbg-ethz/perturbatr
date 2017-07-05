@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{knockout.plate}(x, show.controls = FALSE,
   show.gene.names = FALSE, ylab = "Row idx", xlab = "Column idx",
-  main = "", axis.text.size = 12, gene.text.size = 3, ...)
+  main = "", axis.text.size = 9, gene.text.size = 3, ...)
 }
 \arguments{
 \item{x}{the object to plot}

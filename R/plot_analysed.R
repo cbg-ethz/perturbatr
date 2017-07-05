@@ -27,8 +27,9 @@
 #' @import data.table
 #' @importFrom dplyr filter
 #' @param x  the object to be plotted
+#' @param size  size of letters
 #' @param ...  additional parameters
-plot.knockout.lmm.analysed <- function(x, size=10,...)
+plot.knockout.lmm.analysed <- function(x, size=10, ...)
 {
   pl <- .plot.knockout.lmm.analysed (x@.gene.hits, main="Gene effects", size=size, ...)
   pl2 <-
@@ -88,7 +89,7 @@ plot.knockout.lmm.analysed <- function(x, size=10,...)
   pl
 }
 
-#' @export
+#' @noRd
 #' @import data.table
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal
@@ -127,7 +128,7 @@ plot.knockout.lmm.analysed <- function(x, size=10,...)
   pl
 }
 
-#' @export
+#' @noRd
 #' @importFrom dplyr group_by summarize mutate
 .plot.hit.counts <- function(x)
 {
@@ -159,8 +160,8 @@ plot.knockout.lmm.analysed <- function(x, size=10,...)
 #' @import ggplot2
 .plot.vulcano <- function(obj, ...)
 {
-  obj@.gene.effects$Qval[is.na(obj@.gene.effects$Qval)] <- 1
   gpes <- obj@.gene.effects
+  gpes$Qval[is.na(gpes$Qval)] <- 1
   x      <- gpes$Effect
   y      <- -log10(gpes$Qval + 0.0001)
   ctrls  <- gpes$Control
@@ -264,38 +265,48 @@ plot.knockout.lmm.analysed <- function(x, size=10,...)
 
 #' @export
 #' @import data.table
-#' @method plot svd.prioritized.hyper
-plot.svd.prioritized.hyper <- function(x, y, ...)
+#' @method plot knockout.hyper.analysed
+plot.knockout.hyper.analysed <- function(x, size=10, ...)
 {
-  .plot.svd.prioritized(x, ...)
+  .plot.knockout.analysed(x, ...)
 }
 
 #' @export
 #' @import data.table
-#' @method plot svd.prioritized.tt
-plot.svd.prioritized.tt <- function(x, y, ...)
+#' @method plot knockout.tstatistic.analysed
+plot.knockout.tstatistic.analysed <- function(x, size=10, ...)
 {
-  .plot.svd.prioritized(x, ...)
+  .plot.knockout.analysed(x, size, ...)
 }
 
+#' @noRd
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr group_by summarize mutate filter
-.plot.svd.prioritized <- function(x, ...)
+.plot.knockout.analysed <- function(x, size, ...)
 {
-  x <- x[order(abs(MeanEffect), decreasing=T), .SD[1:25]] %>%
+  df <- x@.gene.hits[order(abs(MeanEffect), decreasing=T), .SD[1:25]] %>%
     dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect))
-  x.pos.range <- max(abs(x$MeanEffect))
+  x.pos.range <- max(abs(x@.gene.hits$MeanEffect))
   x.lim  <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
-  pl <-
-    ggplot2::ggplot(x) +
-    ggplot2::geom_bar(aes(x=GeneSymbol,y=abs(MeanEffect), fill=MeanEffect),
+
+  LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
+  pl <- ggplot2::ggplot(df) +
+    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol,y=abs(MeanEffect),
+                                   fill=MeanEffect),
                       stat="identity") +
-    ggplot2::scale_fill_distiller(palette="Spectral", limits=x.lim) +
+    ggplot2::scale_fill_gradient2(low=LDcolors[1], high=LDcolors[11],
+                                  na.value=LDcolors[6],
+                                  name="Effect") +
     ylab("Effect") +
     ggplot2::theme_bw() +
     ggplot2::theme(axis.text.y=element_blank(),
-                   axis.ticks=element_blank()) +
+                   axis.ticks=element_blank(),
+                   text = element_text(size = size, family = "Helvetica"),
+                   axis.text.x = element_text(angle=45, size = size,
+                                              family = "Helvetica"),
+                   strip.text = element_text()) +
     ggplot2::coord_polar()
+
   pl
 }

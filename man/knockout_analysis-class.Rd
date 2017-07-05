@@ -16,7 +16,9 @@ containing the knockout data
 
 \item{\code{.inference}}{the method for inferenced that has been used}
 
-\item{\code{.is.bootstrapped}}{boolean whether bootstrap intervals have been
+\item{\code{.is.bootstrapped}}{boolean whether bootstrap intervals have been}
+
+\item{\code{.params}}{list of some used parameters
 created or not}
 }}
 

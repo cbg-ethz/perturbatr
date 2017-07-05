@@ -22,7 +22,9 @@
 #' @export
 #' @import data.table
 #' @method plot knockout.raw.data
+#'
 #' @param x  the object to plot
+#' @param size  size of letters
 #' @param ...  additional parameters
 plot.knockout.raw.data <- function(x, size=10, ...)
 {
@@ -40,6 +42,7 @@ plot.knockout.raw.data <- function(x, size=10, ...)
 #' @importFrom dplyr group_by
 #' @importFrom tidyr gather
 #' @param x  the object to plot
+#' @param size  size of letters
 #' @param ...  additional parameters
 plot.knockout.normalized.data <- function(x, size, ...)
 {
