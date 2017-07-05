@@ -50,6 +50,7 @@ setMethod(
   signature = signature(obj="knockout.data"),
   function(obj, padjust=c("BH", "bonferroni"), ...)
   {
+    stop("not implemented yet")
     .check.data(obj)
     dat <- obj@.data
     if (.leuniq(dat$Replicate) !=  1)

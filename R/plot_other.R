@@ -87,7 +87,7 @@ plot.knockout.plate <- function(x,
                                 gene.text.size=3,
                                 ...)
 {
-  mat <- plate.matrix(x)
+  mat <- .plate.matrix(x)
   mat$genes[is.na(mat$genes)] <- ""
   dr  <- data.table::melt(mat$readout)
   di  <- data.table::melt(mat$idx)

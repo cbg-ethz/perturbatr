@@ -77,14 +77,15 @@ If you want to work directly on the data-set you shoult access it on the `.data`
 
 Raw image-based screens have usually to be normalized in order to ensure
 comparability between plates. Normalization can be done using the `preprocess` 
-method. We use one of the provided data-sets for this. But before we do any normalisations 
-we should have a look at quality scores and single plates before:
+method. We use one of the provided data-sets for this.
 
 ```{r, eval=T, include=T}
   data(rnaiscreen)
 ```
 
-```{r, eval=T, include=T, fig.align="center", fig.width=6}
+Before we do any normalisations we should have a look at quality scores and single plates before:
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=6}
   v1.data         <- filter(rnaiscreen, Virus == "V1")
   v1.data.quality <- quality(v1.data)
   pl              <- plot(v1.data.quality)
@@ -144,5 +145,20 @@ filtering by `Virus` and `Screen` results int a single experiment;
 ```
 
 ## Data-analysis
+
+After preprocessing of raw RNAi data, analysis can either be done on the single
+viral level using hypothesis tests or using a maximum 
+likelihood approach.
+
+### Hypothesis testing
+
+Suppose we normalized our data-set and centered the data around zero. One way to find significant genes
+is to use a standard `t-test`:
+
+```{r, eval=TRUE, include=T}
+  v1.dat <- filter(rnaiscreen, Virus=="V1")
+  v1.res <- tstatistic(v1.dat)
+```
+
 
 

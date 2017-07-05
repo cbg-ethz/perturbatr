@@ -58,13 +58,15 @@ setMethod(
            padjust=c("BH", "bonferroni"),
            ...)
   {
-    .check.data(obj)
+    stop("todo")
     dat <- obj@.data
     res <- .t.statistic(dat,
-                       mu=match.arg(mu),
-                       padjust=match.arg(padjust),
-                       ...)
-    ret <- new("knockout.analysed",
+                        mu=match.arg(mu),
+                        padjust=match.arg(padjust),
+                        ...)
+    priorit <- .prioritize.hyper.statistic(
+      res, hit.ratio, effect.size, pval.threshold, qval.threshold)
+    ret <- new("knockout.tstatistic.analysed",
                .inference=.inference.types()$T.TEST,
                .data=res)
     ret
@@ -78,7 +80,8 @@ setMethod(
   message(paste("Correcting with ", padjust, "!", sep=""))
   message(paste("Taking", mu, "for t-test mu!"))
 
-  ret <- dplyr::group_by(obj, Virus, Screen, Library, ReadoutType, ScreenType,
+  ret <- dplyr::group_by(obj, Virus, Screen, Library,
+                         ReadoutType, ScreenType,
                          Design, Cell) %>%
     dplyr::mutate(grp=.GRP) %>%
     ungroup
@@ -114,7 +117,8 @@ setMethod(
 #' @importFrom assertthat assert_that
 .do.t.statistic <- function(obj, padjust, mu)
 {
-  res <- obj %>% ungroup %>%
+  res <- obj %>%
+    ungroup %>%
     dplyr::group_by(Plate) %>%
     dplyr::mutate(grp=.GRP)
   grps <- unique(res$grp)
@@ -132,7 +136,7 @@ setMethod(
   )
   data.table::setDT(ret)[,Pval := as.numeric(Pval)]
   data.table::setDT(ret)[,Qval := p.adjust(Pval, method=padjust)]
-  assertthat::assert_that(all(order(ret$Pval) == order(ret$Qval)))
+
   ret
 }
 

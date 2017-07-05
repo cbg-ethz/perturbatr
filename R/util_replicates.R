@@ -50,5 +50,5 @@ replicates.knockout.normalized.data <- function(obj, ...)
     dplyr::mutate(ReplicateIndex = .GRP) %>%
     ungroup
 
-  new("knockout.replicates", .data=res)
+  new("knockout.replicates", .data=as.data.table(res))
 }

@@ -53,10 +53,28 @@ setClass(
 
 #' Data wrapper for analysed knockout data using a standard hypothesis test
 #'
+#' @name TstatisticAnalysis-class
+#' @rdname tstatisic_knockout_analysis-class
+#'
+#' @description Class \code{knockout.tstatistic.analysed} is a wrapper for a
+#'   \code{data.table} object containing the knockout data
+#'
+#' @slot .gene.hits  prioritized genes
+#'
+setClass(
+  "knockout.tstatistic.analysed",
+  contains  = "knockout.analysed",
+  slots     = list(.gene.hits="data.table"),
+  prototype = prototype(.inference=.inference.types()$T.TEST,
+                        .is.bootstrapped=FALSE)
+)
+
+#' Data wrapper for analysed knockout data using a standard hypothesis test
+#'
 #' @name HyperAnalysis-class
 #' @rdname hyper_knockout_analysis-class
 #'
-#' @description Class \code{knockout.lmm.analysed} is a wrapper for a
+#' @description Class \code{knockout.hyper.analysed} is a wrapper for a
 #'   \code{data.table} object containing the knockout data
 #'
 #' @slot .gene.hits  prioritized genes

@@ -93,7 +93,7 @@ setMethod(
 
     ret     <- new("knockout.hyper.analysed",
                    .gene.hits = data.table::as.data.table(priorit),
-                   .data      =  data.table::as.data.table(obj@.data))
+                   .data      = data.table::as.data.table(obj@.data))
     ret
   }
 )

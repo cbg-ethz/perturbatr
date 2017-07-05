@@ -57,5 +57,5 @@ plates.knockout.normalized.data <- function(obj, ...)
     dplyr::mutate(PlateIndex=.GRP) %>%
     ungroup
 
-  new("knockout.plates", .data=res)
+  new("knockout.plates", .data=as.data.table(res))
 }
