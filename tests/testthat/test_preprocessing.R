@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # knockdown: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
@@ -5,17 +6,34 @@
 # This file is part of knockdown
 #
 # knockdown is free software: you can redistribute it and/or modify
+=======
+# knockout: analysis of high-throughput gene perturbation screens
+#
+# Copyright (C) 2015 - 2016 Simon Dirmeier
+#
+# This file is part of knockout
+#
+# knockout is free software: you can redistribute it and/or modify
+>>>>>>> Added some preprocessing unit tests
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
+<<<<<<< HEAD
 # knockdown is distributed in the hope that it will be useful,
+=======
+# knockout is distributed in the hope that it will be useful,
+>>>>>>> Added some preprocessing unit tests
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+=======
+# along with knockout. If not, see <http://www.gnu.org/licenses/>.
+>>>>>>> Added some preprocessing unit tests
 
 
 context("preprocessing")
@@ -23,7 +41,11 @@ context("preprocessing")
 data(rnaiscreen)
 pl <- plates(rnaiscreen)[1]
 pl@.data$PlateIndex <- NULL
+<<<<<<< HEAD
 plate.data <- methods::as(pl@.data, "knockdown.data")
+=======
+plate.data <- as(pl@.data, "knockout.data")
+>>>>>>> Added some preprocessing unit tests
 
 testthat::test_that("z scoring gives approx standardized gaussian with mean 0", {
   pl.norm <- preprocess(plate.data , normalize="z.score")
@@ -43,6 +65,7 @@ testthat::test_that("loess normalisation does not change when numcells = NA", {
                          loc.plate.data@.data$Readout,
                          tolerance=0.1)
 })
+<<<<<<< HEAD
 
 testthat::test_that("bscore normalisation is correct", {
   loc.plate.data <- plate.data
@@ -54,3 +77,5 @@ testthat::test_that("bscore normalisation is correct", {
                              loc.plate.data@.data$Readout),
     tolerance=0.1)
 })
+=======
+>>>>>>> Added some preprocessing unit tests

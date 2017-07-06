@@ -27,9 +27,7 @@
 {
   stop("Not implemented yet")
   level <- match.arg(level)
-  # TODO implement on replicates
   message(paste("Calculating quantile-quantile normalisation on", level))
-  # TODO difference between plate/replicates
   ret <-
     dplyr::group_by(obj, Virus, Library, Screen,
                     ReadoutType, ScreenType, ReadoutClass,
