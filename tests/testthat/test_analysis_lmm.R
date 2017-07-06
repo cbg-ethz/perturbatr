@@ -22,6 +22,7 @@ context("analysis")
 
 data(rnaiscreen)
 rnai.norm <- preprocess(rnaiscreen, normalize="z.score")
+lmm.fit   <- lmm(rnai.norm, effect.size=0.01, qval.threshold=1)
 
 testthat::test_that("lmm model weights get set correctly", {
   mat <- set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1))
@@ -38,4 +39,21 @@ testthat::test_that("lmm model group is set correctly", {
   mat <- set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1))
   testthat::expect_equal(as.character(mat@.data$VG),
                          paste(sep=":", mat@.data$Virus, mat@.data$GeneSymbol))
+})
+
+testthat::test_that("lmm has correct inference", {
+  testthat::expect_equal(lmm.fit@.inference,
+                         knockout:::.inference.types()$MIXED.MODEL)
+})
+
+testthat::test_that("lmm has not been bootstrapped", {
+  testthat::expect_false(lmm.fit@.is.bootstrapped)
+})
+
+testthat::test_that("lmm uses qval threshold of 1", {
+  testthat::expect_equal(lmm.fit@.params$qval.threshold, 1)
+})
+
+testthat::test_that("lmm uses effect size threshold of .01", {
+  testthat::expect_equal(lmm.fit@.params$effect.size, .01, tolerance=0.001)
 })

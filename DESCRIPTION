@@ -3,7 +3,7 @@ Type: Package
 Title: Analysis of high-throughput gene perturbation screens
 Version: 0.99.0
 Date: 2015-12-10
-Authors@R: person("Simon", "Dirmeier", 
+Authors@R: person("Simon", "Dirmeier",
     email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
 Description: knockout does analysis of large-scale RNAi interference screens
   for pan-pathogenic datasets. The package provides various tools for
