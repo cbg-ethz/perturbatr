@@ -75,7 +75,7 @@ knn <- function(hits,
 
   ret <- new("knockout.knn.diffusion.analysed",
              .graph           = graph,
-             .neighbors       = neighbors,
+             .neighbors       = data.table::as.data.table(neighs),
              .initial.model   = mod,
              .params          = list(
                node.start.count = node.start.count,

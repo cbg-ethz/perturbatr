@@ -31,6 +31,10 @@ test.dat <- rnaiscreen@.data %>%
                 GeneSymbol, Readout, Control, siRNAIDs) %>%
   as.data.frame
 dat       <- as(test.dat, "knockout.data")
+rep       <- replicates(dat)
+plates    <- plates(dat)
+quality   <- quality(dat)
+
 dat.norm  <- preprocess(rnaiscreen, normalize="z.score")
 dat.tana  <- tstatistic(dat.norm)
 dat.hana  <- hyper.statistic(dat.norm)
@@ -57,11 +61,16 @@ testthat::test_that("lmm analysed object has correct class", {
   testthat::expect_s4_class(dat.lmm, "knockout.lmm.analysed")
 })
 
-testthat::test_that("diff analysed object has correct class", {
-  testthat::expect_s4_class(dat.diff, "knockout.lmm.analysed")
+testthat::test_that("plates has correct class", {
+  testthat::expect_s4_class(plates, "knockout.plates")
 })
 
+testthat::test_that("replicates has correct class", {
+  testthat::expect_s4_class(plates, "knockout.replicates")
+})
 
-
+testthat::test_that("quality has correct class", {
+  testthat::expect_s4_class(plates, "knockout.quality")
+})
 
 

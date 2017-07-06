@@ -38,6 +38,3 @@ testthat::test_that("lmm model group is set correctly", {
   testthat::expect_equal(mat@.data$VG,
                          paste(sep=":", mat@.data$Virus, mat@.data$GeneSymbol))
 })
-
-
-

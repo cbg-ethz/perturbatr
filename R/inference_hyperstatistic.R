@@ -215,7 +215,8 @@ setMethod(
     dplyr::mutate(rank=rank(-readout, ties.method="max")) %>%
     .[order(rank)]
   ## this part is tricky!
-  ## if we do the hypergeometric test on genes we need another grouping as for siRNAs
+  ## if we do the hypergeometric test on genes we need another grouping
+  ## as for siRNAs
   ## TODO: definitely write tests for this and beautify
   # on gene level group by genes and take all siRNAs for test
   if (level == "gene")
