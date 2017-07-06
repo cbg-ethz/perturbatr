@@ -25,6 +25,7 @@
 #' @importFrom dplyr filter
 .qq.norm <- function(obj, level=c("replicate", "plate"))
 {
+  stop("Not implemented yet")
   level <- match.arg(level)
   # TODO implement on replicates
   message(paste("Calculating quantile-quantile normalisation on", level))

@@ -22,11 +22,13 @@ bioc_packages:
   - org.Hs.eg.db
   - RankAggreg
   - BiocCheck
+  - BiocStyle
 
 env:
   global:
     - R_BUILD_ARGS="--no-build-vignettes --no-manual"
     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
+    - LINTR_COMMENT_BOT=false
 
 after_success:
   - Rscript -e 'library(covr); codecov()'

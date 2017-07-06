@@ -1,3 +1,4 @@
+inst/create_artificial_data.R
 vignettes/knockout_real_data.Rmd
 data/data
 IFX_*
