@@ -25,16 +25,17 @@ rnai.norm <- preprocess(rnaiscreen, normalize="z.score")
 
 testthat::test_that("lmm model weights get set correctly", {
   mat <- set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1))
-  testthat::expect_equal(mat@.data$Weight[mat@.data$Design == "pooled"], 2)
+  testthat::expect_true(
+    all(mat@.data$Weight[mat@.data$Design == "pooled"] == 2))
 })
 
 testthat::test_that("lmm model weights throws", {
   testthat::expect_error(
-    set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1)))
+    set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "unpooled"=1)))
 })
 
 testthat::test_that("lmm model group is set correctly", {
   mat <- set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1))
-  testthat::expect_equal(mat@.data$VG,
+  testthat::expect_equal(as.character(mat@.data$VG),
                          paste(sep=":", mat@.data$Virus, mat@.data$GeneSymbol))
 })

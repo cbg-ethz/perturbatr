@@ -23,17 +23,17 @@ library(dplyr)
 library(data.table)
 context("class")
 
-graph.file <- system.file("ext.data", "graph_file.tsv", package="knockout")
+graph.file <- system.file("extdata", "graph_file.tsv", package="knockout")
 data(rnaiscreen)
 test.dat <- rnaiscreen@.data %>%
   dplyr::filter(Virus=="V1") %>%
   dplyr::select(Replicate, Plate, RowIdx, ColIdx,
                 GeneSymbol, Readout, Control, siRNAIDs) %>%
   as.data.frame
-dat       <- as(test.dat, "knockout.data")
-rep       <- replicates(dat)
-plates    <- plates(dat)
-quality   <- quality(dat)
+dat        <- as(test.dat, "knockout.data")
+replicates <- replicates(dat)
+plates     <- plates(dat)
+quality    <- quality(dat)
 
 dat.norm  <- preprocess(rnaiscreen, normalize="z.score")
 dat.tana  <- tstatistic(dat.norm)
@@ -66,11 +66,11 @@ testthat::test_that("plates has correct class", {
 })
 
 testthat::test_that("replicates has correct class", {
-  testthat::expect_s4_class(plates, "knockout.replicates")
+  testthat::expect_s4_class(replicates, "knockout.replicates")
 })
 
 testthat::test_that("quality has correct class", {
-  testthat::expect_s4_class(plates, "knockout.quality")
+  testthat::expect_s4_class(quality, "knockout.quality")
 })
 
 

@@ -34,6 +34,6 @@ testthat::test_that("binding works correctly", {
 })
 
 testthat::test_that("selecting works correctly", {
-  rnait <- select(rnaiscreen, Virus)
-  testthat::expect_equal(ncol(rnait@.data), 1)
+  rnait <- knockout::select(rnaiscreen, Virus)
+  testthat::expect_equal(ncol(rnait), 1)
 })
