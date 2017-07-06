@@ -16,11 +16,6 @@ r_packages:
 
 bioc_packages:
   - limma
-  - gespeR
-  - AnnotationDbi
-  - GOstats
-  - org.Hs.eg.db
-  - RankAggreg
   - BiocCheck
   - BiocStyle
 
