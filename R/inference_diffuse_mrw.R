@@ -51,10 +51,10 @@ mrw <- function(hits,
   ret <- new("knockout.diffusion.analysed",
              .graph           = graph,
              .initial.model   = mod,
-             .parameters      = list(
+             .params          = list(
                restart.probaility     = r,
                delete.nodes.on.degree = delete.nodes.on.degree),
-             .inference       = .inference.types()$MRW.DIFFUSION,
+             .inference       = .inference.types()$NN.DIFFUSION,
              .data            = data.table::as.data.table(res),
              .is.bootstrapped = is.boot
   )

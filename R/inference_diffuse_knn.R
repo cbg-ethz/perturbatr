@@ -18,10 +18,16 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include class_knockout_data.R
+#' @include class_knockout_analysed.R
+
+
 #' @noRd
 #' @import data.table igraph
 #' @importFrom dplyr filter mutate
 knn <- function(hits,
+                mod,
+                delete.nodes.on.degree,
                 bootstrap.hits,
                 adjm,
                 node.start.count,
@@ -29,6 +35,9 @@ knn <- function(hits,
                 graph,
                 do.bootstrap)
 {
+
+  message("Diffusion using kNN.")
+
   # TODO diff on bootstrap hits
   # TODO diff on bootstrap hits
   # TODO diff on bootstrap hits
@@ -66,6 +75,18 @@ knn <- function(hits,
              neighbors=flat.dat,
              graph=graph,
              genes.found=genes.f.table)
+
+  ret <- new("knockout.diffusion.analysed",
+             .graph           = graph,
+             .initial.model   = mod,
+             .params          = list(
+               node.start.count = node.start.count,
+               search.depth   = search.depth,
+               delete.nodes.on.degree = delete.nodes.on.degree),
+             .inference       = .inference.types()$MRW.DIFFUSION,
+             .data            = data.table::as.data.table(res),
+             .is.bootstrapped = is.boot)
+
 
   li
 }

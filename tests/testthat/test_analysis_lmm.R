@@ -17,12 +17,27 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 context("analysis")
 
-data(plate)
+data(rnaiscreen)
+rnai.norm <- preprocess(rnaiscreen, normalize="z.score")
 
-test_that("bscore", {
-  expect_equal(1,1)
+testthat::test_that("lmm model weights get set correctly", {
+  mat <- set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1))
+  testthat::expect_equal(mat@.data$Weight[mat@.data$Design == "pooled"], 2)
 })
+
+testthat::test_that("lmm model weights throws", {
+  testthat::expect_error(
+    set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1)))
+})
+
+testthat::test_that("lmm model group is set correctly", {
+  mat <- set.lmm.model.data(rnai.norm, weights=list("pooled"=2, "single"=1))
+  testthat::expect_equal(mat@.data$VG,
+                         paste(sep=":", mat@.data$Virus, mat@.data$GeneSymbol))
+})
+
 
 

@@ -119,9 +119,9 @@ setMethod(
     message(paste("Summarizing with ", summ.method, "!", sep=""))
 
   summ.method <- .summarization.method(summ.method)
-  grp.indexes <- dplyr::group_indices(obj, Virus, Screen, ReadoutType,
-                                      ScreenType, Library, Design, Cell)
-  ret <-  dplyr::mutate(obj, grp=grp.indexes)
+  ret <- dplyr::group_by(obj, Virus, Screen, ReadoutType,
+                                      ScreenType, Library, Design, Cell) %>%
+    dplyr::mutate(grp = .GRP)
   grps <- unique(ret$grp)
 
   res <- data.table::rbindlist(

@@ -136,7 +136,6 @@ setClass(
 setClass(
   "knockout.diffusion.analysed",
   contains  = "knockout.analysed",
-  slots     = list(.parameters    = "list",
-                   .initial.model = "ANY",
+  slots     = list(.initial.model = "ANY",
                    .graph         = "igraph")
 )

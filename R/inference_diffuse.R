@@ -153,7 +153,9 @@ setMethod(
 
   l <- switch(method,
          "knn" = knn(hits=hits,
+                     mod=mod,
                      bootstrap.hits=bootstrap.hits,
+                     delete.nodes.on.degree=delete.nodes.on.degree,
                      adjm=adjm,
                      node.start.count=node.start.count,
                      search.depth=search.depth,
