@@ -11,8 +11,6 @@ Class \code{knockout.diffusion.analysed} is a wrapper for a
 \section{Slots}{
 
 \describe{
-\item{\code{.parameters}}{the parameters used for network analysis}
-
 \item{\code{.intitial.model}}{the model that was provided for analysis}
 
 \item{\code{.graph}}{an igraph object that served for the diffusion process}

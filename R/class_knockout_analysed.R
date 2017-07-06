@@ -130,12 +130,51 @@ setClass(
 #' @description Class \code{knockout.diffusion.analysed} is a wrapper for a
 #'   \code{data.table} object containing the knockout data
 #'
-#' @slot .parameters  the parameters used for network analysis
 #' @slot .intitial.model  the model that was provided for analysis
 #' @slot .graph  an igraph object that served for the diffusion process
 setClass(
   "knockout.diffusion.analysed",
-  contains  = "knockout.analysed",
+  contains  = c("knockout.analysed", "VIRTUAL"),
   slots     = list(.initial.model = "ANY",
                    .graph         = "igraph")
+)
+
+
+
+#' @title Data wrapper for analysed knockout data using Markov random walks
+#'  with restarts
+#'
+#' @name MRW-DiffusionAnalysis-class
+#' @rdname mrw_diffusion_knockout_analysis-class
+#'
+#' @import igraph
+#'
+#' @description Class \code{knockout.mrw.diffusion.analysed} is a wrapper for a
+#'   \code{data.table} object containing the knockout data
+#'
+setClass(
+  "knockout.mrw.diffusion.analysed",
+  contains  = "knockout.diffusion.analysed",
+  prototype = prototype(.inference.types()$MRW.DIFFUSION)
+)
+
+
+#' @title Data wrapper for analysed knockout data using nearest neighbors
+#'
+#' @name kNN-DiffusionAnalysis-class
+#' @rdname kNN_diffusion_knockout_analysis-class
+#'
+#' @import igraph
+#'
+#' @description Class \code{knockout.mrw.diffusion.analysed} is a wrapper for a
+#'   \code{data.table} object containing the knockout data
+#'
+#' @slot .neighbors  a \code{data.table} with found neighbors for every start
+#'  gene
+setClass(
+  "knockout.knn.diffusion.analysed",
+  contains  = "knockout.diffusion.analysed",
+  slots     = list(.neighbors   = "data.table"),
+  prototype = prototype(.inference.types()$NN.DIFFUSION,
+                        .is.bootstrapped=FALSE)
 )

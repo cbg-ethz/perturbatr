@@ -48,13 +48,12 @@ mrw <- function(hits,
                               by="GeneSymbol")
   }
 
-  ret <- new("knockout.diffusion.analysed",
+  ret <- new("knockout.mrw.diffusion.analysed",
              .graph           = graph,
              .initial.model   = mod,
              .params          = list(
                restart.probaility     = r,
                delete.nodes.on.degree = delete.nodes.on.degree),
-             .inference       = .inference.types()$NN.DIFFUSION,
              .data            = data.table::as.data.table(res),
              .is.bootstrapped = is.boot
   )

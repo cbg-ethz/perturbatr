@@ -41,13 +41,14 @@ knn <- function(hits,
   # TODO diff on bootstrap hits
   # TODO diff on bootstrap hits
   # TODO diff on bootstrap hits
+
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
 
   neighs <- diffusr::nearest.neighbors(
     as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
     as.matrix(diffuse.data$adjm), search.depth)
 
-    res <- diffuse.data$frame
+  res <- diffuse.data$frame
 
   names(neighs) <-
     (diffuse.data$frame %>%
@@ -65,30 +66,27 @@ knn <- function(hits,
            function(e) data.table(Start=names(neighs)[e], neighs[[e]]))
   )
 
-  genes.found <- dplyr::select(flat.dat, Start, GeneSymbol) %>%
-    unlist %>% unname %>% unique
+  # genes.found <- dplyr::select(flat.dat, Start, GeneSymbol) %>%
+  #   unlist %>% unname %>% unique
+  #
+  # genes.f.table <- data.table::data.table(GeneSymbol=genes.found) %>%
+  #   dplyr::left_join(res, by="GeneSymbol")
 
-  genes.f.table <- data.table::data.table(GeneSymbol=genes.found) %>%
-    dplyr::left_join(res, by="GeneSymbol")
 
-  li <- list(data=res,
-             neighbors=flat.dat,
-             graph=graph,
-             genes.found=genes.f.table)
-
-  ret <- new("knockout.diffusion.analysed",
+  ret <- new("knockout.knn.diffusion.analysed",
              .graph           = graph,
+             .neighbors       = neighbors,
              .initial.model   = mod,
              .params          = list(
                node.start.count = node.start.count,
-               search.depth   = search.depth,
+               search.depth    = search.depth,
                delete.nodes.on.degree = delete.nodes.on.degree),
-             .inference       = .inference.types()$MRW.DIFFUSION,
+             .inference       = .inference.types()$NN.DIFFUSION,
              .data            = data.table::as.data.table(res),
-             .is.bootstrapped = is.boot)
+             .is.bootstrapped = FALSE)
 
 
-  li
+  ret
 }
 
 #' @noRd
