@@ -1,4 +1,4 @@
-<h1 align="center"> knockout </h1>
+# knockout <img src="https://cdn.rawgit.com/dirmeier/knockout/12ca810f/inst/figure/sticker.svg" align="right" width="160px"/>
 
 [![Project Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Build Status](https://travis-ci.org/dirmeier/knockout.svg?branch=master)](https://travis-ci.org/dirmeier/knockout)
