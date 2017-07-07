@@ -24,8 +24,10 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr filter
-.z.score <- function(obj, method=c("default", "robust"),
-                     level=c("plate", "control"), ctrl)
+.z.score <- function(obj,
+                     method = c("default", "robust"),
+                     level  = c("plate", "control"),
+                     ctrl)
 {
   method <- match.arg(method)
   level  <- match.arg(level)
@@ -63,10 +65,10 @@
 .z.score.plate <- function(obj, method)
 {
   val <- switch(method,
-                "default"=((obj - mean(obj, na.rm=T)) /
-                             stats::sd(obj, na.rm=T)),
-                "robust" =((obj - stats::median(obj, na.rm=T)) /
-                             stats::mad(obj, na.rm=T)),
+                "default"=((obj - mean(obj, na.rm=TRUE)) /
+                             stats::sd(obj, na.rm=TRUE)),
+                "robust" =((obj - stats::median(obj, na.rm=TRUE)) /
+                             stats::mad(obj, na.rm=TRUE)),
                 stop("No correct method given!"))
   invisible(val)
 }
@@ -96,10 +98,10 @@
       warning(paste("You are normalizing with z-scores and only using",
                     length(cont.idx),"values!"))
     val <- switch(method,
-                  "default"=((re - mean(re[cont.idx], na.rm=T)) /
-                               stats::sd(re[cont.idx], na.rm=T)),
-                  "robust" =((re - stats::median(re[cont.idx], na.rm=T)) /
-                               stats::mad(re[cont.idx], na.rm=T)),
+                  "default"=((re - mean(re[cont.idx], na.rm=TRUE)) /
+                               stats::sd(re[cont.idx], na.rm=TRUE)),
+                  "robust" =((re - stats::median(re[cont.idx], na.rm=TRUE)) /
+                               stats::mad(re[cont.idx], na.rm=TRUE)),
                   stop("No correct method given!"))
   }
   val

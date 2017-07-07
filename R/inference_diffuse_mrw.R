@@ -121,7 +121,7 @@ mrw <- function(hits,
   flat.dat <- data.table::rbindlist(li) %>% dplyr::select(-Effect)
   ret <- flat.dat  %>%
     dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarise(Mean=mean(DiffusionEffect, na.rm=T)) %>%
+    dplyr::summarise(Mean=mean(DiffusionEffect, na.rm=TRUE)) %>%
     ungroup %>%
     dplyr::left_join(tidyr::spread(flat.dat, boot, DiffusionEffect),
                      by="GeneSymbol")

@@ -21,7 +21,7 @@
 #' @noRd
 .remove.suffix <- function(s)
 {
-  if (length(grep("\\.[[:alpha:]]+$", s, perl=T)) != 0)
+  if (length(grep("\\.[[:alpha:]]+$", s, perl=TRUE)) != 0)
   {
     s <- sub("\\.[[:alpha:]]+$", "", s)
   }

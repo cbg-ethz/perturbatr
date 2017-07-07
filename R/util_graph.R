@@ -30,8 +30,8 @@
   if (!is.null(path))
   {
     if (!file.exists(path)) stop("'path' does not exist!")
-    tab <- utils::read.csv(path, sep="\t", header=T)
-    gra <- igraph::graph.data.frame(tab, directed=F)
+    tab <- utils::read.csv(path, sep="\t", header=TRUE)
+    gra <- igraph::graph.data.frame(tab, directed=FALSE)
     if (ncol(tab) == 3)
     {
       if (is.null(igraph::E(gra)$weight))
@@ -41,7 +41,7 @@
   else if(!is.null(graph))
   {
     gra <- igraph::graph_from_adjacency_matrix(
-      graph, weighted=T, mode="undirected")
+      graph, weighted=TRUE, mode="undirected")
   }
   else
   {

@@ -11,6 +11,13 @@ bootstrap(obj, level = c("sirna", "pathogen"))
 
 \item{level}{boostrap either on sirnas or on pathogens}
 }
+\value{
+returns an object with boostrapped data
+}
 \description{
 Create a bootstrap sample from a data-set
+}
+\examples{
+  data(rnaiscreen)
+  bootstrap(rnaiscreen)
 }

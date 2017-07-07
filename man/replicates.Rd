@@ -11,6 +11,13 @@ replicates(obj, ...)
 
 \item{...}{additional params}
 }
+\value{
+returns a \code{knockout.replicates} object
+}
 \description{
 Get the replicates of a data-set
+}
+\examples{
+ data(rnaiscreen)
+ rep.dat <- replicates(rnaiscreen)
 }

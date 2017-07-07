@@ -13,6 +13,9 @@
 
 \item{...}{additional parameters}
 }
+\value{
+returns a plot object
+}
 \description{
 Plot a knockout data-set
 }

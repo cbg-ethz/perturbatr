@@ -12,6 +12,9 @@
 
 \item{i}{index of the plate to subset}
 }
+\value{
+returns a \code{knockout.plate} object
+}
 \description{
 Extract a single plate from a \code{knockout.plates} object
 }

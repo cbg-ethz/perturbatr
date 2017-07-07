@@ -43,9 +43,14 @@ knn <- function(hits,
   # TODO diff on bootstrap hits
 
   diffuse.data <- .init.starting.indexes(hits, adjm, node.start.count)
+  indexes <- dplyr::filter(diffuse.data$frame, Select == TRUE) %>%
+    dplyr::select(Idx) %>%
+    unlist %>%
+    unname %>%
+    as.integer
 
   neighs <- diffusr::nearest.neighbors(
-    as.integer(dplyr::filter(diffuse.data$frame, Select==T)$Idx),
+    as.integer(indexes),
     as.matrix(diffuse.data$adjm), search.depth)
 
   res <- diffuse.data$frame
@@ -84,7 +89,6 @@ knn <- function(hits,
              .inference       = .inference.types()$NN.DIFFUSION,
              .data            = data.table::as.data.table(res),
              .is.bootstrapped = FALSE)
-
 
   ret
 }

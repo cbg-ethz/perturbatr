@@ -24,6 +24,12 @@
 #'
 #' @param obj  an object for which the replicates should be retrieved
 #' @param ...  additional params
+#'
+#' @return returns a \code{knockout.replicates} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  rep.dat <- replicates(rnaiscreen)
 replicates <- function(obj, ...) UseMethod("replicates")
 
 #' @export

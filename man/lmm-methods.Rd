@@ -7,15 +7,15 @@
 \alias{lmm,knockout.lmm.data-method}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
-lmm(obj, drop = T, weights = NULL, rel.mat.path = NULL,
+lmm(obj, drop = TRUE, weights = NULL, rel.mat.path = NULL,
   bootstrap.cnt = 0, ignore = 1, effect.size = 0.05,
   qval.threshold = 0.2)
 
-\S4method{lmm}{knockout.normalized.data}(obj, drop = T, weights = NULL,
+\S4method{lmm}{knockout.normalized.data}(obj, drop = TRUE, weights = NULL,
   rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
   effect.size = 0.05, qval.threshold = 0.2)
 
-\S4method{lmm}{knockout.lmm.data}(obj, drop = T, weights = NULL,
+\S4method{lmm}{knockout.lmm.data}(obj, drop = TRUE, weights = NULL,
   rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
   effect.size = 0.01, qval.threshold = 0.2)
 }
@@ -40,6 +40,15 @@ to estimate a significance level for the gene effects}
 \item{qval.threshold}{the q-value threshold used for hit prioritization
 if bootstrap.cnt is set}
 }
+\value{
+returns a \code{knockout.lmm.analysed} object
+}
 \description{
 \code{lmm} TODO
+}
+\examples{
+ data(rnaiscreen)
+ screen.norm <-  preprocess(rnaiscreen, normalize="log")
+
+ res <- lmm(screen.norm)
 }

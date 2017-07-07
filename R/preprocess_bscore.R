@@ -46,12 +46,12 @@
   fr <- data.frame(rows, cols, readouts, ord=1:length(readouts))
   fr <- fr[order(fr$rows, fr$cols),]
   # this is needed in case the data is not sorted
-  readout.mat <- matrix(fr$readouts, nrow, ncol, byrow=T)
+  readout.mat <- matrix(fr$readouts, nrow, ncol, byrow=TRUE)
   res <- rep(NA_real_, length(readouts))
   tryCatch ({
     med.pol <- stats::medpolish(readout.mat, maxiter=100,
-                                na.rm=T, trace.iter=F)$residuals
-    res <- as.vector(t(med.pol)) / stats::mad(med.pol, na.rm=T)
+                                na.rm=TRUE, trace.iter=FALSE)$residuals
+    res <- as.vector(t(med.pol)) / stats::mad(med.pol, na.rm=TRUE)
   }, warning = function(war) { message(paste("WARNING: ", war)); },
   error = function(err)   { message(paste("ERROR: ", err));   }
   )

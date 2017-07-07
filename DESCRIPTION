@@ -37,8 +37,12 @@ Imports:
     lazyeval,
     tibble,
     metap,
-    limma
-biocViews: geneticperturbation
+    limma,
+    stats,
+    grid,
+    utils,
+    graphics
+biocViews: Regression, Normalization, Preprocessing, CellBasedAssays, Network
 Suggests:
     testthat,
     lintr,
@@ -46,7 +50,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate: 
+Collate:
     'util_enums.R'
     'class_knockout_analysed.R'
     'class_knockout_data.R'

@@ -4,7 +4,7 @@
 \alias{set.lmm.model.data}
 \title{Create model data for an LMM}
 \usage{
-set.lmm.model.data(obj, drop = T, ignore = 1, weights = NULL,
+set.lmm.model.data(obj, drop = TRUE, ignore = 1, weights = NULL,
   rel.mat.path = NULL)
 }
 \arguments{
@@ -19,6 +19,15 @@ be dropped}
 
 \item{rel.mat.path}{target-relation matrix (TODO)}
 }
+\value{
+returns an \code{knockout.lmm.data} object
+}
 \description{
 Create model data for an LMM
+}
+\examples{
+ data(rnaiscreen)
+ rnaiscreen <- preprocess(rnaiscreen, normalize="log")
+
+ lmm.model.data <- set.lmm.model.data(rnaiscreen)
 }

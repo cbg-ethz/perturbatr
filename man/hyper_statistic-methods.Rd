@@ -10,12 +10,12 @@
 \usage{
 hyper.statistic(obj, padjust = c("BH", "bonferroni"),
   summ.method = c("mean", "median"), level = c("gene", "sirna"),
-  do.summarization = F, hit.ratio = 0.5, effect.size = 0,
+  do.summarization = FALSE, hit.ratio = 0.5, effect.size = 0,
   pval.threshold = 0.05, qval.threshold = 1)
 
 \S4method{hyper.statistic}{knockout.normalized.data}(obj, padjust = c("BH",
   "bonferroni"), summ.method = c("mean", "median"), level = c("gene",
-  "sirna"), do.summarization = F, hit.ratio = 0.5, effect.size = 0,
+  "sirna"), do.summarization = FALSE, hit.ratio = 0.5, effect.size = 0,
   pval.threshold = 0.05, qval.threshold = 1)
 }
 \arguments{
@@ -44,6 +44,14 @@ if level=gene is chosen}
 \item{qval.threshold}{q-value threshold when a siRNA should be considered a
 'hit'}
 }
+\value{
+returns a \code{knockout.hyper.analysed} object
+}
 \description{
 TODO
+}
+\examples{
+ data(rnaiscreen)
+ rnai.norm <- preprocess(rnaiscreen, normalize="log")
+ res <- hyper.statistic(rnai.norm)
 }

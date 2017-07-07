@@ -59,7 +59,7 @@
   # against which gene should viability be compared
   comp.to <- tolower(comp.to)
   genes   <- tolower(genes)
-  remarr  <- rep(F, length(re))
+  remarr  <- rep(FALSE, length(re))
 
   if (!all(is.na(val)))
   {
@@ -68,8 +68,8 @@
     assertthat::assert_that(length(cont.idx) == length(which(genes == comp.to)))
     # get mean readout and  viability of scrambled siRNAs
     # this .85 is magic
-    cont.vial.thresh <- mean(val[cont.idx], na.rm=T) * .80
-    cont.re          <- mean(re [cont.idx], na.rm=T)
+    cont.vial.thresh <- mean(val[cont.idx], na.rm=TRUE) * .80
+    cont.re          <- mean(re [cont.idx], na.rm=TRUE)
     # get the mean readouts and viabilities for every siRNA
     fr <-
       data.table::data.table(Re=re, Val=val, Gene=genes, Sirna=sirnas,
@@ -83,8 +83,8 @@
     fr <-
       dplyr::group_by(fr, Sirna, Gene, Plate, Row, Col, Control) %>%
       # summarize over replicates
-      dplyr::summarize(MR=mean(Re, na.rm=T),
-                       MV=mean(Val, na.rm=T),
+      dplyr::summarize(MR=mean(Re, na.rm=TRUE),
+                       MV=mean(Val, na.rm=TRUE),
                        Pval=.t.test.vial(Val, cont.vial.thresh, Gene,
                                          Sirna, Plate, Row, Col)) %>%
       ungroup
@@ -106,7 +106,7 @@
                    rows %in% lowe$Row &
                    plates %in% lowe$Plate &
                    cols %in% lowe$Col)
-           ] <- T
+           ] <- TRUE
   }
   remarr
 }

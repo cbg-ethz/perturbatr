@@ -26,6 +26,8 @@
 #' @param x  the object to plot
 #' @param size  size of letters
 #' @param ...  additional parameters
+#'
+#' @return  returns a plot object
 plot.knockout.raw.data <- function(x, size=10, ...)
 {
   x@.data <- dplyr::filter(x@.data, ReadoutClass=="Readout")
@@ -45,6 +47,8 @@ plot.knockout.raw.data <- function(x, size=10, ...)
 #' @param x  the object to plot
 #' @param size  size of letters
 #' @param ...  additional parameters
+#'
+#' @return  returns a plot object
 plot.knockout.normalized.data <- function(x, size, ...)
 {
   numb.frame <-

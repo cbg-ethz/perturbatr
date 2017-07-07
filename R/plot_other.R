@@ -20,7 +20,8 @@
 
 #' Plot two \code{knockout.replicate} objects
 #'
-#' @description Scatter two \code{knockout.replicate} objects against each other
+#' @description Scatter two \code{knockout.replicate} objects against
+#'  each other
 #'
 #' @export
 #' @method plot knockout.replicate
@@ -31,6 +32,8 @@
 #' @param method either \code{Scatterplot} or \code{QQ-plot}
 #' @param size  size of text
 #' @param ...  additional parameters
+#'
+#' @return returns a plot object
 plot.knockout.replicate <- function(x,
                                     y,
                                     method=c("Scatterplot", "QQ-plot"),
@@ -51,13 +54,15 @@ plot.knockout.replicate <- function(x,
   }
 
   idx <- which(!is.na(df$X) & !is.na(df$Y))
-  corr <- format(cor(df$X[idx], df$Y[idx], method="spearman"), digits=2, width=1)
+  corr <- format(cor(df$X[idx], df$Y[idx], method="spearman"),
+                 digits=2, width=1)
   pl  <- ggplot2::ggplot(df) +
          ggplot2::geom_point(ggplot2::aes(x=X, y=Y), pch=16) +
          ggplot2::xlab("Replicate 1") +
          ggplot2::ylab("Replicate 2") +
          ggplot2::theme_bw() +
-        ggplot2::theme(text = ggplot2::element_text(size=size), aspect.ratio=.75) +
+        ggplot2::theme(text = ggplot2::element_text(size=size),
+                       aspect.ratio=.75) +
         ggplot2::ggtitle(bquote(paste(.(method), " (", rho == .(corr), ")")))
 
   pl
@@ -67,12 +72,14 @@ plot.knockout.replicate <- function(x,
 #'
 #' @description Plot a \code{knockout.plate} object on a 2D grid
 #'
+#' @method plot knockout.plate
+#'
 #' @export
+#'
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr full_join
 #' @importFrom methods hasArg
-#' @method plot knockout.plate
 #'
 #' @param x  the object to plot
 #' @param show.controls  show which wells are controls
@@ -83,6 +90,8 @@ plot.knockout.replicate <- function(x,
 #' @param axis.text.size  text size of axis labels
 #' @param gene.text.size  the size of the gene names within each well
 #' @param ...  additional params
+#'
+#' @return returns a plot object
 plot.knockout.plate <- function(x,
                                 show.controls=FALSE,
                                 show.gene.names=FALSE,
@@ -140,16 +149,20 @@ plot.knockout.plate <- function(x,
 #'
 #' @description Plot a \code{knockout.quality} object on a 2D grid
 #'
+#' @method plot knockout.quality
+#'
 #' @export
+#'
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr select mutate group_indices filter summarize group_by
 #' @importFrom tidyr gather
-#' @method plot knockout.quality
 #'
 #' @param x  the object to plot
 #' @param axis.text.size  size of axis text
 #' @param ...  additional parameters to plot
+#'
+#' @return returns a plot object
 plot.knockout.quality <- function(x, axis.text.size=12, ...)
 {
   # plot the raw plate values as boxplot
@@ -170,7 +183,8 @@ plot.knockout.quality <- function(x, axis.text.size=12, ...)
     ggplot2::theme_bw() +
     ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                    text = ggplot2::element_text(
-                     size = axis.text.size, family = "Helvetica"), aspect.ratio=.75) +
+                     size = axis.text.size, family = "Helvetica"),
+                   aspect.ratio=.75) +
     ggplot2::ggtitle("Plate readouts")
 
   # plot control densities
@@ -195,7 +209,8 @@ plot.knockout.quality <- function(x, axis.text.size=12, ...)
       ggplot2::theme_bw() +
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      text = ggplot2::element_text(
-                       size = axis.text.size, family = "Helvetica"), aspect.ratio=.75) +
+                       size = axis.text.size, family = "Helvetica"),
+                     aspect.ratio=.75) +
       ggplot2::ylab("Density") +
       ggplot2::ggtitle("Control densities")
   }
@@ -228,7 +243,7 @@ plot.knockout.quality <- function(x, axis.text.size=12, ...)
     dplyr::select(Readout, Virus, Screen, Plate, Control) %>%
     dplyr::filter(!is.na(Control), Control != 0) %>%
     dplyr::group_by(Virus, Screen, Plate, Control) %>%
-    dplyr::summarize(Readout = mean(Readout, na.rm=T)) %>% ungroup %>%
+    dplyr::summarize(Readout = mean(Readout, na.rm=TRUE)) %>% ungroup %>%
     dplyr::mutate(Plate      = as.factor(Plate), Control=as.factor(Control))
   pl4 <- ggplot2::ggplot() + ggplot2::theme_bw()
   if (nrow(df) != 0)
@@ -241,7 +256,8 @@ plot.knockout.quality <- function(x, axis.text.size=12, ...)
       ggplot2::facet_grid(Virus ~ Screen) +
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      text = ggplot2::element_text(
-                       size = axis.text.size, family = "Helvetica"), aspect.ratio=.75) +
+                       size = axis.text.size, family = "Helvetica"),
+                     aspect.ratio=.75) +
       ggplot2::scale_color_discrete(breaks = c("-1", "1"),
                                     labels = c("negative",
                                                "positive")) +

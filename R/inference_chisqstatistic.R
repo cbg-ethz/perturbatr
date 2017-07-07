@@ -21,8 +21,8 @@
 #' @include class_knockout_data.R
 
 
-#' @title Calculate statistics based on the chi-square-distribution to analyse the
-#'  data.
+#' @title Calculate statistics based on the chi-square-distribution to analyse
+#'  the data.
 #'
 #' @description TODO
 #'
@@ -32,6 +32,9 @@
 #'
 #' @param obj  the data to be analysed
 #' @param padjust  multiple testing correction method
+#'
+#' @return returns a \code{knockout.chisq.analysed} object
+#'
 #' @param ...  additional params
 setGeneric(
   "chisq.statistic",
@@ -104,7 +107,8 @@ setMethod(
 {
   maha    <- .mahalanobis(obj$Readout)
   pvals   <- .chisq(maha)
-  assertthat::assert_that(length(maha) == nrow(obj), length(pvals) == nrow(obj))
+  assertthat::assert_that(length(maha) == nrow(obj),
+                          length(pvals) == nrow(obj))
   data.table::setDT(obj)[, Effect := maha]
   data.table::setDT(obj)[, Pval   := pvals]
   data.table::setDT(obj)[, Qval   := p.adjust(Pval, method=padjust)]
@@ -116,8 +120,8 @@ setMethod(
 #' @importFrom stats sd
 .mahalanobis <- function(vals)
 {
-  sd   <- stats::sd(vals, na.rm=T)
-  mu   <- mean(vals, na.rm=T)
+  sd   <- stats::sd(vals, na.rm=TRUE)
+  mu   <- mean(vals, na.rm=TRUE)
   rm   <- (vals - mu)
   maha <- sqrt(rm * rm / sd)
   maha
@@ -125,7 +129,7 @@ setMethod(
 
 #' @noRd
 #' @importFrom stats pchisq
-.chisq <- function(vals) pchisq(vals, df=1, lower.tail=F)
+.chisq <- function(vals) pchisq(vals, df=1, lower.tail=FALSE)
 
 
 #' @noRd

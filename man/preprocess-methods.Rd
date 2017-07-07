@@ -8,20 +8,20 @@
 of low viability siRNAs.}
 \usage{
 preprocess(obj, normalize = c("log", "robust-z.score"),
-  normalize.viability = F, rm.cytotoxic = NULL,
+  normalize.viability = FALSE, rm.cytotoxic = NULL,
   rm.outlier.wells = c("none", "quantile", "absolute"),
   z.score.level = c("plate", "control"), z.score.mu = "scrambled",
   poc.ctrl = "scrambled", background.row = NULL, background.column = NULL,
   outlier.well.range = c(0.05, 0.95), summarization = c("mean", "median"),
-  drop = T)
+  drop = TRUE)
 
 \S4method{preprocess}{knockout.raw.data}(obj, normalize = c("log",
-  "robust-z.score"), normalize.viability = F, rm.cytotoxic = NULL,
+  "robust-z.score"), normalize.viability = FALSE, rm.cytotoxic = NULL,
   rm.outlier.wells = c("none", "quantile", "absolute"),
   z.score.level = c("plate", "control"), z.score.mu = "scrambled",
   poc.ctrl = "scrambled", background.row = NULL, background.column = NULL,
   outlier.well.range = c(0.05, 0.95), summarization = c("mean", "median"),
-  drop = T)
+  drop = TRUE)
 }
 \arguments{
 \item{obj}{the object to be normalized}
@@ -70,7 +70,25 @@ testet (e.g. \emph{Scrambled} or \emph{PIK3CA}), etc.}
 \item{drop}{boolean if rows that are not needed should be dropped or
 kept (e.g. if you want to check whether all worked out correctly)}
 }
+\value{
+returns a \code{knockout.normalized.data} object
+}
 \description{
 \code{preproces} normalizes the data for comparable phenotypes.
 TODO
+}
+\examples{
+ data(rnaiscreen)
+
+ # take the log and standardize
+ rnai.norm <- preprocess(rnaiscreen, c("log", "robust-z.score"))
+
+ # take the log and remove wells based on quantiles
+ rnai.norm <- preprocess(rnaiscreen, "log", rm.outlier.wells="quantile")
+
+ # normalize using correction against 12th columns
+ rnai.norm <- preprocess(rnaiscreen, "background", background.column=12)
+
+ # normalize using local regression and two-way median polish
+ rnai.norm <- preprocess(rnaiscreen, c("loess", "b.score"))
 }

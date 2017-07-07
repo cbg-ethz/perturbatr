@@ -72,12 +72,6 @@ For objects that inherit the abstract `knockout.data` class, we provide basic
         filter(my.knockout.data, Readout < 0))
 ```
 
-If you want to work directly on the data-set you shoult access it on the `.data` attribute though:
-
-```{r, eval=FALSE}
-  my.knockout.data@.data
-```
-
 ## Preprocessing
 
 Before starting to work with the data we might just want to have a plain look how many genes and replicates we have. 

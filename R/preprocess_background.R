@@ -26,17 +26,19 @@
     dplyr::group_by(obj, Virus, Screen, Library, Replicate, Plate,
                     ScreenType, ReadoutType, ReadoutClass,
                     Design, Cell)
+
   f <- .summarization.method(method)
-  if (!is.na(background.row))
+  if (!is.null(background.row))
   {
     if (!is.numeric(background.row)) stop("Provide numeric index")
     if (background.row > max(ret$RowIdx))
       stop("Please provide a row index that fits the plate!")
     message(paste("Substracting", method,
                   "of row", background.row, " rom every plate!"))
+
     ret <- dplyr::mutate(ret, bk = (RowIdx == background.row))
   }
-  else if (!is.na(background.column))
+  else if (!is.null(background.column))
   {
     if (!is.numeric(background.column))
       stop("Provide numeric index")
@@ -44,6 +46,7 @@
       stop("Please provide a column index that fits the plate!")
     message(paste("Substracting", method,
                   "of column", background.column, "from every plate!"))
+
     ret <- dplyr::mutate(ret, bk = (ColIdx == background.column))
   }
   else
@@ -51,6 +54,7 @@
     message(paste("Substracting", method, "of all NA genes!"))
     ret <- dplyr::mutate(ret, bk = (is.na(GeneSymbol)))
   }
+
   ret <-
     dplyr::group_by(ret, Virus, Screen, Library, Replicate, Plate,
                     ScreenType, ReadoutType, ReadoutClass,
@@ -58,12 +62,13 @@
     dplyr::mutate(Readout = .substract.background(Readout, f, bk)) %>%
     ungroup %>%
     dplyr::select(-bk)
+
   ret
 }
 
 #' @noRd
 .substract.background <- function(readout, f, background)
 {
-  ret  <- readout - f(readout[background], na.rm=T)
+  ret  <- readout - f(readout[background], na.rm=TRUE)
   ret
 }

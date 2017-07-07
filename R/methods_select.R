@@ -20,21 +20,30 @@
 
 #' @title Select columns of a knockout data set
 #'
-#' @description \code{lmm} TODO
+#' @description Takes a knockout data set and selects columns by some
+#'  criterion. The filtered object will have class \code{data.table}.
 #'
 #' @export
 #' @import data.table
 #'
 #' @param obj  the object of which columns should be selected
 #' @param ...  additional parameters
+#'
+#' @return  returns a \code{data.table} with specified column
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  qual <- select(rnaiscreen, Virus)
 select <- function(obj, ...) UseMethod("select")
 
 
 #' @export
 #' @method select knockout.data
+#' @import data.table
 #' @importFrom dplyr select_
 #' @importFrom lazyeval lazy_dots
 select.knockout.data <- function(obj, ...)
 {
-  dplyr::select_(obj@.data, .dots = lazyeval::lazy_dots(...))
+  dplyr::select_(obj@.data, .dots = lazyeval::lazy_dots(...)) %>%
+    as.data.table
 }

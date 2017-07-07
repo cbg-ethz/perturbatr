@@ -12,6 +12,9 @@
 
 \item{i}{index of the plate to subset}
 }
+\value{
+returns a \code{knockout.replicate} object
+}
 \description{
 Extract a single replicate from a \code{knockout.replicates} object
 }

@@ -47,13 +47,19 @@
 #' @param qval.threshold  q-value threshold when a siRNA should be considered a
 #'  'hit'
 #'
+#' @return returns a \code{knockout.hyper.analysed} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  rnai.norm <- preprocess(rnaiscreen, normalize="log")
+#'  res <- hyper.statistic(rnai.norm)
 setGeneric(
   "hyper.statistic",
   function(obj,
            padjust          = c("BH", "bonferroni"),
            summ.method      = c("mean", "median"),
            level            = c("gene", "sirna"),
-           do.summarization = F,
+           do.summarization = FALSE,
            hit.ratio        = 0.5,
            effect.size      = 0,
            pval.threshold   = 0.05,
@@ -74,7 +80,7 @@ setMethod(
            padjust          = c("BH", "bonferroni"),
            summ.method      = c("mean", "median"),
            level            = c("gene", "sirna"),
-           do.summarization = F,
+           do.summarization = FALSE,
            hit.ratio        = 0.5,
            effect.size      = 0,
            pval.threshold   = 0.05,
@@ -167,7 +173,7 @@ setMethod(
                            Cell, Design,
                            Plate, RowIdx, ColIdx,
                            GeneSymbol, Entrez, siRNAIDs) %>%
-      dplyr::summarize(Readout=summ.method(Readout, na.rm=T)) %>%
+      dplyr::summarize(Readout=summ.method(Readout, na.rm=TRUE)) %>%
       ungroup
   }
   else
@@ -252,7 +258,7 @@ setMethod(
   hi <- t(sapply(1:ndrawn, function(i)
   {
     prob <- stats::phyper(i - 1, ranks[i], N - ranks[i],
-                          ndrawn, lower.tail = F, log.p=F)
+                          ndrawn, lower.tail = FALSE, log.p=FALSE)
     prob <- max(prob, 0.0)
     cutoff <- i
     c(prob=prob, cutoff=cutoff)
@@ -277,16 +283,16 @@ setMethod(
   if (qval.threshold != 1) stop("Q-value not  yet implemented")
   res <- dplyr::group_by(obj, Virus, Screen, Library, ScreenType, ReadoutType,
                          Design, Cell, GeneSymbol, Entrez) %>%
-    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T) / n()),
-                     PvalRatio  = (sum(Pval <= pval.threshold, na.rm=T)/n()),
-                     QvalRatio  = (sum(Qval <= qval.threshold, na.rm=T)/n()),
-                     MeanEffect = mean(Readout,na.rm=T),
-                     MaxEffect  = max(Readout, na.rm=T),
-                     MinEffect  = min(Readout, na.rm=T),
-                     MinPval    = min(Pval, na.rm=T),
-                     MinQval    = min(Qval, na.rm=T),
-                     Pval=paste(sprintf("%.03f", Pval), collapse=","),
-                     Qval=paste(sprintf("%.03f", Qval), collapse=",")) %>%
+    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=TRUE) / n()),
+                     Pval  = metap::sumlog(Pval)$p,
+                     Qval  = metap::sumlog(Qval)$p,
+                     MeanEffect = mean(Readout,na.rm=TRUE),
+                     MaxEffect  = max(Readout, na.rm=TRUE),
+                     MinEffect  = min(Readout, na.rm=TRUE),
+                     MinPval    = min(Pval, na.rm=TRUE),
+                     MinQval    = min(Qval, na.rm=TRUE),
+                     AllPval=paste(sprintf("%03f", Pval), collapse=","),
+                     AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
     ungroup %>%
     dplyr::filter(HitRatio >= hit.ratio)
 

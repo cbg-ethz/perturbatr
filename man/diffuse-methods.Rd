@@ -46,6 +46,22 @@ bootstrap samples are available}
 
 \item{...}{additional parameters}
 }
+\value{
+returns a \code{knockout.diffusion.analysed} object
+}
 \description{
 TODO
+}
+\examples{
+#load some data
+data(rnaiscreen)
+rnai.norm <- preprocess(rnaiscreen)
+lmm.fit <- lmm(rnai.norm)
+graph.file <- system.file("extdata", "graph_file.tsv", package="knockout")
+
+# do the diffusion using nearest neighbors
+diff.knn <- diffuse(lmm.fit, method="k",
+                    node.start.count=10,
+                    path=graph.file)
+
 }

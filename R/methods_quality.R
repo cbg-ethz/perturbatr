@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Calculates per-plate, per-replicate and screen quality scores
 #'
 #' @export
@@ -24,6 +25,12 @@
 #'
 #' @param obj  the object for which quality scores are calculates
 #' @param ...  additional parameters
+#'
+#' @return returns a \code{knockout.quality} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  qual <- quality(rnaiscreen)
 quality <- function(obj, ...)
 {
   UseMethod("quality")

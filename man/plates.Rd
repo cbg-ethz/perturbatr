@@ -11,6 +11,13 @@ plates(obj, ...)
 
 \item{...}{additional params}
 }
+\value{
+returns a \code{knockout.plates} object
+}
 \description{
 Get the plates of a data-set
+}
+\examples{
+ data(rnaiscreen)
+ plates <- plates(rnaiscreen)
 }

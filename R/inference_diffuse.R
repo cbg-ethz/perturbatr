@@ -53,6 +53,21 @@
 #' @param do.bootstrap  run a diffusion on every bootstrap sample in case
 #'  bootstrap samples are available
 #' @param ...  additional parameters
+#'
+#' @return returns a \code{knockout.diffusion.analysed} object
+#'
+#' @examples
+#' #load some data
+#' data(rnaiscreen)
+#' rnai.norm <- preprocess(rnaiscreen)
+#' lmm.fit <- lmm(rnai.norm)
+#' graph.file <- system.file("extdata", "graph_file.tsv", package="knockout")
+#'
+#' # do the diffusion using nearest neighbors
+#' diff.knn <- diffuse(lmm.fit, method="k",
+#'                     node.start.count=10,
+#'                     path=graph.file)
+#'
 setGeneric(
   "diffuse",
   function(obj,

@@ -43,6 +43,14 @@
 #' @param qval.threshold  the significance level of the multiple testing
 #'  corrected p-value. This should be set to an appropriate significance level
 #'  just like the \code{pval.threshold} as well.
+#'
+#' @return returns a \code{knockout.tstatistic.analysed} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  screen.norm <- preprocess(rnaiscreen, normalize="log")
+#'
+#'  res <- tstatistic(screen.norm)
 setGeneric(
   "tstatistic",
   function(obj,
@@ -170,7 +178,7 @@ setMethod(
                          GeneSymbol, Entrez, Plate, Control,
                          RowIdx, ColIdx, siRNAIDs) %>%
     dplyr::summarize(Pval=.t.test(GeneSymbol, Readout, mu)$p.value,
-                     Readout=mean(Readout, na.rm=T))  %>%
+                     Readout=mean(Readout, na.rm=TRUE))  %>%
     ungroup
   ret
 }
@@ -205,7 +213,7 @@ setMethod(
 #' @importFrom stats t.test
 .t.test <- function(g, val, mu)
 {
-  tst <- 1
+  tst <- list(p.value=1)
   if (length(val) < 3)
   {
     warning(paste("<3 values provided for" , g, " -> returning 1"))
@@ -245,19 +253,20 @@ setMethod(
                          Design, Cell,
                          GeneSymbol, Entrez,
                          Plate, RowIdx, ColIdx, siRNAIDs) %>%
-    dplyr::mutate(Hit=(Pval <= pval.threshold & abs(Readout) >= effect.size)) %>%
+    dplyr::mutate(Hit=(Pval <= pval.threshold &
+                       abs(Readout) >= effect.size)) %>%
     ungroup %>%
     dplyr::group_by(Virus, Screen, Library,
                     ReadoutType, ScreenType,
                     Design, Cell,
                     GeneSymbol, Entrez) %>%
     # TODO this should be as in hyper. the means dont make sense here
-    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=T)/n()),
+    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=TRUE)/n()),
                      Pval       = metap::sumlog(Pval)$p,
                      Qval       = metap::sumlog(Qval)$p,
-                     MeanEffect = mean(Readout, na.rm=T),
-                     MaxEffect  = max(Readout, na.rm=T),
-                     MinEffect  = min(Readout, na.rm=T),
+                     MeanEffect = mean(Readout, na.rm=TRUE),
+                     MaxEffect  = max(Readout, na.rm=TRUE),
+                     MinEffect  = min(Readout, na.rm=TRUE),
                      AllPval=paste(sprintf("%03f", Pval), collapse=","),
                      AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
     ungroup %>%

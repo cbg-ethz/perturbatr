@@ -120,7 +120,7 @@ gp.fdrs <- function(obj, ...)
   }
   zzz <- pmax(pmin(zz, up), lo)
   breaks <- seq(lo, up, length = bre)
-  zh <- hist(zzz, breaks = breaks, plot = F)
+  zh <- hist(zzz, breaks = breaks, plot = FALSE)
   x <- (breaks[-1] + breaks[-length(breaks)])/2
   yall <- y <- zh$counts
   K <- length(y)

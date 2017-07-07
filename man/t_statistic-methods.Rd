@@ -34,6 +34,15 @@ to be counted as significant}
 corrected p-value. This should be set to an appropriate significance level
 just like the \code{pval.threshold} as well.}
 }
+\value{
+returns a \code{knockout.tstatistic.analysed} object
+}
 \description{
 For this you should use a standardization before.
+}
+\examples{
+ data(rnaiscreen)
+ screen.norm <- preprocess(rnaiscreen, normalize="log")
+
+ res <- tstatistic(screen.norm)
 }

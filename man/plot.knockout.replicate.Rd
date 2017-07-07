@@ -18,6 +18,10 @@
 
 \item{...}{additional parameters}
 }
+\value{
+returns a plot object
+}
 \description{
-Scatter two \code{knockout.replicate} objects against each other
+Scatter two \code{knockout.replicate} objects against
+ each other
 }

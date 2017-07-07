@@ -24,6 +24,12 @@
 #'
 #' @param obj  an object for which the plates are going to be retrieved
 #' @param ...  additional params
+#'
+#' @return returns a \code{knockout.plates} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  plates <- plates(rnaiscreen)
 plates <- function(obj, ...)
 {
   UseMethod("plates", obj)

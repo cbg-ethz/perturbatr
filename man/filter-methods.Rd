@@ -11,6 +11,15 @@ filter(obj, ...)
 
 \item{...}{additional parameters}
 }
+\value{
+returns an object of the same type filtered by some criterion
+}
 \description{
-\code{lmm} TODO
+Takes a knockout data set and filters the rows by some
+ criterion. The filtered object will have the same type as the previous
+ object.
+}
+\examples{
+ data(rnaiscreen)
+ flt.dat <- filter(rnaiscreen, Virus=="V1")
 }

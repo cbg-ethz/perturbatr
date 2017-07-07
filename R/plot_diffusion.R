@@ -17,15 +17,26 @@
 # You should have received a copy of the GNU General Public License
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
+
+#' Plot a \code{knockout.diffusion.analysed} object
+#'
+#' @method plot knockout.diffusion.analysed
+#'
 #' @export
+#'
 #' @import data.table
 #' @import igraph
 #' @importFrom graphics plot legend
 #' @importFrom methods hasArg
 #' @importFrom assertthat assert_that
-#' @method plot knockout.diffusion.analysed
+#'
+#' @param x  a \code{knockout.diffusion.analysed} object
+#' @param graph.size  approximate numer of nodes
+#' @param show.node.labels  \code{logical} if gene names are shown or note
+#' @param ...  addutional params
+#'
+#' @return returns a plot object
 plot.knockout.diffusion.analysed <- function(x,
-                                             y,
                                              graph.size = 20,
                                              show.node.labels = FALSE,
                                              ...)
@@ -45,7 +56,8 @@ plot.knockout.diffusion.analysed <- function(x,
     # index of edges that are gonna be plotted
     edge.list    <- igraph::get.edgelist(x@.graph)
     idxs         <- .edge.indexes(edge.list, best.100)
-    obj          <- igraph::graph.data.frame(.edge.subset(edge.list, idxs), directed=F)
+    obj          <- igraph::graph.data.frame(.edge.subset(edge.list, idxs),
+                                             directed=FALSE)
 
     if (length(igraph::V(obj)) >= 100) break
     v.cnt <- v.cnt + 1
@@ -53,7 +65,9 @@ plot.knockout.diffusion.analysed <- function(x,
   # get the connected components
   comps              <- igraph::components(obj)
   # get the genes that are not in the largest component
-  non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
+  non.max.comp.genes <- names(
+    which(comps$membership != which.max(comps$csize))
+  )
   # remove the genes that are not in the largest component
   obj <- igraph::delete.vertices(obj, non.max.comp.genes)
   # node colors (LMM identified genes are blue, rest orange)
@@ -63,10 +77,11 @@ plot.knockout.diffusion.analysed <- function(x,
 
   size <- .size(obj)
   igraph::V(obj)$color[size <= 10] <- "#fe9929"
-  igraph::V(obj)$color[size == 3] <- "#fed98e"
+  igraph::V(obj)$color[size == 3]  <- "#fed98e"
   igraph::V(obj)[igraph::V(obj)$name %in% blue.genes] $color <- "blue"
   # igraph::V(obj)$color[igraph::V(obj)$name %in% blue.genes] <- "lightblue"
   igraph::E(obj)$width <- 2
+
   # plot all the the nodes
   .plot.graph(obj, sz, size, show.node.labels)
 }
@@ -105,7 +120,7 @@ plot.knockout.diffusion.analysed <- function(x,
 
 #' @noRd
 #' @importFrom graphics plot par legend
-#' @importFrom igraph V
+#' @importFrom igraph V layout.kamada.kawai
 .plot.graph <- function(obj, sz, size, show.node.labels)
 {
   op                  <- graphics::par(family = "Helvetica", font=1)

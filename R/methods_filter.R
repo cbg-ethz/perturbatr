@@ -20,7 +20,9 @@
 
 #' @title Filter the rows of a knockout data set
 #'
-#' @description \code{lmm} TODO
+#' @description Takes a knockout data set and filters the rows by some
+#'  criterion. The filtered object will have the same type as the previous
+#'  object.
 #'
 #' @export
 #' @rdname filter-methods
@@ -28,6 +30,12 @@
 #'
 #' @param obj  the object to be filtered
 #' @param ...  additional parameters
+#'
+#' @return  returns an object of the same type filtered by some criterion
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  flt.dat <- filter(rnaiscreen, Virus=="V1")
 filter <- function(obj, ...) UseMethod("filter")
 
 

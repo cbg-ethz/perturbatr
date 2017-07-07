@@ -4,8 +4,8 @@
 \name{chisq.statistic}
 \alias{chisq.statistic}
 \alias{chisq.statistic,knockout.data-method}
-\title{Calculate statistics based on the chi-square-distribution to analyse the
- data.}
+\title{Calculate statistics based on the chi-square-distribution to analyse
+ the data.}
 \usage{
 chisq.statistic(obj, padjust = c("BH", "bonferroni"), ...)
 
@@ -18,6 +18,9 @@ chisq.statistic(obj, padjust = c("BH", "bonferroni"), ...)
 \item{padjust}{multiple testing correction method}
 
 \item{...}{additional params}
+}
+\value{
+returns a \code{knockout.chisq.analysed} object
 }
 \description{
 TODO

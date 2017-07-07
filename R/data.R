@@ -33,7 +33,8 @@
 #'     \item ReadoutType  \code{character} readouttype,
 #'       such as `GFP` or `Luciferase`
 #'     \item Control  \code{integer} coding of controls.
-#'       `-1` for negative control, `1` for positive control, `0` for regular sample
+#'       `-1` for negative control, `1` for positive control, `0` for regular
+#'        sample
 #'     \item Library  \code{character} library type, such as `Ambion`
 #'     \item siRNAIDs  \code{character} sirna identifier
 #'     \item Screen  \code{character} identifier,

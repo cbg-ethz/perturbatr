@@ -43,10 +43,18 @@
 #' @param effect.size  the relative effect size used for hit prioritization
 #' @param qval.threshold  the q-value threshold used for hit prioritization
 #'  if bootstrap.cnt is set
+#'
+#' @return returns a \code{knockout.lmm.analysed} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  screen.norm <-  preprocess(rnaiscreen, normalize="log")
+#'
+#'  res <- lmm(screen.norm)
 setGeneric(
   "lmm",
   function(obj,
-           drop=T,
+           drop=TRUE,
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=0,
@@ -66,7 +74,7 @@ setMethod(
   "lmm",
   signature = signature(obj="knockout.normalized.data"),
   function(obj,
-           drop=T,
+           drop=TRUE,
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=0,
@@ -87,7 +95,7 @@ setMethod(
   "lmm",
   signature = signature(obj="knockout.lmm.data"),
   function(obj,
-           drop=T,
+           drop=TRUE,
            weights=NULL,
            rel.mat.path=NULL,
            bootstrap.cnt=0,
@@ -186,7 +194,7 @@ setMethod(
 .lmm <- function(md)
 {
   lme4::lmer(stats::as.formula(.init.formula()),
-             data = md@.data, weights = md@.data$Weight, verbose = F)
+             data = md@.data, weights = md@.data$Weight, verbose = FALSE)
 }
 
 #' @noRd

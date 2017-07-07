@@ -29,8 +29,16 @@
 #' @param ignore  ignore siRNAS that are only found \code{ignore} many times
 #' @param weights  weights to set for the siRNAs
 #' @param rel.mat.path  target-relation matrix (TODO)
+#'
+#' @return  returns an \code{knockout.lmm.data} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  rnaiscreen <- preprocess(rnaiscreen, normalize="log")
+#'
+#'  lmm.model.data <- set.lmm.model.data(rnaiscreen)
 set.lmm.model.data <- function(obj,
-                               drop=T,
+                               drop=TRUE,
                                ignore=1,
                                weights=NULL,
                                rel.mat.path=NULL)
@@ -41,7 +49,7 @@ set.lmm.model.data <- function(obj,
 #' @export
 #' @method set.lmm.model.data knockout.normalized.data
 set.lmm.model.data.knockout.normalized.data <- function(obj,
-                                                        drop=T,
+                                                        drop=TRUE,
                                                         ignore=1,
                                                         weights=NULL,
                                                         rel.mat.path=NULL)

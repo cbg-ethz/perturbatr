@@ -26,6 +26,9 @@
 #'
 #' @param x  a \code{knockout.plates} object
 #' @param i  index of the plate to subset
+#'
+#' @return returns a \code{knockout.plate} object
+#'
 setMethod(
   "[",
   signature=signature(x="knockout.plates", i="numeric",
@@ -52,6 +55,9 @@ setMethod(
 #'
 #' @param x  a \code{knockout.replicates} object
 #' @param i  index of the plate to subset
+#'
+#' @return returns a \code{knockout.replicate} object
+#'
 setMethod(
   "[",
   signature=signature(x="knockout.replicates", i="numeric",

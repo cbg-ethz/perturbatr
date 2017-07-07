@@ -11,6 +11,14 @@ select(obj, ...)
 
 \item{...}{additional parameters}
 }
+\value{
+returns a \code{data.table} with specified column
+}
 \description{
-\code{lmm} TODO
+Takes a knockout data set and selects columns by some
+ criterion. The filtered object will have class \code{data.table}.
+}
+\examples{
+ data(rnaiscreen)
+ qual <- select(rnaiscreen, Virus)
 }

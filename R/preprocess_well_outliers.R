@@ -57,7 +57,7 @@
   re <- read
   if (!all(is.na(num)))
   {
-    quant <- unname(stats::quantile(num, na.rm=T, probs=probs))
+    quant <- unname(stats::quantile(num, na.rm=TRUE, probs=probs))
     message(paste0("\t..removing x<", quant[1], " | ", quant[2], "<x wells!"))
     re[num < quant[1] | quant[2] < num] <- NA_real_
   }

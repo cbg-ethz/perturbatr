@@ -17,21 +17,25 @@
 # along with knockout. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Plot an \code{knockout.lmm.analysed} object
-#'
-#' The method returns three individual plots as a list.
+#' Plot a \code{knockout.lmm.analysed}  object
 #'
 #' @export
 #' @method plot knockout.lmm.analysed
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr filter
+#'
 #' @param x  the object to be plotted
 #' @param size  size of letters
 #' @param ...  additional parameters
+#'
+#' @return returns a list of plots
+#'
 plot.knockout.lmm.analysed <- function(x, size=10, ...)
 {
-  pl <- .plot.knockout.lmm.analysed (x@.gene.hits, main="Gene effects", size=size, ...)
+  pl <- .plot.knockout.lmm.analysed (x@.gene.hits,
+                                     main="Gene effects",
+                                     size=size, ...)
   pl2 <-
     .plot.knockout.lmm.analysed(x@.gene.pathogen.hits, main="", size=size) +
     ggplot2::facet_wrap(
@@ -58,12 +62,12 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
   if ("Virus" %in% colnames(x))
   {
     x <- dplyr::filter(x, Control == 0) %>%
-      .[order(abs(Effect), decreasing=T), .SD[1:25], by=Virus] %>%
+      .[order(abs(Effect), decreasing=TRUE), .SD[1:25], by=Virus] %>%
       dplyr::filter(!is.na(GeneSymbol))
   }
   else
   {
-    x <- x[order(abs(Effect), decreasing=T), .SD[1:25]] %>%
+    x <- x[order(abs(Effect), decreasing=TRUE), .SD[1:25]] %>%
       dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
   }
   x.pos.range <- max(abs(x$Effect))
@@ -71,9 +75,10 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
   LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
   pl <-
     ggplot2::ggplot(x) +
-    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol,y=abs(Effect), fill=Effect),
+    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol, y=abs(Effect), fill=Effect),
                       stat="identity") +
-    ggplot2::scale_fill_gradient2(low=LDcolors[1], high=LDcolors[11],
+    ggplot2::scale_fill_gradient2(low=LDcolors[1],
+                                  high=LDcolors[11],
                                   na.value=LDcolors[6],
                                   name="Effect") +
     ggplot2::ylab("Gene effect strength") +
@@ -81,7 +86,9 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
     ggplot2::theme(axis.text.y=element_blank(),
                    axis.ticks=element_blank(),
                    text = element_text(size = size, family = "Helvetica"),
-                   axis.text.x = element_text(angle=45, size = size, family = "Helvetica"),
+                   axis.text.x = element_text(angle=45,
+                                              size = size,
+                                              family = "Helvetica"),
                    strip.text=element_text(face=x$font))+
     ggplot2::coord_polar() +
     ggplot2::ggtitle(main)
@@ -119,9 +126,11 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
                                   name     = "Gene virus\neffect") +
     ggplot2::coord_flip() +
     ggplot2::theme_bw() +
-    ggplot2::theme(text = ggplot2::element_text(size = 8, family = "Helvetica"),
+    ggplot2::theme(text=ggplot2::element_text(size = 8, family = "Helvetica"),
                    aspect.ratio = 2,
-                   axis.text.x  = ggplot2::element_text(angle=45,  hjust = 1, size=9),
+                   axis.text.x  = ggplot2::element_text(angle=45,
+                                                        hjust = 1,
+                                                        size=9),
                    axis.text.y  = ggplot2::element_text(size=9),
                    axis.title   = ggplot2::element_blank(),
                    axis.ticks   = ggplot2::element_blank())
@@ -205,9 +214,10 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
   if (sig.thresh > 0)
     pl <- pl +
     ggplot2::geom_hline(yintercept=sig.thresh, alpha=.75, linetype="dashed") +
-    ggplot2::geom_text(aes(xlim[1], sig.thresh,
-                           label = paste("Significance threshold:", sig.thresh),
-                           vjust = -.25, hjust=0), size = 4)
+    ggplot2::geom_text(
+      aes(xlim[1], sig.thresh,
+          label = paste("Significance threshold:", sig.thresh),
+          vjust = -.25, hjust=0), size = 4)
   if (effect.thresh > 0)
   {
     pl <- pl +
@@ -263,17 +273,34 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
   pl
 }
 
+
+#' Plot a \code{knockout.hyper.analysed} object
+#'
 #' @export
 #' @import data.table
 #' @method plot knockout.hyper.analysed
+#'
+#' @param x  the object to plot
+#' @param size  size of the text
+#' @param ...  additional parameters
+#'
+#' @return returns a plot object
 plot.knockout.hyper.analysed <- function(x, size=10, ...)
 {
   .plot.knockout.analysed(x, ...)
 }
 
+#' Plot a \code{knockout.tstatistic.analysed} object
+#'
 #' @export
 #' @import data.table
 #' @method plot knockout.tstatistic.analysed
+#'
+#' @param x  the object to plot
+#' @param size  size of the text
+#' @param ...  additional parameters
+#'
+#' @return returns a plot object
 plot.knockout.tstatistic.analysed <- function(x, size=10, ...)
 {
   .plot.knockout.analysed(x, size, ...)
@@ -285,7 +312,7 @@ plot.knockout.tstatistic.analysed <- function(x, size=10, ...)
 #' @importFrom dplyr group_by summarize mutate filter
 .plot.knockout.analysed <- function(x, size, ...)
 {
-  df <- x@.gene.hits[order(abs(MeanEffect), decreasing=T), .SD[1:25]] %>%
+  df <- x@.gene.hits[order(abs(MeanEffect), decreasing=TRUE), .SD[1:25]] %>%
     dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect))
   x.pos.range <- max(abs(x@.gene.hits$MeanEffect))
   x.lim  <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5

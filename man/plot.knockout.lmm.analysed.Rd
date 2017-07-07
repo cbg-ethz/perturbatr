@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_analysed.R
 \name{plot.knockout.lmm.analysed}
 \alias{plot.knockout.lmm.analysed}
-\title{Plot an \code{knockout.lmm.analysed} object}
+\title{Plot a \code{knockout.lmm.analysed}  object}
 \usage{
 \method{plot}{knockout.lmm.analysed}(x, size = 10, ...)
 }
@@ -13,6 +13,9 @@
 
 \item{...}{additional parameters}
 }
+\value{
+returns a list of plots
+}
 \description{
-The method returns three individual plots as a list.
+Plot a \code{knockout.lmm.analysed}  object
 }

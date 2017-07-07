@@ -66,11 +66,28 @@
 #' @param summarization  method of how to summarize screens (needed where? :/)
 #' @param drop  boolean if rows that are not needed should be dropped or
 #'   kept (e.g. if you want to check whether all worked out correctly)
+#'
+#' @return returns a \code{knockout.normalized.data} object
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'
+#'  # take the log and standardize
+#'  rnai.norm <- preprocess(rnaiscreen, c("log", "robust-z.score"))
+#'
+#'  # take the log and remove wells based on quantiles
+#'  rnai.norm <- preprocess(rnaiscreen, "log", rm.outlier.wells="quantile")
+#'
+#'  # normalize using correction against 12th columns
+#'  rnai.norm <- preprocess(rnaiscreen, "background", background.column=12)
+#'
+#'  # normalize using local regression and two-way median polish
+#'  rnai.norm <- preprocess(rnaiscreen, c("loess", "b.score"))
 setGeneric(
   "preprocess",
   function(obj,
            normalize          = c("log", "robust-z.score"),
-           normalize.viability= F,
+           normalize.viability= FALSE,
            rm.cytotoxic       = NULL,
            rm.outlier.wells   = c("none", "quantile", "absolute"),
            z.score.level      = c("plate", "control"),
@@ -80,7 +97,7 @@ setGeneric(
            background.column  = NULL,
            outlier.well.range = c(.05, .95),
            summarization      = c("mean", "median"),
-           drop               = T)
+           drop               = TRUE)
   {
     standardGeneric("preprocess")
   },
@@ -99,18 +116,18 @@ setMethod(
   "preprocess",
   signature = signature(obj="knockout.raw.data"),
   function(obj,
-          normalize          = c("log", "robust-z.score"),
-          normalize.viability= F,
-          rm.cytotoxic       = NULL,
-          rm.outlier.wells   = c("none", "quantile", "absolute"),
-          z.score.level      = c("plate", "control"),
-          z.score.mu         = "scrambled",
-          poc.ctrl           = "scrambled",
-          background.row     = NULL,
-          background.column  = NULL,
-          outlier.well.range = c(.05, .95),
-          summarization      = c("mean", "median"),
-          drop               = T)
+          normalize           = c("log", "robust-z.score"),
+          normalize.viability = FALSE,
+          rm.cytotoxic        = NULL,
+          rm.outlier.wells    = c("none", "quantile", "absolute"),
+          z.score.level       = c("plate", "control"),
+          z.score.mu          = "scrambled",
+          poc.ctrl            = "scrambled",
+          background.row      = NULL,
+          background.column   = NULL,
+          outlier.well.range  = c(.05, .95),
+          summarization       = c("mean", "median"),
+          drop                = TRUE)
   {
     res <- obj@.data
 
@@ -124,8 +141,17 @@ setMethod(
     # do outlier removal based on cell numbers
     if (rm.outlier.wells != "none")
       res <- .remove.outliers(res, rm.outlier.wells, outlier.well.range)
+
     # do normalization
-    res   <- .normalize(res, normalize, normalize.viability)
+    res   <- .normalize(res,
+                        normalize           = normalize,
+                        normalize.viability = normalize.viability,
+                        z.score.level       = z.score.level,
+                        z.score.mu          = z.score.mu,
+                        summarization       = summarization,
+                        background.row      = background.row,
+                        background.column   = background.column,
+                        poc.ctrl            = poc.ctrl)
 
     # remove outliers based on cytotoxicity
     res <- .rm.cytotoxic(res, rm.cytotoxic)
@@ -148,7 +174,8 @@ setMethod(
     obj <- dplyr::filter(obj, !is.na(GeneSymbol), GeneSymbol != "buffer")  %>%
       dplyr::select(-NumCells)
     if ("Remove" %in% colnames(obj))
-      obj <- dplyr::filter(obj, Remove==F) %>% dplyr::select(-Remove)
+      obj <- dplyr::filter(obj, Remove==FALSE) %>%
+      dplyr::select(-Remove)
   }
   obj
 }

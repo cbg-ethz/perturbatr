@@ -27,6 +27,9 @@
 
 \item{...}{additional params}
 }
+\value{
+returns a plot object
+}
 \description{
 Plot a \code{knockout.plate} object on a 2D grid
 }

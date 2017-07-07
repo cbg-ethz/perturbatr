@@ -24,6 +24,11 @@
 #'
 #' @param obj  the object which data should be bootstrapped
 #' @param level  boostrap either on sirnas or on pathogens
+#' @return returns an object with boostrapped data
+#'
+#' @examples
+#'   data(rnaiscreen)
+#'   bootstrap(rnaiscreen)
 bootstrap <- function(obj, level=c("sirna", "pathogen"))
 {
   UseMethod("bootstrap")
@@ -47,7 +52,7 @@ bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
-        idx     <- sample(seq(grp.dat$cnt[1]), replace=T)
+        idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
         grp.dat[idx]
       },
       mc.cores=ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),

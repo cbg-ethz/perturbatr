@@ -13,6 +13,9 @@
 
 \item{...}{additional parameters to plot}
 }
+\value{
+returns a plot object
+}
 \description{
 Plot a \code{knockout.quality} object on a 2D grid
 }

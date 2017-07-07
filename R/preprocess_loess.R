@@ -42,8 +42,8 @@
 .loess.plate <- function(n.cells, readout)
 {
   good.idxs <- (!is.na(n.cells) & !is.na(readout))
-  sorted.n.cells     <- sort.int(n.cells[good.idxs], index.return = T)
-  sorted.n.cells.idx <- sort.int(sorted.n.cells$ix,  index.return = T)
+  sorted.n.cells     <- sort.int(n.cells[good.idxs], index.return = TRUE)
+  sorted.n.cells.idx <- sort.int(sorted.n.cells$ix,  index.return = TRUE)
   loessed.readout <- rep(NA_real_, length(readout))
   if (all(is.na(readout)) || all(is.na(n.cells)))
   {
