@@ -20,9 +20,9 @@ algorithms, such as *Markov random walks with restarts*.
 Download the latest `knockout` release and install the package using:
 
 ```bash
-  R CMD install <netreg.tar.gz>
+  R CMD install <knockout.tar.gz>
 ```
-wher <netreg.tar.gz> is the downloaded tarball.
+wher <knockout.tar.gz> is the downloaded tarball.
 
 ## Usage
 
