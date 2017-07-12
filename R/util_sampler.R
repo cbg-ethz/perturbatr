@@ -27,8 +27,10 @@
 #' @return returns an object with boostrapped data
 #'
 #' @examples
+#' \dontrun{
 #'   data(rnaiscreen)
 #'   bootstrap(rnaiscreen)
+#' }
 bootstrap <- function(obj, level=c("sirna", "pathogen"))
 {
   UseMethod("bootstrap")
@@ -39,6 +41,7 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
 #' @import data.table
 #' @importFrom dplyr left_join mutate select group_by filter
 #' @importFrom parallel mclapply detectCores
+#' @importFrom methods new
 bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
 {
   dat <-
@@ -60,7 +63,7 @@ bootstrap.knockout.data <- function(obj, level=c("sirna", "pathogen"))
     )
   )
 
-  ret <- new(class(obj)[1], .data=dplyr::select(res, -cnt, -grp))
+  ret <- methods::new(class(obj)[1], .data=dplyr::select(res, -cnt, -grp))
   ret
 }
 

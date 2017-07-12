@@ -32,13 +32,30 @@
 #'
 #' @param obj  the data to be analysed
 #' @param padjust  multiple testing correction method
+#' @param effect.size  the relative strength of a signal to count as a hit,
+#'  i. e. the biological significance of a gene/sirna
+#' @param pval.threshold  the significance level for a sirna/gene,
+#'  i. e. the statistical significance of a gene/sirna
+#'  to be counted as significant
+#' @param qval.threshold  the significance level of the multiple testing
+#'  corrected p-value. This should be set to an appropriate significance level
+#'  just like the \code{pval.threshold} as well.
 #'
-#' @return returns a \code{knockout.chisq.analysed} object
+#' @return returns a \code{knockout.chisqstatistic.analysed} object
 #'
-#' @param ...  additional params
+#' @examples
+#'  data(rnaiscreen)
+#'  screen.norm <- preprocess(rnaiscreen, normalize="log")
+#'  screen.norm <- filter(screen.norm, Replicate == 1)
+#'
+#'  res <- chisq.statistic(screen.norm)
 setGeneric(
   "chisq.statistic",
-  function(obj, padjust=c("BH", "bonferroni"), ...)
+  function(obj,
+           padjust=c("BH", "bonferroni"),
+           effect.size=0,
+           pval.threshold=0.05,
+           qval.threshold=1)
   {
       standardGeneric("chisq.statistic")
   },
@@ -51,39 +68,51 @@ setGeneric(
 setMethod(
   "chisq.statistic",
   signature = signature(obj="knockout.data"),
-  function(obj, padjust=c("BH", "bonferroni"), ...)
+  function(obj,
+           padjust=c("BH", "bonferroni"),
+           effect.size=0,
+           pval.threshold=0.05,
+           qval.threshold=1)
   {
-    stop("not implemented yet")
-    .check.data(obj)
-    dat <- obj@.data
-    if (.leuniq(dat$Replicate) !=  1)
+    if (.leuniq(obj@.data$Replicate) !=  1)
       stop(paste0("You provided a data-set with several replicates. ",
                   "Summarize these first or use another method."))
-    res     <- .chisq.statistic(dat, match.arg(padjust))
-    ret     <- new("knockout.analysed",
-                   .inference=.inference.types()$CHISQ.TEST,
-                   .data=res)
+
+    res <- .chisq.statistic(obj@.data, match.arg(padjust))
+    priorit <- .prioritize.chisq.tstatistic(
+      res, effect.size, pval.threshold, qval.threshold)
+
+    ret <- methods::new(
+      "knockout.chisqstatistic.analysed",
+      .data = res,
+      .gene.hits = data.table::as.data.table(priorit),
+      .params = list(effect.size=effect.size,
+                     pval.threshold=pval.threshold,
+                     qval.threshold=qval.threshold)
+    )
+
     ret
   }
 )
 
 #' @noRd
 #' @import data.table
-#' @importFrom dplyr mutate group_indices filter
+#' @importFrom dplyr mutate group_indices filter group_by
 .chisq.statistic <- function(obj, padjust)
 {
-  grp.indexes <- dplyr::group_indices(obj, Virus, Screen, ReadoutType,
-                                      ScreenType, Library, Design, Cell)
-  ret  <-  dplyr::mutate(obj, grp=grp.indexes)
+  ret <- dplyr::group_by(obj, Virus, Screen, ReadoutType,
+                         ScreenType, Library, Design, Cell) %>%
+    dplyr::mutate(grp = .GRP)
   grps <- unique(ret$grp)
+
   ret  <- do.call(
     "rbind",
     lapply
     (
       grps,
-      function (g)
+      function(g)
       {
-        grp.dat <- dplyr::filter(ret, grp==g)
+        grp.dat <- dplyr::filter(ret, grp == g)
         message(paste("Doing grp: ", paste(grp.dat$Virus[1],
                                            grp.dat$Screen[1],
                                            grp.dat$ScreenType[1],
@@ -93,10 +122,11 @@ setMethod(
                                            grp.dat$Library[1],
                                            sep=", ")))
         fr <- .do.chisq(grp.dat, padjust)
-        fr
+        fr %>% dplyr::select(-grp)
       }
     )
   )
+
   ret
 }
 
@@ -112,7 +142,7 @@ setMethod(
   data.table::setDT(obj)[, Effect := maha]
   data.table::setDT(obj)[, Pval   := pvals]
   data.table::setDT(obj)[, Qval   := p.adjust(Pval, method=padjust)]
-  assertthat::assert_that(all(order(obj$Pval) == order(obj$Qval)))
+
   obj
 }
 
@@ -136,10 +166,14 @@ setMethod(
 #' @import data.table
 #' @importFrom dplyr group_by summarize ungroup filter select mutate
 .prioritize.chisq.tstatistic <- function(obj,
-                                   hit.ratio=0.5,
-                                   effect.size=0,
-                                   pval.threshold=0.05,
-                                   qval.threshold=1)
+                                         effect.size,
+                                         pval.threshold,
+                                         qval.threshold)
 {
-  stop("TODO")
+  res <- dplyr::filter(obj,
+                       abs(Readout) >= effect.size,
+                       Pval <= pval.threshold,
+                       Qval <= qval.threshold)
+
+  res
 }

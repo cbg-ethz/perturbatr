@@ -51,6 +51,7 @@
 #'  screen.norm <- preprocess(rnaiscreen, normalize="log")
 #'
 #'  res <- tstatistic(screen.norm)
+#'
 setGeneric(
   "tstatistic",
   function(obj,
@@ -70,6 +71,7 @@ setGeneric(
 #' @rdname t_statistic-methods
 #' @aliases tstatistic,knockout.data-method
 #' @import data.table
+#' @importFrom methods new
 setMethod(
   "tstatistic",
   signature = signature(obj = "knockout.data"),
@@ -81,20 +83,20 @@ setMethod(
            pval.threshold=0.05,
            qval.threshold=1)
   {
-    dat <- obj@.data
-    res <- .t.statistic(dat,
+    res <- .t.statistic(obj@.data,
                         mu=match.arg(mu),
                         padjust=match.arg(padjust))
     priorit <- .prioritize.tstatistic(
       res, hit.ratio, effect.size, pval.threshold, qval.threshold)
 
-    ret <- new("knockout.tstatistic.analysed",
-               .gene.hits = data.table::as.data.table(priorit),
-               .data=res,
-               .params=list(effect.size=effect.size,
-                            hit.ratio=hit.ratio,
-                            pval.threshold=pval.threshold,
-                            qval.threshold=qval.threshold))
+    ret <- methods::new(
+      "knockout.tstatistic.analysed",
+      .gene.hits = data.table::as.data.table(priorit),
+      .data=res,
+      .params=list(effect.size=effect.size,
+                   hit.ratio=hit.ratio,
+                   pval.threshold=pval.threshold,
+                   qval.threshold=qval.threshold))
     ret
   }
 )
@@ -271,5 +273,6 @@ setMethod(
                      AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
     ungroup %>%
     dplyr::filter(Pval <= pval.threshold & Qval <= qval.threshold)
+
   res
 }

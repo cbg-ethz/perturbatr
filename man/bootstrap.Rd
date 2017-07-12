@@ -18,6 +18,8 @@ returns an object with boostrapped data
 Create a bootstrap sample from a data-set
 }
 \examples{
+\dontrun{
   data(rnaiscreen)
   bootstrap(rnaiscreen)
+}
 }

@@ -73,6 +73,7 @@ setGeneric(
 #' @rdname hyper_statistic-methods
 #' @aliases hyper.statistic,knockout.data-method
 #' @import data.table
+#' @importFrom methods new
 setMethod(
   "hyper.statistic",
   signature = signature(obj="knockout.normalized.data"),
@@ -97,13 +98,14 @@ setMethod(
     priorit <- .prioritize.hyper.statistic(
       res, hit.ratio, effect.size, pval.threshold, qval.threshold)
 
-    ret     <- new("knockout.hyper.analysed",
-                   .gene.hits = data.table::as.data.table(priorit),
-                   .data      = data.table::as.data.table(obj@.data),
-                   .params=list(effect.size=effect.size,
-                                hit.ratio=hit.ratio,
-                                pval.threshold=pval.threshold,
-                                qval.threshold=qval.threshold))
+    ret <- methods::new(
+      "knockout.hyper.analysed",
+      .gene.hits = data.table::as.data.table(priorit),
+      .data      = data.table::as.data.table(obj@.data),
+      .params=list(effect.size=effect.size,
+                   hit.ratio=hit.ratio,
+                   pval.threshold=pval.threshold,
+                   qval.threshold=qval.threshold))
     ret
   }
 )
