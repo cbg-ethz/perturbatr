@@ -45,4 +45,5 @@ For this you should use a standardization before.
  screen.norm <- preprocess(rnaiscreen, normalize="log")
 
  res <- tstatistic(screen.norm)
+
 }

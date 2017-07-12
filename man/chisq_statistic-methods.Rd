@@ -7,21 +7,39 @@
 \title{Calculate statistics based on the chi-square-distribution to analyse
  the data.}
 \usage{
-chisq.statistic(obj, padjust = c("BH", "bonferroni"), ...)
+chisq.statistic(obj, padjust = c("BH", "bonferroni"), effect.size = 0,
+  pval.threshold = 0.05, qval.threshold = 1)
 
 \S4method{chisq.statistic}{knockout.data}(obj, padjust = c("BH",
-  "bonferroni"), ...)
+  "bonferroni"), effect.size = 0, pval.threshold = 0.05,
+  qval.threshold = 1)
 }
 \arguments{
 \item{obj}{the data to be analysed}
 
 \item{padjust}{multiple testing correction method}
 
-\item{...}{additional params}
+\item{effect.size}{the relative strength of a signal to count as a hit,
+i. e. the biological significance of a gene/sirna}
+
+\item{pval.threshold}{the significance level for a sirna/gene,
+i. e. the statistical significance of a gene/sirna
+to be counted as significant}
+
+\item{qval.threshold}{the significance level of the multiple testing
+corrected p-value. This should be set to an appropriate significance level
+just like the \code{pval.threshold} as well.}
 }
 \value{
-returns a \code{knockout.chisq.analysed} object
+returns a \code{knockout.chisqstatistic.analysed} object
 }
 \description{
 TODO
+}
+\examples{
+ data(rnaiscreen)
+ screen.norm <- preprocess(rnaiscreen, normalize="log")
+ screen.norm <- filter(screen.norm, Replicate == 1)
+
+ res <- chisq.statistic(screen.norm)
 }

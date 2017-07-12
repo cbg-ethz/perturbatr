@@ -73,6 +73,25 @@ setClass(
 
 #' Data wrapper for analysed knockout data using a standard hypothesis test
 #'
+#' @name ChisqStatisticAnalysis-class
+#' @rdname chisq_statisic_knockout_analysis-class
+#'
+#' @description Class \code{knockout.chisqstatistic.analysed} is a wrapper for a
+#'   \code{data.table} object containing the knockout data
+#'
+#' @slot .gene.hits  prioritized genes
+#'
+setClass(
+  "knockout.chisqstatistic.analysed",
+  contains  = "knockout.analysed",
+  slots     = list(.gene.hits="data.table"),
+  prototype = prototype(.inference=.inference.types()$CHISQ.TEST,
+                        .is.bootstrapped=FALSE)
+)
+
+
+#' Data wrapper for analysed knockout data using a standard hypothesis test
+#'
 #' @name HyperAnalysis-class
 #' @rdname hyper_knockout_analysis-class
 #'
