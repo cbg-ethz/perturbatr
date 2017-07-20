@@ -21,3 +21,5 @@ knockout.Rproj
 ^inst/test_calls.R$
 ^appveyor\.yml$
 ^codecov\.yml$
+^README\.Rmd$
+^README-.*\.png$

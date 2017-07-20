@@ -41,9 +41,9 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
     ggplot2::facet_wrap(
       ~ Virus,
       ncol=ceiling(length(unique(x@.gene.pathogen.hits$Virus))/2))
-  pl3 <- .plot.effect.matrices.knockout.analysed.lmm(x)
-  pl4 <- .plot.hit.counts(x)
-  pl5 <- .plot.vulcano(x)
+  pl3 <- .plot.effect.matrices.knockout.analysed.lmm(x, size)
+  pl4 <- .plot.hit.counts(x, size)
+  pl5 <- .plot.vulcano(x, size)
   return(list(gene.effect.barplot=pl,
               gene.pathogen.effect.barplot=pl2,
               gene.pathogen.effect.matrix=pl3,
@@ -83,13 +83,13 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
                                   name="Effect") +
     ggplot2::ylab("Gene effect strength") +
     ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.y=element_blank(),
-                   axis.ticks=element_blank(),
-                   text = element_text(size = size, family = "Helvetica"),
-                   axis.text.x = element_text(angle=45,
+    ggplot2::theme(axis.text.y=ggplot2::element_blank(),
+                   axis.ticks=ggplot2::element_blank(),
+                   text = ggplot2::element_text(size = size, family = "Helvetica"),
+                   axis.text.x = ggplot2::element_text(angle=45,
                                               size = size,
                                               family = "Helvetica"),
-                   strip.text=element_text(face=x$font))+
+                   strip.text=ggplot2::element_text(face=x$font))+
     ggplot2::coord_polar() +
     ggplot2::ggtitle(main)
 
@@ -101,7 +101,7 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom tidyr gather
-.plot.effect.matrices.knockout.analysed.lmm <- function(x, ...)
+.plot.effect.matrices.knockout.analysed.lmm <- function(x, size, ...)
 {
 
   effect.matrices <- .effect.matrices(x)
@@ -126,12 +126,12 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
                                   name     = "Gene virus\neffect") +
     ggplot2::coord_flip() +
     ggplot2::theme_bw() +
-    ggplot2::theme(text=ggplot2::element_text(size = 8, family = "Helvetica"),
+    ggplot2::theme(text=ggplot2::element_text(size = size, family = "Helvetica"),
                    aspect.ratio = 2,
                    axis.text.x  = ggplot2::element_text(angle=45,
                                                         hjust = 1,
-                                                        size=9),
-                   axis.text.y  = ggplot2::element_text(size=9),
+                                                        size=size),
+                   axis.text.y  = ggplot2::element_text(size=size),
                    axis.title   = ggplot2::element_blank(),
                    axis.ticks   = ggplot2::element_blank())
   pl
@@ -139,7 +139,7 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
 
 #' @noRd
 #' @importFrom dplyr group_by summarize mutate
-.plot.hit.counts <- function(x)
+.plot.hit.counts <- function(x, size)
 {
   obj <- x@.gene.pathogen.effects
   single.res <- obj %>%
@@ -155,8 +155,8 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
     ggplot2::scale_fill_distiller(palette="Spectral") +
     ggplot2::theme_bw() +
     ggplot2::theme(legend.position="none",
-                   text = element_text(size=22),
-                   axis.text.y=element_blank()) +
+                   text = ggplot2::element_text(size=22),
+                   axis.text.y=ggplot2::element_blank()) +
     ggplot2::geom_hline(yintercept=0) +
     ggplot2::ylab("Count hits") +
     ggplot2::geom_text(aes(x=Virus, y=ifelse(Count>0, Count+1, Count-1),
@@ -256,7 +256,7 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
   if (length(neg.ctrls$Effect) != 0)
   {
     pl <- pl +
-      ggplot2::geom_text(aes(x=neg.ctrls$Effect,
+      ggplot2::geom_text(ggplot2::aes(x=neg.ctrls$Effect,
                              y=(neg.ctrls$sig),
                              label=neg.ctrls$Gene),
                          hjust=0, vjust=0,
@@ -267,9 +267,9 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
     ggplot2::scale_color_manual(name="Points", values=c("blue", "red", "green")) +
     ggplot2::guides(color=guide_legend(title=NULL)) +
     ggplot2::theme_bw() +
-    ggplot2::theme(axis.text=element_text(size=12),
-                   axis.title=element_text(size=14,face="bold"),
-                   legend.text=element_text(size=14))
+    ggplot2::theme(axis.text   = ggplot2::element_text(size=12),
+                   axis.title  = ggplot2::element_text(size=14, face="bold"),
+                   legend.text = ggplot2::element_text(size=14))
   pl
 }
 
@@ -327,12 +327,13 @@ plot.knockout.tstatistic.analysed <- function(x, size=10, ...)
                                   name="Effect") +
     ylab("Effect") +
     ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.y=element_blank(),
-                   axis.ticks=element_blank(),
-                   text = element_text(size = size, family = "Helvetica"),
-                   axis.text.x = element_text(angle=45, size = size,
+    ggplot2::theme(axis.text.y=ggplot2::element_blank(),
+                   axis.ticks=ggplot2::element_blank(),
+                   text = ggplot2::element_text(size = size,
+                                                family = "Helvetica"),
+                   axis.text.x = ggplot2::element_text(angle=45, size = size,
                                               family = "Helvetica"),
-                   strip.text = element_text()) +
+                   strip.text = ggplot2::element_text()) +
     ggplot2::coord_polar()
 
   pl
