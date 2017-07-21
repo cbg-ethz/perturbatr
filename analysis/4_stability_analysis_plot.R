@@ -282,7 +282,7 @@ dirs <- c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
 # files to process
 fls <-
   list.files(
-    "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection//",
+    "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/paper_rds/",
     full.names = T
 )
 
