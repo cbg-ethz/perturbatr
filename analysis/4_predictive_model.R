@@ -65,32 +65,6 @@ library(uuid)
   effect.data
 }
 
-bt.sets <- function(model.data)
-{
-  dat <-
-    model.data %>%
-    dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
-    dplyr::mutate(cnt=n(), grp=.GRP) %>%
-    ungroup
-  grps <- unique(dat$grp)
-  res <- do.call(
-    "rbind",
-    lapply(
-      grps,
-      function (g)
-      {
-        grp.dat <- dplyr::filter(dat, grp==g)
-        idx <- sample(seq(grp.dat$cnt[1]), replace=T) %>% unique
-        grp.dat$bttrain        <- F
-        grp.dat$bttrain[idx]   <- T
-        grp.dat
-      }
-    )
-  )
-  res <- as.svd.lmm.model.data(res)
-  res
-}
-
 cv.sets <- function(model.data)
 {
   dat <-
@@ -171,39 +145,6 @@ mse <- function(cv.test, fits)
   list(data=df, models=models)
 }
 
-.bootstrap.validate <- function(model.data)
-{
-  li <- list()
-  models <- list()
-
-  i <- 1
-  run <- 1
-
-  repeat
-  {
-    print(paste0("Doing bootstrap: ", i))
-    tryCatch({
-      bootstrap.data <- bt.sets(model.data)
-      bt.train       <- dplyr::filter(bootstrap.data, bttrain == T)
-      bt.test        <- dplyr::filter(bootstrap.data, bttrain == F)
-      fits           <- analyse(bt.train)
-      mses           <- mse(bt.test, fits)
-      li[[i]]        <- data.table(Sampling="Bootstrap",
-                                   LMM_MSE=mses$lmm, PMM_MSE=mses$pmm)
-      models[[i]]    <- .ranefs(fits)
-      i <- i + 1
-    }, error=function(e)   { print(paste0("Didnt fit ", i, ": ", e)); i <- 10000 },
-    warning=function(e) { print(e)})
-    if (i >= 101) break
-    run <- run + 1
-  }
-
-  df <- do.call("rbind",  lapply(li, function(e) e)) %>%
-    dplyr::rename(LMM=LMM_MSE,PMM=PMM_MSE) %>%
-    tidyr::gather(Model, MSE, 2:3)
-
-  list(data=df, models=models)
-}
 
 benchmark.syn.predictability <- function(output.path, uid, virs.cnt, var, rep.cnt)
 {
@@ -213,14 +154,15 @@ benchmark.syn.predictability <- function(output.path, uid, virs.cnt, var, rep.cn
     bench.list     <- list()
     noisy.data <- dplyr::mutate(noiseless.data,
                                 Readout=Effect+rnorm(nrow(noiseless.data), 0, var))
+
     for (vir.cnt in seq(2, virs.cnt))
     {
       viruses     <- paste0("V", 1:vir.cnt)
       model.data  <- dplyr::filter(noisy.data, Virus %in% viruses)
       el <- paste0("var:", var, ",r:",rep.cnt, ",vir:",vir.cnt)
-      if (rep.cnt >= 7) {
+      if (rep.cnt >= 7)
+      {
         df.cv       <- .cv.validate(model.data)
-        df.bt       <- .bootstrap.validate(model.data)
         sse         <- rbind(df.cv$data, df.bt$data)
         bench.list[[ paste0(el,"bt") ]] <-
           list(Vir=vir.cnt, Rep=rep.cnt, Var=var, sse=sse,

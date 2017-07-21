@@ -8,18 +8,7 @@ library(knockout)
 library(ggplot2)
 library(uuid)
 
-dirs <-
-  c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
-    "/Users/simondi/PROJECTS/sysvirdrug_project/docs/sysvirdrug_modelling_paper/plots"
-)
-
-fls <-
-  list.files(
-    "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_predictability_analysis/paper_lmm_rds/",
-    full.names = T
-)
-fls.bio <- grep("bio", fls, value = T)
-fls.stn <- grep("synthetic", fls, value = T)
+jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) }
 
 bio.pred <- function(fls.bio)
 {
@@ -32,6 +21,8 @@ bio.pred <- function(fls.bio)
                el$sse)
   }))
 
+  df <- df %>% dplyr::filter(Sampling=="CV")
+
   df$Model[df$Model == "LMM"] <- "knockout"
   df$Virus <- paste(df$Virus, "viruses")
 
@@ -42,39 +33,36 @@ bio.pred <- function(fls.bio)
                      fill  = Model)) +
     ggplot2::scale_fill_manual(values = c("#e41a1c", "#377eb8")) +
     ggplot2::facet_grid(Virus ~  .) +
-    theme_bw() +
-    theme(text = element_text(size = 20))
-  print(p)
+    ggplot2::theme_bw() +
+    ggplot2::theme(text = ggplot2::element_text(size = 20))
+
 
   for (d in dirs)
   {
     ggplot2::ggsave(
       plot=p,
-      filename=paste(d, "predictability_bio_data.pdf", sep = "/"),
+      filename=paste(d, "predictability_bio_data_only_cv.eps", sep = "/"),
       width = 8,
       height = 8
     )
   }
 
+  p
+
 }
-
-###############################################################################
-
-jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) }
 
 syn.pred <- function(fls.stn)
 {
 
-  .sse <- function(fls.stn)
-  {
-
     df <- rbindlist(lapply(fls.stn, function (f) {
       fld <- readRDS(f)
-      me <- stringr::str_match(f, ".*genemean_(.+)_.*")[2] %>%
-        as.numeric
+      me <- stringr::str_match(f, ".*genemean_(.+)_.*")[2] %>% as.numeric
       dff <- NULL
-      for (i in seq_along(fld$benchmark))
+      # only take lists with benchmark results
+      ix <- grep("bt$", names(fld$benchmark))
+      for (i in ix)
       {
+        print(names(fld$benchmark)[i])
         curd <- fld$benchmark[[i]]
         dt <- data.table(VirusCount=curd$Vir,
                          Mean=me,
@@ -83,6 +71,7 @@ syn.pred <- function(fls.stn)
                          curd$sse)
         dff <- rbindlist(list(dff, dt))
       }
+
       dff
     }))
 
@@ -94,7 +83,7 @@ syn.pred <- function(fls.stn)
     df$Variance[df$Variance == 5] <- "High variance"
     df$Variance <- factor(df$Variance,
                           levels=c("Low variance", "Medium variance" , "High variance"))
-    # df.singlevar <- dplyr::filter(df, Variance==2)
+
     s <- df
     p <-
       ggplot2::ggplot(df) +
@@ -110,70 +99,31 @@ syn.pred <- function(fls.stn)
     for (d in dirs)
     {
       ggsave(
-        filename=paste(d, "predictability_syn_data_virus_4_replicate_8_genemean_05.pdf", sep = "/"),
+        filename=paste(d, "predictability_syn_data_virus_4_replicate_8_genemean_05.eps", sep = "/"),
         plot=p,
         width = 8,
         height = 8
       )
     }
-  }
-  .sse(df)
-
-  .jaccard <- function(fls.stn)
-  {
-    fsvls <- c(10, 25, 50, 75, 100)
-
-    df <- rbindlist(lapply(fls.stn, function (f) {
-      fld <- readRDS(f)
-      me <- stringr::str_match(f, ".*genemean_(.+)_.*")[2] %>% as.numeric
-      dff <- NULL
-      for (i in seq_along(fld$benchmark))
-      {
-        curd <- fld$benchmark[[i]]
-        true.dat <- dplyr::select(curd$data, GeneSymbol, GeneEffect) %>% unique %>% .[order(-abs(GeneEffect))]
-
-        btm <- curd$bt.model
-        dfff <- NULL
-        for (j in seq(length(btm)))
-        {
-          lme <- btm[[j]]$lmm.fit.effects
-
-          lme.data <- data.table(GeneSymbol = rownames(lme),
-                                 GeneEffect = unlist(lme)) %>%
-            .[order(-abs(GeneEffect))] %>% as.tbl
-          len <- nrow(lme.data)
-
-          m <- data.table(Jaccard=sapply(fsvls, function(i) {
-            jaccard(true.dat$GeneSymbol[1:i], lme.data$GeneSymbol[1:i])
-          }))
-          m$Index <- factor(fsvls, levels=fsvls)
-          m$Bootstrap <- j
-          dfff <- rbindlist(list(dfff, m))
-        }
-
-        dt <- data.table(VirusCount=curd$Vir,
-                         Mean=me,
-                         ReplicateCount=curd$Rep,
-                         Variance=curd$Var,
-                         dfff)
-        dff <- rbindlist(list(dff, dt))
-      }
-      dff
-    }))
-    df$VirusCount <- factor(df$VirusCount, levels=2:4)
-    df$Mean <- factor(df$Mean, levels=c(0.5, 1, 2))
-    df$Variance <- factor(df$Variance, levels=c(1,2,5))
-
-    l <- df
-    df <- l
-    df <- dplyr::filter(df, Mean==2)
-    ggplot2::ggplot(df, aes(x=Index, y=Jaccard)) +
-      ggplot2::geom_boxplot(aes( fill=Variance)) +
-      ggplot2::scale_fill_manual(values = c("#e41a1c", "#377eb8", "darkgreen")) +
-      ggplot2::facet_grid(VirusCount ~ .) +
-      theme_bw() +
-      theme(text = element_text(size = 20))
-  }
-
 
 }
+
+###############################################################################
+
+
+dirs <-
+  c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
+    "/Users/simondi/PROJECTS/sysvirdrug_project/docs/sysvirdrug_modelling_paper/plots"
+  )
+
+fls <- list.files(
+  "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_predictability_analysis/paper_rds/",
+    full.names = T
+)
+
+fls.bio <- grep("lmm_predictability_bio",            fls, value = T)
+fls.stn <- grep("lmm_predictability__synthetic.*0.5.*", fls, value = T)
+
+
+bio.pred(fls.bio)
+syn.pred(fls.stn)
