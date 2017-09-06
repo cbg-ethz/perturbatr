@@ -22,7 +22,7 @@ Download the latest `knockout` release and install the package using:
 ```bash
   R CMD install <knockout.tar.gz>
 ```
-wher <knockout.tar.gz> is the downloaded tarball.
+where `knockout.tar.gz` is the downloaded tarball.
 
 ## Usage
 
