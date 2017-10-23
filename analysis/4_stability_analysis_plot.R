@@ -8,6 +8,14 @@ library(knockout)
 library(ggplot2)
 library(uuid)
 library(hashmap)
+library(ggthemr)
+library(hrbrthemes)
+library(viridis)
+library(cowplot)
+
+extrafont::loadfonts()
+hrbrthemes::import_roboto_condensed()
+ggthemr("fresh", "scientific")
 
 jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) }
 
@@ -95,7 +103,7 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
   bootstrap.data
 }
 
-rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix)
+rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix, legend=TRUE)
 {
 
   ranking.table <- paste0(ranking.file.prefix, "_table.rds")
@@ -168,9 +176,20 @@ rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix)
     ggplot2::facet_grid(Virus ~ .) +
     ggplot2::theme_bw() +
     ggplot2::scale_y_continuous(limits = c(0, 1)) +
-    ggplot2::scale_fill_manual(values=c("#e41a1c", "#377eb8")) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(text=element_text(size=20))
+    hrbrthemes::theme_ipsum_rc() +
+    theme(axis.text.x=element_text(size=14),
+          axis.text.y=element_text(size=14),
+          axis.title.x=element_text(size=16),
+          axis.title.y=element_text(size=16),
+          legend.text=element_text(size=14),
+          text = ggplot2::element_text(size = 20),
+          strip.text.y = element_text(size = 14)) +
+    xlab("Number of genes") +
+    ylab("Score") +
+    guides(fill=guide_legend("Score"))
+  if (!legend)
+    p <- p + guides(fill=FALSE)
+
 
   for (d in dirs)
   {
@@ -187,7 +206,7 @@ rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix)
   p
 }
 
-rank.lmm.syn <- function(fls.stn, out.file, ranking.file.prefix)
+rank.lmm.syn <- function(fls.stn, out.file, ranking.file.prefix, legend=TRUE)
 {
 
   ranking.table <- paste0(ranking.file.prefix, "_table.rds")
@@ -253,9 +272,22 @@ rank.lmm.syn <- function(fls.stn, out.file, ranking.file.prefix)
     ggplot2::facet_grid(Variance ~ .) +
     ggplot2::theme_bw() +
     ggplot2::scale_y_continuous(limits = c(0, 1)) +
-    ggplot2::scale_fill_manual(values = c("#e41a1c", "#377eb8")) +
     ggplot2::theme_bw() +
-    ggplot2::theme(text = ggplot2::element_text(size=20))
+    ggplot2::theme(text = ggplot2::element_text(size=20)) +
+    hrbrthemes::theme_ipsum_rc() +
+    theme(axis.text.x=element_text(size=14),
+          axis.text.y=element_text(size=14),
+          axis.title.x=element_text(size=16),
+          axis.title.y=element_text(size=16),
+          legend.text=element_text(size=14),
+          text = ggplot2::element_text(size = 20),
+          strip.text.y = element_text(size = 14)) +
+    xlab("Number of genes") +
+    ylab("Score") +
+    guides(fill=guide_legend("Score"))
+  if (!legend)
+    p <- p + guides(fill=FALSE)
+
 
   for (d in dirs)
   {
@@ -289,18 +321,29 @@ fls <-
 fls.bio <- grep("lmm_stability__bio", fls, value = T)
 fls.stn <- grep("lmm_stability__synthetic", fls, value = T)
 
-###############################################################################
-# BIOLOGICAL DATA ANALYSIS
-#
-p <- rank.lmm.bio(fls.bio,
+p.bio <- rank.lmm.bio(fls.bio,
                   "stability_bio_data.eps",
-                  "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/lmm_stability_selection_bio_ranking")
-
-
-###############################################################################
-# SYNTHETIC DATA ANALYSIS
-
-# rank the stuff
-rank.lmm.syn(fls.stn,
+                  "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/paper_rds/lmm_stability_selection_bio_ranking", legend=TRUE)
+p.syn <- rank.lmm.syn(fls.stn,
              "stability_syn_data.eps",
-             "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/lmm_stability_selection_syn_ranking")
+             "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/paper_rds/lmm_stability_selection_syn_ranking", legend=TRUE)
+
+
+leg <- get_legend(p.bio)
+prow <- plot_grid(p.syn + theme(legend.position="none") + labs(subtitle="Synthetic data benchmark"),
+                  p.bio + theme(legend.position="none") + labs(subtitle="Biological data benchmark"),
+                  align = 'h',
+                  labels = c("(a)", "(b)"),
+                  hjust = -1,
+                  nrow = 1)
+pl <- plot_grid(prow, leg, rel_widths= c(3, .3))
+pl
+for (d in dirs)
+{
+  ggsave(
+    filename = paste(d, "stability_analysis_combined_plot.eps", sep = "/"),
+    plot = pl,
+    width = 12,
+    height = 8
+  )
+}

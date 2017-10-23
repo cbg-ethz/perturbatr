@@ -72,7 +72,9 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
   }
   x.pos.range <- max(abs(x$Effect))
   x.lim  <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
-  LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
+  LDcolors     <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
+  #x$GeneSymbol <- factor(x$GeneSymbol, levels=rev(unique(x$GeneSymbol)))
+
   pl <-
     ggplot2::ggplot(x) +
     ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol, y=abs(Effect), fill=Effect),
@@ -80,17 +82,21 @@ plot.knockout.lmm.analysed <- function(x, size=10, ...)
     ggplot2::scale_fill_gradient2(low=LDcolors[1],
                                   high=LDcolors[11],
                                   na.value=LDcolors[6],
-                                  name="Effect") +
-    ggplot2::ylab("Gene effect strength") +
+                                  name="Gene effect") +
+    ggplot2::scale_x_discrete(labels = rev(sort(x$GeneSymbol)),
+                              limits=rev(sort(x$GeneSymbol))) +
+    ggplot2::xlab("") +
+    ggplot2::ylab("") +
     ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.y=ggplot2::element_blank(),
+    ggplot2::theme(axis.text.y = ggplot2::element_text(size = size - 2,
+                                                       family = "Helvetica"),
                    axis.ticks=ggplot2::element_blank(),
                    text = ggplot2::element_text(size = size, family = "Helvetica"),
-                   axis.text.x = ggplot2::element_text(angle=45,
-                                              size = size,
+                   axis.text.x = ggplot2::element_text(
+                                              size = size - 2,
                                               family = "Helvetica"),
                    strip.text=ggplot2::element_text(face=x$font))+
-    ggplot2::coord_polar() +
+    ggplot2::coord_flip() +
     ggplot2::ggtitle(main)
 
   pl
