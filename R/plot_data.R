@@ -58,15 +58,19 @@ plot.knockout.normalized.data <- function(x, size, ...)
     tidyr::gather(Type, Count, Replicates, Genes)
 
   numb.frame$Count <- as.integer(numb.frame$Count)
+
   pl <-
     ggplot2::ggplot(numb.frame, ggplot2::aes(x=Virus, y = Count)) +
     ggplot2::geom_bar(ggplot2::aes(fill=Virus), stat="identity") +
+    ggplot2::scale_y_continuous(breaks=scales::pretty_breaks(5)) +
     ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
     ggplot2::scale_fill_brewer(palette="Spectral") +
     ggplot2::geom_text(ggplot2::aes(label = Count, y = Count), size = floor(size/3), vjust=0) +
     ggplot2::theme_bw() +
-    ggplot2::theme(strip.text = ggplot2::element_text(size = size),
-                   text       = ggplot2::element_text(size = size))
+    ggplot2::theme(strip.text      = ggplot2::element_text(size = size),
+                   text            = ggplot2::element_text(size = size),
+                   panel.spacing.y = ggplot2::unit(2, "lines"))+
+    ggplot2::guides(fill=FALSE)
 
   pl
 }
