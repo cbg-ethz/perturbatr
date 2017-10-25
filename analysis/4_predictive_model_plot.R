@@ -155,14 +155,15 @@ fls.stn <- grep("lmm_predictability__synthetic.*0.5.*", fls, value = T)
 p.bio <- bio.pred(fls.bio)
 p.syn <- syn.pred(fls.stn)
 
-leg <- get_legend(p.bio)
+leg <- get_legend(p.bio + theme(legend.position="bottom"))
 prow <- plot_grid(p.syn + theme(legend.position="none") + labs(subtitle="Synthetic data benchmark"),
                   p.bio + theme(legend.position="none") + labs(subtitle="Biological data benchmark"),
                   align = 'h',
                   labels = c("(a)", "(b)"),
                   hjust = -1,
                   nrow = 1)
-pl <- plot_grid(prow, leg, rel_heights = c(3, .3))
+pl <- plot_grid(prow, leg, ncol=1,  rel_heights= c(10, .5))
+pl
 
 for (d in dirs)
 {

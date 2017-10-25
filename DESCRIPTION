@@ -41,7 +41,11 @@ Imports:
     stats,
     grid,
     utils,
-    graphics
+    graphics,
+    ggthemr,
+    hrbrthemes,
+    viridis,
+    cowplot
 biocViews: Regression, Normalization, Preprocessing, CellBasedAssays, Network
 Suggests:
     testthat,
