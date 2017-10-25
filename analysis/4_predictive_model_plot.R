@@ -12,8 +12,6 @@ library(hrbrthemes)
 library(viridis)
 library(cowplot)
 
-extrafont::loadfonts()
-hrbrthemes::import_roboto_condensed()
 ggthemr("fresh", "scientific")
 
 
@@ -43,7 +41,7 @@ bio.pred <- function(fls.bio)
     ggplot2::facet_grid(Virus ~  .) +
     ggplot2::scale_fill_manual(values =ggthemr:::palettes$fresh$swatch[c(2,4)]) +
     ggplot2::theme_bw() +
-    hrbrthemes::theme_ipsum_rc() +
+    hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
     theme(axis.text.x=element_blank(),
           axis.text.y=element_text(size=14),
           axis.title.x=element_blank(),
@@ -111,7 +109,7 @@ syn.pred <- function(fls.stn)
       ggplot2::facet_grid(Variance ~  ., scale="free") +
       theme_bw() +
       theme(text = element_text(size = 20)) +
-      hrbrthemes::theme_ipsum_rc() +
+      hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
       theme(axis.text.x=element_blank(),
             axis.text.y=element_text(size=14),
             axis.title.x=element_blank(),
