@@ -118,6 +118,4 @@ rnai.screen <- normalize(rnai.screen.raw)
 
 message(paste0("Wrinting normalized data to ", outfile))
 saveRDS(rnai.screen, outfile)
-rnai.screen <- readRDS(out.file)
-
-
+rnai.screen <- readRDS(outfile)

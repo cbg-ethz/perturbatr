@@ -170,9 +170,9 @@ plot.knockout.quality <- function(x, axis.text.size=12, ...)
   qual <- dplyr::group_by(qual, Virus, Screen, Library,
                                ScreenType, ReadoutType,
                                Replicate, Plate) %>%
-    dplyr::mutate(grp = .GRP)
-  grps <- qual$grp
-  df   <- dplyr::mutate(qual, Plate=grps) %>%
+    dplyr::mutate(Plate = .GRP) %>%
+    ungroup
+  df <- qual %>%
     dplyr::select(Virus, Screen, Readout, Plate) %>%
     dplyr::mutate(Plate=as.factor(Plate)) %>%
     dplyr::filter(!is.na(Readout), !is.infinite(Readout))
