@@ -208,7 +208,9 @@ do.diffusion.on.different.data.sets <- function()
     paste0(wd, "/hit_selection/all_pathogen_hit_selection/lmm_fit_bootstrap_22_5.rds")
   )
 
-  full.lmm    <- readRDS("hit_selection/all_pathogen_hit_selection/2017_3_24/random_effects_model_hits_full_data.rds")
+  full.lmm    <- readRDS(
+    paste0(wd, "/hit_selection/all_pathogen_hit_selection/2017_3_24/random_effects_model_hits_full_data.rds")
+  )
 
   primary.diff <-  network.propagation(primary.lmm,
                                        graph.file, "diffusion_primary_data")

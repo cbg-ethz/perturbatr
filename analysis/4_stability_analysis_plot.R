@@ -329,21 +329,21 @@ p.syn <- rank.lmm.syn(fls.stn,
              "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/paper_rds/lmm_stability_selection_syn_ranking", legend=TRUE)
 
 
-leg <- get_legend(p.bio)
+leg <- get_legend(p.bio + theme(legend.position="bottom"))
 prow <- plot_grid(p.syn + theme(legend.position="none") + labs(subtitle="Synthetic data benchmark"),
                   p.bio + theme(legend.position="none") + labs(subtitle="Biological data benchmark"),
                   align = 'h',
                   labels = c("(a)", "(b)"),
                   hjust = -1,
                   nrow = 1)
-pl <- plot_grid(prow, leg, rel_widths= c(3, .3))
+pl <- plot_grid(prow, leg, ncol=1, rel_heights= c(10, .5))
 pl
 for (d in dirs)
 {
   ggsave(
     filename = paste(d, "stability_analysis_combined_plot.eps", sep = "/"),
     plot = pl,
-    width = 12,
+    width = 14,
     height = 8
   )
 }
