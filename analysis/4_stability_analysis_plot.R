@@ -13,8 +13,7 @@ library(hrbrthemes)
 library(viridis)
 library(cowplot)
 
-extrafont::loadfonts()
-hrbrthemes::import_roboto_condensed()
+
 ggthemr("fresh", "scientific")
 
 jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) }
@@ -176,7 +175,7 @@ rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix, legend=TRUE)
     ggplot2::facet_grid(Virus ~ .) +
     ggplot2::theme_bw() +
     ggplot2::scale_y_continuous(limits = c(0, 1)) +
-    hrbrthemes::theme_ipsum_rc() +
+    hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
     theme(axis.text.x=element_text(size=14),
           axis.text.y=element_text(size=14),
           axis.title.x=element_text(size=16),
@@ -274,7 +273,7 @@ rank.lmm.syn <- function(fls.stn, out.file, ranking.file.prefix, legend=TRUE)
     ggplot2::scale_y_continuous(limits = c(0, 1)) +
     ggplot2::theme_bw() +
     ggplot2::theme(text = ggplot2::element_text(size=20)) +
-    hrbrthemes::theme_ipsum_rc() +
+    hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
     theme(axis.text.x=element_text(size=14),
           axis.text.y=element_text(size=14),
           axis.title.x=element_text(size=16),
@@ -308,6 +307,7 @@ rank.lmm.syn <- function(fls.stn, out.file, ranking.file.prefix, legend=TRUE)
 
 # output directories
 dirs <- c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
+          "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/plots",
           "/Users/simondi/PROJECTS/sysvirdrug_project/docs/sysvirdrug_modelling_paper/plots"
 )
 

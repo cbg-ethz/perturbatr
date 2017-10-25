@@ -13,8 +13,6 @@ library(hrbrthemes)
 library(viridis)
 library(cowplot)
 
-extrafont::loadfonts()
-hrbrthemes::import_roboto_condensed()
 ggthemr("fresh", "scientific")
 
 # output directories
@@ -41,7 +39,7 @@ pl <-
   ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
   ggplot2::geom_text(ggplot2::aes(label = Count, y = Count), size = floor(20/3), vjust=0) +
   ggplot2::theme_bw() +
-  hrbrthemes::theme_ipsum_rc() +
+  hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
   ggplot2::theme(text            = ggplot2::element_text(size = 20),
                  axis.text.x=element_blank(),
                  axis.text.y=element_text(size=14),

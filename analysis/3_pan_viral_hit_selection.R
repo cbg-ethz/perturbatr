@@ -5,25 +5,19 @@ library(ggplot2)
 library(knockout)
 library(xtable)
 
-
-wd <- "/Users/simondi/PROJECTS/sysvirdrug_project/src/util/knockout_svd_pipeline/hit_selection/all_pathogen_hit_selection/"
-
 .random.effects.model <- function(dat, bootstrap=10)
 {
   model.form <- "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | Virus:ScreenType)"
   lmm.fit     <- knockout::lmm(obj=dat,
-                               bootstrap.cnt=100,
+                               bootstrap.cnt=bootstrap,
                                drop=T,
                                weights=list(pooled=1.5, single=1))
   lmm.fit
 }
 
-random.effects.model <- function(rnai.screen, file.name, boo=0)
+random.effects.model <- function(rnai.screen, boo=0)
 {
   lmm.fit     <- .random.effects.model(rnai.screen, boo)
-  re.file  <- paste0(wd,"/", file.name)
-  message(paste("Writing random effect model hits to", re.file))
-
 
   gene.hits <- lmm.fit@.gene.hits %>%
     dplyr::select(GeneSymbol, Effect, Qval)
@@ -34,25 +28,16 @@ random.effects.model <- function(rnai.screen, file.name, boo=0)
   full.table <- dplyr::left_join(gene.hits, gps, by="GeneSymbol") %>%
     .[order(-abs(Effect))]
 
-  saveRDS(lmm.fit, paste0(re.file, ".rds"))
-  write.csv(full.table, paste0(re.file, ".csv"), quote=F, row.names=F)
-
-  lmm.hits
+  list(fit=lmm.fit, full.table=full.table)
 }
 
-do.pan.viral.analysis.on.different.data.sets <- function()
-{
 
-  setwd(wd)
-  rnai.screen <- readRDS("integrated_data_files/rnai_screen_normalized.rds") %>% filter(Virus != "CVB")
-  validation.screen <- readRDS("integrated_data_files/validation_screen_norm.rds")
+path        <- "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/"
+rnai.file   <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
+lmm.outfile <- paste(path, "data/lmm_fit.rds", sep="/")
 
-  ## analysis on the primary data
-  primary.lmm <- random.effects.model(rnai.screen, "random_effects_model_hits_primary_data")
+rnai.screen <- readRDS(rnai.file)
+fit <- random.effects.model(rnai.screen)
 
-  ## analysis on the combined data-sets
-  dat.combined <- rbindlist(list(rnai.screen, validation.screen))
-  lmm.dat.combined <- knockout::model.data.lmm(dat.combined, weights=list("pooled"=1.5, "single"=1))
-  full.lmm <- random.effects.model(lmm.dat.combined, "random_effects_model_hits_full_data", 0)
+saveRDS(fit, lmm.outfile)
 
-}
