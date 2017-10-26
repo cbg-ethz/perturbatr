@@ -17,7 +17,7 @@ do.lmm <- function(model.data, formulae)
         lmms[[f]] <- lme4::lmer(as.formula(f), data=model.data,
                                 weights=model.data$Weight,
                                 verbose = F, REML = F),
-        error = function(e){ print(paste("Could not fit", f) ) }
+        error = function(e){ print(paste("Could not fit", f, e) ) }
       )
   }
   lmms
@@ -41,26 +41,32 @@ find.best <- function(lmm.fits, method=c("BIC", "logLik"))
 mixed.effects.model.selection.stacking <- function(rnai.screen, model.data, starting.models)
 {
 
-  single.model.strings <- c("Cell", "InfectionType", "ReadoutType", "Design")
+  single.model.strings <- c("Cell", "ScreenType", "ReadoutType", "Design")
   model.formulas <- c(starting.models, paste0(starting.models, " + (1 | ", single.model.strings, ")"))
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm.single <- find.best(lmm.fits)
 
-  dual.model.strings <- expand.grid(single.model.strings, single.model.strings)  %>% apply(1, sort) %>% t %>% as.data.table %>% unique %>% filter(V1 != V2)
+  dual.model.strings <- expand.grid(single.model.strings, single.model.strings)  %>%
+    apply(1, sort) %>% t %>% as.data.table %>%
+    unique %>%
+    dplyr::filter(V1 != V2)
   model.formulas <- c(best.lmm.single$Best,
                       paste0(starting.models, " + (1 | ", dual.model.strings$V1, ") + (1 | ", dual.model.strings$V2, ")"))
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm.double <- find.best(lmm.fits)
 
 
-  triple.model.strings <- expand.grid(single.model.strings, single.model.strings, single.model.strings)  %>% apply(1, sort) %>% t %>% as.data.table %>% unique %>% filter(V1 != V2 & V1 != V3 & V2 != V3)
+  triple.model.strings <- expand.grid(single.model.strings, single.model.strings, single.model.strings)  %>%
+    apply(1, sort) %>% t %>% as.data.table %>%
+    unique %>%
+    dplyr::filter(V1 != V2 & V1 != V3 & V2 != V3)
   model.formulas <- c(best.lmm.double$Best,
                       paste0(starting.models, " + (1 | ", triple.model.strings$V1, ") + (1 | ", triple.model.strings$V2, ") + (1 | " ,   triple.model.strings$V3, ")"))
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm.triple <- find.best(lmm.fits)
 
   model.formulas <- c(best.lmm.triple$Best,
-                      "Readout ~ Virus + (1 | GeneSymbol) + (1 | Cell) +  (1 | Design) +  (1 | InfectionType) + (1 | ReadoutType)")
+                      "Readout ~ Virus + (1 | GeneSymbol) + (1 | Cell) +  (1 | Design) +  (1 | ScreenType) + (1 | ReadoutType)")
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm <- find.best(lmm.fits)
 
@@ -69,26 +75,31 @@ mixed.effects.model.selection.stacking <- function(rnai.screen, model.data, star
 
 mixed.effects.model.selection.aggregating <- function(rnai.screen, model.data, starting.models)
 {
-  single.model.strings <- c("Cell", "InfectionType", "ReadoutType", "Design")
+  single.model.strings <- c("Cell", "ScreenType", "ReadoutType", "Design")
   model.formulas <- c(starting.models,
                       paste0(starting.models,  " + (1 | ", single.model.strings, ")"))
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm.single <- find.best(lmm.fits)
 
-  dual.model.strings <- expand.grid(single.model.strings, single.model.strings)  %>% apply(1, sort) %>% t %>% as.data.table %>% unique %>% filter(V1 != V2)
+  dual.model.strings <- expand.grid(single.model.strings, single.model.strings)  %>%
+    apply(1, sort) %>% t %>%
+    as.data.table %>% unique %>%
+    dplyr::filter(V1 != V2)
   model.formulas <- c(best.lmm.single$Best,
                       paste0(starting.models, " + (1 | ", dual.model.strings$V1, ") + (1 | ", dual.model.strings$V2, ")"))
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm.double <- find.best(lmm.fits)
 
-  triple.model.strings <- expand.grid(single.model.strings, single.model.strings, single.model.strings)  %>% apply(1, sort) %>% t %>% as.data.table %>% unique %>% filter(V1 != V2 & V1 != V3 & V2 != V3)
+  triple.model.strings <- expand.grid(single.model.strings, single.model.strings, single.model.strings)  %>%
+    apply(1, sort) %>% t %>% as.data.table %>% unique %>%
+    dplyr::filter(V1 != V2 & V1 != V3 & V2 != V3)
   model.formulas <- c(best.lmm.double$Best,
                       paste0(starting.models, " + (1 | ", triple.model.strings$V1, ") + (1 | ", triple.model.strings$V2, ") + (1 | " ,   triple.model.strings$V3, ")"))
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm.triple <- find.best(lmm.fits)
 
   model.formulas <- c(best.lmm.triple$Best
-                      , paste0(starting.models, " + (1 | Cell) +  (1 | Design) +  (1 | InfectionType) + (1 | ReadoutType)"))
+                      , paste0(starting.models, " + (1 | Cell) +  (1 | Design) +  (1 | ScreenType) + (1 | ReadoutType)"))
   lmm.fits <- do.lmm(model.data, model.formulas)
   best.lmm <- find.best(lmm.fits)
   best.lmm
@@ -123,8 +134,8 @@ fixed.effects.model.selection.stacking <- function(rnai.screen, model.data, star
       c <- co[j, ]
       mo <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol)")
       mo2 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol)")
-      mo3 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType)")
-      mo4 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | InfectionType )")
+      mo3 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType)")
+      mo4 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | ScreenType )")
       model.formulas <- c(model.formulas, mo, mo2)
     }
   }
@@ -138,23 +149,23 @@ run.model.selection <- function()
 {
   rna.file <- "data/rnai_screen_normalized.rds"
   rnai.screen <- readRDS(rna.file)
-  model.data <- knockout::model.data.lmm(rnai.screen, drop=T)
+  model.data <- knockout::set.lmm.model.data(rnai.screen, drop=T)@.data
 
   # find best LMM
-  starting.models <- c("Readout ~ Virus + (1 | GeneSymbol)", "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol)")
-  best.stacked.model <- mixed.effects.model.selection.stacking(rnai.screen, model.data, starting.models)
+  starting.models       <- c("Readout ~ Virus + (1 | GeneSymbol)", "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol)")
+  best.stacked.model    <- mixed.effects.model.selection.stacking(rnai.screen, model.data, starting.models)
   best.aggregated.model <- mixed.effects.model.selection.aggregating(rnai.screen, model.data, best.stacked.model$Best)
-  best.stacked.model.2 <- mixed.effects.model.selection.stacking(rnai.screen, model.data, best.aggregated.model$Best)
+  best.stacked.model.2  <- mixed.effects.model.selection.stacking(rnai.screen, model.data, best.aggregated.model$Best)
   # the last call gives as result:
-  # "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType)"
+  # "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType)"
   # from here subgrouping random effects can be tested
-  formu <- c("Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType)",
-             "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)")
+  formu <- c("Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType)",
+             "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | Virus:ScreenType)")
   fin <- do.lmm(model.data, formu)
-  # result : take  "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)"
+  # result : take  "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | Virus:ScreenType)"
   lmerTest::anova(fin[[1]], fin[[2]])
-  starting.models <- c("Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType) + (1 | Virus:InfectionType)",
-                       "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | InfectionType)",
+  starting.models <- c("Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | Virus:ScreenType)",
+                       "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType)",
                        "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol)")
   # compare best LMM to
   best.saturated.model <- fixed.effects.model.selection.stacking(rnai.screen, model.data, starting.models)
