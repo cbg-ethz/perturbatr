@@ -1,7 +1,7 @@
-library(data.table)
 library(dtplyr)
 library(dplyr)
 library(tidyr)
+library(data.table)
 library(lme4)
 library(optparse)
 library(knockout)

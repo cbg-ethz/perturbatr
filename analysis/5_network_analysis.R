@@ -7,8 +7,6 @@ library(gridExtra)
 library(xtable)
 library(igraph)
 
-wd <- "/Users/simondi/PROJECTS/sysvirdrug_project/src/util/knockout_svd_pipeline"
-
 # this is the compilation of the data-sets together
 merge.tables <- function()
 {
@@ -71,7 +69,6 @@ sub.graph <- function(diffu)
   gene <- "elk1"
   gene <- "dyrk1b"
   gene <- "pkn3"
-
   gene <- "ssx2ip"
 
   idx <- which(V(diffu@.graph)$name == gene)
@@ -105,74 +102,6 @@ network.propagation <- function(lmm, graph.file, file.name)
 
 }
 
-network.propagation.single.virus.level <- function(lmm.priorit, graph.file, file.name)
-{
-  if (!file.exists(graph.file)) graph.file <- "../../data/svd/mappings/fi_flat.tsv"
-  gene.path <- dplyr::filter(lmm.priorit$fit$gene.pathogen.effects, FDR <= 0.4)
-  gene.called <- do.call("rbind",
-                         lapply(unique(gene.path$Virus), function(e) {
-                           da <- dplyr::filter(gene.path, Virus==e)
-                           diffusion <- knockout::diffuse(da,
-                                                          method="mrw",
-                                                          path=graph.file,
-                                                          r=.8,
-                                                          delete.nodes.on.degree=1)$diffusion %>%
-                             dplyr::select(GeneSymbol, DiffusionEffect)
-
-                           lmm.hits <- dplyr::select(da, GeneSymbol)
-                           genes.not.in.graph <- lmm.hits$GeneSymbol[! da$GeneSymbol %in% diffusion$GeneSymbol]
-                           # add htis found by single screen but not in adj matrix
-                           diff.hits <- rbindlist(list(diffusion,
-                                                       data.table(GeneSymbol=genes.not.in.graph,
-                                                                  DiffusionEffect=rep(1, length(genes.not.in.graph)))))
-
-                           data.table(Virus=e, diff.hits)
-                         }))
-
-  mrw.summ.hits.single <- dplyr::filter(gene.called, DiffusionEffect == 1)
-  mrw.summ.hits.diff   <- dplyr::filter(gene.called, DiffusionEffect != 1) %>%
-    dplyr::group_by(Virus) %>%
-    dplyr::mutate(Q=quantile(DiffusionEffect, probs=.99)) %>%
-    ungroup %>%
-    dplyr::filter(DiffusionEffect >= Q) %>%
-    dplyr::select(-Q) %>%
-    tidyr::spread(Virus, DiffusionEffect) %>%
-    as.data.table
-  # fill up again
-  mrw.summ.hits.diff[is.na(mrw.summ.hits.diff)] <- 0
-  mrw.summ.hits.diff <- tidyr::gather(mrw.summ.hits.diff,
-                                      Virus, DiffusionEffect,
-                                      2:ncol(mrw.summ.hits.diff)) %>%
-    as.data.table
-  setcolorder(mrw.summ.hits.diff, colnames(mrw.summ.hits.single))
-
-  mrw.fin  <- rbindlist(list(mrw.summ.hits.single, mrw.summ.hits.diff))
-
-  found.count <- mrw.fin %>% dplyr::filter(DiffusionEffect != 0) %>%
-    dplyr::group_by(GeneSymbol) %>% dplyr::summarise(n=n())
-
-  found.table <-dplyr::filter(mrw.fin, DiffusionEffect != 0)  %>%
-    dplyr::select(-DiffusionEffect) %>%
-    tidyr::spread(Virus, Virus) %>% as.data.table
-
-  found.agg <- dplyr::group_by(mrw.summ.hits.diff, GeneSymbol) %>%
-    dplyr::summarise(DiffusionEffect=median(DiffusionEffect, na.rm=F))
-
-  diffusion.single.screen.summary <- list(
-    Hits=mrw.fin,
-    FoundCount= found.count,
-    FoundTable=found.table,
-    Aggregate=found.agg)
-
-  re.file  <- paste0("hit_selection/single_pathogen_hit_selection/", file.name)
-  message(paste("Writing random effect model hits to", re.file))
-
-  saveRDS(diffusion.single.screen.summary, paste0(re.file, ".rds"))
-
-  diffusion.single.screen.summary
-
-}
-
 show.diffusion.table <- function(diffusion.hits, label, caption)
 {
   best.overall <- diffusion.hits$diffusion %>%
@@ -200,13 +129,12 @@ show.diffusion.table <- function(diffusion.hits, label, caption)
 
 }
 
-do.diffusion.on.different.data.sets <- function()
-{
-  graph.file <-  paste0(wd, "/mappings/fi_flat.tsv")
 
-  primary.lmm <- readRDS(
-    paste0(wd, "/hit_selection/all_pathogen_hit_selection/lmm_fit_bootstrap_22_5.rds")
-  )
+graph.file <-  paste0(wd, "/mappings/fi_flat.tsv")
+
+primary.lmm <- readRDS(
+  paste0(wd, "/hit_selection/all_pathogen_hit_selection/lmm_fit_bootstrap_22_5.rds")
+)
 
   full.lmm    <- readRDS(
     paste0(wd, "/hit_selection/all_pathogen_hit_selection/2017_3_24/random_effects_model_hits_full_data.rds")
@@ -221,8 +149,4 @@ do.diffusion.on.different.data.sets <- function()
     paste0(wd, "/hit_selection/all_pathogen_hit_selection/diffusion_primary_data_remove_1_diff_02_24_5.rds")
   )
 
-  #primary.diff <- readRDS("hit_selection/all_pathogen_hit_selection/diffusion_primary_data_remove_1_diff_02_24_5.rds")
-  #full.diff    <- readRDS("hit_selection/all_pathogen_hit_selection/diffusion_full_data.rds")
-
-}
 
