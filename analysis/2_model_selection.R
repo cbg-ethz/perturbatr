@@ -1,5 +1,5 @@
-library(data.table)
 library(dtplyr)
+library(data.table)
 library(dplyr)
 library(knockout)
 library(lme4)
@@ -136,7 +136,7 @@ fixed.effects.model.selection.stacking <- function(rnai.screen, model.data, star
 
 run.model.selection <- function()
 {
-  rna.file <- "~/PHD/data/data/svd/integrated_data_files/rnai_screen_normalized.rds"
+  rna.file <- "data/rnai_screen_normalized.rds"
   rnai.screen <- readRDS(rna.file)
   model.data <- knockout::model.data.lmm(rnai.screen, drop=T)
 
