@@ -1,0 +1,217 @@
+---
+title: "Knockout cookbook"
+author: "Simon Dirmeier"
+date: "`r Sys.Date()`"
+output: BiocStyle::html_document2
+bibliography: knockout.bib
+vignette: >
+  %\VignetteIndexEntry{Knockout cookbook}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r style, echo=FALSE, results='asis'}
+  BiocStyle::markdown()
+```
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(echo = TRUE)
+  options(warn = -1)
+  library(data.table)
+  library(dplyr)
+  library(methods)
+  library(knockout)
+  data(rnaiscreen)
+  my.data <- rnaiscreen@.data %>% 
+    dplyr::filter(Virus=="V1") %>%
+    dplyr::select(Replicate, Plate, RowIdx, ColIdx, 
+                  GeneSymbol, Readout, Control, siRNAIDs)
+```
+
+# Introduction
+
+`knockout` does analysis of large-scale gene knockout/knockdown screens.
+ For this several preprocessing and data normalization techniques such as
+ *median-polish* or *quantile-quantile normalization* are implemented.
+ On the normalized data-set essential hits can be prioritized using 
+ state-of-the-art analysis tools, such as *gespeR* or *pmm*. 
+ The resulting hit lists can be further extended using network diffusion 
+ algorithms, such as *Markov random walks with restarts* or the well-known
+ *heat equation*. Eventually hits can be analyses using *GSEA*, etc.
+
+# Tutorial
+
+This tutorial walks you to the basic functionality of `knockout`.
+
+## Creating a raw data-set
+
+You supposedly start with something like a `data.frame`. In order to create a 
+`knockout-data`-set you need to transfrom it into a `data.table` with at least 
+the following columns:
+
+```{r, include=TRUE, size="tiny"}
+  print(my.data)
+```
+
+You can then use your data-set `my.data` and cast it to a `knockout.data` object:
+
+```{r, include=TRUE, eval=TRUE}
+  my.knockout.data <- methods::as(my.data, "knockout.data")
+```
+
+Coercing your `data.table` to `knockout.data` will automatically warn you if 
+your table is formatted wrongly.
+
+## Working with `knockout.data` S4 objects
+
+For objects that inherit the abstract `knockout.data` class, we provide basic 
+`select`, `filter`, `group_by` and `rbind` functionality:
+
+```{r, eval=TRUE, include=TRUE}
+  select(my.knockout.data, GeneSymbol, Readout)
+  rbind(filter(my.knockout.data, Readout > 0),
+        filter(my.knockout.data, Readout < 0))
+```
+
+## Preprocessing
+
+Before starting to work with the data we might just want to have a plain look how many genes and replicates we have. 
+We use one of the provided artificial data-sets for this.
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=3, fig.height=4}
+  data(rnaiscreen)
+  plot(rnaiscreen)
+```
+
+### Quality control plots
+
+Raw image-based screens have usually to be normalized in order to ensure
+comparability between plates. Normalization can be done using the `preprocess` 
+method. Before we do any normalisations we should have a look at quality scores and single plates before:
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4}
+  v1.data         <- knockout::filter(rnaiscreen, Virus == "V1")
+  v1.data.quality <- quality(v1.data)
+  pl              <- plot(v1.data.quality)
+  pl[[2]]
+```
+
+This, surprisingly, does not show any separation, since we use an artificial dataset.
+Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates:
+
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=3}
+  plates <- plates(v1.data)
+  plot(plates[1], show.gene.names=FALSE)
+```
+
+As before, no surprises here. We can also check if two replicates are somewhat similar, by looking
+at Spearman's correlation coefficient.
+
+```{r, eval=TRUE, include=T, fig.align="center", fig.width=3}
+  repls <- replicates(v1.data)
+  plot(repls[1], repls[2])
+```
+
+### Normalisation
+
+The `preprocess` method offers a collection of common techniques to normalize 
+RNAi-screening data. We just call it with the standard parameters, which takes the natural 
+logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  v1.data.norm <- knockout::preprocess(v1.data, normalize=c("log", "robust-z.score"))
+```
+
+The result shouldn't be too different from before since we use artificial data. But for completeness' sake let's do the full analysis. We do the same as
+before (this time w/o plots, though)
+
+```{r, eval=FALSE, include=TRUE}
+  v1.data.norm.quality <- quality(v1.data.norm)
+  pl <- plot(v1.data.norm.quality)
+
+  plates <- plates(v1.data.norm)
+  plot(plates[1], show.gene.names=T, gene.text.size=2)
+
+  repls <- replicates(v1.data.norm)
+  plot(repls[1], repls[2])
+```
+
+The result object has class `knockout.normalized.data` which can be used for analysis.
+
+In the example above we just computed the log and robust Z-scores for every 
+plate separately. Often, when we have for instance information of cell-counts, 
+cell-viability or expect spatial effects due to several batch effects other 
+normalization methods are more suitable. Furthermore when your data-set 
+comprises multiple different screens, you might want to normalize every screen 
+separately.
+
+In this case you would first filter the data-set by single experiments. For our provided 
+filtering by `Virus` and `Screen` results int a single experiment; 
+*for your data this might be different though*.
+
+```{r, eval=TRUE, include=T}
+  v1.dat <- filter(rnaiscreen, Virus=="V1")
+  v2.dat <- filter(rnaiscreen, Virus=="V2")
+```
+
+## Data-analysis
+
+After preprocessing of raw RNAi data, analysis can either be done on the single
+viral level using hypothesis tests or using a maximum 
+likelihood approach.
+
+### Hypothesis testing
+
+Suppose we normalized our data-set and centered the data around zero. One way to find significant genes
+is to use a standard `t-test`:
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width=4}
+  v1.dat <- knockout::filter(rnaiscreen, Virus=="V1")
+  v1.res <- tstatistic(v1.dat)
+  plot(v1.res)
+```
+
+Alternatively you can also use an iterative hyper-geometric test with `hyper.statistic` [@konig2007probability]
+or a test using a <i>Chi-squared</i> distributed test statistic using `chisq.statistic`. We also refer the interested reader to a recent model for hit prioritization using a penalized linear model by [@schmich2015gesper].
+
+### Maximum likelihood inference
+
+If we want to analyse several pathogens add once and detect host factors common to all of those other appraoches might make more sense.
+We can either use again a linear model (`gespeR`) or use a random effects model that separately treats biological effects from different settings called `lmm`.
+We describe the phenotype/readout by a linear combination of fixed effects and random effects (inspired by [@ramo2014simultaneous]) as:
+
+$$y_{vgst} = x_v \beta + \gamma_g  + \delta_{vg} + \zeta_t + \xi_{vt} + \epsilon_{vgst},$$
+where $y_{vgst}$ is the phenotype for a virus $v$, gene $g$, siRNA $s$ and infection type $t$. 
+Since RNAi screens are prone to having large variance, we try to capture as much of the 
+variance using random effects for genes, viruses and the infection types. You call the
+random effects model using:
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
+  res                   <- lmm(rnaiscreen.normalized, effect.size=0.01)
+```
+
+If we `plot` our result we are getting a list three different plots. The most informative one that shows the top 25 pen-pathogenic host factors:
+
+```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=4, warning=FALSE, message=FALSE}
+  pl <- plot(res)
+  print(pl[[1]])
+```
+
+Since our screen had only some few genes, we might want to *smooth* the effect from the random effects model using network diffusion. For that
+we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualisation of the graph and newly detected hits using
+the diffusion. In our example we do not compute the diffusion, because loading the graph takes a lot memory, but go ahead a try yourself:
+
+
+```{r eval=FALSE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
+  graph.file <- system.file("extdata", "graph_file.tsv", package = "knockout")
+  diffu <- diffuse(res, method="mrw", path=graph.file, r=0.1)
+  plot(diffu)
+```
+## Session info
+
+```{r eval=TRUE, include=TRUE}
+  sessionInfo()
+```
+
+## References
+
