@@ -6,7 +6,6 @@ library(lme4)
 library(optparse)
 library(knockout)
 library(ggplot2)
-library(uuid)
 library(hashmap)
 library(ggthemr)
 library(hrbrthemes)
@@ -14,19 +13,6 @@ library(viridis)
 library(cowplot)
 
 ggthemr("fresh", "scientific")
-
-# output directories
-dirs <- c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
-          "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/plots",
-          "/Users/simondi/PROJECTS/sysvirdrug_project/docs/sysvirdrug_modelling_paper/plots"
-)
-
-path <- "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/"
-raw.data.file  <- paste(path, "data/rnai_screen_raw.rds", sep="/")
-norm.data.file <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
-
-raw.dat  <- readRDS(raw.data.file)
-norm.dat <- readRDS(norm.data.file)
 
 plot.data <- function(x)
 {
@@ -55,18 +41,6 @@ plot.data <- function(x)
                    strip.text.x = element_text(size = 14, hjust=.1),
                    strip.text.y = element_text(size = 14),
                    panel.spacing.y = ggplot2::unit(2, "lines"))
-}
-
-pl <- plot.data(norm.dat)
-
-for (d in dirs)
-{
-  ggsave(
-    filename = paste(d, "data_overview.eps", sep = "/"),
-    plot = pl,
-    width = 10,
-    height = 10
-  )
 }
 
 plot.quality <- function(x)
@@ -98,19 +72,41 @@ plot.quality <- function(x)
 
 }
 
-
-pl.raw  <- knockout::filter(raw.dat, Virus=="HCV", Screen=="Kinome") %>% plot.quality
-pl.norm  <- knockout::filter(norm.dat, Virus=="HCV", Screen=="Kinome") %>% plot.quality + ylab("")
-
-pl.gr <- plot_grid(pl.raw, pl.norm, align="h", labels=c("(a)", "(b)"))
-pl.gr
-
-for (d in dirs)
+run <- function()
 {
+
+  path <- "./"
+  out.dir <- "./plots"
+
+  raw.data.file  <- paste(path, "data/rnai_screen_raw.rds", sep="/")
+  norm.data.file <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
+
+  raw.dat  <- readRDS(raw.data.file)
+  norm.dat <- readRDS(norm.data.file)
+
+  pl <- plot.data(norm.dat)
+
+
   ggsave(
-    filename = paste(d, "comparison_plate_readouts.eps", sep = "/"),
+    filename = paste0(out.dir, "/",  "data_overview-", ".eps"),
+    plot = pl,
+    width = 10,
+    height = 10)
+
+  pl.raw  <- knockout::filter(raw.dat, Virus=="HCV", Screen=="Kinome") %>%
+    plot.quality
+  pl.norm  <- knockout::filter(norm.dat, Virus=="HCV", Screen=="Kinome") %>%
+    plot.quality + ylab("")
+
+  pl.gr <- plot_grid(pl.raw, pl.norm, align="h", labels=c("(a)", "(b)"))
+
+  ggsave(
+    filename = paste0(out.dir, "/", "comparison_plate_readouts", ."eps")
     plot = pl.gr,
     width = 12,
     height = 6
   )
+
 }
+
+run()

@@ -1,12 +1,12 @@
-library(data.table)
-library(dtplyr)
+#!/usr/bin/env Rscript
+
 library(dplyr)
+library(data.table)
 library(knockout)
 library(optparse)
 library(igraph)
 library(mvtnorm)
 library(ggplot2)
-library(uuid)
 
 .create.noiseless.data <- function(rep.cnt, virus.cnt, genes.cnt, gene.vcov)
 {
@@ -57,6 +57,7 @@ library(uuid)
   effect.data <- effect.data[rep(1:.N,each=rep.cnt)]
   effect.data$Weight <- 1
   effect.data$Control <- 0
+
   effect.data
 }
 
@@ -144,7 +145,7 @@ analyse <- function(md, file=NULL, graph=NULL)
        pmm.mrw=pmm.mrw, pmm.fit=pmm.effects)
 }
 
-ranking.stability.sythetic <- function(output.path, uid, virs.cnt, rep.cnt, var, gene.cnt=100)
+ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene.cnt=100)
 {
 
   graph           <- .graph(gene.cnt)
@@ -185,13 +186,12 @@ ranking.stability.sythetic <- function(output.path, uid, virs.cnt, rep.cnt, var,
                         "_synthetic_data",
                         "_viruscnt_", virs.cnt,
                         "_repcnt_", rep.cnt,
-                        "_var_", var,
-                        "_", uid,
+                        "_var_", var
                         ".rds")
   saveRDS(bench.list, data.path)
 }
 
-ranking.stability.bio <- function(model.data, graph.file, output.path, uid)
+ranking.stability.bio <- function(model.data, graph.file, output.path)
 {
   bench.list              <- list()
   rank.all.data           <- analyse(model.data, file=graph.file)
@@ -221,11 +221,11 @@ ranking.stability.bio <- function(model.data, graph.file, output.path, uid)
     }
   }
 
-  dat.pth <- paste0(output.path, "/lmm_stability__bio_data_",, ".rds")
+  dat.pth <- paste0(output.path, "/",  "lmm_stability__bio_data_", ".rds")
   saveRDS(bench.list, dat.pth)
 }
 
-run.stability.analysis <- function()
+run <- function()
 {
   option_list <- list(
     make_option(c("-v", "--virus"), action="store", help="virus count", type="integer"),
@@ -256,7 +256,6 @@ run.stability.analysis <- function()
   }
 
   rnai.screen <- readRDS(rna.file)
-  uid <- uuid::UUIDgenerate()
 
   model.data <- dplyr::filter(rnai.screen, Virus != "CVB")
   model.data <- model.data.lmm(model.data,
@@ -264,10 +263,9 @@ run.stability.analysis <- function()
 
   ranking.stability.bio(model.data,
                         graph.file,
-                        output.path, uid)
+                        output.path)
 
   ranking.stability.sythetic(output.path,
-                             uid,
                              virs.cnt=opt$virus,
                              rep.cnt=opt$replicate,
                              var=opt$sig)
@@ -276,4 +274,4 @@ run.stability.analysis <- function()
   print(s)
 }
 
-run.stability.analysis()
+run()

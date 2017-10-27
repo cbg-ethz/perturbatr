@@ -1,4 +1,5 @@
-library(dtplyr)
+#!/usr/bin/env Rscript
+
 library(dplyr)
 library(tidyr)
 library(data.table)
@@ -6,7 +7,6 @@ library(lme4)
 library(optparse)
 library(knockout)
 library(ggplot2)
-library(uuid)
 library(hashmap)
 library(ggthemr)
 library(hrbrthemes)
@@ -17,8 +17,6 @@ library(cowplot)
 ggthemr("fresh", "scientific")
 
 jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) }
-
-###############################################################################
 
 .rank.lmm.benchmark.pair <- function(cur.dat, len.ben, true.ranks, grp, i)
 {
@@ -102,12 +100,8 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
   bootstrap.data
 }
 
-rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix, legend=TRUE)
+rank.lmm.bio <- function(fls.bio, ranking.file.prefix, out.dir)
 {
-
-  ranking.table <- paste0(ranking.file.prefix, "_table.rds")
-  plt <- paste0(ranking.file.prefix, "_plot.rds")
-
   stab           <- readRDS(fls.bio)
   true.ranks      <- stab$full
   bootstrap.data <- rbindlist(
@@ -156,6 +150,9 @@ rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix, legend=TRUE)
         )
       }
     }
+
+    ranking.table <- paste0(ranking.file.prefix, "_table.rds")
+
     saveRDS(df, ranking.table)
   }
 
@@ -186,28 +183,11 @@ rank.lmm.bio <- function(fls.bio, out.file, ranking.file.prefix, legend=TRUE)
     xlab("Number of genes") +
     ylab("Score") +
     guides(fill=guide_legend("Score"))
-  if (!legend)
-    p <- p + guides(fill=FALSE)
-
-
-  for (d in dirs)
-  {
-    ggsave(
-      filename = paste(d, out.file, sep = "/"),
-      plot = p,
-      width = 8,
-      height = 8
-    )
-  }
-
-  saveRDS(p, file=plt)
-
   p
 }
 
-rank.lmm.syn <- function(fls.stn, out.file, ranking.file.prefix, legend=TRUE)
+rank.lmm.syn <- function(fls.stn, ranking.file.prefix, out.dir)
 {
-
   ranking.table <- paste0(ranking.file.prefix, "_table.rds")
   plt <- paste0(ranking.file.prefix, "_plot.rds")
 
@@ -284,66 +264,42 @@ rank.lmm.syn <- function(fls.stn, out.file, ranking.file.prefix, legend=TRUE)
     xlab("Number of genes") +
     ylab("Score") +
     guides(fill=guide_legend("Score"))
-  if (!legend)
-    p <- p + guides(fill=FALSE)
-
-
-  for (d in dirs)
-  {
-    ggsave(
-      filename = paste(d, out.file, sep = "/"),
-      plot = p,
-      width = 8,
-      height = 8
-    )
-  }
-
-  saveRDS(p, file=plt)
 
   p
 }
 
-###############################################################################
-
-# output directories
-dirs <- c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
-          "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/plots",
-          "/Users/simondi/PROJECTS/sysvirdrug_project/docs/sysvirdrug_modelling_paper/plots"
-)
-
-# files to process
-fls <-
-  list.files(
-    "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/paper_rds/",
-    full.names = T
-)
-
-fls.bio <- grep("lmm_stability__bio", fls, value = T)
-fls.stn <- grep("lmm_stability__synthetic", fls, value = T)
-
-p.bio <- rank.lmm.bio(fls.bio,
-                  "stability_bio_data.eps",
-                  "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/paper_rds/lmm_stability_selection_bio_ranking", legend=TRUE)
-p.syn <- rank.lmm.syn(fls.stn,
-             "stability_syn_data.eps",
-             "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_stability_selection/paper_rds/lmm_stability_selection_syn_ranking", legend=TRUE)
-
-
-leg <- get_legend(p.bio + theme(legend.position="bottom"))
-prow <- plot_grid(p.syn + theme(legend.position="none") + labs(subtitle="Synthetic data benchmark"),
-                  p.bio + theme(legend.position="none") + labs(subtitle="Biological data benchmark"),
-                  align = 'h',
-                  labels = c("(a)", "(b)"),
-                  hjust = -1,
-                  nrow = 1)
-pl <- plot_grid(prow, leg, ncol=1, rel_heights= c(10, .5))
-pl
-for (d in dirs)
+run <- function()
 {
+
+  path <- "./data"
+  out.dir <- "./plots"
+
+  # files to process
+  fls <- list.files(path,full.names = T)
+
+  fls.bio <- grep("lmm_stability__bio", fls, value = T)
+  fls.stn <- grep("lmm_stability__synthetic", fls, value = T)
+
+  p.bio <- rank.lmm.bio(
+    fls.bio, "lmm_stability_selection_bio_ranking")
+  p.syn <- rank.lmm.syn(
+    fls.stn, "lmm_stability_selection_syn_ranking")
+
+  leg <- get_legend(p.bio + theme(legend.position="bottom"))
+  prow <- plot_grid(p.syn + theme(legend.position="none") + labs(subtitle="Synthetic data benchmark"),
+                    p.bio + theme(legend.position="none") + labs(subtitle="Biological data benchmark"),
+                    align = 'h',
+                    labels = c("(a)", "(b)"),
+                    hjust = -1,
+                    nrow = 1)
+  pl <- plot_grid(prow, leg, ncol=1, rel_heights= c(10, .5))
+
   ggsave(
-    filename = paste(d, "stability_analysis_combined_plot.eps", sep = "/"),
+    filename = paste0(out.dir, "/", "stability_analysis_combined_plot", ".eps"),
     plot = pl,
     width = 14,
-    height = 8
-  )
+    height = 8)
 }
+
+
+run()

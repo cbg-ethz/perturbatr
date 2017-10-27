@@ -1,12 +1,13 @@
-library(data.table)
-library(dtplyr)
+#!/usr/bin/env Rscript
+
 library(dplyr)
+library(dtplyr)
+library(data.table)
 library(tidyr)
 library(lme4)
 library(optparse)
 library(knockout)
 library(ggplot2)
-library(uuid)
 
 .create.noiseless.data <- function(rep.cnt, virus.cnt, mean)
 {
@@ -145,8 +146,7 @@ mse <- function(cv.test, fits)
   list(data=df, models=models)
 }
 
-
-benchmark.syn.predictability <- function(output.path, uid, virs.cnt, var, rep.cnt)
+benchmark.syn.predictability <- function(output.path, virs.cnt, var, rep.cnt)
 {
   for (m in c(0.5, 1 ,2))
   {
@@ -182,19 +182,19 @@ benchmark.syn.predictability <- function(output.path, uid, virs.cnt, var, rep.cn
       }
     }
 
-    data.path   <- paste0(output.path, "/lmm_predictability_",
-                          "_synthetic_data",
-                          "_viruscnt_", virs.cnt,
-                          "_repcnt_", rep.cnt,
-                          "_var_", var,
-                          "_genemean_", m,
-                          "_", uid,
-                          ".rds")
-    saveRDS(list(benchmark=bench.list, data=noisy.data), data.path)
+    out.file <- paste0(out.path, "/", "lmm_predictability",
+                        "_synthetic_data",
+                        "_viruscnt_", virs.cnt,
+                        "_repcnt_", rep.cnt,
+                        "_var_", var,
+                        "_genemean_", m,
+                        ".rds")
+
+    saveRDS(list(benchmark=bench.list, data=noisy.data), out.file)
   }
 }
 
-benchmark.bio.predictability <- function(model.data, output.path, uid)
+benchmark.bio.predictability <- function(model.data, output.path)
 {
   print("Doing bio!")
   df.cv       <- .cv.validate(model.data)
@@ -221,47 +221,45 @@ benchmark.bio.predictability <- function(model.data, output.path, uid)
                             data=model.data)
   }
 
-  brplotdat.pth   <- paste0(output.path, "/lmm_predictability_bio_data_", uid ,".rds")
-  saveRDS(bench.list, brplotdat.pth)
+  out.file <- paste0(out.path, "/",
+                     "lmm_predictability_bio_data",
+                     ".rds")
+
+  saveRDS(bench.list, out.file)
 }
 
-run.predictive.model <- function()
+run <- function()
 {
+  path <- "./data"
+  out.dir <-  "./data"
 
   option_list <- list(
-    make_option(c("-v", "--virus"), action="store", help="virus count", type="integer"),
-    make_option(c("-r", "--replicate"), action="store", help="replicate count", type="integer"),
-    make_option(c("-s", "--sig"), action="store", help="standard deviation", type="integer"))
+    make_option(c("-v", "--virus"), action="store",
+                help="virus count", type="integer"),
+    make_option(c("-r", "--replicate"), action="store",
+                help="replicate count", type="integer"),
+    make_option(c("-s", "--sig"), action="store",
+                help="standard deviation", type="integer"))
   opt_parser <- OptionParser(option_list=option_list)
   opt        <- parse_args(opt_parser)
-  if (is.null(opt$virus) || is.null(opt$sig) || is.null(opt$replicate)) {
+
+  if (is.null(opt$virus) || is.null(opt$sig) || is.null(opt$replicate))
+  {
     print_help(opt_parser)
     stop("Please provide correct arguments")
   }
 
-  rna.file <- "./integrated_data_files/rnai_screen_normalized.rds"
-  if (!file.exists(rna.file))
-  {
-    rna.file <- "/cluster/home/simondi/simondi/svd/data/rnai_screen_normalized.rds"
-  }
-  output.path <- "./results/lmm_predictability_analysis/"
-  if (!file.exists(output.path))
-  {
-    output.path <- "/cluster/home/simondi/simondi/svd/results/lmm_predictability_analysis/"
-  }
-
+  rna.file    <- paste(path,  "rnai_screen_normalized.rds", sep="/")
   rnai.screen <- readRDS(rna.file)
-  uid         <- uuid::UUIDgenerate()
 
-  model.data <- dplyr::filter(rnai.screen, Virus != "CVB")
-  model.data <- model.data.lmm(model.data, weights=list("pooled"=1.5, "single"=1))
-  benchmark.bio.predictability(model.data, output.path, uid)
+  model.data  <- knockout::set.lmm.model.data(
+    rnai.screen, weights=list("pooled"=1.5, "single"=1))
 
-  benchmark.syn.predictability(output.path, uid, opt$virus, opt$sig, opt$replicate)
+  benchmark.bio.predictability(model.data, out.dir)
+  benchmark.syn.predictability(out.dir, opt$virus, opt$sig, opt$replicate)
 
   s <- warnings()
   print(s)
 }
 
-run.predictive.model()
-
+run()

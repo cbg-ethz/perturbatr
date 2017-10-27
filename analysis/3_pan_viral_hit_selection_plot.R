@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 
 library(dtplyr)
 library(dplyr)
@@ -6,19 +7,8 @@ library(lme4)
 library(optparse)
 library(knockout)
 library(ggplot2)
-library(uuid)
 library(hashmap)
 library(hrbrthemes)
-
-# output directories
-dirs <- c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
-          "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/plots",
-          "/Users/simondi/PROJECTS/sysvirdrug_project/docs/sysvirdrug_modelling_paper/plots"
-)
-
-path <- "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/"
-data.file     <- paste(path, "data/lmm_fit.rds", sep="/")
-fit <- readRDS(data.file)
 
 
 plot.gene.effects  <- function(x)
@@ -108,28 +98,28 @@ plot.gene.virus.effects <- function(x)
 
 pl <- plot.gene.effects(fit$fit@.gene.effects)
 
-pl
-
-for (d in dirs)
+run <- function()
 {
+  path <- "./"
+  out.dir <-  "./plots"
+
+  data.file     <- paste(path, "data/lmm_fit.rds", sep="/")
+  fit <- readRDS(data.file)
+
+  pl <- plot.gene.effects(fit$fit@.gene.effects)
+
   ggsave(
-    filename = paste(d, "gene_effects.eps", sep = "/"),
+    filename = paste0(out.dir, "/", "gene_effects", ".eps"),
     plot = pl,
     width = 6,
-    height = 8
-  )
-}
+    height = 8)
 
-pl <- plot.gene.virus.effects(fit$fit)
+  pl <- plot.gene.virus.effects(fit$fit)
 
-pl
-
-for (d in dirs)
-{
   ggsave(
-    filename = paste(d, "effect_matrix.eps", sep = "/"),
+    filename = paste0(out.dir, "/", "effect_matrix", ".eps")
     plot = pl,
     width = 8,
-    height = 8
-  )
+    height = 8)
+
 }

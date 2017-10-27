@@ -1,19 +1,20 @@
-library(data.table)
-library(dtplyr)
+#!/usr/bin/env Rscript
+
 library(dplyr)
+library(data.table)
 library(tidyr)
 library(lme4)
 library(optparse)
 library(knockout)
 library(ggplot2)
 library(uuid)
+library(lubridate)
 library(ggthemr)
 library(hrbrthemes)
 library(viridis)
 library(cowplot)
 
 ggthemr("fresh", "scientific")
-
 
 jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) }
 
@@ -50,17 +51,6 @@ bio.pred <- function(fls.bio)
           text = ggplot2::element_text(size = 20),
           strip.text.y = element_text(size = 14)) +
     ylab("Mean residual sum of squares")
-
-
-  for (d in dirs)
-  {
-    ggplot2::ggsave(
-      plot=p,
-      filename=paste(d, "predictability_bio_data_only_cv.eps", sep = "/"),
-      width = 8,
-      height = 8
-    )
-  }
 
   p
 
@@ -119,56 +109,38 @@ syn.pred <- function(fls.stn)
             strip.text.y = element_text(size = 14)) +
       ylab("Mean residual sum of squares")
 
-    for (d in dirs)
-    {
-      ggsave(
-        filename=paste(d, "predictability_syn_data_virus_4_replicate_8_genemean_05.eps", sep = "/"),
-        plot=p,
-        width = 8,
-        height = 8
-      )
-    }
-
     p
-
 }
 
-###############################################################################
-
-
-dirs <-
-  c("/Users/simondi/PROJECTS/sysvirdrug_project/results/plots",
-    "/Users/simondi/PROJECTS/sysvirdrug_project/docs/sysvirdrug_modelling_paper/plots"
-  )
-
-fls <- list.files(
-  "/Users/simondi/PROJECTS/sysvirdrug_project/results/lmm_predictability_analysis/paper_rds/",
-    full.names = T
-)
-
-fls.bio <- grep("lmm_predictability_bio", fls, value = T)
-fls.stn <- grep("lmm_predictability__synthetic.*0.5.*", fls, value = T)
-
-
-p.bio <- bio.pred(fls.bio)
-p.syn <- syn.pred(fls.stn)
-
-leg <- get_legend(p.bio + theme(legend.position="bottom"))
-prow <- plot_grid(p.syn + theme(legend.position="none") + labs(subtitle="Synthetic data benchmark"),
-                  p.bio + theme(legend.position="none") + labs(subtitle="Biological data benchmark"),
-                  align = 'h',
-                  labels = c("(a)", "(b)"),
-                  hjust = -1,
-                  nrow = 1)
-pl <- plot_grid(prow, leg, ncol=1,  rel_heights= c(10, .5))
-pl
-
-for (d in dirs)
+run <- function()
 {
+  path <- "./data"
+  out.dir <-  "./data"
+
+  fls <- list.files(path, full.names = T)
+  fls.bio <- grep("lmm_predictability_bio", fls, value = T)
+  fls.stn <- grep("lmm_predictability__synthetic.*0.5.*", fls, value = T)
+
+  p.bio <- bio.pred(fls.bio)
+  p.syn <- syn.pred(fls.stn)
+
+  leg <- get_legend(p.bio + theme(legend.position="bottom"))
+  prow <- plot_grid(p.syn + theme(legend.position="none") +
+                      labs(subtitle="Synthetic data benchmark"),
+                    p.bio + theme(legend.position="none") +
+                      labs(subtitle="Biological data benchmark"),
+                    align = 'h',
+                    labels = c("(a)", "(b)"),
+                    hjust = -1,
+                    nrow = 1)
+  pl <- plot_grid(prow, leg, ncol=1,  rel_heights= c(10, .5))
+  pl
+
   ggsave(
-    filename = paste(d, "predictability_analysis_combined_plot.eps", sep = "/"),
+    filename = paste0(out.dir, "/", lubridate::today(), "-predictability_analysis_combined_plot-", UUIDgenerate(), ."eps"),
     plot = pl,
     width = 12,
-    height = 8
-  )
+    height = 8)
 }
+
+run()
