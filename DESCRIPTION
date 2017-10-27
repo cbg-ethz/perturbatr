@@ -1,11 +1,11 @@
-Package: knockout
+Package: knockdown
 Type: Package
-Title: Analysis of high-throughput gene perturbation screens
+Title: Analysis of high-throughput RNAi gene perturbation screens
 Version: 0.99.0
 Date: 2015-12-10
 Authors@R: person("Simon", "Dirmeier",
     email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
-Description: knockout does analysis of large-scale RNAi interference screens
+Description: knockdown does analysis of large-scale RNAi interference screens
   for pan-pathogenic datasets. The package provides various tools for
   normalisation, plotting and analysis. For single pathogen screens classical
   analyses using hypothesis testing are implemented. For pan-pathogenic
@@ -41,11 +41,7 @@ Imports:
     stats,
     grid,
     utils,
-    graphics,
-    ggthemr,
-    hrbrthemes,
-    viridis,
-    cowplot
+    graphics
 biocViews: Regression, Normalization, Preprocessing, CellBasedAssays, Network
 Suggests:
     testthat,
