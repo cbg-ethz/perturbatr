@@ -1,4 +1,4 @@
-# knockout <img src="https://cdn.rawgit.com/cbg-ethz/knockdown/0eff2573/inst/figure/sticker.svg" align="right" width="160px"/>
+# knockdown <img src="https://rawgit.com/cbg-ethz/knockdown/master/inst/figure/sticker.png" align="right" width="160px"/>
 
 [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![Build Status](https://travis-ci.org/cbg-ethz/knockdown.svg?branch=master)](https://travis-ci.org/cbg-ethz/knockdown)
@@ -23,10 +23,6 @@ Download the latest `knockdown` release and install the package using:
   R CMD install <knockdown.tar.gz>
 ```
 where `knockdown.tar.gz` is the downloaded tarball.
-
-## Usage
-
-Load the package using `library(knockdown)`. We provide a vignette for the package that can be called using: `vignette("knockdown")`. Basically that is all you have to know.
 
 ## Author
 
