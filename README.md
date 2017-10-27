@@ -1,32 +1,32 @@
-# knockout <img src="https://cdn.rawgit.com/cbg-ethz/knockout/0eff2573/inst/figure/sticker.svg" align="right" width="160px"/>
+# knockout <img src="https://cdn.rawgit.com/cbg-ethz/knockdown/0eff2573/inst/figure/sticker.svg" align="right" width="160px"/>
 
 [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Build Status](https://travis-ci.org/cbg-ethz/knockout.svg?branch=master)](https://travis-ci.org/cbg-ethz/knockout)
-[![codecov](https://codecov.io/gh/cbg-ethz/knockout/branch/master/graph/badge.svg)](https://codecov.io/gh/cbg-ethz/knockout)
+[![Build Status](https://travis-ci.org/cbg-ethz/knockdown.svg?branch=master)](https://travis-ci.org/cbg-ethz/knockdown)
+[![codecov](https://codecov.io/gh/cbg-ethz/knockdown/branch/master/graph/badge.svg)](https://codecov.io/gh/cbg-ethz/knockdown)
 
 Analysis of high-throughput gene perturbation screens in R.
 
 ## Introduction
 
-`knockout` does analysis of large-scale RNAi interference screens for pan-pathogenic datasets.
+`knockdown` does analysis of large-scale RNAi interference screens for pan-pathogenic datasets.
 The package provides various tools for normalisation, plotting and analysis. For single pathogen
-screens classical analyses using hypothesis testing are implemented. For pan-pathogenic 
+screens classical analyses using hypothesis testing are implemented. For pan-pathogenic
 screens we developed a random effects model that exploits the different biological settings
-the data are derived from. The resulting hit lists can be further extended using network diffusion 
+the data are derived from. The resulting hit lists can be further extended using network diffusion
 algorithms, such as *Markov random walks with restarts*.
 
 ## Installation
- 
-Download the latest `knockout` release and install the package using:
+
+Download the latest `knockdown` release and install the package using:
 
 ```bash
-  R CMD install <knockout.tar.gz>
+  R CMD install <knockdown.tar.gz>
 ```
-where `knockout.tar.gz` is the downloaded tarball.
+where `knockdown.tar.gz` is the downloaded tarball.
 
 ## Usage
 
-Load the package using `library(knockout)`. We provide a vignette for the package that can be called using: `vignette("knockout")`. Basically that is all you have to know.
+Load the package using `library(knockdown)`. We provide a vignette for the package that can be called using: `vignette("knockdown")`. Basically that is all you have to know.
 
 ## Author
 
