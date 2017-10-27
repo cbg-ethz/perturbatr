@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 
-library(data.table)
 library(dtplyr)
 library(dplyr)
+library(data.table)
 library(knockout)
 
 normalize.chikv.kinome <- function(rnai.screen.raw)
@@ -107,15 +107,21 @@ normalize <- function(rnai.screen.raw)
   rnai.screen
 }
 
-path <- "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/"
-outfile     <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
+run <- function()
+{
 
-rnai.screen.raw <- readRDS(
-  paste(path, "data/rnai_screen_raw.rds", sep="/")
-)
+  path    <- "./"
+  outdir <- "./data"
+  outfile <- paste0(out.dir, "/", "rnai_screen_normalized-", ".rds")
 
-rnai.screen <- normalize(rnai.screen.raw)
 
-message(paste0("Wrinting normalized data to ", outfile))
-saveRDS(rnai.screen, outfile)
-rnai.screen <- readRDS(outfile)
+  rnai.screen.raw <- readRDS(
+    paste(path, "data/rnai_screen_raw.rds", sep="/")
+  )
+
+  rnai.screen <- normalize(rnai.screen.raw)
+
+  saveRDS(rnai.screen, outfile)
+}
+
+run()

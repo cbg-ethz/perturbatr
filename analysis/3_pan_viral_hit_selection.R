@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 library(data.table)
 library(dtplyr)
 library(dplyr)
@@ -7,7 +9,6 @@ library(xtable)
 
 .random.effects.model <- function(dat, bootstrap=10)
 {
-  model.form <- "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | Virus:ScreenType)"
   lmm.fit     <- knockout::lmm(obj=dat,
                                bootstrap.cnt=bootstrap,
                                drop=T,
@@ -32,12 +33,14 @@ random.effects.model <- function(rnai.screen, boo=0)
 }
 
 
-path        <- "/Users/simondi/PROJECTS/sysvirdrug_project/src/package/analysis/"
-rnai.file   <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
-lmm.outfile <- paste(path, "data/lmm_fit.rds", sep="/")
+run <- function()
+{
+  path        <- "./"
+  rnai.file   <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
+  lmm.outfile  <- paste0(path, "/", "lmm_fit", ".rds")
 
-rnai.screen <- readRDS(rnai.file)
-fit <- random.effects.model(rnai.screen)
+  rnai.screen <- readRDS(rnai.file)
+  fit <- random.effects.model(rnai.screen)
 
-saveRDS(fit, lmm.outfile)
-
+  saveRDS(fit, lmm.outfile)
+}

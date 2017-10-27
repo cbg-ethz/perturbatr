@@ -1,12 +1,14 @@
+#!/usr/bin/env Rscript
+
+library(dplyr)
 library(dtplyr)
 library(data.table)
-library(dplyr)
 library(knockout)
 library(lme4)
 library(utils)
 library(tidyr)
 library(formula.tools)
-rm(list=ls())
+options(warn=-1)
 
 do.lmm <- function(model.data, formulae)
 {
@@ -38,7 +40,8 @@ find.best <- function(lmm.fits, method=c("BIC", "logLik"))
   l
 }
 
-mixed.effects.model.selection.stacking <- function(rnai.screen, model.data, starting.models)
+mixed.effects.model.selection.stacking <- function(
+  rnai.screen, model.data, starting.models)
 {
 
   single.model.strings <- c("Cell", "ScreenType", "ReadoutType", "Design")
@@ -73,7 +76,8 @@ mixed.effects.model.selection.stacking <- function(rnai.screen, model.data, star
   best.lmm
 }
 
-mixed.effects.model.selection.aggregating <- function(rnai.screen, model.data, starting.models)
+mixed.effects.model.selection.aggregating <- function(
+  rnai.screen, model.data, starting.models)
 {
   single.model.strings <- c("Cell", "ScreenType", "ReadoutType", "Design")
   model.formulas <- c(starting.models,
@@ -105,7 +109,8 @@ mixed.effects.model.selection.aggregating <- function(rnai.screen, model.data, s
   best.lmm
 }
 
-fixed.effects.model.selection.stacking <- function(rnai.screen, model.data, starting.models)
+fixed.effects.model.selection.stacking <- function(
+  rnai.screen, model.data, starting.models)
 {
 
   single.model.strings <- c("Cell", "ReadoutType", "Design")
@@ -145,7 +150,7 @@ fixed.effects.model.selection.stacking <- function(rnai.screen, model.data, star
   best.lmm
 }
 
-run.model.selection <- function()
+run <- function()
 {
   rna.file <- "data/rnai_screen_normalized.rds"
   rnai.screen <- readRDS(rna.file)
@@ -156,6 +161,7 @@ run.model.selection <- function()
   best.stacked.model    <- mixed.effects.model.selection.stacking(rnai.screen, model.data, starting.models)
   best.aggregated.model <- mixed.effects.model.selection.aggregating(rnai.screen, model.data, best.stacked.model$Best)
   best.stacked.model.2  <- mixed.effects.model.selection.stacking(rnai.screen, model.data, best.aggregated.model$Best)
+  print(best.stacked.model.2)
   # the last call gives as result:
   # "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType)"
   # from here subgrouping random effects can be tested
@@ -171,3 +177,5 @@ run.model.selection <- function()
   best.saturated.model <- fixed.effects.model.selection.stacking(rnai.screen, model.data, starting.models)
   cat(paste("Best model:", best.saturated.model$Best))
 }
+
+run()
