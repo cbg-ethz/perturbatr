@@ -3,19 +3,19 @@
 \docType{methods}
 \name{lmm}
 \alias{lmm}
-\alias{lmm,knockout.normalized.data-method}
-\alias{lmm,knockout.lmm.data-method}
+\alias{lmm,knockdown.normalized.data-method}
+\alias{lmm,knockdown.lmm.data-method}
 \title{Fit an LMM to the data and calculate local false discovery rates.}
 \usage{
 lmm(obj, drop = TRUE, weights = NULL, rel.mat.path = NULL,
   bootstrap.cnt = 0, ignore = 1, effect.size = 0.05,
   qval.threshold = 0.2)
 
-\S4method{lmm}{knockout.normalized.data}(obj, drop = TRUE, weights = NULL,
+\S4method{lmm}{knockdown.normalized.data}(obj, drop = TRUE, weights = NULL,
   rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
   effect.size = 0.05, qval.threshold = 0.2)
 
-\S4method{lmm}{knockout.lmm.data}(obj, drop = TRUE, weights = NULL,
+\S4method{lmm}{knockdown.lmm.data}(obj, drop = TRUE, weights = NULL,
   rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
   effect.size = 0.01, qval.threshold = 0.2)
 }
@@ -41,7 +41,7 @@ to estimate a significance level for the gene effects}
 if bootstrap.cnt is set}
 }
 \value{
-returns a \code{knockout.lmm.analysed} object
+returns a \code{knockdown.lmm.analysed} object
 }
 \description{
 \code{lmm} TODO

@@ -50,13 +50,13 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'util_enums.R'
-    'class_knockout_analysed.R'
-    'class_knockout_data.R'
-    'class_knockout_plates.R'
-    'class_knockout_quality.R'
-    'class_knockout_replicates.R'
+    'class_knockdown_analysed.R'
+    'class_knockdown_data.R'
+    'class_knockdown_plates.R'
+    'class_knockdown_quality.R'
+    'class_knockdown_replicates.R'
     'class_methods.R'
     'data.R'
     'inference_chisqstatistic.R'
@@ -69,11 +69,10 @@ Collate:
     'inference_lmm_fdr_gpe.R'
     'inference_lmm_model_data.R'
     'inference_tstatistic.R'
-    'knockout_package.R'
+    'knockdown_package.R'
     'methods_combine.R'
     'methods_filter.R'
     'methods_plates.R'
-    'methods_print.R'
     'methods_quality.R'
     'methods_replicates.R'
     'methods_select.R'

@@ -20,7 +20,7 @@ be dropped}
 \item{rel.mat.path}{target-relation matrix (TODO)}
 }
 \value{
-returns an \code{knockout.lmm.data} object
+returns an \code{knockdown.lmm.data} object
 }
 \description{
 Create model data for an LMM

@@ -3,7 +3,7 @@
 \docType{methods}
 \name{preprocess}
 \alias{preprocess}
-\alias{preprocess,knockout.raw.data-method}
+\alias{preprocess,knockdown.raw.data-method}
 \title{Pre-processing routine for data normalization, summarization and removal
 of low viability siRNAs.}
 \usage{
@@ -15,7 +15,7 @@ preprocess(obj, normalize = c("log", "robust-z.score"),
   outlier.well.range = c(0.05, 0.95), summarization = c("mean", "median"),
   drop = TRUE)
 
-\S4method{preprocess}{knockout.raw.data}(obj, normalize = c("log",
+\S4method{preprocess}{knockdown.raw.data}(obj, normalize = c("log",
   "robust-z.score"), normalize.viability = FALSE, rm.cytotoxic = NULL,
   rm.outlier.wells = c("none", "quantile", "absolute"),
   z.score.level = c("plate", "control"), z.score.mu = "scrambled",
@@ -71,7 +71,7 @@ testet (e.g. \emph{Scrambled} or \emph{PIK3CA}), etc.}
 kept (e.g. if you want to check whether all worked out correctly)}
 }
 \value{
-returns a \code{knockout.normalized.data} object
+returns a \code{knockdown.normalized.data} object
 }
 \description{
 \code{preproces} normalizes the data for comparable phenotypes.
