@@ -238,8 +238,11 @@ plot.knockdown.quality <- function(x, axis.text.size=12, ...)
   }
 
   # plot positive control and negative control values
-  qual <- x@.data
-  df   <- dplyr::mutate(qual, Plate=grps) %>%
+  df <- x@.data %>%
+    dplyr::group_by(Virus, Screen, Library, Cell, Design,
+                    ScreenType, ReadoutType, Replicate, Plate) %>%
+    dplyr::mutate(Plate = .GRP) %>%
+    ungroup %>%
     dplyr::select(Readout, Virus, Screen, Plate, Control) %>%
     dplyr::filter(!is.na(Control), Control != 0) %>%
     dplyr::group_by(Virus, Screen, Plate, Control) %>%
