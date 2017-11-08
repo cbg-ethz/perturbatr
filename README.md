@@ -24,6 +24,10 @@ Download the latest `knockdown` release and install the package using:
 ```
 where `knockdown.tar.gz` is the downloaded tarball.
 
+## Documentation
+
+Load the package using `library(knockdown)`. We provide a vignette for the package that can be called using: `vignette("knockdown")`.
+
 ## Author
 
 * Simon Dirmeier <a href="mailto:simon.dirmeier@bsse.ethz.ch">simon.dirmeier@bsse.ethz.ch</a>

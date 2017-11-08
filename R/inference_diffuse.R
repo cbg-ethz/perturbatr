@@ -1,26 +1,26 @@
-# knockout: analysis of high-throughput gene perturbation screens
+# knockdown: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
 #
-# This file is part of knockout
+# This file is part of knockdown
 #
-# knockout is free software: you can redistribute it and/or modify
+# knockdown is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockout is distributed in the hope that it will be useful,
+# knockdown is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockout. If not, see <http://www.gnu.org/licenses/>.
+# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 
 #' @include util_enums.R
-#' @include class_knockout_data.R
-#' @include class_knockout_analysed.R
+#' @include class_knockdown_data.R
+#' @include class_knockdown_analysed.R
 
 #' @title Smooth the results from an analysis using network diffusion
 #'
@@ -54,14 +54,14 @@
 #'  bootstrap samples are available
 #' @param ...  additional parameters
 #'
-#' @return returns a \code{knockout.diffusion.analysed} object
+#' @return returns a \code{knockdown.diffusion.analysed} object
 #'
 #' @examples
 #' #load some data
 #' data(rnaiscreen)
 #' rnai.norm <- preprocess(rnaiscreen)
 #' lmm.fit <- lmm(rnai.norm)
-#' graph.file <- system.file("extdata", "graph_file.tsv", package="knockout")
+#' graph.file <- system.file("extdata", "graph_file.tsv", package="knockdown")
 #'
 #' # do the diffusion using nearest neighbors
 #' diff.knn <- diffuse(lmm.fit, method="k",
@@ -83,16 +83,16 @@ setGeneric(
   {
     standardGeneric("diffuse")
   },
-  package="knockout"
+  package="knockdown"
 )
 
 #' @rdname diffuse-methods
-#' @aliases diffuse,knockout.lmm.analysed-method
+#' @aliases diffuse,knockdown.lmm.analysed-method
 #' @import data.table
 #' @importFrom dplyr select filter
 setMethod(
   "diffuse",
-  signature=signature(obj="knockout.lmm.analysed"),
+  signature=signature(obj="knockdown.lmm.analysed"),
   function(obj,
            method=c("knn", "mrw"),
            path=NULL,

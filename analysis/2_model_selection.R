@@ -3,7 +3,7 @@
 library(dplyr)
 library(dtplyr)
 library(data.table)
-library(knockout)
+library(knockdown)
 library(lme4)
 library(utils)
 library(tidyr)
@@ -154,7 +154,7 @@ run <- function()
 {
   rna.file <- "data/rnai_screen_normalized.rds"
   rnai.screen <- readRDS(rna.file)
-  model.data <- knockout::set.lmm.model.data(rnai.screen, drop=T)@.data
+  model.data <- knockdown::set.lmm.model.data(rnai.screen, drop=T)@.data
 
   # find best LMM
   starting.models       <- c("Readout ~ Virus + (1 | GeneSymbol)", "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol)")

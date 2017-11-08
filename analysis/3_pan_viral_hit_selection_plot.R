@@ -5,7 +5,7 @@ library(dplyr)
 library(tidyr)
 library(lme4)
 library(optparse)
-library(knockout)
+library(knockdown)
 library(ggplot2)
 library(hashmap)
 library(hrbrthemes)
@@ -57,7 +57,7 @@ plot.gene.effects  <- function(x)
 plot.gene.virus.effects <- function(x)
 {
 
-  effect.matrices <- knockout:::.effect.matrices(x)
+  effect.matrices <- knockdown:::.effect.matrices(x)
   ge <- effect.matrices$gene.effects %>%
     .[order(-abs(Effect))]  %>%
     .[1:25]

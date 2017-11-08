@@ -2,7 +2,7 @@
 
 library(dplyr)
 library(data.table)
-library(knockout)
+library(knockdown)
 library(grid)
 library(gridExtra)
 library(xtable)
@@ -11,7 +11,7 @@ library(igraph)
 network.propagation <- function(lmm, graph.file)
 {
 
-  diffusion <- knockout::diffuse(lmm,
+  diffusion <- knockdown::diffuse(lmm,
                                  method="mrw",
                                  path=graph.file,
                                  delete.nodes.on.degree=2,
