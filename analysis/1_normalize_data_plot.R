@@ -4,7 +4,7 @@ library(dplyr)
 library(tidyr)
 library(lme4)
 library(optparse)
-library(knockout)
+library(knockdown)
 library(ggplot2)
 library(hashmap)
 library(ggthemr)
@@ -93,9 +93,9 @@ run <- function()
     width = 10,
     height = 10)
 
-  pl.raw  <- knockout::filter(raw.dat, Virus=="HCV", Screen=="Kinome") %>%
+  pl.raw  <- knockdown::filter(raw.dat, Virus=="HCV", Screen=="Kinome") %>%
     plot.quality
-  pl.norm  <- knockout::filter(norm.dat, Virus=="HCV", Screen=="Kinome") %>%
+  pl.norm  <- knockdown::filter(norm.dat, Virus=="HCV", Screen=="Kinome") %>%
     plot.quality + ylab("")
 
   pl.gr <- plot_grid(pl.raw, pl.norm, align="h", labels=c("(a)", "(b)"))

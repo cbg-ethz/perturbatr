@@ -6,7 +6,7 @@ library(data.table)
 library(tidyr)
 library(lme4)
 library(optparse)
-library(knockout)
+library(knockdown)
 library(ggplot2)
 
 .create.noiseless.data <- function(rep.cnt, virus.cnt, mean)
@@ -252,7 +252,7 @@ run <- function()
   rna.file    <- paste(path,  "rnai_screen_normalized.rds", sep="/")
   rnai.screen <- readRDS(rna.file)
 
-  model.data  <- knockout::set.lmm.model.data(
+  model.data  <- knockdown::set.lmm.model.data(
     rnai.screen, weights=list("pooled"=1.5, "single"=1))
 
   benchmark.bio.predictability(model.data, out.dir)

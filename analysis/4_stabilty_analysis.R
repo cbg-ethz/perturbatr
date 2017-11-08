@@ -2,7 +2,7 @@
 
 library(dplyr)
 library(data.table)
-library(knockout)
+library(knockdown)
 library(optparse)
 library(igraph)
 library(mvtnorm)
@@ -66,11 +66,11 @@ library(ggplot2)
   res <- NA
   if (!is.null(file))
   {
-    res <- knockout::diffuse(effects, method="mrw", path=file,
+    res <- knockdown::diffuse(effects, method="mrw", path=file,
                              r=.25,delete.nodes.on.degree=3)
   }  else if (!is.null(graph))
   {
-    res <- knockout::diffuse(effects, method="mrw", graph=abs(graph),
+    res <- knockdown::diffuse(effects, method="mrw", graph=abs(graph),
                              r=.25, delete.nodes.on.degree=3)
   }
   else stop("No correct graph given")
@@ -111,7 +111,7 @@ library(ggplot2)
     s <- paste0("var:", v, ",vir:", vir.cnt, ",rep:", rep.cnt, ",bootstrap:", i)
     print(s)
     tryCatch({
-      subs <- knockout:::bootstrap.svd.lmm.model.data(dat)
+      subs <- knockdown:::bootstrap.svd.lmm.model.data(dat)
       bench.list[[s]] <- list(Var=v,
                               Rep=rep.cnt,
                               Vir=vir.cnt,
@@ -207,7 +207,7 @@ ranking.stability.bio <- function(model.data, graph.file, output.path)
     {
       print(paste0("Bootstrap bio: ", i, ",v: ", paste0(vrs[1:idx], collapse="_")))
       tryCatch({
-        rnai.screen.sample <- knockout:::bootstrap.svd.lmm.model.data(dat)
+        rnai.screen.sample <- knockdown:::bootstrap.svd.lmm.model.data(dat)
         s <- paste0("bootstrap:", i, "virs:", paste0(vrs[1:idx], collapse="_"))
         bench.list[[s]] <- list(Bootstrap=i,
                                 Virus= paste0(vrs[1:idx], collapse="_"),

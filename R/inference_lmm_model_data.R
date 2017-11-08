@@ -1,21 +1,21 @@
-# knockout: analysis of high-throughput gene perturbation screens
+# knockdown: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
 #
-# This file is part of knockout
+# This file is part of knockdown
 #
-# knockout is free software: you can redistribute it and/or modify
+# knockdown is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockout is distributed in the hope that it will be useful,
+# knockdown is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockout. If not, see <http://www.gnu.org/licenses/>.
+# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 #' Create model data for an LMM
 #'
@@ -30,7 +30,7 @@
 #' @param weights  weights to set for the siRNAs
 #' @param rel.mat.path  target-relation matrix (TODO)
 #'
-#' @return  returns an \code{knockout.lmm.data} object
+#' @return  returns an \code{knockdown.lmm.data} object
 #'
 #' @examples
 #'  data(rnaiscreen)
@@ -47,8 +47,8 @@ set.lmm.model.data <- function(obj,
 }
 
 #' @export
-#' @method set.lmm.model.data knockout.normalized.data
-set.lmm.model.data.knockout.normalized.data <- function(obj,
+#' @method set.lmm.model.data knockdown.normalized.data
+set.lmm.model.data.knockdown.normalized.data <- function(obj,
                                                         drop=TRUE,
                                                         ignore=1,
                                                         weights=NULL,
@@ -110,7 +110,7 @@ set.lmm.model.data.knockout.normalized.data <- function(obj,
   }
   lmm.mat <- droplevels(lmm.mat)
 
-  new("knockout.lmm.data",
+  new("knockdown.lmm.data",
       .data=data.table::as.data.table(lmm.mat))
 
 }

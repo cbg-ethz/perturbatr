@@ -1,7 +1,7 @@
 library(dtplyr)
 library(dplyr)
 library(tidyr)
-library(knockout)
+library(knockdown)
 library(ggplot2)
 library(uuid)
 library(xtable)
