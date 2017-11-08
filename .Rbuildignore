@@ -1,4 +1,5 @@
-analysis/
+^analysis
+analysis/*
 vignettes/knockout_real_data.R
 code-of-conduct.md
 ^.*\.Rproj$         # Automatically added by RStudio,
