@@ -4,13 +4,13 @@
 \name{rnaiscreen}
 \alias{rnaiscreen}
 \title{A sample pan-pathogenic RNAi dataset}
-\format{A \code{knockout.data} object containing a data.table with 18
+\format{A \code{knockdown.data} object containing a data.table with 18
  columns, each describing a necessary feature}
 \usage{
 data(rnaiscreen)
 }
 \description{
-Example \code{knockout.data} data-set consisting of two-viral screen with
+Example \code{knockdown.data} data-set consisting of two-viral screen with
  random data.
 }
 \details{

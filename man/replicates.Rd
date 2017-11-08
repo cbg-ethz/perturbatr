@@ -12,7 +12,7 @@ replicates(obj, ...)
 \item{...}{additional params}
 }
 \value{
-returns a \code{knockout.replicates} object
+returns a \code{knockdown.replicates} object
 }
 \description{
 Get the replicates of a data-set

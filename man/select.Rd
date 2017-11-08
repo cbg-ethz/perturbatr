@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods_select.R
 \name{select}
 \alias{select}
-\title{Select columns of a knockout data set}
+\title{Select columns of a knockdown data set}
 \usage{
 select(obj, ...)
 }
@@ -15,7 +15,7 @@ select(obj, ...)
 returns a \code{data.table} with specified column
 }
 \description{
-Takes a knockout data set and selects columns by some
+Takes a knockdown data set and selects columns by some
  criterion. The filtered object will have class \code{data.table}.
 }
 \examples{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods_filter.R
 \name{filter}
 \alias{filter}
-\title{Filter the rows of a knockout data set}
+\title{Filter the rows of a knockdown data set}
 \usage{
 filter(obj, ...)
 }
@@ -15,7 +15,7 @@ filter(obj, ...)
 returns an object of the same type filtered by some criterion
 }
 \description{
-Takes a knockout data set and filters the rows by some
+Takes a knockdown data set and filters the rows by some
  criterion. The filtered object will have the same type as the previous
  object.
 }

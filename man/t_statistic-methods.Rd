@@ -3,14 +3,14 @@
 \docType{methods}
 \name{tstatistic}
 \alias{tstatistic}
-\alias{tstatistic,knockout.data-method}
+\alias{tstatistic,knockdown.data-method}
 \title{Calculate statistics based on the t-test to analyse the data.}
 \usage{
 tstatistic(obj, mu = c(0, "scrambled", "control"), padjust = c("BH",
   "bonferroni"), hit.ratio = 0.5, effect.size = 0, pval.threshold = 0.05,
   qval.threshold = 1)
 
-\S4method{tstatistic}{knockout.data}(obj, mu = c(0, "scrambled", "control"),
+\S4method{tstatistic}{knockdown.data}(obj, mu = c(0, "scrambled", "control"),
   padjust = c("BH", "bonferroni"), hit.ratio = 0.5, effect.size = 0,
   pval.threshold = 0.05, qval.threshold = 1)
 }
@@ -35,7 +35,7 @@ corrected p-value. This should be set to an appropriate significance level
 just like the \code{pval.threshold} as well.}
 }
 \value{
-returns a \code{knockout.tstatistic.analysed} object
+returns a \code{knockdown.tstatistic.analysed} object
 }
 \description{
 For this you should use a standardization before.

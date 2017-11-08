@@ -3,8 +3,8 @@
 \docType{methods}
 \name{hyper.statistic}
 \alias{hyper.statistic}
-\alias{hyper.statistic,knockout.normalized.data-method}
-\alias{hyper.statistic,knockout.data-method}
+\alias{hyper.statistic,knockdown.normalized.data-method}
+\alias{hyper.statistic,knockdown.data-method}
 \title{Calculate statistics based on the hypergeometric-distribution to
  analyse the data.}
 \usage{
@@ -13,7 +13,7 @@ hyper.statistic(obj, padjust = c("BH", "bonferroni"),
   do.summarization = FALSE, hit.ratio = 0.5, effect.size = 0,
   pval.threshold = 0.05, qval.threshold = 1)
 
-\S4method{hyper.statistic}{knockout.normalized.data}(obj, padjust = c("BH",
+\S4method{hyper.statistic}{knockdown.normalized.data}(obj, padjust = c("BH",
   "bonferroni"), summ.method = c("mean", "median"), level = c("gene",
   "sirna"), do.summarization = FALSE, hit.ratio = 0.5, effect.size = 0,
   pval.threshold = 0.05, qval.threshold = 1)
@@ -45,7 +45,7 @@ if level=gene is chosen}
 'hit'}
 }
 \value{
-returns a \code{knockout.hyper.analysed} object
+returns a \code{knockdown.hyper.analysed} object
 }
 \description{
 TODO

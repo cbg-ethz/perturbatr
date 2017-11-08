@@ -3,14 +3,14 @@
 \docType{methods}
 \name{chisq.statistic}
 \alias{chisq.statistic}
-\alias{chisq.statistic,knockout.data-method}
+\alias{chisq.statistic,knockdown.data-method}
 \title{Calculate statistics based on the chi-square-distribution to analyse
  the data.}
 \usage{
 chisq.statistic(obj, padjust = c("BH", "bonferroni"), effect.size = 0,
   pval.threshold = 0.05, qval.threshold = 1)
 
-\S4method{chisq.statistic}{knockout.data}(obj, padjust = c("BH",
+\S4method{chisq.statistic}{knockdown.data}(obj, padjust = c("BH",
   "bonferroni"), effect.size = 0, pval.threshold = 0.05,
   qval.threshold = 1)
 }
@@ -31,7 +31,7 @@ corrected p-value. This should be set to an appropriate significance level
 just like the \code{pval.threshold} as well.}
 }
 \value{
-returns a \code{knockout.chisqstatistic.analysed} object
+returns a \code{knockdown.chisqstatistic.analysed} object
 }
 \description{
 TODO

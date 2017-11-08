@@ -3,14 +3,14 @@
 \docType{methods}
 \name{diffuse}
 \alias{diffuse}
-\alias{diffuse,knockout.lmm.analysed-method}
+\alias{diffuse,knockdown.lmm.analysed-method}
 \title{Smooth the results from an analysis using network diffusion}
 \usage{
 diffuse(obj, method = c("knn", "mrw"), path = NULL, graph = NULL,
   r = 0.5, node.start.count = 25, search.depth = 5,
   delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 
-\S4method{diffuse}{knockout.lmm.analysed}(obj, method = c("knn", "mrw"),
+\S4method{diffuse}{knockdown.lmm.analysed}(obj, method = c("knn", "mrw"),
   path = NULL, graph = NULL, r = 0.5, node.start.count = 25,
   search.depth = 5, delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 }
@@ -47,7 +47,7 @@ bootstrap samples are available}
 \item{...}{additional parameters}
 }
 \value{
-returns a \code{knockout.diffusion.analysed} object
+returns a \code{knockdown.diffusion.analysed} object
 }
 \description{
 TODO
@@ -57,7 +57,7 @@ TODO
 data(rnaiscreen)
 rnai.norm <- preprocess(rnaiscreen)
 lmm.fit <- lmm(rnai.norm)
-graph.file <- system.file("extdata", "graph_file.tsv", package="knockout")
+graph.file <- system.file("extdata", "graph_file.tsv", package="knockdown")
 
 # do the diffusion using nearest neighbors
 diff.knn <- diffuse(lmm.fit, method="k",
