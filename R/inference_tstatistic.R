@@ -83,9 +83,9 @@ setMethod(
            pval.threshold=0.05,
            qval.threshold=1)
   {
-    res <- .t.statistic(obj@.data,
-                        mu=match.arg(mu),
-                        padjust=match.arg(padjust))
+    res     <- .t.statistic(obj@.data,
+                            mu=match.arg(mu),
+                            padjust=match.arg(padjust))
     priorit <- .prioritize.tstatistic(
       res, hit.ratio, effect.size, pval.threshold, qval.threshold)
 
@@ -107,7 +107,7 @@ setMethod(
 {
   message(paste("Correcting with ", padjust, "!", sep=""))
   message(paste("Taking", mu, "for t-test mu!"))
-
+  # do NOT group by replicate here, we do inference using these
   ret <- dplyr::group_by(obj, Virus, Screen, Library,
                          ReadoutType, ScreenType,
                          Design, Cell) %>%
@@ -137,7 +137,6 @@ setMethod(
   res
 }
 
-
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr mutate group_by summarize ungroup
@@ -145,10 +144,8 @@ setMethod(
 #' @importFrom assertthat assert_that
 .do.t.statistic <- function(obj, padjust, mu)
 {
-  res <- obj %>%
-    ungroup %>%
-    dplyr::group_by(Plate) %>%
-    dplyr::mutate(grp=.GRP)
+  res <- obj %>% ungroup %>%
+    dplyr::group_by(Plate) %>% dplyr::mutate(grp=.GRP) %>% ungroup
   grps <- unique(res$grp)
   ret  <- do.call(
     "rbind",
@@ -223,13 +220,14 @@ setMethod(
   else
   {
     tryCatch ({
-      if (mu == 0) {
+      if (mu == 0)
+      {
         tst <- stats::t.test(val, mu=0, alternative="two.sided")
       }
-      else {
+      else
+      {
         tst <- stats::t.test(val, y=mu, alternative="two.sided")
       }
-
     }, warning = function(war)
       { warning(paste(war, " -> setting one for", g)); },
        error = function(err)
@@ -249,20 +247,18 @@ setMethod(
                                    pval.threshold=0.05,
                                    qval.threshold=1)
 {
-  # TODO here: what do do with multiple sirnas? same hit criterion as in hyper
   res <- dplyr::group_by(obj, Virus, Screen, Library,
                          ScreenType, ReadoutType,
                          Design, Cell,
                          GeneSymbol, Entrez,
                          Plate, RowIdx, ColIdx, siRNAIDs) %>%
     dplyr::mutate(Hit=(Pval <= pval.threshold &
-                       abs(Readout) >= effect.size)) %>%
+                  abs(Readout) >= effect.size)) %>%
     ungroup %>%
     dplyr::group_by(Virus, Screen, Library,
                     ReadoutType, ScreenType,
                     Design, Cell,
                     GeneSymbol, Entrez) %>%
-    # TODO this should be as in hyper. the means dont make sense here
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=TRUE)/n()),
                      Pval       = metap::sumlog(Pval)$p,
                      Qval       = metap::sumlog(Qval)$p,

@@ -78,8 +78,8 @@ setMethod(
       stop(paste0("You provided a data-set with several replicates. ",
                   "Summarize these first or use another method."))
 
-    res <- .chisq.statistic(obj@.data, match.arg(padjust))
-    priorit <- .prioritize.chisq.tstatistic(
+    res     <- .chisq.statistic(obj@.data, match.arg(padjust))
+    priorit <- .prioritize.chisq.statistic(
       res, effect.size, pval.threshold, qval.threshold)
 
     ret <- methods::new(
@@ -137,8 +137,7 @@ setMethod(
 {
   maha    <- .mahalanobis(obj$Readout)
   pvals   <- .chisq(maha)
-  assertthat::assert_that(length(maha) == nrow(obj),
-                          length(pvals) == nrow(obj))
+  assertthat::assert_that(length(maha) == nrow(obj), length(pvals) == nrow(obj))
   data.table::setDT(obj)[, Effect := maha]
   data.table::setDT(obj)[, Pval   := pvals]
   data.table::setDT(obj)[, Qval   := p.adjust(Pval, method=padjust)]
@@ -165,10 +164,10 @@ setMethod(
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr group_by summarize ungroup filter select mutate
-.prioritize.chisq.tstatistic <- function(obj,
-                                         effect.size,
-                                         pval.threshold,
-                                         qval.threshold)
+.prioritize.chisq.statistic <- function(obj,
+                                        effect.size,
+                                        pval.threshold,
+                                        qval.threshold)
 {
   res <- dplyr::filter(obj,
                        abs(Readout) >= effect.size,
