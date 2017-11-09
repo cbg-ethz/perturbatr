@@ -43,6 +43,7 @@ plot.knockdown.raw.data <- function(x, size=10, ...)
 #' @importFrom dplyr summarize
 #' @importFrom dplyr group_by
 #' @importFrom tidyr gather
+#' @importFrom scales pretty_breaks
 #'
 #' @param x  the object to plot
 #' @param size  size of letters
@@ -64,8 +65,8 @@ plot.knockdown.normalized.data <- function(x, size, ...)
     ggplot2::geom_bar(ggplot2::aes(fill=Virus), stat="identity") +
     ggplot2::scale_y_continuous(breaks=scales::pretty_breaks(5)) +
     ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
-    #ggplot2::scale_fill_brewer(palette="Spectral") +
-    ggplot2::geom_text(ggplot2::aes(label = Count, y = Count), size = floor(size/3), vjust=0) +
+    ggplot2::geom_text(ggplot2::aes(label = Count, y = Count),
+                                    size = floor(size/3), vjust=0) +
     ggplot2::theme_bw() +
     ggplot2::theme(strip.text      = ggplot2::element_text(size = size),
                    text            = ggplot2::element_text(size = size),
