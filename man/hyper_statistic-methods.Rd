@@ -50,8 +50,3 @@ returns a \code{knockdown.hyper.analysed} object
 \description{
 TODO
 }
-\examples{
- data(rnaiscreen)
- rnai.norm <- preprocess(rnaiscreen, normalize="log")
- res <- hyper.statistic(rnai.norm)
-}

@@ -17,7 +17,3 @@ returns a \code{knockdown.plates} object
 \description{
 Get the plates of a data-set
 }
-\examples{
- data(rnaiscreen)
- plates <- plates(rnaiscreen)
-}

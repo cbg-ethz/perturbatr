@@ -17,7 +17,3 @@ returns a \code{knockdown.quality} object
 \description{
 Calculates per-plate, per-replicate and screen quality scores
 }
-\examples{
- data(rnaiscreen)
- qual <- quality(rnaiscreen)
-}

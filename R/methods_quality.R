@@ -27,10 +27,6 @@
 #' @param ...  additional parameters
 #'
 #' @return returns a \code{knockdown.quality} object
-#'
-#' @examples
-#'  data(rnaiscreen)
-#'  qual <- quality(rnaiscreen)
 quality <- function(obj, ...)
 {
   UseMethod("quality")
@@ -141,4 +137,3 @@ quality.knockdown.normalized.data <- function(obj, ...)
   }
   ssmd
 }
-

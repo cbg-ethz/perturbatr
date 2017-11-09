@@ -45,12 +45,6 @@
 #'  if bootstrap.cnt is set
 #'
 #' @return returns a \code{knockdown.lmm.analysed} object
-#'
-#' @examples
-#'  data(rnaiscreen)
-#'  screen.norm <-  preprocess(rnaiscreen, normalize="log")
-#'
-#'  res <- lmm(screen.norm)
 setGeneric(
   "lmm",
   function(obj,

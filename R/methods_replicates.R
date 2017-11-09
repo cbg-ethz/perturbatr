@@ -27,9 +27,6 @@
 #'
 #' @return returns a \code{knockdown.replicates} object
 #'
-#' @examples
-#'  data(rnaiscreen)
-#'  rep.dat <- replicates(rnaiscreen)
 replicates <- function(obj, ...) UseMethod("replicates")
 
 #' @export

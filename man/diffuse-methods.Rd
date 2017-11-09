@@ -35,15 +35,3 @@ returns a \code{knockdown.diffusion.analysed} object
 \description{
 TODO
 }
-\examples{
-#load some data
-data(rnaiscreen)
-rnai.norm <- preprocess(rnaiscreen)
-lmm.fit <- lmm(rnai.norm)
-graph.file <- system.file("extdata", "graph_file.tsv", package="knockdown")
-
-# do the diffusion using nearest neighbors
-diff.knn <- diffuse(lmm.fit, method="m",
-                    path=graph.file)
-
-}
