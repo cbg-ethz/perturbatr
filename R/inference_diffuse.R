@@ -33,21 +33,9 @@
 #' @import data.table
 #'
 #' @param obj  an analysed object
-#' @param method  method that should be used for diffusion
-#' \itemize{
-#'   \item{knn }{ use a nearest neighbor approach}
-#'   \item{mrw }{ do a Markov random walk with restarts}
-#' }
 #' @param path   path to the network file (if \code{graph} is \code{NULL})
 #' @param graph  an weighted adjacency matrix (if \code{path} is \code{NULL})
 #' @param r  restart probability of the random if method \code{mrw} is selected
-#' @param node.start.count  number of nodes that are used to do the neighbors
-#'  search if method \code{knn} is selected.
-#'  If the number of hits in \code{obj} exceeds \code{node.start.count},
-#'  then the elements with the highest absolute effects are chosen. If this
-#'  behaviour is not desired filter \code{obj} before.
-#' @param search.depth  how deep should the neighbor search go if method
-#'  \code{nearest.neighbors} is selected
 #' @param delete.nodes.on.degree  delete nodes from the graph with a degree of
 #'  less or equal than \code{delete.nodes.on.degree}
 #' @param do.bootstrap  run a diffusion on every bootstrap sample in case
@@ -64,19 +52,15 @@
 #' graph.file <- system.file("extdata", "graph_file.tsv", package="knockdown")
 #'
 #' # do the diffusion using nearest neighbors
-#' diff.knn <- diffuse(lmm.fit, method="k",
-#'                     node.start.count=10,
+#' diff.knn <- diffuse(lmm.fit, method="m",
 #'                     path=graph.file)
 #'
 setGeneric(
   "diffuse",
   function(obj,
-           method=c("knn", "mrw"),
            path=NULL,
            graph=NULL,
            r=0.5,
-           node.start.count=25,
-           search.depth=5,
            delete.nodes.on.degree=0,
            do.bootstrap=FALSE,
            ...)
@@ -94,12 +78,9 @@ setMethod(
   "diffuse",
   signature=signature(obj="knockdown.lmm.analysed"),
   function(obj,
-           method=c("knn", "mrw"),
            path=NULL,
            graph=NULL,
            r=0.5,
-           node.start.count=25,
-           search.depth=5,
            delete.nodes.on.degree=0,
            do.bootstrap=FALSE,
            ...)
@@ -125,11 +106,8 @@ setMethod(
                       graph=graph,
                       method=method,
                       r=r,
-                      node.start.count=node.start.count,
-                      search.depth=search.depth,
                       delete.nodes.on.degree=delete.nodes.on.degree,
                       do.bootstrap=do.bootstrap)
-
    ret
   }
 )
@@ -143,8 +121,6 @@ setMethod(
                      graph,
                      method,
                      r,
-                     node.start.count,
-                     search.depth,
                      delete.nodes.on.degree,
                      do.bootstrap)
 {
@@ -154,7 +130,8 @@ setMethod(
 
   # get connected components
   comps        <- igraph::components(graph)
-  # TODO: maybe message sth regarding this. itherwise it passes unnoticed
+  if (length(comps$csize) > 1)
+    message("Only taking largest connected component to ensure ergodicity.")
   # get the genes that are not in the largest component
   non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
   # remove the genes that are not in the largest component
@@ -166,25 +143,14 @@ setMethod(
       igraph::degree(graph) <= delete.nodes.on.degree  ])
   adjm  <- igraph::get.adjacency(graph, attr="weight")
 
-  l <- switch(method,
-         "knn" = knn(hits=hits,
-                     mod=mod,
-                     bootstrap.hits=bootstrap.hits,
-                     delete.nodes.on.degree=delete.nodes.on.degree,
-                     adjm=adjm,
-                     node.start.count=node.start.count,
-                     search.depth=search.depth,
-                     graph=graph,
-                     do.bootstrap=do.bootstrap),
-         "mrw" = mrw(hits=hits,
-                     delete.nodes.on.degree=delete.nodes.on.degree,
-                     mod=mod,
-                     bootstrap.hits=bootstrap.hits,
-                     adjm=adjm,
-                     r=r,
-                     graph=graph,
-                     do.bootstrap=do.bootstrap),
-         stop("No suitable method found. Pick either from [knn/mrw]."))
+  l <- mrw(hits=hits,
+           delete.nodes.on.degree=delete.nodes.on.degree,
+           mod=mod,
+           bootstrap.hits=bootstrap.hits,
+           adjm=adjm,
+           r=r,
+           graph=graph,
+           do.bootstrap=do.bootstrap)
 
   l
 }
