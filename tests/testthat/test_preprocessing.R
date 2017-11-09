@@ -23,7 +23,7 @@ context("preprocessing")
 data(rnaiscreen)
 pl <- plates(rnaiscreen)[1]
 pl@.data$PlateIndex <- NULL
-plate.data <- as(pl@.data, "knockdown.data")
+plate.data <- methods::as(pl@.data, "knockdown.data")
 
 testthat::test_that("z scoring gives approx standardized gaussian with mean 0", {
   pl.norm <- preprocess(plate.data , normalize="z.score")

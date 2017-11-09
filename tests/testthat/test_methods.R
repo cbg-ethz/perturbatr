@@ -24,12 +24,12 @@ data(rnaiscreen)
 rnai.norm <- preprocess(rnaiscreen, normalize="z.score")
 
 testthat::test_that("filtering works correctly", {
-  frn <- filter(rnaiscreen, Virus=="V1")
+  frn <- knockdown::filter(rnaiscreen, Virus=="V1")
   testthat::expect_true(all(frn@.data$Virus == "V1"))
 })
 
 testthat::test_that("binding works correctly", {
-  rnait <- rbind(rnaiscreen, rnaiscreen)
+  rnait <- knockdown::rbind(rnaiscreen, rnaiscreen)
   testthat::expect_equal(nrow(rnait@.data), 2 * nrow(rnaiscreen@.data))
 })
 

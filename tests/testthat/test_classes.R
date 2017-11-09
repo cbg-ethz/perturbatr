@@ -18,9 +18,6 @@
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 
-options(warn = -1)
-library(dplyr)
-library(data.table)
 context("class")
 
 graph.file <- system.file("extdata", "graph_file.tsv", package="knockdown")
