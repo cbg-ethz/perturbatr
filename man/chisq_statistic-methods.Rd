@@ -36,10 +36,3 @@ returns a \code{knockdown.chisqstatistic.analysed} object
 \description{
 TODO
 }
-\examples{
- data(rnaiscreen)
- screen.norm <- preprocess(rnaiscreen, normalize="log")
- screen.norm <- filter(screen.norm, Replicate == 1)
-
- res <- chisq.statistic(screen.norm)
-}

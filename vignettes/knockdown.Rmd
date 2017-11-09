@@ -18,6 +18,7 @@ vignette: >
   options(warn = -1)
   library(data.table)
   library(dplyr)
+  library(dtplyr)
   library(methods)
   library(knockdown)
   data(rnaiscreen)

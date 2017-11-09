@@ -18,6 +18,10 @@
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 library(testthat)
+library(dplyr)
+library(data.table)
+library(metap)
 library(knockdown)
+
 
 test_check("knockdown")

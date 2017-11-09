@@ -46,6 +46,7 @@
 #'
 #' @examples
 #' #load some data
+#' \dontrun{
 #' data(rnaiscreen)
 #' rnai.norm <- preprocess(rnaiscreen)
 #' lmm.fit <- lmm(rnai.norm)
@@ -54,7 +55,7 @@
 #' # do the diffusion using nearest neighbors
 #' diff.knn <- diffuse(lmm.fit, method="m",
 #'                     path=graph.file)
-#'
+#' }
 setGeneric(
   "diffuse",
   function(obj,
@@ -124,24 +125,8 @@ setMethod(
                      delete.nodes.on.degree,
                      do.bootstrap)
 {
-  graph <- .read.graph(path=path, graph=graph)
-  if (igraph::is.directed(graph))
-    stop("Please provide an undirected graph")
-
-  # get connected components
-  comps        <- igraph::components(graph)
-  if (length(comps$csize) > 1)
-    message("Only taking largest connected component to ensure ergodicity.")
-  # get the genes that are not in the largest component
-  non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
-  # remove the genes that are not in the largest component
-  # this is needed to ensure ergocity
-  graph <- igraph::delete.vertices(graph, non.max.comp.genes)
-
-  graph <- igraph::delete.vertices(
-    graph, igraph::V(graph)[
-      igraph::degree(graph) <= delete.nodes.on.degree  ])
-  adjm  <- igraph::get.adjacency(graph, attr="weight")
+  graph <- .get.graph(path, graph, delete.nodes.on.degree)
+  adjm   <- igraph::get.adjacency(graph, attr="weight")
 
   l <- mrw(hits=hits,
            delete.nodes.on.degree=delete.nodes.on.degree,
@@ -153,4 +138,25 @@ setMethod(
            do.bootstrap=do.bootstrap)
 
   l
+}
+
+.get.graph <- function(path, graph, delete.nodes.on.degree)
+{
+  graph <- .read.graph(path=path, graph=graph)
+  if (igraph::is.directed(graph))
+    stop("Please provide an undirected graph")
+  # get connected components
+  comps <- igraph::components(graph)
+  if (length(comps$csize) > 1)
+    message("Only taking largest connected component to ensure ergodicity.")
+  # get the genes that are not in the largest component
+  non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
+  # remove the genes that are not in the largest component
+  # this is needed to ensure ergocity
+  graph <- igraph::delete.vertices(graph, non.max.comp.genes)
+  # delete vertexes with node degree less than ...
+  graph <- igraph::delete.vertices(
+    graph, igraph::V(graph)[igraph::degree(graph) <= delete.nodes.on.degree])
+
+  graph
 }

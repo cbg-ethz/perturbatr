@@ -42,13 +42,6 @@
 #'  just like the \code{pval.threshold} as well.
 #'
 #' @return returns a \code{knockdown.chisqstatistic.analysed} object
-#'
-#' @examples
-#'  data(rnaiscreen)
-#'  screen.norm <- preprocess(rnaiscreen, normalize="log")
-#'  screen.norm <- filter(screen.norm, Replicate == 1)
-#'
-#'  res <- chisq.statistic(screen.norm)
 setGeneric(
   "chisq.statistic",
   function(obj,
