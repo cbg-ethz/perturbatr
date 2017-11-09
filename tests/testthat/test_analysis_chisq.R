@@ -21,7 +21,7 @@
 context("chisq hypothesis tests")
 
 data(rnaiscreen)
-rnai.norm <- preprocess(rnaiscreen, normalize="z.score")
+rnai.norm <- preprocess(rnaiscreen, normalize="log")
 
 testthat::test_that("error is thrown when more than one replicate", {
   testthat::expect_error(

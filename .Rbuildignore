@@ -16,7 +16,6 @@ code-of-conduct.md
 README.md$
 VERSIONS.md$
 LICENSE
-knockout.Rproj
 .travis.yml
 .lintr
 ^inst/test_calls.R$
@@ -24,3 +23,4 @@ knockout.Rproj
 ^codecov\.yml$
 ^README\.Rmd$
 ^README-.*\.png$
+^tests/
