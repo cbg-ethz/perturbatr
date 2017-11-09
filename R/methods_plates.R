@@ -27,9 +27,6 @@
 #'
 #' @return returns a \code{knockdown.plates} object
 #'
-#' @examples
-#'  data(rnaiscreen)
-#'  plates <- plates(rnaiscreen)
 plates <- function(obj, ...)
 {
   UseMethod("plates", obj)

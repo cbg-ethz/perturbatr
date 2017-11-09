@@ -46,9 +46,3 @@ returns a \code{knockdown.lmm.analysed} object
 \description{
 \code{lmm} TODO
 }
-\examples{
- data(rnaiscreen)
- screen.norm <-  preprocess(rnaiscreen, normalize="log")
-
- res <- lmm(screen.norm)
-}

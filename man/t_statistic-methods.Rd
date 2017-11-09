@@ -40,10 +40,3 @@ returns a \code{knockdown.tstatistic.analysed} object
 \description{
 For this you should use a standardization before.
 }
-\examples{
- data(rnaiscreen)
- screen.norm <- preprocess(rnaiscreen, normalize="log")
-
- res <- tstatistic(screen.norm)
-
-}

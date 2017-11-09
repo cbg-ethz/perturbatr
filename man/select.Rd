@@ -18,7 +18,3 @@ returns a \code{data.table} with specified column
 Takes a knockdown data set and selects columns by some
  criterion. The filtered object will have class \code{data.table}.
 }
-\examples{
- data(rnaiscreen)
- qual <- select(rnaiscreen, Virus)
-}

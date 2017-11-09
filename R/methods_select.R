@@ -31,9 +31,6 @@
 #'
 #' @return  returns a \code{data.table} with specified column
 #'
-#' @examples
-#'  data(rnaiscreen)
-#'  qual <- select(rnaiscreen, Virus)
 select <- function(obj, ...) UseMethod("select")
 
 

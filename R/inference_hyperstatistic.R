@@ -49,10 +49,6 @@
 #'
 #' @return returns a \code{knockdown.hyper.analysed} object
 #'
-#' @examples
-#'  data(rnaiscreen)
-#'  rnai.norm <- preprocess(rnaiscreen, normalize="log")
-#'  res <- hyper.statistic(rnai.norm)
 setGeneric(
   "hyper.statistic",
   function(obj,

@@ -46,12 +46,6 @@
 #'
 #' @return returns a \code{knockdown.tstatistic.analysed} object
 #'
-#' @examples
-#'  data(rnaiscreen)
-#'  screen.norm <- preprocess(rnaiscreen, normalize="log")
-#'
-#'  res <- tstatistic(screen.norm)
-#'
 setGeneric(
   "tstatistic",
   function(obj,

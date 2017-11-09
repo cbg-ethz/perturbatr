@@ -17,7 +17,3 @@ returns a \code{knockdown.replicates} object
 \description{
 Get the replicates of a data-set
 }
-\examples{
- data(rnaiscreen)
- rep.dat <- replicates(rnaiscreen)
-}
