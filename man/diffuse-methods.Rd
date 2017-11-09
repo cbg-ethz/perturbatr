@@ -6,37 +6,20 @@
 \alias{diffuse,knockdown.lmm.analysed-method}
 \title{Smooth the results from an analysis using network diffusion}
 \usage{
-diffuse(obj, method = c("knn", "mrw"), path = NULL, graph = NULL,
-  r = 0.5, node.start.count = 25, search.depth = 5,
+diffuse(obj, path = NULL, graph = NULL, r = 0.5,
   delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 
-\S4method{diffuse}{knockdown.lmm.analysed}(obj, method = c("knn", "mrw"),
-  path = NULL, graph = NULL, r = 0.5, node.start.count = 25,
-  search.depth = 5, delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
+\S4method{diffuse}{knockdown.lmm.analysed}(obj, path = NULL, graph = NULL,
+  r = 0.5, delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 }
 \arguments{
 \item{obj}{an analysed object}
-
-\item{method}{method that should be used for diffusion
-\itemize{
-  \item{knn }{ use a nearest neighbor approach}
-  \item{mrw }{ do a Markov random walk with restarts}
-}}
 
 \item{path}{path to the network file (if \code{graph} is \code{NULL})}
 
 \item{graph}{an weighted adjacency matrix (if \code{path} is \code{NULL})}
 
 \item{r}{restart probability of the random if method \code{mrw} is selected}
-
-\item{node.start.count}{number of nodes that are used to do the neighbors
-search if method \code{knn} is selected.
-If the number of hits in \code{obj} exceeds \code{node.start.count},
-then the elements with the highest absolute effects are chosen. If this
-behaviour is not desired filter \code{obj} before.}
-
-\item{search.depth}{how deep should the neighbor search go if method
-\code{nearest.neighbors} is selected}
 
 \item{delete.nodes.on.degree}{delete nodes from the graph with a degree of
 less or equal than \code{delete.nodes.on.degree}}
@@ -60,8 +43,7 @@ lmm.fit <- lmm(rnai.norm)
 graph.file <- system.file("extdata", "graph_file.tsv", package="knockdown")
 
 # do the diffusion using nearest neighbors
-diff.knn <- diffuse(lmm.fit, method="k",
-                    node.start.count=10,
+diff.knn <- diffuse(lmm.fit, method="m",
                     path=graph.file)
 
 }

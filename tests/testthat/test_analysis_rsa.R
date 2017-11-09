@@ -18,9 +18,6 @@
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 
-library(dplyr)
-library(data.table)
-
 context("hypergeometric hypothesis tests")
 
 data(rnaiscreen)

@@ -41,10 +41,11 @@ filter <- function(obj, ...) UseMethod("filter")
 
 #' @export
 #' @method filter knockdown.data
+#' @import data.table
 #' @importFrom dplyr filter_
 #' @importFrom lazyeval lazy_dots
 filter.knockdown.data <- function(obj, ...)
 {
   filt.dat <- dplyr::filter_(obj@.data, .dots = lazyeval::lazy_dots(...))
-  new(class(obj)[1], .data=filt.dat)
+  new(class(obj)[1], .data=data.table::as.data.table(filt.dat))
 }

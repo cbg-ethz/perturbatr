@@ -51,7 +51,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'util_enums.R'
     'class_knockdown_analysed.R'
     'class_knockdown_data.R'
@@ -62,7 +62,6 @@ Collate:
     'data.R'
     'inference_chisqstatistic.R'
     'inference_diffuse.R'
-    'inference_diffuse_knn.R'
     'inference_diffuse_mrw.R'
     'inference_hyperstatistic.R'
     'inference_lmm.R'

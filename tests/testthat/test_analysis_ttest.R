@@ -18,10 +18,6 @@
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 
-library(dplyr)
-library(metap)
-library(data.table)
-
 context("chisq hypothesis tests")
 
 data(rnaiscreen)
