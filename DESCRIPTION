@@ -2,7 +2,7 @@ Package: knockdown
 Type: Package
 Title: Analysis of high-throughput RNAi gene perturbation screens
 Version: 0.1
-Date: 2015-12-10
+Date: 2017-11-11
 Authors@R: person("Simon", "Dirmeier",
     email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
 Description: knockdown does analysis of large-scale RNAi interference screens
@@ -41,7 +41,8 @@ Imports:
     stats,
     grid,
     utils,
-    graphics
+    graphics,
+    scales
 biocViews: Regression, Normalization, Preprocessing, CellBasedAssays, Network
 Suggests:
     testthat,
@@ -50,7 +51,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate: 
+Collate:
     'util_enums.R'
     'class_knockdown_analysed.R'
     'class_knockdown_data.R'
