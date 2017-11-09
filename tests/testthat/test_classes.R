@@ -38,6 +38,7 @@ quality    <- quality(dat)
 dat.norm  <- preprocess(rnaiscreen, normalize="z.score")
 dat.tana  <- tstatistic(dat.norm)
 dat.hana  <- hyper.statistic(dat.norm)
+dat.cana  <- chisq.statistic(dat.norm)
 dat.lmm   <- lmm(dat.norm, effect.size=0.01)
 dat.diff  <- diffuse(dat.lmm, node.start.count=1, path=graph.file)
 
@@ -51,6 +52,10 @@ testthat::test_that("normalized object has correct class", {
 
 testthat::test_that("tstatistic analysed object has correct class", {
   testthat::expect_s4_class(dat.tana, "knockdown.tstatistic.analysed")
+})
+
+testthat::test_that("chisqstatistic analysed object has correct class", {
+  testthat::expect_s4_class(dat.cana, "knockdown.chisqstatistic.analysed")
 })
 
 testthat::test_that("hyperstatistic analysed object has correct class", {

@@ -90,7 +90,7 @@ setMethod(
     stopifnot(is.logical(do.summarization))
 
     res <- .hyper.statistic(
-      obj   = obj@.data,
+      obj              = obj@.data,
       padjust          = match.arg(padjust),
       summ.method      = match.arg(summ.method),
       level            = match.arg(level),
@@ -128,14 +128,13 @@ setMethod(
 
   summ.method <- .summarization.method(summ.method)
   ret <- dplyr::group_by(obj, Virus, Screen, ReadoutType,
-                                      ScreenType, Library, Design, Cell) %>%
-    dplyr::mutate(grp = .GRP)
+                         ScreenType, Library, Design, Cell) %>%
+    dplyr::mutate(grp = .GRP) %>% ungroup
   grps <- unique(ret$grp)
 
   res <- data.table::rbindlist(
     lapply(
-      grps,
-      function (g)
+      grps, function (g)
       {
         grp.dat <- dplyr::filter(ret, grp==g)
         message(paste("Doing grp: ", paste(grp.dat$Virus[1],
@@ -169,7 +168,7 @@ setMethod(
   {
     message(paste("\t...summarizing single siRNAs over replicates!"))
     # summarize all the sirnas over the different replicates
-    # so: for a gene A and siRNA B
+    # so: for a gene A and siRNA B, every siRNA B has ONE observation
     res <- dplyr::group_by(res, Virus, Screen, Library,
                            ScreenType, ReadoutType,
                            Cell, Design,
@@ -187,6 +186,7 @@ setMethod(
     level <- "gene"
     message("\t...setting level=gene since a pooled library is used!")
   }
+
   # do hyper test on every screen
   res <- dplyr::group_by(res, Virus, Screen, Library, ReadoutType, ScreenType,
                          Cell, Design) %>%
@@ -210,22 +210,21 @@ setMethod(
 
 #' @noRd
 #' @import data.table
-#' @import dtplyr
 #' @importFrom dplyr group_by
 #' @importFrom dplyr mutate
 .hypertest <- function(all.genes, sirnas, plates, rows, cols, readouts, level)
 {
   fr <- data.table::data.table(genes=all.genes, sirnas=sirnas,
                                plates=plates, rows=rows, cols=cols,
-                               # THE ABS IS IMPORTANT
+                               # leave the abs, since we rank the whole thing
                                readout=abs(readouts),
                                ord=1:length(all.genes)) %>%
     dplyr::mutate(rank=rank(-readout, ties.method="max")) %>%
     .[order(rank)]
+
   ## this part is tricky!
   ## if we do the hypergeometric test on genes we need another grouping
   ## as for siRNAs
-  ## TODO: definitely write tests for this and beautify
   # on gene level group by genes and take all siRNAs for test
   if (level == "gene")
   {
@@ -242,22 +241,35 @@ setMethod(
   {
     stop("Please provide a standard method!")
   }
+
   # used the grouped ranks and all genes and to hyper test
   fr <- fr %>%
-    dplyr::mutate(H=.hypertest.grp(rank, all.genes)) %>%
-    ungroup %>%
+    dplyr::mutate(H=.hypertest.grp(rank, all.genes)) %>% ungroup %>%
     .[order(ord)]
+
   fr$H
 }
 
 #' Test as described in the original RSA paper by Koenig et al, 2007
 #' @noRd
-#' @importFrom stats phyper
 .hypertest.grp <- function(ranks, all.genes)
 {
-  N <- length(all.genes)
+  N      <- length(all.genes)
   ndrawn <- length(ranks)
-  hi <- t(sapply(1:ndrawn, function(i)
+
+  hi       <- .hypertest.grp.test(ndrawn, ranks, N)
+  min.idx  <- which.min(hi[, 1])
+  min.prob <- hi[min.idx, 1]
+  is.hit   <- as.numeric(seq(ndrawn) <= hi[min.idx, 2])
+
+  paste(min.prob, is.hit, sep="_")
+}
+
+#' @noRd
+#' @importFrom stats phyper
+.hypertest.grp.test <- function(ndrawn, ranks, N)
+{
+  t(sapply(1:ndrawn, function(i)
   {
     prob <- stats::phyper(i - 1, ranks[i], N - ranks[i],
                           ndrawn, lower.tail = FALSE, log.p=FALSE)
@@ -265,15 +277,12 @@ setMethod(
     cutoff <- i
     c(prob=prob, cutoff=cutoff)
   }))
-  min.idx  <- which.min(hi[,1])
-  min.prob <- hi[min.idx,1]
-  # TODO maybe change this to q-values
-  is.hit   <- as.numeric(seq(ndrawn) <= hi[min.idx,2])
-  paste(min.prob, is.hit, sep="_")
+
 }
 
 #' @noRd
 #' @import data.table
+#' @importFrom metap sumlog
 #' @importFrom dplyr group_by summarize ungroup filter select
 .prioritize.hyper.statistic <- function(obj,
                                         hit.ratio,
@@ -283,8 +292,10 @@ setMethod(
 {
   if (effect.size != 0)    stop("Effect size not yet implemented")
   if (qval.threshold != 1) stop("Q-value not  yet implemented")
-  res <- dplyr::group_by(obj, Virus, Screen, Library, ScreenType, ReadoutType,
-                         Design, Cell, GeneSymbol, Entrez) %>%
+  res <- dplyr::group_by(obj, Virus, Screen, Library,
+                         ScreenType, ReadoutType,
+                         Design, Cell,
+                         GeneSymbol, Entrez) %>%
     dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=TRUE) / n()),
                      Pval  = metap::sumlog(Pval)$p,
                      Qval  = metap::sumlog(Qval)$p,

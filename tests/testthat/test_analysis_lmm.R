@@ -18,7 +18,7 @@
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 
-context("analysis")
+context("lmm analysis")
 
 data(rnaiscreen)
 rnai.norm <- preprocess(rnaiscreen, normalize="z.score")
