@@ -76,10 +76,7 @@ cv.sets <- function(model.data)
   if (max.cv > 10) max.cv <- 10
   grps <- unique(dat$grp)
   res <- do.call(
-    "rbind",
-    lapply(
-      grps,
-      function (g)
+    "rbind", lapply(grps, function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
         grp.dat$cvtestset <- rep(1:max.cv, length.out=nrow(grp.dat))
@@ -88,7 +85,7 @@ cv.sets <- function(model.data)
     )
   )
   res <- res %>% dplyr::select(-cnt, -grp)
-  res <- as.svd.lmm.model.data(res)
+  res <- as(res)
   res
 }
 

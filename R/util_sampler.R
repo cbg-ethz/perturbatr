@@ -44,12 +44,12 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
 #' @importFrom methods new
 bootstrap.knockdown.data <- function(obj, level=c("sirna", "pathogen"))
 {
-  dat <-
-    dplyr::group_by(obj@.data, Virus, ScreenType, GeneSymbol) %>%
+  dat <- obj@.data %>%
+    dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>%
     ungroup
 
-  res  <- data.table::rbindlist(
+  res <- data.table::rbindlist(
     parallel::mclapply(
       unique(dat$grp),
       function (g)

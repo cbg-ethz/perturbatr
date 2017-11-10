@@ -110,8 +110,7 @@ set.lmm.model.data.knockdown.normalized.data <- function(obj,
   }
   lmm.mat <- droplevels(lmm.mat)
 
-  new("knockdown.lmm.data",
-      .data=data.table::as.data.table(lmm.mat))
+  new("knockdown.lmm.data", .data=data.table::as.data.table(lmm.mat))
 
 }
 
