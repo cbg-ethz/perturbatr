@@ -4,17 +4,21 @@ cache: packages
 
 matrix:
   include:
+    - os: osx
+      latex: false
+      r: bioc-devel
+    - os: osx
+      latex: false
+      r: bioc-release
     - os: linux
       dist: trusty
       r: bioc-devel
     - os: linux
       dist: trusty
       r: bioc-release
-    - os: osx
-      latex: false
-      r: bioc-release
 
 r_packages:
+  - devtools
   - covr
   - testthat
   - lintr
@@ -34,13 +38,6 @@ bioc_packages:
 
 env:
   global:
-<<<<<<< HEAD
-    - r_build_args="--no-build-vignettes --no-manual"
-    - r_check_args="--no-build-vignettes --no-manual --as-cran --no-examples"
-=======
-    - R_BUILD_ARGS="--no-build-vignettes --no-manual"
-    - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
->>>>>>> Remove lintr bot reporting
     - LINTR_COMMENT_BOT=false
 
 after_success:

@@ -7,15 +7,14 @@ library(knockdown)
 
 normalize.chikv.kinome <- function(rnai.screen.raw)
 {
-  chikv.raw  <- filter(rnai.screen.raw, Virus=="CHIKV")
+  chikv.raw  <- knockdown::filter(rnai.screen.raw, Virus=="CHIKV")
   chikv.norm <- knockdown::preprocess(
     chikv.raw,
     normalize=c("log",  "background", "robust-z.score"),
     summarization="mean",
     z.score.level="plate",
     background.column=12,
-    drop=T
-  )
+    drop=T)
   chikv.norm
 }
 
@@ -28,15 +27,14 @@ normalize.sars.kinome <- function(rnai.screen.raw)
     summarization="mean",
     background.column=12,
     z.score.level="plate",
-    drop=T
-  )
+    drop=T)
 
   sars.norm
 }
 
 normalize.hcv.genome <- function(rnai.screen.raw)
 {
-  hcv.g.raw        <- filter(rnai.screen.raw, Virus=="HCV", Screen=="Genome")
+  hcv.g.raw        <- knockdown::filter(rnai.screen.raw, Virus=="HCV", Screen=="Genome")
   hcv.g.norm       <- knockdown::preprocess(
     hcv.g.raw,
     normalize=c( "log", "b.score", "robust-z.score"),
@@ -49,20 +47,20 @@ normalize.hcv.genome <- function(rnai.screen.raw)
 
 normalize.denv.genome <- function(rnai.screen.raw)
 {
-  denv.g.raw        <- filter(rnai.screen.raw, Virus=="DENV", Screen=="Genome")
+  denv.g.raw        <- knockdown::filter(rnai.screen.raw, Virus=="DENV", Screen=="Genome")
   denv.g.norm       <- knockdown::preprocess(
     denv.g.raw,
     normalize=c( "log",  "b.score",  "robust-z.score"),
     summarization="mean",
     z.score.level="plate",
-    drop=T
-  )
+    drop=T)
+
   denv.g.norm
 }
 
 normalize.hcv.kinome <-  function(rnai.screen.raw)
 {
-  hcv.k.raw        <- filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
+  hcv.k.raw        <- knockdown::filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
   hcv.k.norm       <- knockdown::preprocess(
     hcv.k.raw,
     normalize=c("log","loess", "b.score", "robust-z.score"),
@@ -71,12 +69,13 @@ normalize.hcv.kinome <-  function(rnai.screen.raw)
     drop=T,
     rm.outlier.wells="q",
     outlier.well.range=c(.05, .95))
+
   hcv.k.norm
 }
 
 normalize.denv.kinome <- function(rnai.screen.raw)
 {
-  denv.k.raw        <- filter(rnai.screen.raw, Virus=="DENV", Screen=="Kinome")
+  denv.k.raw        <- knockdown::filter(rnai.screen.raw, Virus=="DENV", Screen=="Kinome")
   denv.k.norm       <- knockdown::preprocess(
     denv.k.raw,
     normalize=c("log", "loess", "b.score","robust-z.score"),
@@ -85,6 +84,7 @@ normalize.denv.kinome <- function(rnai.screen.raw)
     drop=T,
     rm.outlier.wells="q",
     outlier.well.range=c(.05, .95))
+
   denv.k.norm
 }
 
@@ -112,15 +112,12 @@ run <- function()
 
   path    <- "./"
   outdir <- "./data"
-  outfile <- paste0(out.dir, "/", "rnai_screen_normalized-", ".rds")
-
+  outfile <- paste0(outdir, "/", "rnai_screen_normalized", ".rds")
 
   rnai.screen.raw <- readRDS(
-    paste(path, "data/rnai_screen_raw.rds", sep="/")
-  )
+    paste(path, "data/rnai_screen_raw.rds", sep="/"))
 
   rnai.screen <- normalize(rnai.screen.raw)
-
   saveRDS(rnai.screen, outfile)
 }
 

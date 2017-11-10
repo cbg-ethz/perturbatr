@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 library(data.table)
 library(dtplyr)
 library(dplyr)
@@ -31,7 +33,7 @@ plot.data <- function(x)
     ggplot2::geom_text(ggplot2::aes(label = Count, y = Count), size = floor(20/3), vjust=0) +
     ggplot2::theme_bw() +
     hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
-    ggplot2::theme(text            = ggplot2::element_text(size = 20),
+    ggplot2::theme(text = ggplot2::element_text(size = 20),
                    axis.text.x=element_blank(),
                    axis.text.y=element_text(size=14),
                    axis.title.x=element_blank(),
@@ -86,9 +88,8 @@ run <- function()
 
   pl <- plot.data(norm.dat)
 
-
   ggsave(
-    filename = paste0(out.dir, "/",  "data_overview-", ".eps"),
+    filename = paste0(out.dir, "/",  "data_overview", ".eps"),
     plot = pl,
     width = 10,
     height = 10)
@@ -97,15 +98,13 @@ run <- function()
     plot.quality
   pl.norm  <- knockdown::filter(norm.dat, Virus=="HCV", Screen=="Kinome") %>%
     plot.quality + ylab("")
-
   pl.gr <- plot_grid(pl.raw, pl.norm, align="h", labels=c("(a)", "(b)"))
 
   ggsave(
-    filename = paste0(out.dir, "/", "comparison_plate_readouts", ."eps")
+    filename = paste0(out.dir, "/", "comparison_plate_readouts", ".eps"),
     plot = pl.gr,
     width = 12,
-    height = 6
-  )
+    height = 6  )
 
 }
 

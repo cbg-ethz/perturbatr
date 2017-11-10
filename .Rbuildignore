@@ -1,7 +1,7 @@
 ^analysis
-analysis/*
+^analysis/*
 vignettes/knockout_real_data.R
-code-of-conduct.md
+^code-of-conduct.md$
 ^.*\.Rproj$         # Automatically added by RStudio,
 ^\.Rproj\.user$     # used for temporary files.
 ^README\.Rmd$       # An Rmarkdown file used to generate README.md
@@ -23,4 +23,5 @@ LICENSE
 ^codecov\.yml$
 ^README\.Rmd$
 ^README-.*\.png$
+^tests
 ^tests/

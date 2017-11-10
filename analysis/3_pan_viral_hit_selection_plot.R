@@ -11,6 +11,19 @@ library(hashmap)
 library(hrbrthemes)
 
 
+effect.matrices <- function(obj)
+{
+  g <- obj@.gene.hits %>%
+    dplyr::select(GeneSymbol, Effect) %>%
+    .[order(-abs(Effect))]
+  pg <- obj@.gene.pathogen.effects %>%
+    dplyr::select(Virus, GeneSymbol, Effect) %>%
+    tidyr::spread(Virus, Effect)
+
+  list(gene.effects=g, gene.pathogen.effects=pg)
+}
+
+
 plot.gene.effects  <- function(x)
 {
   if ("Virus" %in% colnames(x))
@@ -57,7 +70,7 @@ plot.gene.effects  <- function(x)
 plot.gene.virus.effects <- function(x)
 {
 
-  effect.matrices <- knockdown:::.effect.matrices(x)
+  effect.matrices <- effect.matrices(x)
   ge <- effect.matrices$gene.effects %>%
     .[order(-abs(Effect))]  %>%
     .[1:25]
@@ -96,18 +109,15 @@ plot.gene.virus.effects <- function(x)
     pl
 }
 
-pl <- plot.gene.effects(fit$fit@.gene.effects)
-
 run <- function()
 {
   path <- "./"
   out.dir <-  "./plots"
 
-  data.file     <- paste(path, "data/lmm_fit.rds", sep="/")
-  fit <- readRDS(data.file)
+  data.file <- paste(path, "data/lmm_fit.rds", sep="/")
+  fit       <- readRDS(data.file)
 
   pl <- plot.gene.effects(fit$fit@.gene.effects)
-
   ggsave(
     filename = paste0(out.dir, "/", "gene_effects", ".eps"),
     plot = pl,
@@ -115,11 +125,12 @@ run <- function()
     height = 8)
 
   pl <- plot.gene.virus.effects(fit$fit)
-
   ggsave(
-    filename = paste0(out.dir, "/", "effect_matrix", ".eps")
+    filename = paste0(out.dir, "/", "effect_matrix", ".eps"),
     plot = pl,
     width = 8,
     height = 8)
 
 }
+
+run()

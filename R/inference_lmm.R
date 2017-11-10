@@ -45,6 +45,7 @@
 #'  if bootstrap.cnt is set
 #'
 #' @return returns a \code{knockdown.lmm.analysed} object
+#'
 setGeneric(
   "lmm",
   function(obj,

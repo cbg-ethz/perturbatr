@@ -35,12 +35,14 @@ random.effects.model <- function(rnai.screen, boo=0)
 
 run <- function()
 {
-  path        <- "./"
-  rnai.file   <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
-  lmm.outfile  <- paste0(path, "/", "lmm_fit", ".rds")
+  path         <- "./"
+  rnai.file    <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
+  lmm.outfile  <- paste0(path, "/data/", "lmm_fit", ".rds")
 
   rnai.screen <- readRDS(rnai.file)
   fit <- random.effects.model(rnai.screen)
 
   saveRDS(fit, lmm.outfile)
 }
+
+run()
