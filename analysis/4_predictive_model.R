@@ -69,14 +69,17 @@ library(ggplot2)
 cv.sets <- function(model.data)
 {
   dat <-
-    model.data %>%
+    model.data@.data %>%
     dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>% ungroup
   max.cv <- min(dat$cnt)
   if (max.cv > 10) max.cv <- 10
   grps <- unique(dat$grp)
   res <- do.call(
-    "rbind", lapply(grps, function (g)
+    "rbind",
+    lapply(
+      grps,
+      function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
         grp.dat$cvtestset <- rep(1:max.cv, length.out=nrow(grp.dat))
@@ -85,7 +88,7 @@ cv.sets <- function(model.data)
     )
   )
   res <- res %>% dplyr::select(-cnt, -grp)
-  res <- as(res)
+  res$GeneSymbol <- as.character(res$GeneSymbol)
   res
 }
 
@@ -160,10 +163,9 @@ benchmark.syn.predictability <- function(output.path, virs.cnt, var, rep.cnt)
       if (rep.cnt >= 7)
       {
         df.cv       <- .cv.validate(model.data)
-        sse         <- rbind(df.cv$data, df.bt$data)
+        sse         <- rbind(df.cv$dat)
         bench.list[[ paste0(el,"bt") ]] <-
           list(Vir=vir.cnt, Rep=rep.cnt, Var=var, sse=sse,
-                                 bt.model=df.bt$models,
                                  cv.model=df.cv$models,
                                  data=model.data)
         bench.list[[ paste0(el,"full") ]] <-
@@ -193,15 +195,12 @@ benchmark.syn.predictability <- function(output.path, virs.cnt, var, rep.cnt)
 
 benchmark.bio.predictability <- function(model.data, output.path)
 {
-  print("Doing bio!")
+  cat("Doing bio!\n")
   df.cv       <- .cv.validate(model.data)
-  df.bt       <- .bootstrap.validate(model.data)
-  sse         <- rbind(df.cv$data, df.bt$data)
+  sse         <- rbind(df.cv$data)
   bench.list  <- list()
-
-  bench.list[["full"]]    <- list(sse=sse,
-                                  bt.gene.effects=df.bt$models,
-                                  cv.gene.effects=df.cv$models)
+  cat("Success")
+  bench.list[["full"]]    <- list(sse=sse, cv.gene.effects=df.cv$models)
 
   vrs <- c("HCV", "DENV", "CHIKV", "SARS")
   for (idx in seq(2, length(vrs)))
@@ -209,11 +208,9 @@ benchmark.bio.predictability <- function(model.data, output.path)
     rnai.screen.sample <- dplyr::filter(model.data, Virus %in% vrs[1:idx])
     s <- paste0(vrs[1:idx], collapse="_")
     df.cv           <- .cv.validate(rnai.screen.sample)
-    df.bt           <- .bootstrap.validate(rnai.screen.sample)
-    sse             <- rbind(df.cv$data, df.bt$data)
+    sse             <- rbind(df.cv$data)
     bench.list[[s]] <- list(Virus=s,
                             sse=sse,
-                            bt.model=df.bt$models,
                             cv.model=df.cv$models,
                             data=model.data)
   }
@@ -246,7 +243,7 @@ run <- function()
     stop("Please provide correct arguments")
   }
 
-  rna.file    <- paste(path,  "rnai_screen_normalized.rds", sep="/")
+  rna.file    <- paste(path, "rnai_screen_normalized.rds", sep="/")
   rnai.screen <- readRDS(rna.file)
 
   model.data  <- knockdown::set.lmm.model.data(
@@ -254,9 +251,6 @@ run <- function()
 
   benchmark.bio.predictability(model.data, out.dir)
   benchmark.syn.predictability(out.dir, opt$virus, opt$sig, opt$replicate)
-
-  s <- warnings()
-  print(s)
 }
 
 run()

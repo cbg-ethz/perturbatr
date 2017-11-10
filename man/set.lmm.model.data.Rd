@@ -25,9 +25,3 @@ returns an \code{knockdown.lmm.data} object
 \description{
 Create model data for an LMM
 }
-\examples{
- data(rnaiscreen)
- rnaiscreen <- preprocess(rnaiscreen, normalize="log")
-
- lmm.model.data <- set.lmm.model.data(rnaiscreen)
-}
