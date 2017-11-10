@@ -44,7 +44,7 @@ methods::setAs(
         stop(paste0("column '", name, "'", " has not class ", req.els[[i]], "."))
       }
     }
-
+    
     els <- list("Virus"        = NA_character_,
                 "Replicate"    = NA_integer_,
                 "Plate"        = NA_integer_,

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' Create model data for an LMM
 #'
 #' @export
@@ -32,11 +33,6 @@
 #'
 #' @return  returns an \code{knockdown.lmm.data} object
 #'
-#' @examples
-#'  data(rnaiscreen)
-#'  rnaiscreen <- preprocess(rnaiscreen, normalize="log")
-#'
-#'  lmm.model.data <- set.lmm.model.data(rnaiscreen)
 set.lmm.model.data <- function(obj,
                                drop=TRUE,
                                ignore=1,
