@@ -69,7 +69,7 @@ library(ggplot2)
 cv.sets <- function(model.data)
 {
   dat <-
-    model.data@.data %>%
+    model.data %>%
     dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n(), grp=.GRP) %>% ungroup
   max.cv <- min(dat$cnt)
@@ -146,8 +146,9 @@ mse <- function(cv.test, fits)
   list(data=df, models=models)
 }
 
-benchmark.syn.predictability <- function(output.path, virs.cnt, var, rep.cnt)
+benchmark.syn.predictability <- function(out.path, virs.cnt, var, rep.cnt)
 {
+  cat("Doing synthetic benchmark!\n")
   for (m in c(0.5, 1 ,2))
   {
     noiseless.data <- .create.noiseless.data(rep.cnt=rep.cnt, virus.cnt=virs.cnt, mean=m)
@@ -193,19 +194,18 @@ benchmark.syn.predictability <- function(output.path, virs.cnt, var, rep.cnt)
   }
 }
 
-benchmark.bio.predictability <- function(model.data, output.path)
+benchmark.bio.predictability <- function(model.data, out.path)
 {
-  cat("Doing bio!\n")
-  df.cv       <- .cv.validate(model.data)
+  cat("Doing full bio!\n")
+  df.cv       <- .cv.validate(model.data@.data)
   sse         <- rbind(df.cv$data)
-  bench.list  <- list()
-  cat("Success")
-  bench.list[["full"]]    <- list(sse=sse, cv.gene.effects=df.cv$models)
+  bench.list  <- list(full=list(sse=sse, cv.gene.effects=df.cv$models))
 
   vrs <- c("HCV", "DENV", "CHIKV", "SARS")
   for (idx in seq(2, length(vrs)))
   {
-    rnai.screen.sample <- dplyr::filter(model.data, Virus %in% vrs[1:idx])
+    cat(paste("Doing bio on", idx, "\n"))
+    rnai.screen.sample <- dplyr::filter(model.data@.data, Virus %in% vrs[1:idx])
     s <- paste0(vrs[1:idx], collapse="_")
     df.cv           <- .cv.validate(rnai.screen.sample)
     sse             <- rbind(df.cv$data)
@@ -249,7 +249,7 @@ run <- function()
   model.data  <- knockdown::set.lmm.model.data(
     rnai.screen, weights=list("pooled"=1.5, "single"=1))
 
-  benchmark.bio.predictability(model.data, out.dir)
+  #benchmark.bio.predictability(model.data, out.dir)
   benchmark.syn.predictability(out.dir, opt$virus, opt$sig, opt$replicate)
 }
 
