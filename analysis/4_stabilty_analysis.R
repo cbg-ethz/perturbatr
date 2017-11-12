@@ -128,7 +128,7 @@ analyse <- function(md)
 
 ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene.cnt=100)
 {
-
+  cat("Synthetic stability ranking\n")
   graph           <- .graph(gene.cnt)
   rownames(graph) <- colnames(graph) <- paste0("G", 1:gene.cnt)
   noiseless.data  <- .create.noiseless.data(rep.cnt, virs.cnt, gene.cnt, graph)
@@ -142,7 +142,7 @@ ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene
   {
     viruses         <- paste0("V", 1:vir.cnt)
     sample.data     <- dplyr::filter(noisy.data, Virus %in% viruses)
-    bench.list <- c(bench.list, boot(dat=sample.data, rep.cnt=rep.cnt,vir.cnt=vir.cnt, v=var))    
+    bench.list <- c(bench.list, boot(dat=sample.data, rep.cnt=rep.cnt,vir.cnt=vir.cnt, v=var))
   }
 
   data.path   <- paste0(output.path, "/lmm_stability_",
@@ -156,6 +156,7 @@ ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene
 
 ranking.stability.bio <- function(model.data, output.path)
 {
+  cat("Biological stability ranking\n")
   rank.all.data <- analyse(model.data@.data)
   bench.list    <- list(full=rank.all.data)
 
@@ -174,7 +175,6 @@ ranking.stability.bio <- function(model.data, output.path)
         bench.list[[s]] <- list(Bootstrap=i,
                                 Virus= paste0(vrs[1:idx], collapse="_"),
                                 analyse(rnai.screen.sample@.data))
-                                cat("1\n")
         i <- i + 1
       }, error=function(e){ print(paste0("Didnt fit ", i, ": ", e)); i <<- 10000 },
          warning=function(e) { print(paste0("Bootstrap bio warning: ", e));  })
@@ -183,7 +183,7 @@ ranking.stability.bio <- function(model.data, output.path)
     }
   }
 
-  dat.pth <- paste0(output.path, "/",  "lmm_stability_bio_data_", ".rds")
+  dat.pth <- paste0(output.path, "/",  "lmm_stability_bio_data", ".rds")
   saveRDS(bench.list, dat.pth)
 }
 

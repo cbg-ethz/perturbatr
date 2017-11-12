@@ -1,5 +1,7 @@
-library(dtplyr)
+#!/usr/bin/env Rscript
+
 library(dplyr)
+library(dtplyr)
 library(tidyr)
 library(knockdown)
 library(ggplot2)
@@ -20,13 +22,10 @@ show.xtable <- function(tabl, caption, label, out.file)
 }
 
 # this is the compilation of the data-sets together
-print.merged.tables <- function(path, out.dir)
+print.merged.tables <- function(lmm, diffu, path, out.dir)
 {
 
-  lmm   <- readRDS(paste(path, "lmm_fit_bootstrap.rds", sep="/"))
-  diffu <- readRDS(paste(path, "diffusion.rds", sep="/"))
-
-  lmm.p <- lmm@.gene.effects
+  lmm.p <- lmm$fit@.gene.effects
   if (all(is.na(lmm.p$Qval))) lmm.p$Qval <- 0.2
 
   diff.hits <- dplyr::select(diffu@.data, GeneSymbol, DiffusionEffect) %>%
@@ -35,15 +34,13 @@ print.merged.tables <- function(path, out.dir)
                                 dplyr::select(lmm.p, GeneSymbol, Qval),
                                 by="GeneSymbol")
 
-  gps <- lmm@.gene.pathogen.effects %>%
+  gps <- lmm$fit@.gene.pathogen.effects %>%
     dplyr::select(Virus, GeneSymbol, Effect) %>%
     tidyr::spread(Virus, Effect)
-
   full.table <- diff.hits %>%
     .[order(-abs(DiffusionEffect))] %>%
     dplyr::mutate(RankNetworkAnalysis=seq(.N)) %>%
-    dplyr::select(-DiffusionEffect) #%>%
-  #.[1:max(which(FDR <= .2))]
+    dplyr::select(-DiffusionEffect)
 
   lmm.not.in <-
     lmm.p[!(lmm.p$GeneSymbol %in% full.table$GeneSymbol)] %>%
@@ -51,7 +48,8 @@ print.merged.tables <- function(path, out.dir)
 
   merged.table <- rbindlist(list(lmm.not.in, full.table)) %>%
     dplyr::mutate(o=seq(.N)) %>%
-    dplyr::left_join(dplyr::select(lmm@.gene.effects, GeneSymbol, Effect), by="GeneSymbol") %>%
+    dplyr::left_join(dplyr::select(lmm$fit@.gene.effects, GeneSymbol, Effect),
+                                   by="GeneSymbol") %>%
     dplyr::left_join(gps, by="GeneSymbol") %>%
     .[order(o)] %>% dplyr::select(-o)
 
@@ -64,8 +62,9 @@ print.merged.tables <- function(path, out.dir)
     dplyr::select(-Qval) %>%
     .[1:25]
 
-  out.file <- paste(out.dir, "two_stage_hit_list.txt"  sep="/")
-  show.xtable(merged.first.25, "caption", "label", out.file)
+  out.file <- paste(out.dir, "two_stage_final_hit_list",  sep="/")
+  show.xtable(merged.first.25, "caption", "label", paste0(out.file, ".txt"))
+  saveRDS(merged.first.25, paste0(out.file, ".rds"))
 }
 
 plot.subgraphs <- function(diffu, out.dir)
@@ -82,7 +81,7 @@ plot.subgraphs <- function(diffu, out.dir)
     V(subgraph)[gene]$size <- 3.25
 
     setEPS()
-    postscript(paste(outdir, "/graph_plot-", gene, ".eps"))
+    postscript(paste0(out.dir, "/graph_plot-", gene, ".eps"))
     plot(subgraph, layout=layout.kamada.kawai, edge.curved = -.05,
               edge.width=2, edge.color="grey",
               vertex.label.family = "Helvetica", vertex.label.font=2,
@@ -95,15 +94,13 @@ plot.subgraphs <- function(diffu, out.dir)
 
 run <- function()
 {
-  path <- "./data"
-  out.dir <- "./plots"
+  path     <- "./data"
+  out.dir  <- "./plots"
+  lmm      <- readRDS(paste(path, "lmm_fit.rds", sep="/"))
+  diffu    <- readRDS(paste(path, "diffusion.rds", sep="/"))
 
-  diff.path  <- paste(path, "diffusion.rds", sep="/")
-  diff.model <- readRDS(diff.path)
-
-  plot.subgraphs(diff.model, out.dir)
-  print.merged.tables(path, out.dir)
-
+  plot.subgraphs(diffu, out.dir)
+  print.merged.tables(lmm, diffu, path, out.dir)
 }
 
 run()

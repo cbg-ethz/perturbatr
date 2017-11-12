@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library(dplyr)
+library(dtplyr)
 library(tidyr)
 library(data.table)
 library(lme4)
@@ -22,22 +23,24 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
 {
   lmm.rel.gen <- true.ranks$GeneSymbol[1:i]
   dff <- NULL
-  # For full data interate to: 1:(len.ben - 1)
-  for (k in 1:10)
+  for (k in 1:(len.ben - 1))
   {
-    e1   <- dplyr::filter(cur.dat, Bootstrap==k) %>% .[order(-abs(Effect))]
-    el1  <- dplyr::filter(e1, GeneSymbol %in% lmm.rel.gen) %>% .[order(GeneSymbol)]
+    cur.dat <- data.table::as.data.table(cur.dat)
+    e1   <- dplyr::filter(cur.dat, Bootstrap==k) %>%
+      .[order(-abs(Effect))]
+    el1  <- dplyr::filter(e1, GeneSymbol %in% lmm.rel.gen) %>%
+      .[order(GeneSymbol)]
     jac1 <- e1[1:i]$GeneSymbol
-    # For full data interate to: (k + 1):len.ben
-    for (l in (k + 1):11)
+    for (l in (k + 1):len.ben)
     {
-      e2   <- dplyr::filter(cur.dat, Bootstrap==l) %>% .[order(-abs(Effect))]
-      el2  <- dplyr::filter(e2, GeneSymbol %in% lmm.rel.gen) %>% .[order(GeneSymbol)]
+      e2   <- dplyr::filter(cur.dat, Bootstrap==l) %>%
+        .[order(-abs(Effect))]
+      el2  <- dplyr::filter(e2, GeneSymbol %in% lmm.rel.gen) %>%
+         .[order(GeneSymbol)]
       jac2 <- e2[1:i]$GeneSymbol
 
       c <- cor(el1$Effect, el2$Effect, method="spearman")
       jac <- jaccard(jac1, jac2)
-
       dff <- rbindlist(list(
         dff,
         as.data.table(rbind(c(grp , GeneCount=i, Score=c,   Method="Spearman"),
@@ -64,8 +67,6 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
   }
   h <- unname(h)
 
-  # in this case we only look at a single file set
-  # fl.ls <- grep("viruscnt_6_repcnt_9_var_[1|2|5].rds", h, value=T)
   fl.ls <- h
   bootstrap.data <- c()
   for (f in fl.ls)
@@ -90,10 +91,7 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
                           GeneSymbol=c(lmm.genes, pmm.genes),
                           Effect=c(lmm.effects, pmm.effects),
                           Model=c(rep("knockdown", length(lmm.genes)),
-                                  rep("PMM", length(pmm.genes)))
-               )
-          )
-        )
+                                  rep("PMM", length(pmm.genes))))))
       }
     }
     bootstrap.data <- rbindlist(list(bootstrap.data, stab.data))
@@ -102,11 +100,11 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
   bootstrap.data
 }
 
-rank.lmm.bio <- function(fls.bio, ranking.file.prefix, out.dir)
+rank.lmm.bio <- function(fls.bio, ranking.table, out.dir)
 {
-  stab           <- readRDS(fls.bio)
+  stab            <- readRDS(fls.bio)
   true.ranks      <- stab$full
-  bootstrap.data <- rbindlist(
+  bootstrap.data  <- rbindlist(
     lapply(stab[-1], function(e) {
       lmm.genes   <- e[[3]]$lmm.fit$GeneSymbol
       pmm.genes   <- e[[3]]$pmm.fit$GeneSymbol
@@ -118,28 +116,26 @@ rank.lmm.bio <- function(fls.bio, ranking.file.prefix, out.dir)
                  Effect=c(lmm.effects, pmm.effects),
                  Model=c(rep("knockdown", length(lmm.genes)),
                          rep("PMM", length(pmm.genes))))
-    })
-  )
+    }))
 
-  bootstrap.data <- bootstrap.data %>% dplyr::filter(Model=="knockdown")
   bootstrap.data <- bootstrap.data %>%
+    dplyr::filter(Model=="knockdown") %>%
     group_by(Virus, Bootstrap) %>%
     dplyr::arrange(-abs(Effect)) %>% ungroup
   virs <- unique(bootstrap.data$Virus)
 
-  true.ranks <- true.ranks$lmm.fit %>% .[order(abs(Effect), decreasing=T)]
+  true.ranks <- true.ranks$lmm.fit %>%
+    .[order(abs(Effect), decreasing=T)]
   if (!file.exists(ranking.table))
   {
     len.ben <- length(unique(bootstrap.data$Bootstrap))
     df <- NULL
     for (vi in seq_along(virs))
     {
-      print(paste(vi))
       v <- virs[vi]
       cur.dat <- dplyr::filter(bootstrap.data, Virus==v)
       for (i in c(10, 25, 50, 75, 100))
       {
-        print(i)
         dff <- .rank.lmm.benchmark.pair(cur.dat, len.ben, true.ranks, 1, i)
         df  <- rbindlist(
           list(df,
@@ -153,13 +149,10 @@ rank.lmm.bio <- function(fls.bio, ranking.file.prefix, out.dir)
       }
     }
 
-    ranking.table <- paste0(ranking.file.prefix, "_table.rds")
-
     saveRDS(df, ranking.table)
   }
 
   df <- readRDS(ranking.table) %>% as.data.table
-
   df$Score <- as.numeric(df$Score)
   df$Virus[df$Virus == 1] <- "2 viruses"
   df$Virus[df$Virus == 2] <- "3 viruses"
@@ -188,11 +181,8 @@ rank.lmm.bio <- function(fls.bio, ranking.file.prefix, out.dir)
   p
 }
 
-rank.lmm.syn <- function(fls.stn, ranking.file.prefix, out.dir)
+rank.lmm.syn <- function(fls.stn, ranking.table, out.dir)
 {
-  ranking.table <- paste0(ranking.file.prefix, "_table.rds")
-  plt <- paste0(ranking.file.prefix, "_plot.rds")
-
   bootstrap.data <- .get.syn.bst.data(fls.stn)
 
   bootstrap.data <- bootstrap.data %>% dplyr::filter(Model == "knockdown")
@@ -215,8 +205,6 @@ rank.lmm.syn <- function(fls.stn, ranking.file.prefix, out.dir)
       len.ben <- cur.dat$Bootstrap %>% unique %>% length
       for (i in c(10, 25, 50, 75, 100))
       {
-        cat(paste(grp, i, "\n"))
-        # -1 cause bench goes to 101
         dff <- .rank.lmm.benchmark.pair(cur.dat, len.ben - 1, true.ranks, grp, i)
         df  <- rbindlist(
           list(df,
@@ -226,9 +214,7 @@ rank.lmm.syn <- function(fls.stn, ranking.file.prefix, out.dir)
                  Variance=cur.dat$Variance[1],
                  GeneCount=dff$GeneCount,
                  Score=dff$Score,
-                 Method=dff$Method)
-               )
-          )
+                 Method=dff$Method)))
       }
     }
     saveRDS(df, ranking.table)
@@ -245,7 +231,6 @@ rank.lmm.syn <- function(fls.stn, ranking.file.prefix, out.dir)
                         levels=c("Low variance", "Medium variance" , "High variance"))
   df$GeneCount <-
     factor(as.integer(as.character(df$GeneCount)), levels=c(10, 25, 50, 75, 100))
-  # t <- dplyr::filter(df, Virus=="4")
 
   p <-
     ggplot2::ggplot(df) +
@@ -272,20 +257,18 @@ rank.lmm.syn <- function(fls.stn, ranking.file.prefix, out.dir)
 
 run <- function()
 {
-
-  path <- "./data"
+  path    <- "./data"
   out.dir <- "./plots"
+  fls     <- list.files(path,full.names = T)
+  fls.bio <- grep("lmm_stability_bio", fls, value = T)
+  fls.stn <- grep("lmm_stability_synthetic", fls, value = T)
 
-  # files to process
-  fls <- list.files(path,full.names = T)
-
-  fls.bio <- grep("lmm_stability__bio", fls, value = T)
-  fls.stn <- grep("lmm_stability__synthetic", fls, value = T)
-
-  p.bio <- rank.lmm.bio(
-    fls.bio, "lmm_stability_selection_bio_ranking")
-  p.syn <- rank.lmm.syn(
-    fls.stn, "lmm_stability_selection_syn_ranking")
+  cat("Plotting bio table\n")
+  ranking.table <- paste(path, "lmm_stability_selection_bio_ranking.rds", sep="/")
+  p.bio <- rank.lmm.bio(fls.bio, ranking.table)
+  cat("Plotting syn table\n")
+  ranking.table <- paste(path, "lmm_stability_selection_syn_ranking.rds", sep="/")
+  p.syn <- rank.lmm.syn(fls.stn, ranking.table)
 
   leg <- get_legend(p.bio + theme(legend.position="bottom"))
   prow <- plot_grid(p.syn + theme(legend.position="none") + labs(subtitle="Synthetic data benchmark"),

@@ -1,34 +1,31 @@
 #!/usr/bin/env Rscript
 
 library(dplyr)
+library(dtplyr)
 library(data.table)
 library(knockdown)
-library(grid)
-library(gridExtra)
-library(xtable)
-library(igraph)
 
 network.propagation <- function(lmm, graph.file)
 {
 
-  diffusion <- knockdown::diffuse(lmm,
-                                 method="mrw",
-                                 path=graph.file,
-                                 delete.nodes.on.degree=2,
-                                 r=0.20)
+  diffusion <- knockdown::diffuse(lmm, path=graph.file,
+                                  delete.nodes.on.degree=1,
+                                  r=0.20)
 
   diffusion
 }
 
 run <- function()
 {
-  path    <- "./data"
-  out.dir <- "./data"
+  path       <- "./data"
+  out.dir    <- "./data"
   graph.file <- paste(path, "graph_file.tsv", sep="/")
 
   lmm.fit <- readRDS(paste(path, "lmm_fit.rds", sep="/"))
-  diff <-  network.propagation(lmm.fit$fit, graph.file)
+  diff    <- network.propagation(lmm.fit$fit, graph.file)
 
-  out.file <- paste0(out.dir, "/", "diffusion" ."rds")
+  out.file <- paste0(out.dir, "/", "diffusion.rds")
   saveRDS(diff, out.file)
 }
+
+run()

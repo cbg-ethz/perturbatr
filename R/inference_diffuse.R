@@ -73,8 +73,7 @@ setMethod(
            do.bootstrap=FALSE,
            ...)
   {
-    method <- match.arg(method)
-    hits   <- dplyr::select(obj@.gene.hits, GeneSymbol, Effect) %>%
+    hits <- dplyr::select(obj@.gene.hits, GeneSymbol, Effect) %>%
       dplyr::mutate(Effect = abs(Effect))
     if (nrow(hits) == 0)
       stop("Your prior analysis did not yield hits for genes")
