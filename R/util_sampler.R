@@ -41,25 +41,27 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
 #' @import data.table
 #' @importFrom tibble as.tibble
 #' @importFrom dplyr mutate select group_by filter group_indices
-#' @importFrom methods new
 bootstrap.data.table <- function(obj, level=c("sirna", "pathogen"))
 {
   dat <- tibble::as.tibble(obj)
   grps <- dplyr::group_indices(dat, Virus, ScreenType, GeneSymbol)
   dat  <- dplyr::mutate(dat, grp=grps) %>%
     dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
-    dplyr::mutate(cnt=n())
+    dplyr::mutate(cnt=n()) %>%
+    ungroup
 
-  res <- data.table::rbindlist(
+  res <- do.call(
+      "rbind",
       lapply(unique(dat$grp),
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
         idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
-        grp.dat[idx]
+        grp.dat[idx,]
       }))
 
-  dplyr::select(res, -cnt, -grp)
+  ret <- dplyr::select(res, -cnt, -grp)
+  ret
 }
 
 
@@ -70,6 +72,6 @@ bootstrap.data.table <- function(obj, level=c("sirna", "pathogen"))
 bootstrap.knockdown.data <- function(obj, level=c("sirna", "pathogen"))
 {
   res <- bootstrap(obj@.data)
-  ret <- methods::new(class(obj)[1], .data=res)
+  ret <- methods::new(class(obj)[1], .data=data.table::as.data.table(res))
   ret
 }

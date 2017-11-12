@@ -22,12 +22,14 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
 {
   lmm.rel.gen <- true.ranks$GeneSymbol[1:i]
   dff <- NULL
-  for (k in 1:(len.ben-1))
+  # For full data interate to: 1:(len.ben - 1)
+  for (k in 1:10)
   {
     e1   <- dplyr::filter(cur.dat, Bootstrap==k) %>% .[order(-abs(Effect))]
     el1  <- dplyr::filter(e1, GeneSymbol %in% lmm.rel.gen) %>% .[order(GeneSymbol)]
     jac1 <- e1[1:i]$GeneSymbol
-    for (l in (k + 1):len.ben)
+    # For full data interate to: (k + 1):len.ben
+    for (l in (k + 1):11)
     {
       e2   <- dplyr::filter(cur.dat, Bootstrap==l) %>% .[order(-abs(Effect))]
       el2  <- dplyr::filter(e2, GeneSymbol %in% lmm.rel.gen) %>% .[order(GeneSymbol)]
@@ -38,7 +40,7 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
 
       dff <- rbindlist(list(
         dff,
-        as.data.table(rbind(c(grp , GeneCount=i, Score=c, Method="Spearman"),
+        as.data.table(rbind(c(grp , GeneCount=i, Score=c,   Method="Spearman"),
                             c(grp , GeneCount=i, Score=jac, Method="Jaccard")))
       ))
     }
