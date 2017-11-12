@@ -37,32 +37,39 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
 }
 
 #' @export
-#' @method bootstrap knockdown.data
+#' @method bootstrap data.table
 #' @import data.table
-#' @importFrom dplyr left_join mutate select group_by filter
-#' @importFrom parallel mclapply detectCores
+#' @importFrom tibble as.tibble
+#' @importFrom dplyr mutate select group_by filter group_indices
 #' @importFrom methods new
-bootstrap.knockdown.data <- function(obj, level=c("sirna", "pathogen"))
+bootstrap.data.table <- function(obj, level=c("sirna", "pathogen"))
 {
-  dat <- obj@.data %>%
+  dat <- tibble::as.tibble(obj)
+  grps <- dplyr::group_indices(dat, Virus, ScreenType, GeneSymbol)
+  dat  <- dplyr::mutate(dat, grp=grps) %>%
     dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
-    dplyr::mutate(cnt=n(), grp=.GRP) %>%
-    ungroup
+    dplyr::mutate(cnt=n())
 
   res <- data.table::rbindlist(
-    parallel::mclapply(
-      unique(dat$grp),
+      lapply(unique(dat$grp),
       function (g)
       {
         grp.dat <- dplyr::filter(dat, grp==g)
         idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
         grp.dat[idx]
-      },
-      mc.cores=ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),
-                      max(1, parallel::detectCores() - 1), 1L)
-    )
-  )
+      }))
 
-  ret <- methods::new(class(obj)[1], .data=dplyr::select(res, -cnt, -grp))
+  dplyr::select(res, -cnt, -grp)
+}
+
+
+#' @export
+#' @method bootstrap knockdown.data
+#' @import data.table
+#' @importFrom methods new
+bootstrap.knockdown.data <- function(obj, level=c("sirna", "pathogen"))
+{
+  res <- bootstrap(obj@.data)
+  ret <- methods::new(class(obj)[1], .data=res)
   ret
 }
