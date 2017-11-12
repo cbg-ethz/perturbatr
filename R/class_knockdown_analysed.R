@@ -174,26 +174,6 @@ setClass(
 setClass(
   "knockdown.mrw.diffusion.analysed",
   contains  = "knockdown.diffusion.analysed",
-  prototype = prototype(.inference.types()$MRW.DIFFUSION)
-)
-
-
-#' @title Data wrapper for analysed knockdown data using nearest neighbors
-#'
-#' @name kNN-DiffusionAnalysis-class
-#' @rdname kNN_diffusion_knockdown_analysis-class
-#'
-#' @import igraph
-#'
-#' @description Class \code{knockdown.mrw.diffusion.analysed} is a wrapper for a
-#'   \code{data.table} object containing the knockdown data
-#'
-#' @slot .neighbors  a \code{data.table} with found neighbors for every start
-#'  gene
-setClass(
-  "knockdown.knn.diffusion.analysed",
-  contains  = "knockdown.diffusion.analysed",
-  slots     = list(.neighbors   = "data.table"),
-  prototype = prototype(.inference.types()$NN.DIFFUSION,
+  prototype = prototype(.inference=.inference.types()$MRW.DIFFUSION,
                         .is.bootstrapped=FALSE)
 )

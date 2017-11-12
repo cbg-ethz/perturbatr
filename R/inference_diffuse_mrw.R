@@ -50,7 +50,6 @@ mrw <- function(hits,
 
   ret <- new("knockdown.mrw.diffusion.analysed",
              .graph           = graph,
-             .initial.model   = mod,
              .params          = list(
                restart.probaility     = r,
                delete.nodes.on.degree = delete.nodes.on.degree),
