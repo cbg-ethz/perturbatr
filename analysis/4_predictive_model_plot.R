@@ -26,8 +26,7 @@ bio.pred <- function(fls.bio)
 
   df <- rbindlist(lapply(stab, function(el) {
     data.table(Virus=length(unlist(stringr::str_split(el$Virus, "_"))),
-               el$sse)
-  }))
+               el$sse)}))
 
   df <- df %>% dplyr::filter(Sampling=="CV")
 
@@ -53,21 +52,17 @@ bio.pred <- function(fls.bio)
     ylab("Mean residual sum of squares")
 
   p
-
 }
 
 syn.pred <- function(fls.stn)
 {
-
     df <- rbindlist(lapply(fls.stn, function (f) {
       fld <- readRDS(f)
-      me <- stringr::str_match(f, ".*genemean_(.+)_.*")[2] %>% as.numeric
+      me <- stringr::str_match(f, ".*genemean_(.+).rds")[2] %>% as.numeric
       dff <- NULL
-      # only take lists with benchmark results
       ix <- grep("bt$", names(fld$benchmark))
       for (i in ix)
       {
-        print(names(fld$benchmark)[i])
         curd <- fld$benchmark[[i]]
         dt <- data.table(VirusCount=curd$Vir,
                          Mean=me,
@@ -76,7 +71,6 @@ syn.pred <- function(fls.stn)
                          curd$sse)
         dff <- rbindlist(list(dff, dt))
       }
-
       dff
     }))
 
@@ -89,14 +83,13 @@ syn.pred <- function(fls.stn)
     df$Variance <- factor(df$Variance,
                           levels=c("Low variance", "Medium variance" , "High variance"))
 
-    s <- df
     p <-
       ggplot2::ggplot(df) +
       geom_boxplot(aes(x     = Model,
                        y     = MSE,
                        fill  = Model), , width=.5) +
       ggplot2::scale_fill_manual(values =ggthemr:::palettes$fresh$swatch[c(2,4)]) +
-      ggplot2::facet_grid(Variance ~  ., scale="free") +
+      ggplot2::facet_grid(Variance ~ ., scale="free") +
       theme_bw() +
       theme(text = element_text(size = 20)) +
       hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
@@ -115,13 +108,15 @@ syn.pred <- function(fls.stn)
 run <- function()
 {
   path <- "./data"
-  out.dir <-  "./data"
+  out.dir <-  "./plots"
 
   fls <- list.files(path, full.names = T)
   fls.bio <- grep("lmm_predictability_bio", fls, value = T)
-  fls.stn <- grep("lmm_predictability__synthetic.*0.5.*", fls, value = T)
+  fls.stn <- grep("lmm_predictability_synthetic.*0.5.*", fls, value = T)
 
+  cat("Plotting bio\n")
   p.bio <- bio.pred(fls.bio)
+  cat("Plotting syn\n")
   p.syn <- syn.pred(fls.stn)
 
   leg <- get_legend(p.bio + theme(legend.position="bottom"))
@@ -137,7 +132,8 @@ run <- function()
   pl
 
   ggsave(
-    filename = paste0(out.dir, "/", lubridate::today(), "-predictability_analysis_combined_plot-", UUIDgenerate(), ."eps"),
+    filename = paste0(out.dir, "/",
+    "predictability_analysis_combined_plot.eps"),
     plot = pl,
     width = 12,
     height = 8)

@@ -249,7 +249,7 @@ run <- function()
   model.data  <- knockdown::set.lmm.model.data(
     rnai.screen, weights=list("pooled"=1.5, "single"=1))
 
-  #benchmark.bio.predictability(model.data, out.dir)
+  benchmark.bio.predictability(model.data, out.dir)
   benchmark.syn.predictability(out.dir, opt$virus, opt$sig, opt$replicate)
 }
 
