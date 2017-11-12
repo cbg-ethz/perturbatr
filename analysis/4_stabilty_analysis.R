@@ -93,18 +93,17 @@ boot <- function(dat, rep.cnt, vir.cnt, v)
 {
   bench.list <- list()
   i <- 1
-
   repeat
   {
     s <- paste0("var:", v, ",vir:", vir.cnt, ",rep:", rep.cnt, ",bootstrap:", i)
-    print(s)
     tryCatch({
       subs <- knockdown:::bootstrap(dat)
-      bench.list[[s]] <- list(Var=v,
-                              Rep=rep.cnt,
-                              Vir=vir.cnt,
-                              Bootstrap=i,
-                              model=analyse(subs))
+      bench.list[[i]] <-  list(Var=v,
+                               Rep=rep.cnt,
+                               Vir=vir.cnt,
+                               Bootstrap=i,
+                               model=analyse(subs))
+
       i <- i + 1
     }, error=function(e)   { print(paste0("Didnt fit ", i, ": ", e)); i <- 10000 })
     if (i >= 10) break
@@ -133,7 +132,7 @@ ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene
   graph           <- .graph(gene.cnt)
   rownames(graph) <- colnames(graph) <- paste0("G", 1:gene.cnt)
   noiseless.data  <- .create.noiseless.data(rep.cnt, virs.cnt, gene.cnt, graph)
-  noisy.data <- dplyr::mutate(noiseless.data, Readout=Effect+rnorm(nrow(noiseless.data), 0, var))
+  noisy.data <- dplyr::mutate(noiseless.data, Readout=Effect + rnorm(nrow(noiseless.data), 0, var))
   bench.list            <- list(graph=graph, data=list(Var=0, Rep.cnt=rep.cnt, Vir=virs.cnt, Bootstrap=0, model=noiseless.data))
 
   s <- paste0("var:", var, ",vir:", virs.cnt, ",rep:", rep.cnt, ",bootstrap:0")
@@ -143,13 +142,11 @@ ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene
   {
     viruses         <- paste0("V", 1:vir.cnt)
     sample.data     <- dplyr::filter(noisy.data, Virus %in% viruses)
-    bench.list <- c(bench.list, boot(dat=sample.data, rep.cnt=rep.cnt,
-                                     vir.cnt=vir.cnt, v=var))
-
+    bench.list <- c(bench.list, boot(dat=sample.data, rep.cnt=rep.cnt,vir.cnt=vir.cnt, v=var))    
   }
 
   data.path   <- paste0(output.path, "/lmm_stability_",
-                        "_synthetic_data",
+                        "synthetic_data",
                         "_viruscnt_", virs.cnt,
                         "_repcnt_", rep.cnt,
                         "_var_", var,
@@ -177,6 +174,7 @@ ranking.stability.bio <- function(model.data, output.path)
         bench.list[[s]] <- list(Bootstrap=i,
                                 Virus= paste0(vrs[1:idx], collapse="_"),
                                 analyse(rnai.screen.sample@.data))
+                                cat("1\n")
         i <- i + 1
       }, error=function(e){ print(paste0("Didnt fit ", i, ": ", e)); i <<- 10000 },
          warning=function(e) { print(paste0("Bootstrap bio warning: ", e));  })
@@ -185,7 +183,7 @@ ranking.stability.bio <- function(model.data, output.path)
     }
   }
 
-  dat.pth <- paste0(output.path, "/",  "lmm_stability__bio_data_", ".rds")
+  dat.pth <- paste0(output.path, "/",  "lmm_stability_bio_data_", ".rds")
   saveRDS(bench.list, dat.pth)
 }
 
@@ -215,8 +213,7 @@ run <- function()
   model.data  <- knockdown::filter(rnai.screen, Virus != "CVB")
   model.data  <- set.lmm.model.data(model.data, weights=list("pooled"=1.5, "single"=1))
 
-  #ranking.stability.bio(model.data, out.dir)
-
+  ranking.stability.bio(model.data, out.dir)
   ranking.stability.sythetic(out.dir, opt$virus, opt$replicate, opt$sig)
 
 }
