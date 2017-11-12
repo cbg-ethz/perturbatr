@@ -1,8 +1,5 @@
 #!/usr/bin/env Rscript
 
-library(dplyr)
-library(dtplyr)
-library(data.table)
 library(knockdown)
 
 network.propagation <- function(lmm, graph.file)

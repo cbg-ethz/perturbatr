@@ -7,7 +7,6 @@ library(tidyr)
 library(lme4)
 library(optparse)
 library(knockdown)
-library(ggplot2)
 
 .create.noiseless.data <- function(rep.cnt, virus.cnt, mean)
 {

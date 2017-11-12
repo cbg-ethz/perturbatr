@@ -8,6 +8,7 @@ library(lme4)
 library(utils)
 library(tidyr)
 library(formula.tools)
+
 options(warn=-1)
 
 do.lmm <- function(model.data, formulae)
