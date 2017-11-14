@@ -25,3 +25,4 @@ LICENSE
 ^README-.*\.png$
 ^tests
 ^tests/
+^docs$
