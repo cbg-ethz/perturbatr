@@ -23,7 +23,7 @@ hm(obj, drop = TRUE, weights = NULL, rel.mat.path = NULL,
 \item{obj}{an svd.data object}
 
 \item{drop}{boolean flag if all entries should be dropped that are not
-found in every virus}
+found in every Condition}
 
 \item{weights}{a list of weights}
 

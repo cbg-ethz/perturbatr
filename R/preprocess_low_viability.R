@@ -30,11 +30,11 @@
     message(paste0("\tUsing t-test with mu=85*mean(viability(",
                   rm.cytotoxic, ")) and alternative=less"))
     obj <-
-      dplyr::group_by(obj, Virus, Screen, Library,
+      dplyr::group_by(obj, Condition, Screen, Library,
                       ScreenType, ReadoutType,
                       Design, Cell) %>%
       # set siRNAS that are cytotoxic within each replicate
-      dplyr::mutate(Remove=.set.cytotoxic(Readout, Viability, siRNAIDs,
+      dplyr::mutate(Remove=.set.cytotoxic(Readout, Viability, Perturbation,
                                           Control, GeneSymbol,
                                           Plate, RowIdx, ColIdx,
                                           rm.cytotoxic)) %>%

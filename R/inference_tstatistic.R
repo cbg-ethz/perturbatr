@@ -103,7 +103,7 @@ setMethod(
 	message(paste("Correcting with ", padjust, "!", sep=""))
 	message(paste("Taking", mu, "for t-test mu!"))
 	# do NOT group by replicate here, we do inference using these
-	ret <- dplyr::group_by(obj, Virus, Screen, Library,
+	ret <- dplyr::group_by(obj, Condition, Screen, Library,
 												 ReadoutType, ScreenType,
 												 Design, Cell) %>%
 		dplyr::mutate(grp=.GRP) %>%
@@ -116,7 +116,7 @@ setMethod(
 			function (g)
 			{
 				grp.dat <- dplyr::filter(ret, grp==g) %>% ungroup
-				message(paste("Doing grp: ", paste(grp.dat$Virus[1],
+				message(paste("Doing grp: ", paste(grp.dat$Condition[1],
 																					 grp.dat$Screen[1],
 																					 grp.dat$ScreenType[1],
 																					 grp.dat$ReadoutType[1],
@@ -167,10 +167,10 @@ setMethod(
 {
 	ret <- obj %>% ungroup
 	mu <- .set.mu(ret, mu)
-	ret <- dplyr::group_by(ret, Virus, Screen, Library,
+	ret <- dplyr::group_by(ret, Condition, Screen, Library,
 												 ReadoutType, ScreenType, Cell, Design,
 												 GeneSymbol, Entrez, Plate, Control,
-												 RowIdx, ColIdx, siRNAIDs) %>%
+												 RowIdx, ColIdx, Perturbation) %>%
 		dplyr::summarize(Pval=.t.test(GeneSymbol, Readout, mu)$p.value,
 										 Readout=mean(Readout, na.rm=TRUE))  %>%
 		ungroup
@@ -242,15 +242,15 @@ setMethod(
 																	 pval.threshold=0.05,
 																	 qval.threshold=1)
 {
-	res <- dplyr::group_by(obj, Virus, Screen, Library,
+	res <- dplyr::group_by(obj, Condition, Screen, Library,
 												 ScreenType, ReadoutType,
 												 Design, Cell,
 												 GeneSymbol, Entrez,
-												 Plate, RowIdx, ColIdx, siRNAIDs) %>%
+												 Plate, RowIdx, ColIdx, Perturbation) %>%
 		dplyr::mutate(Hit=(Pval <= pval.threshold &
 											 	abs(Readout) >= effect.size)) %>%
 		ungroup %>%
-		dplyr::group_by(Virus, Screen, Library,
+		dplyr::group_by(Condition, Screen, Library,
 										ReadoutType, ScreenType,
 										Design, Cell,
 										GeneSymbol, Entrez) %>%

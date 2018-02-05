@@ -42,7 +42,7 @@
   stopifnot(all(probs <= 1), all(probs >= 0))
   message(paste("Removing wells based on ", probs[1],
                 "% and ", probs[2], "% quantile of cell number!"))
-  obj <- dplyr::group_by(obj, Virus, Screen, Library,
+  obj <- dplyr::group_by(obj, Condition, Screen, Library,
                          ScreenType, ReadoutType, ReadoutClass,
                          Cell, Design) %>%
     dplyr::mutate(Readout=.rmwqs(Readout, NumCells, probs)) %>%

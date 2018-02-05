@@ -34,7 +34,7 @@
   message(paste("Calculating", method, "z-scores on", level))
   if (!is.na(ctrl)) message(paste("...normalizing on", ctrl))
   z.score.data <-
-    dplyr::group_by(obj, Virus, Screen, Library,
+    dplyr::group_by(obj, Condition, Screen, Library,
                     ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell, Replicate, Plate)
   if (level == "plate")

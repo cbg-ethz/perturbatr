@@ -23,7 +23,7 @@
 .background.correct <- function(obj, background.column, background.row, method)
 {
   ret <-
-    dplyr::group_by(obj, Virus, Screen, Library, Replicate, Plate,
+    dplyr::group_by(obj, Condition, Screen, Library, Replicate, Plate,
                     ScreenType, ReadoutType, ReadoutClass,
                     Design, Cell)
 
@@ -56,7 +56,7 @@
   }
 
   ret <-
-    dplyr::group_by(ret, Virus, Screen, Library, Replicate, Plate,
+    dplyr::group_by(ret, Condition, Screen, Library, Replicate, Plate,
                     ScreenType, ReadoutType, ReadoutClass,
                     Design, Cell) %>%
     dplyr::mutate(Readout = .substract.background(Readout, f, bk)) %>%

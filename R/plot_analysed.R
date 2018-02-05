@@ -44,8 +44,8 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
   pl2 <-
     .plot.perturbation.hm.analysed(x@.gene.pathogen.hits, main="", size=size) +
     ggplot2::facet_wrap(
-      ~ Virus,
-      ncol=ceiling(length(unique(x@.gene.pathogen.hits$Virus))/2))
+      ~ Condition,
+      ncol=ceiling(length(unique(x@.gene.pathogen.hits$Condition))/2))
   pl3 <- .plot.effect.matrices.perturbation.analysed.hm(x, size)
   pl4 <- .plot.hit.counts(x, size)
   pl5 <- .plot.vulcano(x, size)
@@ -64,10 +64,10 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
 .plot.perturbation.hm.analysed  <- function(x, main, size, ...)
 {
   pars <- list(...)
-  if ("Virus" %in% colnames(x))
+  if ("Condition" %in% colnames(x))
   {
     x <- dplyr::filter(x, Control == 0) %>%
-      .[order(abs(Effect), decreasing=TRUE), .SD[1:25], by=Virus] %>%
+      .[order(abs(Effect), decreasing=TRUE), .SD[1:25], by=Condition] %>%
       dplyr::filter(!is.na(GeneSymbol))
   }
   else
@@ -134,7 +134,7 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
     ggplot2::scale_fill_gradient2(low      = LDcolors[1],
                                   high     = LDcolors[11],
                                   na.value = LDcolors[6],
-                                  name     = "Gene virus\neffect") +
+                                  name     = "Gene Condition\neffect") +
     ggplot2::coord_flip() +
     ggplot2::theme_bw() +
     ggplot2::theme(text=ggplot2::element_text(size = size, family = "Helvetica"),
@@ -155,13 +155,13 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
   obj <- x@.gene.pathogen.effects
   single.res <- obj %>%
     dplyr::mutate(Sign=sign(Effect)) %>%
-    dplyr::group_by(Virus, Sign) %>%
+    dplyr::group_by(Condition, Sign) %>%
     dplyr::summarize(cnt=n()) %>%
     ungroup %>%
     dplyr::mutate(Count=cnt*Sign)
 
   pl <-
-    ggplot2::ggplot(single.res, aes(x=Virus, y=Count, fill=Sign)) +
+    ggplot2::ggplot(single.res, aes(x=Condition, y=Count, fill=Sign)) +
     ggplot2::geom_bar(stat="identity", position="dodge") +
     ggplot2::scale_fill_distiller(palette="Spectral") +
     ggplot2::theme_bw() +
@@ -170,7 +170,7 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
                    axis.text.y=ggplot2::element_blank()) +
     ggplot2::geom_hline(yintercept=0) +
     ggplot2::ylab("Count hits") +
-    ggplot2::geom_text(aes(x=Virus, y=ifelse(Count>0, Count+1, Count-1),
+    ggplot2::geom_text(aes(x=Condition, y=ifelse(Count>0, Count+1, Count-1),
                            label=abs(Count)), size=5, colour="black")
   pl
 }

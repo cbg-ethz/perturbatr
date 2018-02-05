@@ -15,7 +15,7 @@ Example \code{perturbation.data} data-set consisting of two-viral screen with
 }
 \details{
 \itemize{
-    \item Virus  \code{character} names of the viruses
+    \item Condition  \code{character} names of the viruses
     \item Replicate  \code{integer} replicate numer
     \item Plate  \code{integer} plate index
     \item RowIdx  \code{integer} row index of the well on the plate

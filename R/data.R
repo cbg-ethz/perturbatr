@@ -24,7 +24,7 @@
 #'  random data.
 #'
 #' \itemize{
-#'     \item Virus  \code{character} names of the viruses
+#'     \item Condition  \code{character} names of the viruses
 #'     \item Replicate  \code{integer} replicate numer
 #'     \item Plate  \code{integer} plate index
 #'     \item RowIdx  \code{integer} row index of the well on the plate

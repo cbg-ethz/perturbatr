@@ -28,7 +28,7 @@
   else message("Calculating POC on negative controls!")
   f <- .summarization.method(method)
   ret <-
-    dplyr::group_by(obj, Virus, Screen, Library,
+    dplyr::group_by(obj, Condition, Screen, Library,
                     ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell, Replicate, Plate) %>%
     dplyr::mutate(Readout=.poc.grp(Readout, ctrl.gene, f, Control, GeneSymbol))

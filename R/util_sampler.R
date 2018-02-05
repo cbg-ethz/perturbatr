@@ -44,9 +44,9 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
 bootstrap.data.table <- function(obj, level=c("sirna", "pathogen"))
 {
   dat <- tibble::as.tibble(obj)
-  grps <- dplyr::group_indices(dat, Virus, ScreenType, GeneSymbol)
+  grps <- dplyr::group_indices(dat, Condition, ScreenType, GeneSymbol)
   dat  <- dplyr::mutate(dat, grp=grps) %>%
-    dplyr::group_by(Virus, ScreenType, GeneSymbol) %>%
+    dplyr::group_by(Condition, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n()) %>%
     ungroup
 

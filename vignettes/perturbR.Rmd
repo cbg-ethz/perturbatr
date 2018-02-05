@@ -131,7 +131,7 @@ Suppose we normalized our data-set and centered the data around zero. One way to
 is to use a standard `t-test`:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width=4}
-  v1.dat <- perturbation::filter(rnaiscreen, Virus=="V1")
+  v1.dat <- perturbR::filter(rnaiscreen, Condition=="V1")
   v1.res <- tstatistic(v1.dat)
   plot(v1.res)
 ```

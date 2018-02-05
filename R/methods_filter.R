@@ -35,7 +35,7 @@
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  flt.dat <- filter(rnaiscreen, Virus=="V1")
+#'  flt.dat <- filter(rnaiscreen, Condition=="V1")
 filter <- function(obj, ...) UseMethod("filter")
 
 

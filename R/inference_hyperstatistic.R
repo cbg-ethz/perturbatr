@@ -123,7 +123,7 @@ setMethod(
 		message(paste("Summarizing with ", summ.method, "!", sep=""))
 
 	summ.method <- .summarization.method(summ.method)
-	ret <- dplyr::group_by(obj, Virus, Screen, ReadoutType,
+	ret <- dplyr::group_by(obj, Condition, Screen, ReadoutType,
 												 ScreenType, Library, Design, Cell) %>%
 		dplyr::mutate(grp = .GRP) %>% ungroup
 	grps <- unique(ret$grp)
@@ -133,7 +133,7 @@ setMethod(
 			grps, function (g)
 			{
 				grp.dat <- dplyr::filter(ret, grp==g)
-				message(paste("Doing grp: ", paste(grp.dat$Virus[1],
+				message(paste("Doing grp: ", paste(grp.dat$Condition[1],
 																					 grp.dat$Screen[1],
 																					 grp.dat$ScreenType[1],
 																					 grp.dat$ReadoutType[1],
@@ -165,11 +165,11 @@ setMethod(
 		message(paste("\t...summarizing single siRNAs over replicates!"))
 		# summarize all the sirnas over the different replicates
 		# so: for a gene A and siRNA B, every siRNA B has ONE observation
-		res <- dplyr::group_by(res, Virus, Screen, Library,
+		res <- dplyr::group_by(res, Condition, Screen, Library,
 													 ScreenType, ReadoutType,
 													 Cell, Design,
 													 Plate, RowIdx, ColIdx,
-													 GeneSymbol, Entrez, siRNAIDs) %>%
+													 GeneSymbol, Entrez, Perturbation) %>%
 			dplyr::summarize(Readout=summ.method(Readout, na.rm=TRUE)) %>%
 			ungroup
 	}
@@ -184,9 +184,9 @@ setMethod(
 	}
 
 	# do hyper test on every screen
-	res <- dplyr::group_by(res, Virus, Screen, Library, ReadoutType, ScreenType,
+	res <- dplyr::group_by(res, Condition, Screen, Library, ReadoutType, ScreenType,
 												 Cell, Design) %>%
-		dplyr::mutate(HRes=.hypertest(GeneSymbol, siRNAIDs, Plate,
+		dplyr::mutate(HRes=.hypertest(GeneSymbol, Perturbation, Plate,
 																	RowIdx, ColIdx, Readout, level)) %>%
 		ungroup %>%
 		tidyr::separate(HRes, c("Pval", "Hit"), sep="_")
@@ -288,7 +288,7 @@ setMethod(
 {
 	if (effect.size != 0)    stop("Effect size not yet implemented")
 	if (qval.threshold != 1) stop("Q-value not  yet implemented")
-	res <- dplyr::group_by(obj, Virus, Screen, Library,
+	res <- dplyr::group_by(obj, Condition, Screen, Library,
 												 ScreenType, ReadoutType,
 												 Design, Cell,
 												 GeneSymbol, Entrez) %>%

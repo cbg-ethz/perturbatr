@@ -21,5 +21,5 @@ Takes a perturbation data set and filters the rows by some
 }
 \examples{
  data(rnaiscreen)
- flt.dat <- filter(rnaiscreen, Virus=="V1")
+ flt.dat <- filter(rnaiscreen, Condition=="V1")
 }

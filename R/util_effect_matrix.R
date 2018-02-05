@@ -37,8 +37,8 @@
     dplyr::select(GeneSymbol, Effect) %>%
     .[order(-abs(Effect))]
   pg <- obj@.gene.pathogen.effects %>%
-    dplyr::select(Virus, GeneSymbol, Effect) %>%
-    tidyr::spread(Virus, Effect)
+    dplyr::select(Condition, GeneSymbol, Effect) %>%
+    tidyr::spread(Condition, Effect)
 
   list(gene.effects=g, gene.pathogen.effects=pg)
 }

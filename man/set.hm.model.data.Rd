@@ -10,7 +10,7 @@ set.hm.model.data(obj, drop = TRUE, ignore = 1, weights = NULL,
 \arguments{
 \item{obj}{an object for which hm model.data is created}
 
-\item{drop}{decide if genes that are not found in every virus should
+\item{drop}{decide if genes that are not found in every Condition should
 be dropped}
 
 \item{ignore}{ignore siRNAS that are only found \code{ignore} many times}

@@ -37,7 +37,7 @@
 #'
 #' @param obj  an svd.data object
 #' @param drop  boolean flag if all entries should be dropped that are not
-#'  found in every virus
+#'  found in every Condition
 #' @param weights a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is
 #'  going to be used for
@@ -180,9 +180,9 @@ setMethod(
 #' @noRd
 .init.formula <- function()
 {
-  frm.str <- paste0("Readout ~ Virus + ",
-                    "(1 | GeneSymbol) + (1 | Virus:GeneSymbol) + ",
-                    "(1 | ScreenType) + (1 | Virus:ScreenType)")
+  frm.str <- paste0("Readout ~ Condition + ",
+                    "(1 | GeneSymbol) + (1 | Condition:GeneSymbol) + ",
+                    "(1 | ScreenType) + (1 | Condition:ScreenType)")
   frm.str
 }
 
@@ -211,9 +211,9 @@ setMethod(
 
   # create the data.table with gene-pathogen effects
   gpe <- data.table::data.table(
-    gpe = random.effects[["Virus:GeneSymbol"]][,1],
+    gpe = random.effects[["Condition:GeneSymbol"]][,1],
     GenePathID =
-      as.character(rownames(random.effects[["Virus:GeneSymbol"]]))) %>%
+      as.character(rownames(random.effects[["Condition:GeneSymbol"]]))) %>%
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
 
   ie <- data.table::data.table(
@@ -221,8 +221,8 @@ setMethod(
     ScreenType = as.character(rownames(random.effects[["ScreenType"]])))
 
   ga <- merge(gpe, ge, by = "GeneSymbol") %>%
-    dplyr::mutate(Virus = sub(":.+$", "", GenePathID),
-                  GeneVirusEffect = Effect + gpe) %>%
+    dplyr::mutate(Condition = sub(":.+$", "", GenePathID),
+                  GeneConditionEffect = Effect + gpe) %>%
     dplyr::select(-GenePathID, -gpe, -Effect)
 
   list(gene.effects=ge,

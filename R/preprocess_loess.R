@@ -28,7 +28,7 @@
 {
   message("Calculating LOESS model!")
   loessed.data <-
-    dplyr::group_by(obj, Virus, Screen, Library,
+    dplyr::group_by(obj, Condition, Screen, Library,
                     ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell,
                     Replicate, Plate) %>%

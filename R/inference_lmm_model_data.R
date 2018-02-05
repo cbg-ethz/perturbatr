@@ -25,7 +25,7 @@
 #' @import data.table
 #'
 #' @param obj  an object for which hm model.data is created
-#' @param drop  decide if genes that are not found in every virus should
+#' @param drop  decide if genes that are not found in every Condition should
 #'  be dropped
 #' @param ignore  ignore siRNAS that are only found \code{ignore} many times
 #' @param weights  weights to set for the siRNAs
@@ -63,7 +63,7 @@ set.hm.model.data.perturbation.normalized.data <- function(obj,
 {
   hm.mat <-
     dplyr::select(obj@.data, Entrez, GeneSymbol,
-                  Virus, Readout, Control, Library,
+                  Condition, Readout, Control, Library,
                   Cell, ScreenType, Design, ReadoutType) %>%
     dplyr::filter(!is.na(GeneSymbol)) %>%
     # dont take positive controls since these are different between
@@ -71,12 +71,12 @@ set.hm.model.data.perturbation.normalized.data <- function(obj,
     dplyr::filter(Control != 1)
   data.table::setDT(hm.mat)[, Weight :=
                                 .weights(hm.mat, weights, rel.mat.path)]
-  data.table::setDT(hm.mat)[, VG := paste(Virus, GeneSymbol, sep=":")]
+  data.table::setDT(hm.mat)[, VG := paste(Condition, GeneSymbol, sep=":")]
   #  remove library: not needed any more due to setting of weights
   data.table::setDT(hm.mat)[, Library := NULL]
 
   hm.mat$Entrez        <- as.integer(hm.mat$Entrez)
-  hm.mat$Virus         <- as.factor(hm.mat$Virus)
+  hm.mat$Condition         <- as.factor(hm.mat$Condition)
   hm.mat$VG            <- as.factor(hm.mat$VG)
   hm.mat$Cell          <- as.factor(hm.mat$Cell)
   hm.mat$ReadoutType   <- as.factor(hm.mat$ReadoutType)
@@ -95,11 +95,11 @@ set.hm.model.data.perturbation.normalized.data <- function(obj,
 
   if (drop)
   {
-    vir.cnt <- .leuniq(hm.mat$Virus)
+    vir.cnt <- .leuniq(hm.mat$Condition)
     hm.mat <- dplyr::group_by(hm.mat, GeneSymbol) %>%
-      # count if the genes are in all viruses
-      # and compare if it matches the virus count
-      dplyr::mutate(drop=(length(unique(Virus)) != vir.cnt)) %>%
+      # count if the genes are in all Conditiones
+      # and compare if it matches the Condition count
+      dplyr::mutate(drop=(length(unique(Condition)) != vir.cnt)) %>%
       ungroup %>%
       dplyr::filter(!drop) %>%
       dplyr::select(-drop)

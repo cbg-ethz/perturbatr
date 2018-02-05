@@ -158,7 +158,7 @@ setMethod(
     res <- .drop(res, drop)
     res <- data.table::as.data.table(res)
 
-    new("perturbation.normalized.data", .data=res)
+    methods::new("perturbation.normalized.data", .data=res)
   }
 )
 

@@ -32,7 +32,7 @@
 	if (!all(cols %in% coln))
 	{
 		msg <- paste("Your data needs cols:", ps)
-		msg <- paste(msg, "You have:", paste0(coln, collapse=", "))
+		msg <- paste(msg, "\nYou have:", paste0(coln, collapse=", "))
 		stop(msg)
 	}
 }

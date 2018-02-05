@@ -65,7 +65,7 @@ setClass(
   contains  = "perturbation.data",
   validity  = function(object)
   {
-  	.check(object, .required.data.cols())
+  	.check(object@.data, .required.data.cols())
     return(TRUE)
   }
 )
@@ -84,7 +84,7 @@ setClass(
   contains  = "perturbation.data",
   validity  = function(object)
   {
-  	.check(object, .required.hm.cols())
+  	.check(object@.data, .required.hm.cols())
     return(TRUE)
   }
 )
