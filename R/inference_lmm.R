@@ -38,15 +38,11 @@
 #' @param obj  an svd.data object
 #' @param drop  boolean flag if all entries should be dropped that are not
 #'  found in every Condition
-#' @param weights a list of weights
+#' @param weights  a list of weights
 #' @param rel.mat.path  the (optional) path to a target relation matrix that is
 #'  going to be used for
-#' @param bootstrap.cnt  the number of bootstrap runs you want to do in order
-#'  to estimate a significance level for the gene effects
 #' @param ignore  ignore siRNAs that have been seen only once per group
 #' @param effect.size  the relative effect size used for hit prioritization
-#' @param qval.threshold  the q-value threshold used for hit prioritization
-#'  if bootstrap.cnt is set
 #'
 #' @return returns a \code{perturbation.hm.analysed} object
 #'
@@ -56,14 +52,12 @@ setGeneric(
            drop=TRUE,
            weights=NULL,
            rel.mat.path=NULL,
-           bootstrap.cnt=0,
            ignore=1,
-           effect.size=0.05,
-           qval.threshold=.2)
+           effect.size=0.05)
   {
     standardGeneric("hm")
   },
-  package="perturbation"
+  package="perturbR"
 )
 
 #' @rdname hm-methods
@@ -76,14 +70,11 @@ setMethod(
            drop=TRUE,
            weights=NULL,
            rel.mat.path=NULL,
-           bootstrap.cnt=0,
            ignore=1,
-           effect.size=0.05,
-           qval.threshold=.2)
+           effect.size=0.05)
   {
     md <- set.hm.model.data(obj, drop, ignore, weights, rel.mat.path)
-    hm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore,
-        effect.size, qval.threshold)
+    hm(md, drop, weights, rel.mat.path, ignore, effect.size)
   }
 )
 
@@ -97,31 +88,26 @@ setMethod(
            drop=TRUE,
            weights=NULL,
            rel.mat.path=NULL,
-           bootstrap.cnt=0,
            ignore=1,
-           effect.size=0.01,
-           qval.threshold=.2)
+           effect.size=0.01)
   {
-    res     <- .hm.model.data(obj, bootstrap.cnt)
-    priorit <- .prioritize.hm(res, effect.size, qval.threshold)
+    res     <- .hm.model.data(obj)
+    priorit <- .prioritize.hm(res, effect.size)
 
     ret <- new("perturbation.hm.analysed",
            .gene.hits             =
              data.table::as.data.table(priorit$gene.hits),
-           .gene.pathogen.hits    =
-             data.table::as.data.table(priorit$gene.pathogen.hits),
+    				.nested.gene.hits     =
+             data.table::as.data.table(priorit$nested.gene..hits),
            .gene.effects          = data.table::
              as.data.table(res$gene.effects),
-           .gene.pathogen.effects =
-             data.table::as.data.table(res$gene.pathogen.effects),
-           .screen.type.effects   = data.table::
-             as.data.table(res$infection.effects),
+           .nested.gene.effects   =
+             data.table::as.data.table(res$nested.gene.effects),
            .data                  = data.table::
              as.data.table(res$model.data@.data),
            .model.fit             = res$model,
-           .is.bootstrapped       = res$btst,
-           .params                = list(effect.size=effect.size,
-                                         qval.threshold=qval.threshold))
+           .is.bootstrapped       = FALSE,
+           .params                = list(effect.size=effect.size))
 
     ret
   }
@@ -130,13 +116,8 @@ setMethod(
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr mutate full_join select group_by
-.hm.model.data <- function(md, bootstrap.cnt)
+.hm.model.data <- function(md)
 {
-  if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
-  {
-    stop("Please use at least 10 bootstrap runs (better 100/1000).")
-  }
-
   # save gene control mappings
   gene.control.map <-
     dplyr::select(md@.data, GeneSymbol, Control) %>%
@@ -153,27 +134,20 @@ setMethod(
   }
 
   message("Fitting hm")
-  fit.hm <- .hm(md)
+  fit.hm  <- .hm(md)
   ref     <- .ranef(fit.hm)
-
-  #calc fdrs
-  gp.fdrs <- gp.fdrs(ref$gene.pathogen.effects)
-  ge.fdrs <- ge.fdrs(md, ref, bootstrap.cnt)
 
   # set together the gene/fdr/effects and the mappings
   ges     <- dplyr::full_join(ref$gene.effects, gene.control.map,
-                              by="GeneSymbol") %>%
-    dplyr::full_join(dplyr::select(ge.fdrs$ret, GeneSymbol, Qval),
-                     by="GeneSymbol")
-  gps     <- dplyr::full_join(gp.fdrs$gene.pathogen.matrix,
+                              by="GeneSymbol")
+  gps     <- dplyr::full_join(ref$nested.gene.effects,
                               gene.control.map, by="GeneSymbol")
 
-  ret <- list(gene.effects=ges,
-              gene.pathogen.effects=gps,
-              screen.type.effects=ref$screen.type.effects,
-              model.data=md,
-              model=list(fit=fit.hm, gp.fdrs=gp.fdrs, ge.fdrs=ge.fdrs),
-              btst=ge.fdrs$btst)
+  ret <- list(gene.effects          = ges,
+              nested.gene.effects = gps,
+              model.data            = md,
+              model                 = list(fit=fit.hm))
+
   ret
 }
 
@@ -206,19 +180,14 @@ setMethod(
   # create the data table with gene effects
   ge <- data.table::data.table(
     Effect     = random.effects[["GeneSymbol"]][,1],
-    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]]))
-  )
+    GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
 
-  # create the data.table with gene-pathogen effects
+  # create the data.table with nested-gene effects
   gpe <- data.table::data.table(
     gpe = random.effects[["Condition:GeneSymbol"]][,1],
     GenePathID =
       as.character(rownames(random.effects[["Condition:GeneSymbol"]]))) %>%
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
-
-  ie <- data.table::data.table(
-    Effect = random.effects[["ScreenType"]][,1],
-    ScreenType = as.character(rownames(random.effects[["ScreenType"]])))
 
   ga <- merge(gpe, ge, by = "GeneSymbol") %>%
     dplyr::mutate(Condition = sub(":.+$", "", GenePathID),
@@ -226,22 +195,19 @@ setMethod(
     dplyr::select(-GenePathID, -gpe, -Effect)
 
   list(gene.effects=ge,
-       gene.pathogen.effects=ga,
-       screen.type.effects=ie)
+       nested.gene.effects=ga)
 }
 
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter group_by mutate
-.prioritize.hm <- function(obj, eft, fdrt)
+.prioritize.hm <- function(obj, eft)
 {
   ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]
-  if (obj$btst != 0)
-    ge <- dplyr::filter(ge, Qval <= fdrt)
-  gpe <- obj$gene.pathogen.effects %>%
-    dplyr::filter(abs(Effect) >= eft, Qval <= fdrt)  %>%
+  gpe <- obj$nested.gene.effects %>%
+    dplyr::filter(abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]
 
-  list(gene.hits=ge, gene.pathogen.hits=gpe)
+  list(gene.hits=ge, nested,gene.hits=gpe)
 }

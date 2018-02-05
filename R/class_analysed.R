@@ -61,21 +61,18 @@ setClass(
 #'   \code{data.table} object containing the perturbation data
 #'
 #' @slot .gene.effects  the estimated effect sizes for genes
-#' @slot .gene.pathogen.effects  the estimated effect sizes for genes on a
+#' @slot .nested.gene.effects  the estimated effect sizes for genes on a
 #'  viral level
-#' @slot .infectivity.effects the  estimated effect sizes for different
-#'  infectivity levels
 #' @slot .gene.hits  prioritized genes
-#' @slot .gene.pathogen.hits  prioritized genes on a viral level
+#' @slot .neted.gene.hits  nested prioritized genes
 #' @slot .model.fit  the fitted model
 setClass(
   "perturbation.hm.analysed",
   contains  = "perturbation.analysed",
   slots     = list(.gene.effects          = "data.table",
-                   .gene.pathogen.effects = "data.table",
-                   .screen.type.effects   = "data.table",
+                   .nested.gene.effects   = "data.table",
                    .gene.hits             = "data.table",
-                   .gene.pathogen.hits    = "data.table",
+                   .nested.gene.hits      = "data.table",
                    .model.fit             = "list"),
   prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
 )
@@ -136,24 +133,6 @@ setClass(
 	contains  = "perturbation.analysed",
 	slots     = list(.gene.hits="data.table"),
 	prototype = prototype(.inference=.inference.types()$T.TEST,
-												.is.bootstrapped=FALSE)
-)
-
-#' Data wrapper for analysed perturbation data using a standard hypothesis test
-#'
-#' @name ChisqStatisticAnalysis-class
-#' @rdname chisq_statisic_perturbation_analysis-class
-#'
-#' @description Class \code{perturbation.chisqstatistic.analysed} is a wrapper for a
-#'   \code{data.table} object containing the perturbation data
-#'
-#' @slot .gene.hits  prioritized genes
-#'
-setClass(
-	"perturbation.chisqstatistic.analysed",
-	contains  = "perturbation.analysed",
-	slots     = list(.gene.hits="data.table"),
-	prototype = prototype(.inference=.inference.types()$CHISQ.TEST,
 												.is.bootstrapped=FALSE)
 )
 

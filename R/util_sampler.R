@@ -31,7 +31,7 @@
 #'   data(rnaiscreen)
 #'   bootstrap(rnaiscreen)
 #' }
-bootstrap <- function(obj, level=c("sirna", "pathogen"))
+bootstrap <- function(obj, level=c("sirna", "condition"))
 {
   UseMethod("bootstrap")
 }
@@ -41,7 +41,7 @@ bootstrap <- function(obj, level=c("sirna", "pathogen"))
 #' @import data.table
 #' @importFrom tibble as.tibble
 #' @importFrom dplyr mutate select group_by filter group_indices
-bootstrap.data.table <- function(obj, level=c("sirna", "pathogen"))
+bootstrap.data.table <- function(obj, level=c("sirna", "condition"))
 {
   dat <- tibble::as.tibble(obj)
   grps <- dplyr::group_indices(dat, Condition, ScreenType, GeneSymbol)
@@ -69,7 +69,7 @@ bootstrap.data.table <- function(obj, level=c("sirna", "pathogen"))
 #' @method bootstrap perturbation.data
 #' @import data.table
 #' @importFrom methods new
-bootstrap.perturbation.data <- function(obj, level=c("sirna", "pathogen"))
+bootstrap.perturbation.data <- function(obj, level=c("sirna", "condition"))
 {
   res <- bootstrap(obj@.data)
   ret <- methods::new(class(obj)[1], .data=data.table::as.data.table(res))
