@@ -1,33 +1,33 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
 #' @noRd
 #' @import data.table
 methods::setAs(
   "data.table",
-  "knockdown.data",
+  "perturbation.data",
   function(from)
   {
     req.els <- list("GeneSymbol" = "character",
                     "Control"    = "integer",
-                    "siRNAIDs"   = "character",
+                    "Perturbation"   = "character",
                     "Readout"    = c("numeric", "integer"))
 
     col.names <- colnames(from)
@@ -44,8 +44,8 @@ methods::setAs(
         stop(paste0("column '", name, "'", " has not class ", req.els[[i]], "."))
       }
     }
-    
-    els <- list("Virus"        = NA_character_,
+
+    els <- list("Condition"        = NA_character_,
                 "Replicate"    = NA_integer_,
                 "Plate"        = NA_integer_,
                 "RowIdx"       = NA_integer_,
@@ -54,7 +54,7 @@ methods::setAs(
                 "ReadoutType"  = NA_character_,
                 "Control"      = NA_integer_,
                 "Library"      = NA_character_,
-                "siRNAIDs"     = NA_character_,
+                "Perturbation" = NA_character_,
                 "Screen"       = NA_character_,
                 "Cell"         = NA_character_,
                 "ScreenType"   = NA_character_,
@@ -72,7 +72,7 @@ methods::setAs(
         from[[name]] <- els[[i]]
       }
     }
-    return(methods::new("knockdown.raw.data", .data=from))
+    return(methods::new("perturbation.raw.data", .data=from))
 })
 
 #' @noRd
@@ -80,9 +80,9 @@ methods::setAs(
 #' @import data.table
 methods::setAs(
   "data.frame",
-  "knockdown.data",
+  "perturbation.data",
   function(from)
   {
-    methods::as(data.table::as.data.table(from), "knockdown.data")
+    methods::as(data.table::as.data.table(from), "perturbation.data")
   }
 )

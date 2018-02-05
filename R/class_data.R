@@ -1,45 +1,46 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR If not, see <http://www.gnu.org/licenses/>.
 
 
 #' @include util_enums.R
 
 
 #' @noRd
-#' @slot .data the knockdown data-set
+#' @slot .data the perturbation data-set
 setClass(
-  "knockdown.data",
+  "perturbation.data",
   contains = "VIRTUAL",
   slots    = list(.data="data.table"),
 )
 
-#' @title Data wrapper for raw knockdown data
+
+#' @title Data wrapper for raw perturbation data
 #'
-#' @description Class \code{knockdown.raw.data} is a wrapper for a
+#' @description Class \code{perturbation.raw.data} is a wrapper for a
 #' \code{data.table} object containing the raw data-set
 #'
 #' @name Raw-data
-#' @rdname knockdown_raw_data-class
+#' @rdname perturbation_raw_data-class
 #'
 setClass(
-  "knockdown.raw.data",
-  contains  = "knockdown.data",
+  "perturbation.raw.data",
+  contains  = "perturbation.data",
   validity  = function(object)
   {
     cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
@@ -54,17 +55,17 @@ setClass(
   }
 )
 
-#' @title Data wrapper for normalized knockdown data
+#' @title Data wrapper for normalized perturbation data
 #'
-#' @description Class \code{knockdown.normalized.data} is a wrapper for a
+#' @description Class \code{perturbation.normalized.data} is a wrapper for a
 #' \code{data.table} object containing the normalized data-set
 #'
 #' @name Normalized-data
-#' @rdname knockdown_normalized_data-class
+#' @rdname perturbation_normalized_data-class
 #'
 setClass(
-  "knockdown.normalized.data",
-  contains  = "knockdown.data",
+  "perturbation.normalized.data",
+  contains  = "perturbation.data",
   validity  = function(object)
   {
       cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
@@ -78,17 +79,17 @@ setClass(
   }
 )
 
-#' @title Data wrapper for linear-mixed-model knockdown data
+#' @title Data wrapper for linear-mixed-model perturbation data
 #'
-#' @description Class \code{knockdown.lmm.data} is a wrapper for a
+#' @description Class \code{perturbation.lmm.data} is a wrapper for a
 #' \code{data.table} object containing the normalized data-set
 #'
 #' @name LMM-data
-#' @rdname knockdown_lmm_data-class
+#' @rdname perturbation_lmm_data-class
 #'
 setClass(
-  "knockdown.lmm.data",
-  contains  = "knockdown.data",
+  "perturbation.lmm.data",
+  contains  = "perturbation.data",
   validity  = function(object)
   {
     cls <- c("Virus", "GeneSymbol", "ReadoutType", "Control", "Weight",

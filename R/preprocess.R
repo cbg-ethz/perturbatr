@@ -1,24 +1,24 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include class_knockdown_data.R
+#' @include class_data.R
 
 
 #' @title Pre-processing routine for data normalization, summarization and removal
@@ -67,7 +67,7 @@
 #' @param drop  boolean if rows that are not needed should be dropped or
 #'   kept (e.g. if you want to check whether all worked out correctly)
 #'
-#' @return returns a \code{knockdown.normalized.data} object
+#' @return returns a \code{perturbation.normalized.data} object
 #'
 #' @examples
 #'  data(rnaiscreen)
@@ -101,12 +101,12 @@ setGeneric(
   {
     standardGeneric("preprocess")
   },
-  package="knockdown"
+  package="perturbation"
 )
 
 
 #' @rdname preprocess-methods
-#' @aliases preprocess,knockdown.raw.data-method
+#' @aliases preprocess,perturbation.raw.data-method
 #'
 #' @import data.table
 #' @importFrom tidyr spread
@@ -114,7 +114,7 @@ setGeneric(
 #' @importFrom dplyr group_by mutate filter select
 setMethod(
   "preprocess",
-  signature = signature(obj="knockdown.raw.data"),
+  signature = signature(obj="perturbation.raw.data"),
   function(obj,
           normalize           = c("log", "robust-z.score"),
           normalize.viability = FALSE,
@@ -158,7 +158,7 @@ setMethod(
     res <- .drop(res, drop)
     res <- data.table::as.data.table(res)
 
-    new("knockdown.normalized.data", .data=res)
+    new("perturbation.normalized.data", .data=res)
   }
 )
 

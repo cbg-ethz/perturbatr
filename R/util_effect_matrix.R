@@ -1,22 +1,21 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
-
+# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 #' @noRd
 #' @param obj  the object to calculate the effect matrices for
@@ -27,10 +26,11 @@
 }
 
 #' @noRd
-#' @method .effect.matrices knockdown.lmm.analysed
+#' @method .effect.matrices perturbatiob.lmm.analysed
 #' @import data.table
 #' @importFrom dplyr filter select
-.effect.matrices.knockdown.lmm.analysed <- function(obj, ...)
+#' @importFrom tidyr spread
+.effect.matrices.perturbatiob.lmm.analysed <- function(obj, ...)
 {
   g <- obj@.gene.hits %>%
     dplyr::select(GeneSymbol, Effect) %>%

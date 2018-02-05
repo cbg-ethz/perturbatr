@@ -1,18 +1,16 @@
-Package: knockdown
+Package: perturbR
 Type: Package
-Title: Analysis of high-throughput RNAi gene perturbation screens
-Version: 0.2.1
-Date: 2017-11-11
-Authors@R: person("Simon", "Dirmeier",
-    email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
-Description: knockdown does analysis of large-scale RNAi interference screens
-  for pan-pathogenic datasets. The package provides various tools for
-  normalisation, plotting and analysis. For single pathogen screens classical
-  analyses using hypothesis testing are implemented. For pan-pathogenic
-  screens we developed a random effects model that exploits the different
-  biological settings the data are derived from. The resulting hit lists can be
-  further extended using network diffusion algorithms, such as
-  *Markov random walks with restarts*.
+Title: Statistical analysis of high-throughput genetic perturbation screens
+Version: 0.99.0
+Date: 2018-02-1
+Authors@R: person("Simon", "Dirmeier", 
+	email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
+Maintainer: Simon Dirmeier <simon.dirmeier@bsse.ethz.ch>
+Description: perturbR does statistical analysis of large-scale genetic perturbation screens.
+  The package provides various tools for normalisation, plotting and analysis of 
+  screens from single perturbation experiments as well as models for the joint analysis of multiple 
+  experiments. For the latter case we employ a random intercepts model to capture the variance that 
+  the different experiments exhibit.
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1

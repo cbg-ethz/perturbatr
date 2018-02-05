@@ -1,21 +1,22 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR If not, see <http://www.gnu.org/licenses/>.
+
 
 
 #' Calculates per-plate, per-replicate and screen quality scores
@@ -26,31 +27,31 @@
 #' @param obj  the object for which quality scores are calculates
 #' @param ...  additional parameters
 #'
-#' @return returns a \code{knockdown.quality} object
+#' @return returns a \code{perturbation.quality} object
 quality <- function(obj, ...)
 {
   UseMethod("quality")
 }
 
 #' @export
-#' @method quality knockdown.raw.data
+#' @method quality perturbation.raw.data
 #' @import data.table
 #' @importFrom dplyr filter
-quality.knockdown.raw.data <-function(obj, ...)
+quality.perturbation.raw.data <-function(obj, ...)
 {
   obj@.data <- obj@.data %>%
     dplyr::filter(ReadoutClass == "Readout")
-  quality.knockdown.normalized.data(obj)
+  quality.perturbation.normalized.data(obj)
 }
 
 #' @export
-#' @method quality knockdown.normalized.data
+#' @method quality perturbation.normalized.data
 #' @import data.table
 #' @importFrom dplyr select
-quality.knockdown.normalized.data <- function(obj, ...)
+quality.perturbation.normalized.data <- function(obj, ...)
 {
   q <- .quality(obj@.data)
-  new("knockdown.quality", .quality=q, .data=obj@.data)
+  new("perturbation.quality", .quality=q, .data=obj@.data)
 }
 
 #' @noRd

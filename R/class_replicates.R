@@ -15,17 +15,20 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR If not, see <http://www.gnu.org/licenses/>.
 
-#' @export
-#' @method rbind perturbatio.data
-#' @import data.table
-rbind.perturbation.data <-  function(...)
-{
-    args  <- list(...)
-    if (length(args) < 2) return(args[[1]])
-    types <- unlist(lapply(args, function(e) class(e)[1]))
-    if(any(types != types[1])) stop("Data-types do not agree")
-    dat   <- data.table::rbindlist(lapply(args, function(e) e@.data))
-    new(types[1], .data=dat)
-}
+
+#' @title Class that indexes plates on a \code{perturbation.data} object
+#' @noRd
+setClass(
+  "perturbation.replicates",
+  contains = "perturbation.data"
+)
+
+
+#' @title Class that holds a single replicate
+#' @noRd
+setClass(
+  "perturbation.replicate",
+  contains = "perturbation.data"
+)

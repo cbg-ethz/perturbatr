@@ -1,33 +1,37 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include class_knockdown_data.R
+#' @include class_data.R
 
 
-#' @title Fit an LMM to the data and calculate local false discovery rates.
+#' @title Jointly analyse multiple genetic perturbation screens
 #'
-#' @description \code{lmm} TODO
+#' @description Analyse multiple different genetic perturbation screens at once
+#'  using a hierarchical model. The model estimates general relative effect
+#'  sizes for genes across all experiments. This could for instance be a
+#'  pan-pathogenic host factor, i.e. a gene that decisively impacts the
+#'  life-cycle of multiple pathogens.
 #'
 #' @export
 #' @docType methods
-#' @rdname lmm-methods
+#' @rdname hm-methods
 #'
 #' @import data.table
 #'
@@ -44,10 +48,10 @@
 #' @param qval.threshold  the q-value threshold used for hit prioritization
 #'  if bootstrap.cnt is set
 #'
-#' @return returns a \code{knockdown.lmm.analysed} object
+#' @return returns a \code{perturbation.hm.analysed} object
 #'
 setGeneric(
-  "lmm",
+  "hm",
   function(obj,
            drop=TRUE,
            weights=NULL,
@@ -57,17 +61,17 @@ setGeneric(
            effect.size=0.05,
            qval.threshold=.2)
   {
-    standardGeneric("lmm")
+    standardGeneric("hm")
   },
-  package="knockdown"
+  package="perturbation"
 )
 
-#' @rdname lmm-methods
-#' @aliases lmm,knockdown.normalized.data-method
+#' @rdname hm-methods
+#' @aliases hm,perturbation.normalized.data-method
 #' @import data.table
 setMethod(
-  "lmm",
-  signature = signature(obj="knockdown.normalized.data"),
+  "hm",
+  signature = signature(obj="perturbation.normalized.data"),
   function(obj,
            drop=TRUE,
            weights=NULL,
@@ -77,18 +81,18 @@ setMethod(
            effect.size=0.05,
            qval.threshold=.2)
   {
-    md <- set.lmm.model.data(obj, drop, ignore, weights, rel.mat.path)
-    lmm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore,
+    md <- set.hm.model.data(obj, drop, ignore, weights, rel.mat.path)
+    hm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore,
         effect.size, qval.threshold)
   }
 )
 
-#' @rdname lmm-methods
-#' @aliases lmm,knockdown.lmm.data-method
+#' @rdname hm-methods
+#' @aliases hm,perturbation.hm.data-method
 #' @import data.table
 setMethod(
-  "lmm",
-  signature = signature(obj="knockdown.lmm.data"),
+  "hm",
+  signature = signature(obj="perturbation.hm.data"),
   function(obj,
            drop=TRUE,
            weights=NULL,
@@ -98,10 +102,10 @@ setMethod(
            effect.size=0.01,
            qval.threshold=.2)
   {
-    res     <- .lmm.model.data(obj, bootstrap.cnt)
-    priorit <- .prioritize.lmm(res, effect.size, qval.threshold)
+    res     <- .hm.model.data(obj, bootstrap.cnt)
+    priorit <- .prioritize.hm(res, effect.size, qval.threshold)
 
-    ret <- new("knockdown.lmm.analysed",
+    ret <- new("perturbation.hm.analysed",
            .gene.hits             =
              data.table::as.data.table(priorit$gene.hits),
            .gene.pathogen.hits    =
@@ -126,7 +130,7 @@ setMethod(
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr mutate full_join select group_by
-.lmm.model.data <- function(md, bootstrap.cnt)
+.hm.model.data <- function(md, bootstrap.cnt)
 {
   if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
   {
@@ -148,9 +152,9 @@ setMethod(
             i.e. several genes are both control and not control!")
   }
 
-  message("Fitting LMM")
-  fit.lmm <- .lmm(md)
-  ref     <- .ranef(fit.lmm)
+  message("Fitting hm")
+  fit.hm <- .hm(md)
+  ref     <- .ranef(fit.hm)
 
   #calc fdrs
   gp.fdrs <- gp.fdrs(ref$gene.pathogen.effects)
@@ -168,7 +172,7 @@ setMethod(
               gene.pathogen.effects=gps,
               screen.type.effects=ref$screen.type.effects,
               model.data=md,
-              model=list(fit=fit.lmm, gp.fdrs=gp.fdrs, ge.fdrs=ge.fdrs),
+              model=list(fit=fit.hm, gp.fdrs=gp.fdrs, ge.fdrs=ge.fdrs),
               btst=ge.fdrs$btst)
   ret
 }
@@ -186,7 +190,7 @@ setMethod(
 #' @import data.table
 #' @importFrom lme4 lmer
 #' @importFrom stats as.formula
-.lmm <- function(md)
+.hm <- function(md)
 {
   lme4::lmer(stats::as.formula(.init.formula()),
              data = md@.data, weights = md@.data$Weight, verbose = FALSE)
@@ -196,9 +200,9 @@ setMethod(
 #' @import data.table
 #' @importFrom dplyr mutate select
 #' @importFrom lme4 ranef
-.ranef <-  function(fit.lmm)
+.ranef <-  function(fit.hm)
 {
-  random.effects <- lme4::ranef(fit.lmm)
+  random.effects <- lme4::ranef(fit.hm)
   # create the data table with gene effects
   ge <- data.table::data.table(
     Effect     = random.effects[["GeneSymbol"]][,1],
@@ -229,7 +233,7 @@ setMethod(
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr filter group_by mutate
-.prioritize.lmm <- function(obj, eft, fdrt)
+.prioritize.hm <- function(obj, eft, fdrt)
 {
   ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)  %>%
     .[order(-abs(Effect))]

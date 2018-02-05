@@ -1,26 +1,27 @@
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Plot a \code{knockdown.lmm.analysed}  object
+#' Plot a \code{perturbation.lmm.analysed}  object
 #'
 #' @export
-#' @method plot knockdown.lmm.analysed
+#' @method plot perturbation.lmm.analysed
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr filter
@@ -31,17 +32,17 @@
 #'
 #' @return returns a list of plots
 #'
-plot.knockdown.lmm.analysed <- function(x, size=10, ...)
+plot.perturbation.lmm.analysed <- function(x, size=10, ...)
 {
-  pl <- .plot.knockdown.lmm.analysed (x@.gene.hits,
+  pl <- .plot.perturbation.lmm.analysed (x@.gene.hits,
                                      main="Gene effects",
                                      size=size, ...)
   pl2 <-
-    .plot.knockdown.lmm.analysed(x@.gene.pathogen.hits, main="", size=size) +
+    .plot.perturbation.lmm.analysed(x@.gene.pathogen.hits, main="", size=size) +
     ggplot2::facet_wrap(
       ~ Virus,
       ncol=ceiling(length(unique(x@.gene.pathogen.hits$Virus))/2))
-  pl3 <- .plot.effect.matrices.knockdown.analysed.lmm(x, size)
+  pl3 <- .plot.effect.matrices.perturbation.analysed.lmm(x, size)
   pl4 <- .plot.hit.counts(x, size)
   pl5 <- .plot.vulcano(x, size)
   return(list(gene.effect.barplot=pl,
@@ -56,7 +57,7 @@ plot.knockdown.lmm.analysed <- function(x, size=10, ...)
 #' @import ggplot2
 #' @importFrom dplyr filter
 #' @importFrom methods hasArg
-.plot.knockdown.lmm.analysed  <- function(x, main, size, ...)
+.plot.perturbation.lmm.analysed  <- function(x, main, size, ...)
 {
   pars <- list(...)
   if ("Virus" %in% colnames(x))
@@ -107,7 +108,7 @@ plot.knockdown.lmm.analysed <- function(x, size=10, ...)
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom tidyr gather
-.plot.effect.matrices.knockdown.analysed.lmm <- function(x, size, ...)
+.plot.effect.matrices.perturbation.analysed.lmm <- function(x, size, ...)
 {
 
   effect.matrices <- .effect.matrices(x)
@@ -280,43 +281,43 @@ plot.knockdown.lmm.analysed <- function(x, size=10, ...)
 }
 
 
-#' Plot a \code{knockdown.hyper.analysed} object
+#' Plot a \code{perturbation.hyper.analysed} object
 #'
 #' @export
 #' @import data.table
-#' @method plot knockdown.hyper.analysed
+#' @method plot perturbation.hyper.analysed
 #'
 #' @param x  the object to plot
 #' @param size  size of the text
 #' @param ...  additional parameters
 #'
 #' @return returns a plot object
-plot.knockdown.hyper.analysed <- function(x, size=10, ...)
+plot.perturbation.hyper.analysed <- function(x, size=10, ...)
 {
-  .plot.knockdown.analysed(x, ...)
+  .plot.perturbation.analysed(x, ...)
 }
 
-#' Plot a \code{knockdown.tstatistic.analysed} object
+#' Plot a \code{perturbation.tstatistic.analysed} object
 #'
 #' @export
 #' @import data.table
-#' @method plot knockdown.tstatistic.analysed
+#' @method plot perturbation.tstatistic.analysed
 #'
 #' @param x  the object to plot
 #' @param size  size of the text
 #' @param ...  additional parameters
 #'
 #' @return returns a plot object
-plot.knockdown.tstatistic.analysed <- function(x, size=10, ...)
+plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
 {
-  .plot.knockdown.analysed(x, size, ...)
+  .plot.perturbation.analysed(x, size, ...)
 }
 
 #' @noRd
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr group_by summarize mutate filter
-.plot.knockdown.analysed <- function(x, size, ...)
+.plot.perturbation.analysed <- function(x, size, ...)
 {
   df <- x@.gene.hits[order(abs(MeanEffect), decreasing=TRUE), .SD[1:25]] %>%
     dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect))

@@ -1,24 +1,24 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include class_knockdown_data.R
+#' @include class_data.R
 
 
 #' @title Calculate statistics based on the t-test to analyse the data.
@@ -44,7 +44,7 @@
 #'  corrected p-value. This should be set to an appropriate significance level
 #'  just like the \code{pval.threshold} as well.
 #'
-#' @return returns a \code{knockdown.tstatistic.analysed} object
+#' @return returns a \code{perturbation.tstatistic.analysed} object
 #'
 setGeneric(
   "tstatistic",
@@ -58,17 +58,17 @@ setGeneric(
   {
     standardGeneric("tstatistic")
   },
-  package="knockdown"
+  package="perturbation"
 )
 
 
 #' @rdname t_statistic-methods
-#' @aliases tstatistic,knockdown.data-method
+#' @aliases tstatistic,perturbation.data-method
 #' @import data.table
 #' @importFrom methods new
 setMethod(
   "tstatistic",
-  signature = signature(obj = "knockdown.data"),
+  signature = signature(obj = "perturbation.data"),
   function(obj,
            mu=c(0, "scrambled", "control"),
            padjust=c("BH", "bonferroni"),
@@ -84,7 +84,7 @@ setMethod(
       res, hit.ratio, effect.size, pval.threshold, qval.threshold)
 
     ret <- methods::new(
-      "knockdown.tstatistic.analysed",
+      "perturbation.tstatistic.analysed",
       .gene.hits = data.table::as.data.table(priorit),
       .data=res,
       .params=list(effect.size=effect.size,
@@ -253,15 +253,7 @@ setMethod(
                     ReadoutType, ScreenType,
                     Design, Cell,
                     GeneSymbol, Entrez) %>%
-    dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=TRUE)/n()),
-                     Pval       = metap::sumlog(Pval)$p,
-                     Qval       = metap::sumlog(Qval)$p,
-                     MeanEffect = mean(Readout, na.rm=TRUE),
-                     MaxEffect  = max(Readout, na.rm=TRUE),
-                     MinEffect  = min(Readout, na.rm=TRUE),
-                     AllPval=paste(sprintf("%03f", Pval), collapse=","),
-                     AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
-    ungroup %>%
+  	.summarize.two.sided() %>%
     dplyr::filter(Pval <= pval.threshold & Qval <= qval.threshold)
 
   res

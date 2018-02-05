@@ -1,26 +1,26 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Plot a \code{knockdown.diffusion.analysed} object
+#' Plot a \code{perturbation.diffusion.analysed} object
 #'
-#' @method plot knockdown.diffusion.analysed
+#' @method plot perturbation.diffusion.analysed
 #'
 #' @export
 #'
@@ -30,13 +30,13 @@
 #' @importFrom methods hasArg
 #' @importFrom assertthat assert_that
 #'
-#' @param x  a \code{knockdown.diffusion.analysed} object
+#' @param x  a \code{perturbation.diffusion.analysed} object
 #' @param graph.size  approximate numer of nodes
 #' @param show.node.labels  \code{logical} if gene names are shown or note
 #' @param ...  addutional params
 #'
 #' @return returns a plot object
-plot.knockdown.diffusion.analysed <- function(x,
+plot.perturbation.diffusion.analysed <- function(x,
                                              graph.size = 20,
                                              show.node.labels = FALSE,
                                              ...)
@@ -126,11 +126,15 @@ plot.knockdown.diffusion.analysed <- function(x,
   op                  <- graphics::par(family = "Helvetica", font=1)
   if (sz != -1) size  <- rep(sz, length(size))
   if (!show.node.labels)
+  {
     igraph::V(obj)$name <- rep(NA, length(igraph::V(obj)$name))
-  else {
+  }
+  else
+  {
     lbgens <- length(igraph::V(obj)$name[igraph::V(obj)$color == "blue"])
     igraph::V(obj)$name[igraph::V(obj)$color == "blue"] <- rep(NA, lbgens)
   }
+
   graphics::plot(
     obj,
     vertex.size = size,

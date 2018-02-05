@@ -1,40 +1,40 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Plot two \code{knockdown.replicate} objects
+#' Plot two \code{perturbation.replicate} objects
 #'
-#' @description Scatter two \code{knockdown.replicate} objects against
+#' @description Scatter two \code{perturbation.replicate} objects against
 #'  each other
 #'
 #' @export
-#' @method plot knockdown.replicate
+#' @method plot perturbation.replicate
 #' @import data.table
 #' @import ggplot2
-#' @param x  a \code{knockdown.replicate} object
-#' @param y  another \code{knockdown.replicate} object
+#' @param x  a \code{perturbation.replicate} object
+#' @param y  another \code{perturbation.replicate} object
 #' @param method either \code{Scatterplot} or \code{QQ-plot}
 #' @param size  size of text
 #' @param ...  additional parameters
 #'
 #' @return returns a plot object
-plot.knockdown.replicate <- function(x,
+plot.perturbation.replicate <- function(x,
                                     y,
                                     method=c("Scatterplot", "QQ-plot"),
                                     size=10,
@@ -68,11 +68,11 @@ plot.knockdown.replicate <- function(x,
   pl
 }
 
-#' Plot a \code{knockdown.plate} object
+#' Plot a \code{perturbation.plate} object
 #'
-#' @description Plot a \code{knockdown.plate} object on a 2D grid
+#' @description Plot a \code{perturbation.plate} object on a 2D grid
 #'
-#' @method plot knockdown.plate
+#' @method plot perturbation.plate
 #'
 #' @export
 #'
@@ -92,7 +92,7 @@ plot.knockdown.replicate <- function(x,
 #' @param ...  additional params
 #'
 #' @return returns a plot object
-plot.knockdown.plate <- function(x,
+plot.perturbation.plate <- function(x,
                                 show.controls=FALSE,
                                 show.gene.names=FALSE,
                                 ylab="Row idx",
@@ -145,11 +145,11 @@ plot.knockdown.plate <- function(x,
   pl
 }
 
-#' Plot a \code{knockdown.quality} object
+#' Plot a \code{perturbation.quality} object
 #'
-#' @description Plot a \code{knockdown.quality} object on a 2D grid
+#' @description Plot a \code{perturbation.quality} object on a 2D grid
 #'
-#' @method plot knockdown.quality
+#' @method plot perturbation.quality
 #'
 #' @export
 #'
@@ -163,7 +163,7 @@ plot.knockdown.plate <- function(x,
 #' @param ...  additional parameters to plot
 #'
 #' @return returns a plot object
-plot.knockdown.quality <- function(x, axis.text.size=12, ...)
+plot.perturbation.quality <- function(x, axis.text.size=12, ...)
 {
   # plot the raw plate values as boxplot
   qual <- x@.data

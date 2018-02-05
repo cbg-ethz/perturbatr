@@ -1,29 +1,30 @@
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2015 - 2016 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR If not, see <http://www.gnu.org/licenses/>.
 
-#' knockdown
+
+#' perturbR
 #'
-#' Analysis of high-throughput gene perturbation screens.
+#' Statistical analysis of high-throughput genetic perturbation screens
 #'
 #' @author Simon Dirmeier | Computational Biology Group,
 #'  ETH ZURICH | \email{simon.dirmeier@@bsse.ethz.ch}
-#' @name knockdown-package
+#' @name perturbR-package
 #'
 #' @docType package
 #' @keywords package

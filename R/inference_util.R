@@ -17,15 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
-#' @export
-#' @method rbind perturbatio.data
-#' @import data.table
-rbind.perturbation.data <-  function(...)
-{
-    args  <- list(...)
-    if (length(args) < 2) return(args[[1]])
-    types <- unlist(lapply(args, function(e) class(e)[1]))
-    if(any(types != types[1])) stop("Data-types do not agree")
-    dat   <- data.table::rbindlist(lapply(args, function(e) e@.data))
-    new(types[1], .data=dat)
-}
+
+
+.summarize.two.sided <- . %>%
+  dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=TRUE) / n()),
+                   Pval       = metap::sumlog(Pval)$p,
+  								 Qval       = metap::sumlog(Qval)$p,
+  								 MeanEffect = mean(Readout, na.rm=TRUE),
+  								 MaxEffect  = max(Readout, na.rm=TRUE),
+  								 MinEffect  = min(Readout, na.rm=TRUE),
+  								 MinPval    = min(Pval, na.rm=TRUE),
+  								 MinQval    = min(Qval, na.rm=TRUE),
+  								 AllPval=paste(sprintf("%03f", Pval), collapse=","),
+  								 AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
+	ungroup
