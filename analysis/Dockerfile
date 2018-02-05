@@ -20,7 +20,7 @@ RUN Rscript -e "install.packages('formula.tools')"
 RUN Rscript -e "install.packages('igraph')"
 RUN Rscript -e "install.packages('xtable')"
 
-RUN Rscript -e "devtools::install_github('cbg-ethz/knockdown@v0.2.1')"
+RUN Rscript -e "devtools::install_github('cbg-ethz/perturbr@v0.99.0')"
 
 COPY run.sh /analysis/
 COPY *.R /analysis/
