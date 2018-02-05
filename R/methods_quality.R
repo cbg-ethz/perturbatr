@@ -60,21 +60,21 @@ quality.perturbation.normalized.data <- function(obj, ...)
 .quality <- function(obj)
 {
   q.plate <- obj %>%
-    dplyr::group_by(Virus, Screen, Library, Replicate,
+    dplyr::group_by(Condition, Screen, Library, Replicate,
                     Plate, ReadoutType, ScreenType, Cell, Design) %>%
     dplyr::summarize(z.fac.control = .z.factor(Readout, Control),
                      ssmd          = .ssmd(Readout, Control),
                      z.fac.plate   = .z.factor(Readout, Control, "plate")) %>%
     ungroup
   q.rep <- obj %>%
-    dplyr::group_by(Virus, Screen, Library, Replicate,
+    dplyr::group_by(Condition, Screen, Library, Replicate,
                     ReadoutType, ScreenType, Cell, Design) %>%
     dplyr::summarize(z.fac.control=.z.factor(Readout, Control),
                      ssmd=.ssmd(Readout, Control),
                      z.fac.plate=.z.factor(Readout, Control, "plate")) %>%
     ungroup
   q.screen <- obj %>%
-    dplyr::group_by(Virus, Screen, Library,
+    dplyr::group_by(Condition, Screen, Library,
                     ReadoutType, ScreenType, Cell, Design) %>%
     dplyr::summarize(z.fac.control=.z.factor(Readout, Control),
                      ssmd=.ssmd(Readout, Control),

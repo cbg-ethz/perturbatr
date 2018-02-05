@@ -12,7 +12,7 @@ plates(obj, ...)
 \item{...}{additional params}
 }
 \value{
-returns a \code{knockdown.plates} object
+returns a \code{perturbation.plates} object
 }
 \description{
 Get the plates of a data-set

@@ -18,6 +18,11 @@
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
+
+#' @include class_data.R
+#' @include class_analysed.R
+
+
 #' Plot two \code{perturbation.replicate} objects
 #'
 #' @description Scatter two \code{perturbation.replicate} objects against
@@ -34,11 +39,12 @@
 #' @param ...  additional parameters
 #'
 #' @return returns a plot object
-plot.perturbation.replicate <- function(x,
-                                    y,
-                                    method=c("Scatterplot", "QQ-plot"),
-                                    size=10,
-                                    ...)
+plot.perturbation.replicate <- function(
+	x,
+	y,
+	method=c("Scatterplot", "QQ-plot"),
+	size=10,
+	...)
 {
   method <- match.arg(method)
   if (missing(x) | missing(y)) stop("Please provide two arguments (x and y)!")

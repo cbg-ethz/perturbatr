@@ -18,6 +18,10 @@
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include class_data.R
+#' @include class_analysed.R
+
+
 #' Plot a perturbation dataset
 #'
 #' @method plot perturbation.raw.data
@@ -54,7 +58,7 @@ plot.perturbation.raw.data <- function(x, size=10, ...)
 plot.perturbation.normalized.data <- function(x, size, ...)
 {
   numb.frame <-
-    dplyr::group_by(x@.data, Virus, Screen) %>%
+    dplyr::group_by(x@.data, Condition) %>%
     dplyr::summarize(Replicates = length(unique(Replicate)),
                      Genes      = length(unique(GeneSymbol))) %>%
     tidyr::gather(Type, Count, Replicates, Genes)
@@ -62,16 +66,16 @@ plot.perturbation.normalized.data <- function(x, size, ...)
   numb.frame$Count <- as.integer(numb.frame$Count)
 
   pl <-
-    ggplot2::ggplot(numb.frame, ggplot2::aes(x=Virus, y = Count)) +
-    ggplot2::geom_bar(ggplot2::aes(fill=Virus), stat="identity") +
+    ggplot2::ggplot(numb.frame, ggplot2::aes(x=Condition, y = Count)) +
+    ggplot2::geom_bar(ggplot2::aes(fill=Condition), stat="identity") +
     ggplot2::scale_y_continuous(breaks=scales::pretty_breaks(5)) +
-    ggplot2::facet_grid(Type ~ Screen, scales='free_y') +
+    ggplot2::facet_grid(Type ~ ., scales='free_y') +
     ggplot2::geom_text(ggplot2::aes(label = Count, y = Count),
                                     size = floor(size/3), vjust=0) +
-    ggplot2::theme_bw() +
+    ggplot2::theme_minimal() +
     ggplot2::theme(strip.text      = ggplot2::element_text(size = size),
                    text            = ggplot2::element_text(size = size),
-                   panel.spacing.y = ggplot2::unit(2, "lines"))+
+                   panel.spacing.y = ggplot2::unit(2, "lines")) +
     ggplot2::guides(fill=FALSE)
 
   pl

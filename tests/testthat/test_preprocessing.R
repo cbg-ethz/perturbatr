@@ -1,30 +1,30 @@
-
-# knockdown: analysis of high-throughput gene perturbation screens
+# perturbR: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of knockdown
+# This file is part of perturbR
 #
-# knockdown is free software: you can redistribute it and/or modify
+# perturbR is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# knockdown is distributed in the hope that it will be useful,
+# perturbR is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with knockdown. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
 context("preprocessing")
 
+
 data(rnaiscreen)
 pl <- plates(rnaiscreen)[1]
 pl@.data$PlateIndex <- NULL
-plate.data <- methods::as(pl@.data, "knockdown.data")
+plate.data <- methods::as(pl@.data, "perturbation.data")
 
 testthat::test_that("z scoring gives approx standardized gaussian with mean 0", {
   pl.norm <- preprocess(plate.data , normalize="z.score")
@@ -50,7 +50,7 @@ testthat::test_that("bscore normalisation is correct", {
   pl.norm <- preprocess(loc.plate.data , normalize="b.score")
   testthat::expect_equal(
     pl.norm@.data$Readout,
-    knockdown:::.bscore.plate(loc.plate.data@.data$RowIdx,
+    perturbation:::.bscore.plate(loc.plate.data@.data$RowIdx,
                              loc.plate.data@.data$ColIdx,
                              loc.plate.data@.data$Readout),
     tolerance=0.1)

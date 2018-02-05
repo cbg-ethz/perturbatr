@@ -21,12 +21,16 @@
 #' @include util_enums.R
 
 
+.required.data.cols  <- function() c("Condition", "Replicate", "GeneSymbol", "Perturbation","Readout")
+.required.hm.cols    <- function() c("Condition", "GeneSymbol", "Weight", "Readout")
+
+
 #' @noRd
 #' @slot .data the perturbation data-set
 setClass(
   "perturbation.data",
   contains = "VIRTUAL",
-  slots    = list(.data="data.table"),
+  slots    = list(.data="data.table")
 )
 
 
@@ -43,15 +47,8 @@ setClass(
   contains  = "perturbation.data",
   validity  = function(object)
   {
-    cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
-             "GeneSymbol", "ReadoutType", "Control", "Library",
-             "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
-             "Entrez", "Readout", "ReadoutClass", "NumCells")
-    if (any(sort(colnames(object@.data)) != sort(cls)))
-      stop(paste0("Your data needs to have the following colnames:\n",
-                  paste0(cls, collapse=", ")))
-
-  return (TRUE)
+  	.check(object@.data, .required.data.cols())
+  	return(TRUE)
   }
 )
 
@@ -68,35 +65,27 @@ setClass(
   contains  = "perturbation.data",
   validity  = function(object)
   {
-      cls <- c("Virus", "Replicate", "Plate", "RowIdx", "ColIdx",
-               "GeneSymbol", "ReadoutType", "Control", "Library",
-               "siRNAIDs", "Screen", "Cell", "ScreenType", "Design",
-               "Entrez", "Readout")
-      if (any(sort(colnames(object@.data)) != sort(cls)))
-        stop(paste0("Your data needs to have the following colnames:\n",
-                    paste0(cls, collapse=", ")))
-    return (TRUE)
+  	.check(object, .required.data.cols())
+    return(TRUE)
   }
 )
 
-#' @title Data wrapper for linear-mixed-model perturbation data
+
+#' @title Data wrapper for hierarchical model perturbation data
 #'
-#' @description Class \code{perturbation.lmm.data} is a wrapper for a
+#' @description Class \code{perturbation.hm.data} is a wrapper for a
 #' \code{data.table} object containing the normalized data-set
 #'
-#' @name LMM-data
-#' @rdname perturbation_lmm_data-class
+#' @name HM-data
+#' @rdname perturbation_hm_data-class
 #'
 setClass(
-  "perturbation.lmm.data",
+  "perturbation.hm.data",
   contains  = "perturbation.data",
   validity  = function(object)
   {
-    cls <- c("Virus", "GeneSymbol", "ReadoutType", "Control", "Weight",
-             "Cell", "ScreenType", "Design", "Entrez", "Readout", "VG")
-    if (any(!(colnames(object@.data) %in% sort(cls))))
-      stop(paste0("Your data needs to have the following colnames:\n",
-                  paste0(cls, collapse=", ")))
-    return (TRUE)
+  	.check(object, .required.hm.cols())
+    return(TRUE)
   }
 )
+

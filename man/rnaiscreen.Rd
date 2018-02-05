@@ -3,14 +3,14 @@
 \docType{data}
 \name{rnaiscreen}
 \alias{rnaiscreen}
-\title{A sample pan-pathogenic RNAi dataset}
-\format{A \code{knockdown.data} object containing a data.table with 18
+\title{A sample pan-pathogenic perturbatin dataset}
+\format{A \code{perturbation.data} object containing a data.table with 18
  columns, each describing a necessary feature}
 \usage{
 data(rnaiscreen)
 }
 \description{
-Example \code{knockdown.data} data-set consisting of two-viral screen with
+Example \code{perturbation.data} data-set consisting of two-viral screen with
  random data.
 }
 \details{

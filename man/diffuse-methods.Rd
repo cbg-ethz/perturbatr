@@ -3,13 +3,13 @@
 \docType{methods}
 \name{diffuse}
 \alias{diffuse}
-\alias{diffuse,knockdown.lmm.analysed-method}
+\alias{diffuse,perturbation.hm.analysed-method}
 \title{Smooth the results from an analysis using network diffusion}
 \usage{
 diffuse(obj, path = NULL, graph = NULL, r = 0.5,
   delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 
-\S4method{diffuse}{knockdown.lmm.analysed}(obj, path = NULL, graph = NULL,
+\S4method{diffuse}{perturbation.hm.analysed}(obj, path = NULL, graph = NULL,
   r = 0.5, delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
 }
 \arguments{
@@ -30,7 +30,7 @@ bootstrap samples are available}
 \item{...}{additional parameters}
 }
 \value{
-returns a \code{knockdown.diffusion.analysed} object
+returns a \code{perturbation.diffusion.analysed} object
 }
 \description{
 TODO

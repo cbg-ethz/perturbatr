@@ -18,7 +18,7 @@
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 #' @export
-#' @method rbind perturbatio.data
+#' @method rbind perturbation.data
 #' @import data.table
 rbind.perturbation.data <-  function(...)
 {

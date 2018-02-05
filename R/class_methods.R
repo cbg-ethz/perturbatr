@@ -18,7 +18,12 @@
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Extract parts of an object
+#' @include class_plates.R
+#' @include class_replicates.R
+#' @include class_quality.R
+
+
+#' @title Extract parts of an object
 #'
 #' @description Extract a single plate from a \code{perturbation.plates} object
 #'
@@ -45,9 +50,9 @@ setMethod(
   }
 )
 
-#' Extract parts of an object
+#' @title Extract parts of an object
 #'
-#' Extract a single replicate from a \code{perturbation.replicates} object
+#' @description Extract a single replicate from a \code{perturbation.replicates} object
 #'
 #' @rdname subset-methods
 #'

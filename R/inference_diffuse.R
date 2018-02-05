@@ -19,8 +19,8 @@
 
 
 #' @include util_enums.R
-#' @include class_perturbation_data.R
-#' @include class_perturbation_analysed.R
+#' @include class_data.R
+#' @include class_analysed.R
 
 #' @title Smooth the results from an analysis using network diffusion
 #'
@@ -59,12 +59,12 @@ setGeneric(
 )
 
 #' @rdname diffuse-methods
-#' @aliases diffuse,perturbation.lmm.analysed-method
+#' @aliases diffuse,perturbation.hm.analysed-method
 #' @import data.table
 #' @importFrom dplyr select filter
 setMethod(
   "diffuse",
-  signature=signature(obj="perturbation.lmm.analysed"),
+  signature=signature(obj="perturbation.hm.analysed"),
   function(obj,
            path=NULL,
            graph=NULL,

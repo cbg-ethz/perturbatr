@@ -52,12 +52,12 @@ setClass(
 )
 
 
-#' Data wrapper for analysed perturbation data using an LMM
+#' Data wrapper for analysed perturbation data using a hierarchical model
 #'
-#' @name LMMAnalysis-class
-#' @rdname lmm_perturbation_analysis-class
+#' @name HMAnalysis-class
+#' @rdname hm_perturbation_analysis-class
 #'
-#' @description Class \code{perturbation.lmm.analysed} is a wrapper for a
+#' @description Class \code{perturbation.hm.analysed} is a wrapper for a
 #'   \code{data.table} object containing the perturbation data
 #'
 #' @slot .gene.effects  the estimated effect sizes for genes
@@ -67,10 +67,9 @@ setClass(
 #'  infectivity levels
 #' @slot .gene.hits  prioritized genes
 #' @slot .gene.pathogen.hits  prioritized genes on a viral level
-#' @slot .model.fit  the fitted model with gene fdrs and gene-pathogen
-#'  fdrs
+#' @slot .model.fit  the fitted model
 setClass(
-  "perturbation.lmm.analysed",
+  "perturbation.hm.analysed",
   contains  = "perturbation.analysed",
   slots     = list(.gene.effects          = "data.table",
                    .gene.pathogen.effects = "data.table",
@@ -119,4 +118,60 @@ setClass(
   contains  = "perturbation.diffusion.analysed",
   prototype = prototype(.inference=.inference.types()$MRW.DIFFUSION,
                         .is.bootstrapped=FALSE)
+)
+
+
+#' Data wrapper for analysed perturbation data using a standard hypothesis test
+#'
+#' @name TstatisticAnalysis-class
+#' @rdname tstatisic_perturbation_analysis-class
+#'
+#' @description Class \code{perturbation.tstatistic.analysed} is a wrapper for a
+#'   \code{data.table} object containing the perturbation data
+#'
+#' @slot .gene.hits  prioritized genes
+#'
+setClass(
+	"perturbation.tstatistic.analysed",
+	contains  = "perturbation.analysed",
+	slots     = list(.gene.hits="data.table"),
+	prototype = prototype(.inference=.inference.types()$T.TEST,
+												.is.bootstrapped=FALSE)
+)
+
+#' Data wrapper for analysed perturbation data using a standard hypothesis test
+#'
+#' @name ChisqStatisticAnalysis-class
+#' @rdname chisq_statisic_perturbation_analysis-class
+#'
+#' @description Class \code{perturbation.chisqstatistic.analysed} is a wrapper for a
+#'   \code{data.table} object containing the perturbation data
+#'
+#' @slot .gene.hits  prioritized genes
+#'
+setClass(
+	"perturbation.chisqstatistic.analysed",
+	contains  = "perturbation.analysed",
+	slots     = list(.gene.hits="data.table"),
+	prototype = prototype(.inference=.inference.types()$CHISQ.TEST,
+												.is.bootstrapped=FALSE)
+)
+
+
+#' Data wrapper for analysed perturbation data using a standard hypothesis test
+#'
+#' @name HyperAnalysis-class
+#' @rdname hyper_perturbation_analysis-class
+#'
+#' @description Class \code{perturbation.hyper.analysed} is a wrapper for a
+#'   \code{data.table} object containing the perturbation data
+#'
+#' @slot .gene.hits  prioritized genes
+#'
+setClass(
+	"perturbation.hyper.analysed",
+	contains  = "perturbation.analysed",
+	slots     = list(.gene.hits="data.table"),
+	prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST,
+												.is.bootstrapped=FALSE)
 )

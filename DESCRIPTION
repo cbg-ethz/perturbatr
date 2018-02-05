@@ -22,7 +22,6 @@ Imports:
     tidyr,
     assertthat,
     lme4,
-    locfdr,
     splines,
     RColorBrewer,
     dtplyr,
@@ -49,25 +48,22 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'util_enums.R'
-    'class_knockdown_analysed.R'
-    'class_knockdown_data.R'
-    'class_knockdown_plates.R'
-    'class_knockdown_quality.R'
-    'class_knockdown_replicates.R'
+    'class_analysed.R'
+    'class_data.R'
+    'class_quality.R'
+    'class_replicates.R'
+    'class_plates.R'
     'class_methods.R'
     'data.R'
-    'inference_chisqstatistic.R'
     'inference_diffuse.R'
     'inference_diffuse_mrw.R'
     'inference_hyperstatistic.R'
     'inference_lmm.R'
-    'inference_lmm_fdr_ge.R'
-    'inference_lmm_fdr_gpe.R'
     'inference_lmm_model_data.R'
     'inference_tstatistic.R'
-    'knockdown_package.R'
+    'inference_util.R'
     'methods_combine.R'
     'methods_filter.R'
     'methods_plates.R'
@@ -75,7 +71,7 @@ Collate:
     'methods_replicates.R'
     'methods_select.R'
     'methods_show.R'
-    'plot.R'
+    'perturbR-package.R'
     'plot_analysed.R'
     'plot_data.R'
     'plot_diffusion.R'
@@ -98,4 +94,3 @@ Collate:
     'util_plate_matrix.R'
     'util_sampler.R'
     'util_stat.R'
-    'zzz.R'

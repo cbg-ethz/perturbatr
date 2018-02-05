@@ -18,6 +18,10 @@
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
+#' @include class_data.R
+#' @include class_analysed.R
+
+
 #' Plot a \code{perturbation.diffusion.analysed} object
 #'
 #' @method plot perturbation.diffusion.analysed

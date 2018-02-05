@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
+
 #' @noRd
 #' @param obj  the object to calculate the effect matrices for
 #' @param ...  additional parameters
@@ -26,11 +27,11 @@
 }
 
 #' @noRd
-#' @method .effect.matrices perturbatiob.lmm.analysed
+#' @method .effect.matrices perturbation.hm.analysed
 #' @import data.table
 #' @importFrom dplyr filter select
 #' @importFrom tidyr spread
-.effect.matrices.perturbatiob.lmm.analysed <- function(obj, ...)
+.effect.matrices.perturbation.hm.analysed <- function(obj, ...)
 {
   g <- obj@.gene.hits %>%
     dplyr::select(GeneSymbol, Effect) %>%

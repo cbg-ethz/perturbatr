@@ -12,7 +12,7 @@ quality(obj, ...)
 \item{...}{additional parameters}
 }
 \value{
-returns a \code{knockdown.quality} object
+returns a \code{perturbation.quality} object
 }
 \description{
 Calculates per-plate, per-replicate and screen quality scores

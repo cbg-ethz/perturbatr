@@ -18,10 +18,14 @@
 # along with perturbR. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Plot a \code{perturbation.lmm.analysed}  object
+#' @include class_data.R
+#' @include class_analysed.R
+
+
+#' Plot a \code{perturbation.hm.analysed}  object
 #'
 #' @export
-#' @method plot perturbation.lmm.analysed
+#' @method plot perturbation.hm.analysed
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr filter
@@ -32,17 +36,17 @@
 #'
 #' @return returns a list of plots
 #'
-plot.perturbation.lmm.analysed <- function(x, size=10, ...)
+plot.perturbation.hm.analysed <- function(x, size=10, ...)
 {
-  pl <- .plot.perturbation.lmm.analysed (x@.gene.hits,
+  pl <- .plot.perturbation.hm.analysed (x@.gene.hits,
                                      main="Gene effects",
                                      size=size, ...)
   pl2 <-
-    .plot.perturbation.lmm.analysed(x@.gene.pathogen.hits, main="", size=size) +
+    .plot.perturbation.hm.analysed(x@.gene.pathogen.hits, main="", size=size) +
     ggplot2::facet_wrap(
       ~ Virus,
       ncol=ceiling(length(unique(x@.gene.pathogen.hits$Virus))/2))
-  pl3 <- .plot.effect.matrices.perturbation.analysed.lmm(x, size)
+  pl3 <- .plot.effect.matrices.perturbation.analysed.hm(x, size)
   pl4 <- .plot.hit.counts(x, size)
   pl5 <- .plot.vulcano(x, size)
   return(list(gene.effect.barplot=pl,
@@ -57,7 +61,7 @@ plot.perturbation.lmm.analysed <- function(x, size=10, ...)
 #' @import ggplot2
 #' @importFrom dplyr filter
 #' @importFrom methods hasArg
-.plot.perturbation.lmm.analysed  <- function(x, main, size, ...)
+.plot.perturbation.hm.analysed  <- function(x, main, size, ...)
 {
   pars <- list(...)
   if ("Virus" %in% colnames(x))
@@ -108,7 +112,7 @@ plot.perturbation.lmm.analysed <- function(x, size=10, ...)
 #' @import ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom tidyr gather
-.plot.effect.matrices.perturbation.analysed.lmm <- function(x, size, ...)
+.plot.effect.matrices.perturbation.analysed.hm <- function(x, size, ...)
 {
 
   effect.matrices <- .effect.matrices(x)

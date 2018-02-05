@@ -1,8 +1,8 @@
 ---
-title: "Knockdown cookbook"
+title: "perturbR cookbook"
 author: "Simon Dirmeier"
 date: "`r Sys.Date()`"
-output: BiocStyle::html_document2
+output: BiocStyle::html_document
 bibliography: knockdown.bib
 vignette: >
   %\VignetteIndexEntry{Knockdown cookbook}
@@ -20,28 +20,21 @@ vignette: >
   library(dplyr)
   library(dtplyr)
   library(methods)
-  library(knockdown)
+  library(perturbR)
   data(rnaiscreen)
   my.data <- rnaiscreen@.data %>%
-    dplyr::filter(Virus=="V1") %>%
-    dplyr::select(Replicate, Plate, RowIdx, ColIdx,
-                  GeneSymbol, Readout, Control, siRNAIDs)
+    dplyr::filter(Condition=="V1") %>%
+    dplyr::select(Condition, Replicate, Plate, RowIdx, ColIdx,
+                  GeneSymbol, Readout, Control, Perturbation)
 ```
 
 # Introduction
 
-`knockdown` does analysis of large-scale gene knockdown screens.
- For this several preprocessing and data normalization techniques such as
- *median-polish* or *quantile-quantile normalization* are implemented.
- On the normalized data-set essential hits can be prioritized using
- state-of-the-art analysis tools, such as *gespeR* or *pmm*.
- The resulting hit lists can be further extended using network diffusion
- algorithms, such as *Markov random walks with restarts* or the well-known
- *heat equation*. Eventually hits can be analyses using *GSEA*, etc.
+`perturbR` does stage-wise analysis of large-scale genetic perturbation screens for integrated datasets consisting of several screens. The package provides various tools for normalisation, plotting and analysis. For single perturbation screens classical analyses using hypothesis testing are implemented. For multiple integrated perturbation screens we developed a hierarchical model that considers the variance between the different biological settings the data are derived from. Our model first estimates an overall relative size for all genes (hits). The resulting hit lists is then be further extended using a network propagation algorithm to correct for false negatives and positives.
 
 # Tutorial
 
-This tutorial walks you to the basic functionality of `knockdown`.
+This tutorial walks you to the basic functionality of `perturbR` using a pan-pathogenic data set of several RNAi screening studies.
 
 ## Creating a raw data-set
 
@@ -53,24 +46,24 @@ the following columns:
   print(my.data)
 ```
 
-You can then use your data-set `my.data` and cast it to a `knockdown.data` object:
+You can then use your data-set `my.data` and cast it to a `perturbation.data` object:
 
 ```{r, include=TRUE, eval=TRUE}
-  my.knockdown.data <- methods::as(my.data, "knockdown.data")
+  my.perturbation.data <- methods::as(my.data, "perturbation.data")
 ```
 
-Coercing your `data.table` to `knockdown.data` will automatically warn you if
+Coercing your `data.table` to `perturbation.data` will automatically warn you if
 your table is formatted wrongly.
 
-## Working with `knockdown.data` S4 objects
+## Working with `perturbation.data` S4 objects
 
-For objects that inherit the abstract `knockdown.data` class, we provide basic
+For objects that inherit the abstract `perturbation.data` class, we provide basic
 `select`, `filter`, `group_by` and `rbind` functionality:
 
 ```{r, eval=TRUE, include=TRUE}
-  select(my.knockdown.data, GeneSymbol, Readout)
-  rbind(filter(my.knockdown.data, Readout > 0),
-        filter(my.knockdown.data, Readout < 0))
+  select(my.perturbation.data, GeneSymbol, Readout)
+  rbind(filter(my.perturbation.data, Readout > 0),
+        filter(my.perturbation.data, Readout < 0))
 ```
 
 ## Preprocessing
@@ -90,7 +83,7 @@ comparability between plates. Normalization can be done using the `preprocess`
 method. Before we do any normalisations we should have a look at quality scores and single plates before:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4}
-  v1.data         <- knockdown::filter(rnaiscreen, Virus == "V1")
+  v1.data         <- perturbR::filter(rnaiscreen, Condition == "V1")
   v1.data.quality <- quality(v1.data)
   pl              <- plot(v1.data.quality)
   pl[[2]]
@@ -119,7 +112,7 @@ RNAi-screening data. We just call it with the standard parameters, which takes t
 logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
-  v1.data.norm <- knockdown::preprocess(v1.data, normalize=c("log", "robust-z.score"))
+  v1.data.norm <- perturbR::preprocess(v1.data, normalize=c("log", "robust-z.score"))
 ```
 
 The result shouldn't be too different from before since we use artificial data. But for completeness' sake let's do the full analysis. We do the same as
@@ -136,7 +129,7 @@ before (this time w/o plots, though)
   plot(repls[1], repls[2])
 ```
 
-The result object has class `knockdown.normalized.data` which can be used for analysis.
+The result object has class `perturbation.normalized.data` which can be used for analysis.
 
 In the example above we just computed the log and robust Z-scores for every
 plate separately. Often, when we have for instance information of cell-counts,
@@ -146,12 +139,12 @@ comprises multiple different screens, you might want to normalize every screen
 separately.
 
 In this case you would first filter the data-set by single experiments. For our provided
-filtering by `Virus` and `Screen` results int a single experiment;
+filtering by `Condition` and `Screen` results int a single experiment;
 *for your data this might be different though*.
 
 ```{r, eval=TRUE, include=T}
-  v1.dat <- filter(rnaiscreen, Virus=="V1")
-  v2.dat <- filter(rnaiscreen, Virus=="V2")
+  v1.dat <- filter(rnaiscreen, Condition=="V1")
+  v2.dat <- filter(rnaiscreen, Condition=="V2")
 ```
 
 ## Data-analysis
@@ -166,18 +159,17 @@ Suppose we normalized our data-set and centered the data around zero. One way to
 is to use a standard `t-test`:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width=4}
-  v1.dat <- knockdown::filter(rnaiscreen, Virus=="V1")
+  v1.dat <- perturbation::filter(rnaiscreen, Virus=="V1")
   v1.res <- tstatistic(v1.dat)
   plot(v1.res)
 ```
 
-Alternatively you can also use an iterative hyper-geometric test with `hyper.statistic` [@konig2007probability]
-or a test using a <i>Chi-squared</i> distributed test statistic using `chisq.statistic`. We also refer the interested reader to a recent model for hit prioritization using a penalized linear model by [@schmich2015gesper].
+Alternatively you can also use an iterative hyper-geometric test with `hyper.statistic` [@konig2007probability]. We also refer the interested reader to a recent model for hit prioritization using a penalized linear model by [@schmich2015gesper].
 
-### Maximum likelihood inference
+### Joint maximum likelihood inference of integrated data sets
 
 If we want to analyse several pathogens add once and detect host factors common to all of those other appraoches might make more sense.
-We can either use again a linear model (`gespeR`) or use a random effects model that separately treats biological effects from different settings called `lmm`.
+For this we developed a hierchical model that separately treats biological effects from different settings called `hm`.
 We describe the phenotype/readout by a linear combination of fixed effects and random effects (inspired by [@ramo2014simultaneous]) as:
 
 $$y_{vgst} = x_v \beta + \gamma_g  + \delta_{vg} + \zeta_t + \xi_{vt} + \epsilon_{vgst},$$
@@ -188,7 +180,7 @@ random effects model using:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
-  res                   <- lmm(rnaiscreen.normalized, effect.size=0.01)
+  res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
 ```
 
 If we `plot` our result we are getting a list three different plots. The most informative one that shows the top 25 pen-pathogenic host factors:
@@ -204,7 +196,7 @@ the diffusion. In our example we do not compute the diffusion, because loading t
 
 
 ```{r eval=FALSE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
-  graph.file <- system.file("extdata", "graph_file.tsv", package = "knockdown")
+  graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbR")
   diffu <- diffuse(res, method="mrw", path=graph.file, r=0.1)
   plot(diffu)
 ```
