@@ -3,9 +3,9 @@
 library(dplyr)
 library(dtplyr)
 library(tidyr)
-library(data.table)
 library(knockdown)
 library(ggplot2)
+library(uuid)
 library(xtable)
 
 show.xtable <- function(tabl, caption, label, out.file)
