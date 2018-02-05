@@ -24,6 +24,7 @@
   length(unique(obj))
 }
 
+#' @noRd
 .check <- function(object, cols)
 {
 	ps   <- paste(cols, collapse=", " )

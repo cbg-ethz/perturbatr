@@ -76,35 +76,6 @@ We use one of the provided artificial data-sets for this.
   plot(rnaiscreen)
 ```
 
-### Quality control plots
-
-Raw image-based screens have usually to be normalized in order to ensure
-comparability between plates. Normalization can be done using the `preprocess`
-method. Before we do any normalisations we should have a look at quality scores and single plates before:
-
-```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4}
-  v1.data         <- perturbR::filter(rnaiscreen, Condition == "V1")
-  v1.data.quality <- quality(v1.data)
-  pl              <- plot(v1.data.quality)
-  pl[[2]]
-```
-
-This, surprisingly, does not show any separation, since we use an artificial dataset.
-Since we know that RNAi screens often suffer from batch effects we also might want to look at single plates:
-
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=3}
-  plates <- plates(v1.data)
-  plot(plates[1], show.gene.names=FALSE)
-```
-
-As before, no surprises here. We can also check if two replicates are somewhat similar, by looking
-at Spearman's correlation coefficient.
-
-```{r, eval=TRUE, include=T, fig.align="center", fig.width=3}
-  repls <- replicates(v1.data)
-  plot(repls[1], repls[2])
-```
-
 ### Normalisation
 
 The `preprocess` method offers a collection of common techniques to normalize
