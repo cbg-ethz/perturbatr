@@ -83,6 +83,7 @@ RNAi-screening data. We just call it with the standard parameters, which takes t
 logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  v1.data      <- perturbR::filter(rnaiscreen, Condition == "V1")
   v1.data.norm <- perturbR::preprocess(v1.data, normalize=c("log", "robust-z.score"))
 ```
 
