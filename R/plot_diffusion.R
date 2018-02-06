@@ -22,12 +22,13 @@
 #' @include class_analysed.R
 
 
-#' Plot a \code{perturbation.diffusion.analysed} object
+#' @title Plot a \code{perturbation.mrw.diffusion.analysed} object
+#'
+#' @descriptionPlots a \code{perturbation.mrw.diffusion.analysed} object by
+#' iteratively expanding the neighbors of the hits form the diffusion
 #'
 #' @method plot perturbation.diffusion.analysed
-#'
 #' @export
-#'
 #' @import data.table
 #' @import igraph
 #' @importFrom graphics plot legend
@@ -35,47 +36,47 @@
 #' @importFrom assertthat assert_that
 #'
 #' @param x  a \code{perturbation.diffusion.analysed} object
-#' @param graph.size  approximate numer of nodes
+#' @param graph.size  approximate maximal numer of nodes
 #' @param show.node.labels  \code{logical} if gene names are shown or note
+#' @param node.cnt  how many nodes should the graph have from the diffusion hit list
 #' @param ...  addutional params
 #'
 #' @return returns a plot object
-plot.perturbation.diffusion.analysed <- function(x,
-                                             graph.size = 20,
-                                             show.node.labels = FALSE,
-                                             ...)
+#'
+plot.perturbation.diffusion.analysed <- function(
+  x, graph.size = 100, show.node.labels = FALSE, node.cnt=25, ...)
 {
   pars        <- list(...)
   sz          <- ifelse(methods::hasArg(size), pars$size, -1)
   obj         <- x@.graph
   stopifnot(igraph::is.igraph(obj))
   # get the best 100 hits according to their ranking
-  v.cnt <- 100
+  v.cnt <- node.cnt
   repeat
   {
-    best.100 <- x@.data %>%
+    best.graph.size <- x@.data %>%
       .[order(-DiffusionEffect)] %>%
       .[1:v.cnt] %>%
       dplyr::filter(!is.na(DiffusionEffect))
     # index of edges that are gonna be plotted
     edge.list    <- igraph::get.edgelist(x@.graph)
-    idxs         <- .edge.indexes(edge.list, best.100)
+    idxs         <- .edge.indexes(edge.list, best.graph.size)
     obj          <- igraph::graph.data.frame(.edge.subset(edge.list, idxs),
                                              directed=FALSE)
 
-    if (length(igraph::V(obj)) >= 100) break
+    if (length(igraph::V(obj)) >= graph.size) break
     v.cnt <- v.cnt + 1
   }
   # get the connected components
   comps              <- igraph::components(obj)
   # get the genes that are not in the largest component
   non.max.comp.genes <- names(
-    which(comps$membership != which.max(comps$csize))
-  )
+    which(comps$membership != which.max(comps$csize)))
+
   # remove the genes that are not in the largest component
   obj <- igraph::delete.vertices(obj, non.max.comp.genes)
   # node colors (LMM identified genes are blue, rest orange)
-  blue.genes   <- best.100$GeneSymbol[best.100$GeneSymbol %in%
+  blue.genes   <- best.graph.size$GeneSymbol[best.graph.size$GeneSymbol %in%
                                         x@.initial.model@.gene.hits$GeneSymbol]
   # set some vis params
 
@@ -91,12 +92,12 @@ plot.perturbation.diffusion.analysed <- function(x,
 }
 
 #' @noRd
-.edge.indexes <- function(edge.list, best.100)
+.edge.indexes <- function(edge.list, best.graph.size)
 {
-  v1 <- (edge.list[,1] %in% best.100$GeneSymbol &
-           edge.list[,2] %in% best.100$GeneSymbol)
-  v2 <- (edge.list[,2] %in% best.100$GeneSymbol &
-           edge.list[,1] %in% best.100$GeneSymbol)
+  v1 <- (edge.list[,1] %in% best.graph.size$GeneSymbol &
+           edge.list[,2] %in% best.graph.size$GeneSymbol)
+  v2 <- (edge.list[,2] %in% best.graph.size$GeneSymbol &
+           edge.list[,1] %in% best.graph.size$GeneSymbol)
   which(v1 | v2)
 }
 

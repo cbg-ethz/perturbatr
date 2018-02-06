@@ -3,6 +3,7 @@
 \docType{methods}
 \name{tstatistic}
 \alias{tstatistic}
+\alias{tstatistic,perturbation.normalized.data-method}
 \alias{tstatistic,perturbation.data-method}
 \title{Calculate statistics based on the t-test to analyse the data.}
 \usage{
@@ -10,8 +11,8 @@ tstatistic(obj, mu = c(0, "scrambled", "control"), padjust = c("BH",
   "bonferroni"), hit.ratio = 0.5, effect.size = 0, pval.threshold = 0.05,
   qval.threshold = 1)
 
-\S4method{tstatistic}{perturbation.data}(obj, mu = c(0, "scrambled",
-  "control"), padjust = c("BH", "bonferroni"), hit.ratio = 0.5,
+\S4method{tstatistic}{perturbation.normalized.data}(obj, mu = c(0,
+  "scrambled", "control"), padjust = c("BH", "bonferroni"), hit.ratio = 0.5,
   effect.size = 0, pval.threshold = 0.05, qval.threshold = 1)
 }
 \arguments{

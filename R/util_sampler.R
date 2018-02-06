@@ -23,7 +23,7 @@
 #' @export
 #'
 #' @param obj  the object which data should be bootstrapped
-#' @param level  boostrap either on sirnas or on pathogens
+#' @param level  boostrap either on perturbatinos or on conditions
 #' @return returns an object with boostrapped data
 #'
 #' @examples

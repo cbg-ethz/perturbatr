@@ -20,10 +20,9 @@
 
 #' @include class_data.R
 #' @include class_analysed.R
+#' @include util_enums.R
 
-
-#' Plot a \code{perturbation.hm.analysed}  object
-#'
+#' @noRd
 #' @export
 #' @method plot perturbation.hm.analysed
 #' @import ggplot2
@@ -36,25 +35,34 @@
 #'
 #' @return returns a list of plots
 #'
-plot.perturbation.hm.analysed <- function(x, size=10, ...)
+plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
 {
-  pl <- .plot.perturbation.hm.analysed (
-    x@.gene.hits,
-    main="Gene effects",
-    size=size, ...)
-  pl2 <-
-    .plot.perturbation.hm.analysed(x@.gene.pathogen.hits, main="", size=size) +
-    ggplot2::facet_wrap(. ~ Condition,
-      ncol=ceiling(length(unique(x@.nested.gene.hits$Condition))/2))
-  pl3 <- .plot.effect.matrices.perturbation.analysed.hm(x, size)
-  pl4 <- .plot.hit.counts(x, size)
-  pl5 <- .plot.vulcano(x, size)
+  pl <- try({
+    .plot.perturbation.hm.analysed(
+      x@.gene.hits, main=main, size=size)
+  })
+  pl2 <- try({
+    .plot.perturbation.hm.analysed(x@.nested.gene.hits, main="", size=size) +
+      ggplot2::facet_wrap( ~ Condition,
+        ncol=ceiling(length(unique(x@.nested.gene.hits$Condition))/2))
+  })
+  pl3 <- try({
+    .plot.effect.matrices.perturbation.analysed.hm(x, size)
+  })
+  pl4 <- try({
+    .plot.hit.counts(x, size)
+  })
+  pl5 <- try({
+    .plot.vulcano(x, size)
+  })
 
   return(list(gene.effect.barplot        = pl,
               nested.gene.effect.barplot = pl2,
               nested.gene.effect.matrix  = pl3,
-              nested.gene.hit.counts     = pl4))
+              nested.gene.hit.counts     = pl4,
+              volcano                    = pl5))
 }
+
 
 #' @noRd
 #' @import data.table
@@ -76,37 +84,14 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
       dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
   }
 
-  x.pos.range <- max(abs(x$Effect))
-  x.lim       <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
-  LDcolors    <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
+  x.pos.range  <- max(abs(x$Effect))
+  x.lim        <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
   x$GeneSymbol <- factor(x$GeneSymbol, levels=rev(unique(x$GeneSymbol)))
 
-  pl <-
-    ggplot2::ggplot(x) +
-    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol, y=abs(Effect), fill=Effect),
-    									stat="identity") +
-    ggplot2::scale_fill_gradient2(low=LDcolors[1],
-                                  high=LDcolors[11],
-                                  na.value=LDcolors[6],
-                                  name="Gene effect") +
-    ggplot2::scale_x_discrete(labels = rev(sort(x$GeneSymbol)),
-                              limits=rev(sort(x$GeneSymbol))) +
-    ggplot2::xlab("") +
-    ggplot2::ylab("") +
-    ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.y = ggplot2::element_text(size = size - 2,
-                                                       family = "Helvetica"),
-                   axis.ticks=ggplot2::element_blank(),
-                   text = ggplot2::element_text(size = size, family = "Helvetica"),
-                   axis.text.x = ggplot2::element_text(
-                                              size = size - 2,
-                                              family = "Helvetica"),
-                   strip.text=ggplot2::element_text(face=x$font))+
-    ggplot2::coord_flip() +
-    ggplot2::ggtitle(main)
-
+  pl <- .plot.bars(x, size, main, ...)
   pl
 }
+
 
 #' @noRd
 #' @import data.table
@@ -120,24 +105,25 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
   ge <- effect.matrices$gene.effects %>%
     .[order(-abs(Effect))]  %>%
     .[1:25]
-  gpe <-  effect.matrices$gene.pathogen.effects %>%
+
+  gpe <-  effect.matrices$nested.gene.effects %>%
     dplyr::filter(GeneSymbol %in% ge$GeneSymbol) %>%
     tidyr::gather(GeneSymbol)
-  colnames(gpe) <- c("GeneSymbol", "Pathogen", "Effect")
+
+  colnames(gpe) <- c("GeneSymbol", "Condition", "Effect")
   gpe$GeneSymbol <- factor(gpe$GeneSymbol, levels=rev(unique(gpe$GeneSymbol)))
-  LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
 
   pl <-
-    ggplot2::ggplot(gpe, ggplot2::aes(GeneSymbol, Pathogen)) +
-    ggplot2::geom_tile(ggplot2::aes(fill = Effect), colour=LDcolors[1]) +
+    ggplot2::ggplot(gpe, ggplot2::aes(GeneSymbol, Condition)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = Effect), colour="black") +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +
-    ggplot2::scale_fill_gradient2(low      = LDcolors[1],
-                                  high     = LDcolors[11],
-                                  na.value = LDcolors[6],
-                                  name     = "Gene Condition\neffect") +
+    ggplot2::scale_fill_gradient2(low      = .colors()$blue,
+                                  high     = .colors()$red,
+                                  na.value = "white",
+                                  name     = "Nested gene effect") +
     ggplot2::coord_flip() +
-    ggplot2::theme_bw() +
+    ggplot2::theme_minimal() +
     ggplot2::theme(text=ggplot2::element_text(size = size, family = "Helvetica"),
                    aspect.ratio = 2,
                    axis.text.x  = ggplot2::element_text(angle=45,
@@ -149,11 +135,12 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
   pl
 }
 
+
 #' @noRd
 #' @importFrom dplyr group_by summarize mutate
 .plot.hit.counts <- function(x, size)
 {
-  obj <- x@.gene.pathogen.effects
+  obj <- x@.nested.gene.effects
   single.res <- obj %>%
     dplyr::mutate(Sign=sign(Effect)) %>%
     dplyr::group_by(Condition, Sign) %>%
@@ -162,16 +149,19 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
     dplyr::mutate(Count=cnt*Sign)
 
   pl <-
-    ggplot2::ggplot(single.res, aes(x=Condition, y=Count, fill=Sign)) +
+    ggplot2::ggplot(single.res, ggplot2::aes(x=Condition, y=Count, fill=factor(Sign))) +
     ggplot2::geom_bar(stat="identity", position="dodge") +
-    ggplot2::scale_fill_distiller(palette="Spectral") +
+    ggplot2::scale_fill_manual("",
+      values = c(.colors()$red, "grey", .colors()$blue),
+      limits = c("1",  "0", "-1"),
+      labels=c("Positive", "None", "Negative")) +
     ggplot2::theme_bw() +
-    ggplot2::theme(legend.position="none",
+    ggplot2::theme(legend.position = "none",
                    text = ggplot2::element_text(size=22),
                    axis.text.y=ggplot2::element_blank()) +
     ggplot2::geom_hline(yintercept=0) +
     ggplot2::ylab("Count hits") +
-    ggplot2::geom_text(aes(x=Condition, y=ifelse(Count>0, Count+1, Count-1),
+    ggplot2::geom_text(ggplot2::aes(x=Condition, y=ifelse(Count>0, Count+1, Count-1),
                            label=abs(Count)), size=5, colour="black")
   pl
 }
@@ -217,17 +207,17 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
     ggplot2::ylab("-log(q-value)")
   if (length(nohits$Effect) != 0)
     pl <- pl +
-    ggplot2::geom_point(aes(x=nohits$Effect, y=nohits$sig),
+    ggplot2::geom_point(ggplot2::aes(x=nohits$Effect, y=nohits$sig),
                         col="grey",size=.5)
   if (length(hits$Effect) != 0)
     pl <- pl +
-    ggplot2::geom_point(aes(x=hits$Effect, y=hits$sig, color="Hit"),
+    ggplot2::geom_point(ggplot2::aes(x=hits$Effect, y=hits$sig, color="Hit"),
                         size=1.5, alpha=.75)
   if (sig.thresh > 0)
     pl <- pl +
     ggplot2::geom_hline(yintercept=sig.thresh, alpha=.75, linetype="dashed") +
     ggplot2::geom_text(
-      aes(xlim[1], sig.thresh,
+      ggplot2::aes(xlim[1], sig.thresh,
           label = paste("Significance threshold:", sig.thresh),
           vjust = -.25, hjust=0), size = 4)
   if (effect.thresh > 0)
@@ -237,28 +227,28 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
                           alpha=.75, linetype="dotdash") +
       ggplot2::geom_vline(xintercept=-effect.thresh,
                           alpha=.75, linetype="dotdash") +
-      ggplot2::geom_text(aes(effect.thresh, ylim[2],
+      ggplot2::geom_text(ggplot2::aes(effect.thresh, ylim[2],
                              label = paste("Effect threshold:", effect.thresh),
                              vjust = 0, hjust=-.01), size = 4)
   }
   if (length(pos.ctrls$Effect) != 0)
   {
     pl <- pl +
-      ggplot2::geom_point(aes(x=pos.ctrls$Effect,
+      ggplot2::geom_point(ggplot2::aes(x=pos.ctrls$Effect,
                               y=pos.ctrls$sig,
                               col="Positive control"), size=1.5, alpha=.75)
   }
   if (length(neg.ctrls$Effect) != 0)
   {
     pl <- pl +
-      ggplot2::geom_point(aes(x=neg.ctrls$Effect,
+      ggplot2::geom_point(ggplot2::aes(x=neg.ctrls$Effect,
                               y=neg.ctrls$sig,
                               col="Negative control"), size=1.5, alpha=.75)
   }
   if (length(pos.ctrls$Effect) != 0)
   {
     pl <- pl +
-      ggplot2::geom_text(aes(x=pos.ctrls$Effect,
+      ggplot2::geom_text(ggplot2::aes(x=pos.ctrls$Effect,
                              y=pos.ctrls$sig,
                              label=pos.ctrls$Gene),
                          hjust=0, vjust=0,
@@ -276,9 +266,12 @@ plot.perturbation.hm.analysed <- function(x, size=10, ...)
                          nudge_x=0.05, size=4)
   }
   pl <- pl +
-    ggplot2::scale_color_manual(name="Points", values=c("blue", "red", "green")) +
-    ggplot2::guides(color=guide_legend(title=NULL)) +
-    ggplot2::theme_bw() +
+    ggplot2::scale_color_manual(name="Points",
+                                values=c(.colors()$blue,
+                                         .colors()$red,
+                                         .colors()$green)) +
+    ggplot2::guides(color=ggplot2::guide_legend(title=NULL)) +
+    ggplot2::theme_minimal() +
     ggplot2::theme(axis.text   = ggplot2::element_text(size=12),
                    axis.title  = ggplot2::element_text(size=14, face="bold"),
                    legend.text = ggplot2::element_text(size=14))
@@ -302,6 +295,7 @@ plot.perturbation.hyper.analysed <- function(x, size=10, ...)
   .plot.perturbation.analysed(x, ...)
 }
 
+
 #' Plot a \code{perturbation.tstatistic.analysed} object
 #'
 #' @export
@@ -318,35 +312,46 @@ plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
   .plot.perturbation.analysed(x, size, ...)
 }
 
+
 #' @noRd
 #' @import data.table
 #' @import ggplot2
 #' @importFrom dplyr group_by summarize mutate filter
-.plot.perturbation.analysed <- function(x, size, ...)
+.plot.perturbation.analysed <- function(x, size, main="", ...)
 {
   df <- x@.gene.hits[order(abs(MeanEffect), decreasing=TRUE), .SD[1:25]] %>%
-    dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect))
+    dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect)) %>%
+    dplyr::rename(Effect=MeanEffect)
 
-  LDcolors <- rev(RColorBrewer::brewer.pal(11, "Spectral"))
-  pl <- ggplot2::ggplot(df) +
-    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol,
-    															 y=abs(MeanEffect),
-                                   fill=MeanEffect),
-                      stat="identity") +
-    ggplot2::scale_fill_gradient2(low=LDcolors[2],
-    															high=LDcolors[11],
-                                  na.value=LDcolors[6],
-                                  name="Effect") +
-    ylab("Effect") +
-    ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.y = ggplot2::element_blank(),
-                   axis.ticks  = ggplot2::element_blank(),
-                   text = ggplot2::element_text(size = size,
-                                                family = "Helvetica"),
-                   axis.text.x = ggplot2::element_text(angle=45, size = size,
-                                              family = "Helvetica"),
-                   strip.text  = ggplot2::element_text()) +
-    ggplot2::coord_polar()
-
+  pl <- .plot.bars(df, size, main, ...)
   pl
+}
+
+
+.plot.bars <- function(x, size, main, ...)
+{
+    ggplot2::ggplot(x) +
+    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol, y=abs(Effect),
+                                  fill=factor(sign(Effect))),
+    									stat="identity") +
+    ggplot2::scale_fill_manual("Trend",
+      values = c(.colors()$red, "grey", .colors()$blue),
+      limits = c("1",  "0", "-1"),
+      labels=c("Positive", "None", "Negative")) +
+    ggplot2::scale_x_discrete(labels = rev(sort(x$GeneSymbol)),
+                              limits = rev(sort(x$GeneSymbol))) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.y = ggplot2::element_text(size = size - 2,
+                                                       family = "Helvetica"),
+                   axis.title.x = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank(),
+                   axis.ticks=ggplot2::element_blank(),
+                   text = ggplot2::element_text(size = size, family = "Helvetica"),
+                   axis.text.x = ggplot2::element_text(
+                                              size = size - 2,
+                                              family = "Helvetica"),
+                   strip.text=ggplot2::element_text(face=x$font)) +
+    ggplot2::coord_flip() +
+    ggplot2::ggtitle(main)
+
 }

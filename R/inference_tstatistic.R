@@ -69,7 +69,7 @@ setGeneric(
 #' @importFrom methods new
 setMethod(
 	"tstatistic",
-	signature = signature(obj = "perturbation.data"),
+	signature = signature(obj = "perturbation.normalized.data"),
 	function(obj,
 					 mu=c(0, "scrambled", "control"),
 					 padjust=c("BH", "bonferroni"),

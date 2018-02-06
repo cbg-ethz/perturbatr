@@ -56,6 +56,8 @@ Collate:
     'inference_diffuse.R'
     'inference_diffuse_mrw.R'
     'inference_hyperstatistic.R'
+    'inference_lmm_locfdr.R'
+    'inference_lmm_fdr.R'
     'inference_lmm.R'
     'inference_lmm_model_data.R'
     'inference_tstatistic.R'

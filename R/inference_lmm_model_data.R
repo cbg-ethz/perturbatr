@@ -34,21 +34,18 @@
 #' @return  returns an \code{perturbation.hm.data} object
 #'
 set.hm.model.data <- function(obj,
-                               drop=TRUE,
-                               ignore=1,
-                               weights=NULL,
-                               rel.mat.path=NULL)
+                              drop=TRUE,
+                              ignore=1,
+                              weights=NULL,
+                              rel.mat.path=NULL)
 {
   UseMethod("set.hm.model.data")
 }
 
 #' @export
 #' @method set.hm.model.data perturbation.normalized.data
-set.hm.model.data.perturbation.normalized.data <- function(obj,
-                                                        drop=TRUE,
-                                                        ignore=1,
-                                                        weights=NULL,
-                                                        rel.mat.path=NULL)
+set.hm.model.data.perturbation.normalized.data <- function(
+  obj, drop=TRUE, ignore=1, weights=NULL, rel.mat.path=NULL)
 {
   .set.hm.matrix(obj, drop, ignore, weights, rel.mat.path)
 }
@@ -85,6 +82,7 @@ set.hm.model.data.perturbation.normalized.data <- function(obj,
   hm.mat$GeneSymbol    <- as.factor(hm.mat$GeneSymbol)
   hm.mat$Weight        <- as.double(hm.mat$Weight)
   hm.mat$Control       <- as.integer(hm.mat$Control)
+
   hm.mat <-
     dplyr::filter(hm.mat, !is.na(Readout)) %>%
     dplyr::group_by(VG) %>%
@@ -97,16 +95,13 @@ set.hm.model.data.perturbation.normalized.data <- function(obj,
   {
     vir.cnt <- .leuniq(hm.mat$Condition)
     hm.mat <- dplyr::group_by(hm.mat, GeneSymbol) %>%
-      # count if the genes are in all Conditiones
-      # and compare if it matches the Condition count
       dplyr::mutate(drop=(length(unique(Condition)) != vir.cnt)) %>%
       ungroup %>%
       dplyr::filter(!drop) %>%
       dplyr::select(-drop)
   }
 
-  hm.mat <- droplevels(hm.mat)
-  new("perturbation.hm.data", .data=data.table::as.data.table(hm.mat))
+  new("perturbation.hm.data", .data=data.table::as.data.table(droplevels(hm.mat)))
 
 }
 

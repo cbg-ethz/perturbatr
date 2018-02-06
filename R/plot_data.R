@@ -22,10 +22,10 @@
 #' @include class_analysed.R
 
 
-#' Plot a perturbation dataset
-#'
+
 #' @method plot perturbation.raw.data
 #' @export
+#' @noRd
 #' @import data.table
 #'
 #' @param x  the object to plot
@@ -39,10 +39,10 @@ plot.perturbation.raw.data <- function(x, size=10, ...)
   plot.perturbation.normalized.data(x, size, ...)
 }
 
-#' Plot a perturbation data-set
-#'
+
 #' @method plot perturbation.normalized.data
 #' @export
+#' @noRd
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr summarize
@@ -61,13 +61,13 @@ plot.perturbation.normalized.data <- function(x, size, ...)
     dplyr::group_by(x@.data, Condition) %>%
     dplyr::summarize(Replicates = length(unique(Replicate)),
                      Genes      = length(unique(GeneSymbol))) %>%
-    tidyr::gather(Type, Count, Replicates, Genes)
-
-  numb.frame$Count <- as.integer(numb.frame$Count)
+    tidyr::gather(Type, Count, Replicates, Genes) %>%
+    dplyr::mutate(Count = as.integer(Count))
 
   pl <-
     ggplot2::ggplot(numb.frame, ggplot2::aes(x=Condition, y = Count)) +
     ggplot2::geom_bar(ggplot2::aes(fill=Condition), stat="identity") +
+    ggplot2::scale_fill_grey(start=0.3) +
     ggplot2::scale_y_continuous(breaks=scales::pretty_breaks(5)) +
     ggplot2::facet_grid(Type ~ ., scales='free_y') +
     ggplot2::geom_text(ggplot2::aes(label = Count, y = Count),

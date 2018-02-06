@@ -2,10 +2,14 @@
 title: "perturbR cookbook"
 author: "Simon Dirmeier"
 date: "`r Sys.Date()`"
-output: BiocStyle::html_document
-bibliography: knockdown.bib
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+bibliography: perturbR.bib
 vignette: >
-  %\VignetteIndexEntry{Knockdown cookbook}
+  %\VignetteIndexEntry{perturbR cookbook}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -39,8 +43,7 @@ This tutorial walks you to the basic functionality of `perturbR` using a pan-pat
 ## Creating a raw data-set
 
 You supposedly start with something like a `data.frame`. In order to create a
-`knockdown-data`-set you need to transfrom it into a `data.table` with at least
-the following columns:
+perturbation data set you need to transform it into a `data.table` first:
 
 ```{r, include=TRUE, size="tiny"}
   print(my.data)
@@ -58,12 +61,12 @@ your table is formatted wrongly.
 ## Working with `perturbation.data` S4 objects
 
 For objects that inherit the abstract `perturbation.data` class, we provide basic
-`select`, `filter`, `group_by` and `rbind` functionality:
+`select`, `filter` and `rbind` functionality:
 
 ```{r, eval=TRUE, include=TRUE}
-  select(my.perturbation.data, GeneSymbol, Readout)
-  rbind(filter(my.perturbation.data, Readout > 0),
-        filter(my.perturbation.data, Readout < 0))
+  perturbR::select(my.perturbation.data, GeneSymbol, Readout)
+  rbind(perturbR::filter(my.perturbation.data, Readout > 0),
+        perturbR::filter(my.perturbation.data, Readout < 0))
 ```
 
 ## Preprocessing
@@ -71,7 +74,7 @@ For objects that inherit the abstract `perturbation.data` class, we provide basi
 Before starting to work with the data we might just want to have a plain look how many genes and replicates we have.
 We use one of the provided artificial data-sets for this.
 
-```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=3, fig.height=4}
+```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4, fig.height=4}
   data(rnaiscreen)
   plot(rnaiscreen)
 ```
@@ -84,21 +87,7 @@ logarithm on every plate and afterwards computes a more robust version of the st
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   v1.data      <- perturbR::filter(rnaiscreen, Condition == "V1")
-  v1.data.norm <- perturbR::preprocess(v1.data, normalize=c("log", "robust-z.score"))
-```
-
-The result shouldn't be too different from before since we use artificial data. But for completeness' sake let's do the full analysis. We do the same as
-before (this time w/o plots, though)
-
-```{r, eval=FALSE, include=TRUE}
-  v1.data.norm.quality <- quality(v1.data.norm)
-  pl <- plot(v1.data.norm.quality)
-
-  plates <- plates(v1.data.norm)
-  plot(plates[1], show.gene.names=T, gene.text.size=2)
-
-  repls <- replicates(v1.data.norm)
-  plot(repls[1], repls[2])
+  v1.data.norm <- perturbR::preprocess(v1.data)
 ```
 
 The result object has class `perturbation.normalized.data` which can be used for analysis.
@@ -115,15 +104,15 @@ filtering by `Condition` and `Screen` results int a single experiment;
 *for your data this might be different though*.
 
 ```{r, eval=TRUE, include=T}
-  v1.dat <- filter(rnaiscreen, Condition=="V1")
-  v2.dat <- filter(rnaiscreen, Condition=="V2")
+  v1.dat <- perturbR::filter(rnaiscreen, Condition=="V1")
+  v2.dat <- perturbR::filter(rnaiscreen, Condition=="V2")
 ```
 
 ## Data-analysis
 
 After preprocessing of raw RNAi data, analysis can either be done on the single
 viral level using hypothesis tests or using a maximum
-likelihood approach.
+likelihood approach for joint analysis of an integreted data set.
 
 ### Hypothesis testing
 
@@ -132,7 +121,8 @@ is to use a standard `t-test`:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width=4}
   v1.dat <- perturbR::filter(rnaiscreen, Condition=="V1")
-  v1.res <- tstatistic(v1.dat)
+  v1.data.norm <- perturbR::preprocess(v1.dat)
+  v1.res <- tstatistic(v1.data.norm)
   plot(v1.res)
 ```
 
@@ -155,21 +145,19 @@ random effects model using:
   res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
 ```
 
-If we `plot` our result we are getting a list three different plots. The most informative one that shows the top 25 pen-pathogenic host factors:
+If we `plot` our result we are getting a list of multiple plots. The most informative one that shows the top 25 genes:
 
 ```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=4, warning=FALSE, message=FALSE}
   pl <- plot(res)
   print(pl[[1]])
 ```
 
-Since our screen had only some few genes, we might want to *smooth* the effect from the random effects model using network diffusion. For that
-we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualisation of the graph and newly detected hits using
-the diffusion. In our example we do not compute the diffusion, because loading the graph takes a lot memory, but go ahead a try yourself:
+Next we might want to *smooth* the effect from the hierarchical model using network diffusion. For that we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualisation of the graph and newly detected hits using the diffusion. In our example we do not compute the diffusion, because loading the graph takes a lot memory, but go ahead a try yourself:
 
 
 ```{r eval=FALSE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbR")
-  diffu <- diffuse(res, method="mrw", path=graph.file, r=0.1)
+  diffu      <- diffuse(res, path=graph.file, r=0.1)
   plot(diffu)
 ```
 ## Session info

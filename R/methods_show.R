@@ -77,7 +77,7 @@ setMethod(
   "perturbation.hm.analysed",
   function(object)
   {
-    cat(paste0("An HM-analyed perturbation data-set\n\n"))
+    cat(paste0("A perturbation data-set analysed using a hierachical model\n\n"))
     gps <- object@.nested.gene.effects %>%
       dplyr::select(GeneSymbol, Condition, Effect) %>%
       tidyr::spread(Condition, Effect)
@@ -85,5 +85,18 @@ setMethod(
       dplyr::select(GeneSymbol, Effect, Qval)
     mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
     print(data.table::as.data.table(mer))
+  }
+)
+
+#' @aliases show,perturbation.analysed-method
+#' @import data.table
+#' @importFrom dplyr select
+setMethod(
+  "show",
+  "perturbation.analysed",
+  function(object)
+  {
+    cat(paste0("A perturbation data-set analysed using a ", object@.inference, "\n\n"))
+    print(object@.gene.hits)
   }
 )

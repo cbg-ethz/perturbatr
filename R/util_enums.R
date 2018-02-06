@@ -26,3 +26,11 @@
        T.TEST              = "t.test",
        MRW.DIFFUSION       = "mrw.diffusion")
 }
+
+#' @noRd
+.colors <- function()
+{
+  list(red   = "#E64B35FF",
+       blue  = "#3C5488FF",
+       green = "#00A087FF")
+}

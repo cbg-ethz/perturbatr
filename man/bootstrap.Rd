@@ -4,12 +4,12 @@
 \alias{bootstrap}
 \title{Create a bootstrap sample from a data-set}
 \usage{
-bootstrap(obj, level = c("sirna", "pathogen"))
+bootstrap(obj, level = c("sirna", "condition"))
 }
 \arguments{
 \item{obj}{the object which data should be bootstrapped}
 
-\item{level}{boostrap either on sirnas or on pathogens}
+\item{level}{boostrap either on perturbatinos or on conditions}
 }
 \value{
 returns an object with boostrapped data

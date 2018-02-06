@@ -36,9 +36,10 @@
   g <- obj@.gene.hits %>%
     dplyr::select(GeneSymbol, Effect) %>%
     .[order(-abs(Effect))]
-  pg <- obj@.gene.pathogen.effects %>%
+
+  pg <- obj@.nested.gene.effects %>%
     dplyr::select(Condition, GeneSymbol, Effect) %>%
     tidyr::spread(Condition, Effect)
 
-  list(gene.effects=g, gene.pathogen.effects=pg)
+  list(gene.effects=g, nested.gene.effects=pg)
 }
