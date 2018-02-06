@@ -188,8 +188,8 @@ setMethod(
 	}
 
 	# do hyper test on every screen
-	res <- dplyr::group_by(res, Condition, Screen, Library, ReadoutType, ScreenType,
-												 Cell, Design) %>%
+	res <- dplyr::group_by(res, Condition, Screen, Library, ReadoutType,
+                         ScreenType, Cell, Design) %>%
 		dplyr::mutate(HRes=.hypertest(GeneSymbol, Perturbation, Plate,
 																	RowIdx, ColIdx, Readout, level)) %>%
 		ungroup %>%

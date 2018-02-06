@@ -21,9 +21,17 @@
 #' @include util_enums.R
 
 
-.required.data.cols  <- function() c("Condition", "Replicate", "GeneSymbol", "Perturbation","Readout")
-.required.hm.cols    <- function() c("Condition", "GeneSymbol", "Weight", "Readout")
+#' @noRd
+.required.data.cols  <- function()
+{
+  c("Condition", "Replicate", "GeneSymbol", "Perturbation","Readout")
+}
 
+#' @noRd
+.required.hm.cols   <- function()
+{
+  c("Condition", "GeneSymbol", "Weight", "Readout")
+}
 
 #' @noRd
 #' @slot .data the perturbation data-set
@@ -88,4 +96,3 @@ setClass(
     return(TRUE)
   }
 )
-

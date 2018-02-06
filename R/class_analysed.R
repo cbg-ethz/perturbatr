@@ -107,8 +107,8 @@ setClass(
 #'
 #' @import igraph
 #'
-#' @description Class \code{perturbation.mrw.diffusion.analysed} is a wrapper for a
-#'   \code{data.table} object containing the perturbation data
+#' @description Class \code{perturbation.mrw.diffusion.analysed} is a wrapper
+#' for a \code{data.table} object containing the perturbation data
 #'
 setClass(
   "perturbation.mrw.diffusion.analysed",

@@ -20,4 +20,4 @@ p <- ggplot(aes(x = Sepal.Length, y = -Sepal.Width, shape = Species, color = Spe
 sticker(p, package="", p_size=8, s_x=1, s_y=1,1, s_width=1.75, s_height=1.0,
         h_fill="#2D2D2D", h_color="#2D2D2D",
         filename=outfile,
-        url="perturbR", u_color="white", u_size=4)
+        url="perturbatr", u_color="white", u_size=4)
