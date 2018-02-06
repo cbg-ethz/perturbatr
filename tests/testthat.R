@@ -18,6 +18,6 @@
 # along with knockdown. If not, see <http://www.gnu.org/licenses/>.
 
 library(testthat)
-library(knockdown)
+library(perturbatr)
 
-test_check("knockdown")
+test_check("perturbatr")

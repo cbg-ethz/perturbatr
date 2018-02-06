@@ -1,15 +1,15 @@
-Package: perturbR
+Package: perturbatr
 Type: Package
-Title: Statistical analysis of high-throughput genetic perturbation screens
+Title: Statistical Analysis of High-Throughput Genetic Perturbation Screens
 Version: 0.99.0
 Date: 2018-02-1
-Authors@R: person("Simon", "Dirmeier", 
-	email = "simon.dirmeier@bsse.ethz.ch", role = c("aut", "cre"))
-Maintainer: Simon Dirmeier <simon.dirmeier@bsse.ethz.ch>
-Description: perturbR does statistical analysis of large-scale genetic perturbation screens.
-  The package provides various tools for normalisation, plotting and analysis of 
-  screens from single perturbation experiments as well as models for the joint analysis of multiple 
-  experiments. For the latter case we employ a random intercepts model to capture the variance that 
+Authors@R: person("Simon", "Dirmeier",
+	email = "simon.dirmeier@web.de", role = c("aut", "cre"))
+Maintainer: Simon Dirmeier <simon.dirmeier@web.de>
+Description: perturbatr does statistical analysis of large-scale genetic perturbation screens.
+  The package provides various tools for normalisation, plotting and analysis of
+  screens from single perturbation experiments as well as models for the joint analysis of multiple
+  experiments. For the latter case we employ a random intercepts model to capture the variance that
   the different experiments exhibit.
 License: GPL-3
 LazyData: TRUE
@@ -23,7 +23,6 @@ Imports:
     assertthat,
     lme4,
     splines,
-    RColorBrewer,
     dtplyr,
     igraph,
     foreach,
@@ -34,7 +33,6 @@ Imports:
     lazyeval,
     tibble,
     metap,
-    limma,
     stats,
     grid,
     utils,
@@ -49,7 +47,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'util_enums.R'
     'class_analysed.R'
     'class_data.R'
@@ -67,7 +65,7 @@ Collate:
     'methods_filter.R'
     'methods_select.R'
     'methods_show.R'
-    'perturbR-package.R'
+    'perturbatr-package.R'
     'plot_analysed.R'
     'plot_data.R'
     'plot_diffusion.R'

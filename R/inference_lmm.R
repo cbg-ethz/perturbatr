@@ -1,21 +1,21 @@
-# perturbR: analysis of high-throughput gene perturbation screens
+# perturbatr: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of perturbR
+# This file is part of perturbatr
 #
-# perturbR is free software: you can redistribute it and/or modify
+# perturbatr is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# perturbR is distributed in the hope that it will be useful,
+# perturbatr is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with perturbR If not, see <http://www.gnu.org/licenses/>.
+# along with perturbatr If not, see <http://www.gnu.org/licenses/>.
 
 
 #' @include class_data.R
@@ -52,6 +52,10 @@
 #'
 #' @return returns a \code{perturbation.hm.analysed} object
 #'
+#' @examples
+#'  data(rnaiscreen)
+#'  rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
+#'  res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
 setGeneric(
   "hm",
   function(obj,
@@ -129,7 +133,7 @@ setMethod(
 
 #' @noRd
 #' @import data.table
-#' @importFrom dplyr mutate full_join select group_by
+#' @importFrom dplyr mutate full_join select group_by n
 .hm.model.data <- function(md, bootstrap.cnt)
 {
   if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
@@ -144,7 +148,7 @@ setMethod(
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   mult.gen.cnt <- (gene.control.map %>%
                      dplyr::group_by(GeneSymbol) %>%
-                     dplyr::mutate(cnt=n()))$cnt %>%
+                     dplyr::mutate(cnt = n()))$cnt %>%
     unique
   if (length(mult.gen.cnt) != 1)
   {

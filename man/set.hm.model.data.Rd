@@ -25,3 +25,8 @@ returns an \code{perturbation.hm.data} object
 \description{
 Create model data for an hierarchical model
 }
+\examples{
+  data(rnaiscreen)
+  rnaiscreen.normalized <- preprocess(rnaiscreen)
+  set.hm.model.data(rnaiscreen.normalized)
+}

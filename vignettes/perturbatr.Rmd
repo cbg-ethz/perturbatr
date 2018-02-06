@@ -1,5 +1,5 @@
 ---
-title: "perturbR cookbook"
+title: "perturbatr cookbook"
 author: "Simon Dirmeier"
 date: "`r Sys.Date()`"
 output:
@@ -7,9 +7,9 @@ output:
     toc: true
     toc_depth: 2
     toc_float: true
-bibliography: perturbR.bib
+bibliography: perturbatr.bib
 vignette: >
-  %\VignetteIndexEntry{perturbR cookbook}
+  %\VignetteIndexEntry{perturbatr cookbook}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -24,7 +24,7 @@ vignette: >
   library(dplyr)
   library(dtplyr)
   library(methods)
-  library(perturbR)
+  library(perturbatr)
   data(rnaiscreen)
   my.data <- rnaiscreen@.data %>%
     dplyr::filter(Condition=="V1") %>%
@@ -34,11 +34,11 @@ vignette: >
 
 # Introduction
 
-`perturbR` does stage-wise analysis of large-scale genetic perturbation screens for integrated datasets consisting of several screens. The package provides various tools for normalisation, plotting and analysis. For single perturbation screens classical analyses using hypothesis testing are implemented. For multiple integrated perturbation screens we developed a hierarchical model that considers the variance between the different biological settings the data are derived from. Our model first estimates an overall relative size for all genes (hits). The resulting hit lists is then be further extended using a network propagation algorithm to correct for false negatives and positives.
+`perturbatr` does stage-wise analysis of large-scale genetic perturbation screens for integrated datasets consisting of several screens. The package provides various tools for normalisation, plotting and analysis. For single perturbation screens classical analyses using hypothesis testing are implemented. For multiple integrated perturbation screens we developed a hierarchical model that considers the variance between the different biological settings the data are derived from. Our model first estimates an overall relative size for all genes (hits). The resulting hit lists is then be further extended using a network propagation algorithm to correct for false negatives and positives.
 
 # Tutorial
 
-This tutorial walks you to the basic functionality of `perturbR` using a pan-pathogenic data set of several RNAi screening studies.
+This tutorial walks you to the basic functionality of `perturbatr` using a pan-pathogenic data set of several RNAi screening studies.
 
 ## Creating a raw data-set
 
@@ -64,9 +64,9 @@ For objects that inherit the abstract `perturbation.data` class, we provide basi
 `select`, `filter` and `rbind` functionality:
 
 ```{r, eval=TRUE, include=TRUE}
-  perturbR::select(my.perturbation.data, GeneSymbol, Readout)
-  rbind(perturbR::filter(my.perturbation.data, Readout > 0),
-        perturbR::filter(my.perturbation.data, Readout < 0))
+  perturbatr::select(my.perturbation.data, GeneSymbol, Readout)
+  rbind(perturbatr::filter(my.perturbation.data, Readout > 0),
+        perturbatr::filter(my.perturbation.data, Readout < 0))
 ```
 
 ## Preprocessing
@@ -86,8 +86,8 @@ RNAi-screening data. We just call it with the standard parameters, which takes t
 logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
-  v1.data      <- perturbR::filter(rnaiscreen, Condition == "V1")
-  v1.data.norm <- perturbR::preprocess(v1.data)
+  v1.data      <- perturbatr::filter(rnaiscreen, Condition == "V1")
+  v1.data.norm <- perturbatr::preprocess(v1.data)
 ```
 
 The result object has class `perturbation.normalized.data` which can be used for analysis.
@@ -104,8 +104,8 @@ filtering by `Condition` and `Screen` results int a single experiment;
 *for your data this might be different though*.
 
 ```{r, eval=TRUE, include=T}
-  v1.dat <- perturbR::filter(rnaiscreen, Condition=="V1")
-  v2.dat <- perturbR::filter(rnaiscreen, Condition=="V2")
+  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
+  v2.dat <- perturbatr::filter(rnaiscreen, Condition=="V2")
 ```
 
 ## Data-analysis
@@ -120,8 +120,8 @@ Suppose we normalized our data-set and centered the data around zero. One way to
 is to use a standard `t-test`:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width=4}
-  v1.dat <- perturbR::filter(rnaiscreen, Condition=="V1")
-  v1.data.norm <- perturbR::preprocess(v1.dat)
+  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
+  v1.data.norm <- perturbatr::preprocess(v1.dat)
   v1.res <- tstatistic(v1.data.norm)
   plot(v1.res)
 ```
@@ -156,7 +156,7 @@ Next we might want to *smooth* the effect from the hierarchical model using netw
 
 
 ```{r eval=FALSE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
-  graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbR")
+  graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
   diffu      <- diffuse(res, path=graph.file, r=0.1)
   plot(diffu)
 ```

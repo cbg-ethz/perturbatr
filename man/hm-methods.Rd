@@ -50,3 +50,8 @@ Analyse multiple different genetic perturbation screens at once
  pan-pathogenic host factor, i.e. a gene that decisively impacts the
  life-cycle of multiple pathogens.
 }
+\examples{
+ data(rnaiscreen)
+ rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
+ res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
+}

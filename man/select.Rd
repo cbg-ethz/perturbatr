@@ -18,3 +18,7 @@ returns a \code{data.table} with specified column
 Takes a perturbation data set and selects columns by some
  criterion. The filtered object will have class \code{data.table}.
 }
+\examples{
+ data(rnaiscreen)
+ perturbatr::select(my.perturbation.data, GeneSymbol, Readout)
+}

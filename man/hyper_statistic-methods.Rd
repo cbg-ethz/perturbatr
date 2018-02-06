@@ -50,3 +50,9 @@ returns a \code{perturbation.hyper.analysed} object
 \description{
 TODO
 }
+\examples{
+ data(rnaiscreen)
+ v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
+ v1.data.norm <- perturbatr::preprocess(v1.dat)
+ v1.res <- hyper.statistic(v1.data.norm)
+}

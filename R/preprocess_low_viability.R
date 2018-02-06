@@ -1,21 +1,21 @@
-# perturbR: analysis of high-throughput gene perturbation screens
+# perturbatr: analysis of high-throughput gene perturbation screens
 #
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of perturbR
+# This file is part of perturbatr
 #
-# perturbR is free software: you can redistribute it and/or modify
+# perturbatr is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# perturbR is distributed in the hope that it will be useful,
+# perturbatr is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with perturbR. If not, see <http://www.gnu.org/licenses/>.
+# along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
 #' @noRd
@@ -52,7 +52,7 @@
 #' @importFrom assertthat assert_that
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
-#' @importFrom dplyr filter
+#' @importFrom dplyr filter n
 .set.cytotoxic <- function(re, val, sirnas, ctrl, genes,
                            plates, rows, cols, comp.to)
 {
@@ -76,7 +76,7 @@
                              Plate=plates, Row=rows, Col=cols, Control=ctrl) %>%
       # group every screen by gene, plate, sirna, row and column
       dplyr::group_by(Sirna, Gene, Plate, Row, Col, Control) %>%
-      dplyr::mutate(n = n()) %>% ungroup
+      dplyr::mutate(n = dplyr::n()) %>% ungroup
       if (any(fr$n < 3))
         message(paste("\tSome siRNAs have less than three observations.",
                       "Setting p.val=1 to prohibit removal of siRNAs erroneously."))
