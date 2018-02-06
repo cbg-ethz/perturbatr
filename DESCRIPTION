@@ -39,7 +39,8 @@ Imports:
     grid,
     utils,
     graphics,
-    scales
+    scales,
+    gridExtra
 biocViews: Regression, Normalization, Preprocessing, CellBasedAssays, Network
 Suggests:
     testthat,
@@ -48,7 +49,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate: 
+Collate:
     'util_enums.R'
     'class_analysed.R'
     'class_data.R'

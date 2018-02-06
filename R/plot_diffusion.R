@@ -24,136 +24,31 @@
 
 #' @title Plot a \code{perturbation.mrw.diffusion.analysed} object
 #'
-#' @descriptionPlots a \code{perturbation.mrw.diffusion.analysed} object by
+#' @description Plots a \code{perturbation.mrw.diffusion.analysed} object by
 #' iteratively expanding the neighbors of the hits form the diffusion
 #'
 #' @method plot perturbation.diffusion.analysed
 #' @export
+#'
 #' @import data.table
-#' @import igraph
-#' @importFrom graphics plot legend
-#' @importFrom methods hasArg
-#' @importFrom assertthat assert_that
+#' @import grid
+#' @importFrom gridExtra tableGrob ttheme_minimal grid.table
 #'
 #' @param x  a \code{perturbation.diffusion.analysed} object
-#' @param graph.size  approximate maximal numer of nodes
-#' @param show.node.labels  \code{logical} if gene names are shown or note
-#' @param node.cnt  how many nodes should the graph have from the diffusion hit list
-#' @param ...  addutional params
+#' @param cnt  number of genes to be shown
+#' @param ...  additional params
 #'
 #' @return returns a plot object
 #'
-plot.perturbation.diffusion.analysed <- function(
-  x, graph.size = 100, show.node.labels = FALSE, node.cnt=25, ...)
+plot.perturbation.diffusion.analysed <- function(x, cnt=10, ...)
 {
-  pars        <- list(...)
-  sz          <- ifelse(methods::hasArg(size), pars$size, -1)
-  obj         <- x@.graph
-  stopifnot(igraph::is.igraph(obj))
-  # get the best 100 hits according to their ranking
-  v.cnt <- node.cnt
-  repeat
-  {
-    best.graph.size <- x@.data %>%
-      .[order(-DiffusionEffect)] %>%
-      .[1:v.cnt] %>%
-      dplyr::filter(!is.na(DiffusionEffect))
-    # index of edges that are gonna be plotted
-    edge.list    <- igraph::get.edgelist(x@.graph)
-    idxs         <- .edge.indexes(edge.list, best.graph.size)
-    obj          <- igraph::graph.data.frame(.edge.subset(edge.list, idxs),
-                                             directed=FALSE)
+  tt <- gridExtra::ttheme_minimal(
+    base_family="Helvetica",
+    core=list(bg_params = list(fill="white")))
 
-    if (length(igraph::V(obj)) >= graph.size) break
-    v.cnt <- v.cnt + 1
-  }
-  # get the connected components
-  comps              <- igraph::components(obj)
-  # get the genes that are not in the largest component
-  non.max.comp.genes <- names(
-    which(comps$membership != which.max(comps$csize)))
-
-  # remove the genes that are not in the largest component
-  obj <- igraph::delete.vertices(obj, non.max.comp.genes)
-  # node colors (LMM identified genes are blue, rest orange)
-  blue.genes   <- best.graph.size$GeneSymbol[best.graph.size$GeneSymbol %in%
-                                        x@.initial.model@.gene.hits$GeneSymbol]
-  # set some vis params
-
-  size <- .size(obj)
-  igraph::V(obj)$color[size <= 10] <- "#fe9929"
-  igraph::V(obj)$color[size == 3]  <- "#fed98e"
-  igraph::V(obj)[igraph::V(obj)$name %in% blue.genes] $color <- "blue"
-  # igraph::V(obj)$color[igraph::V(obj)$name %in% blue.genes] <- "lightblue"
-  igraph::E(obj)$width <- 2
-
-  # plot all the the nodes
-  .plot.graph(obj, sz, size, show.node.labels)
-}
-
-#' @noRd
-.edge.indexes <- function(edge.list, best.graph.size)
-{
-  v1 <- (edge.list[,1] %in% best.graph.size$GeneSymbol &
-           edge.list[,2] %in% best.graph.size$GeneSymbol)
-  v2 <- (edge.list[,2] %in% best.graph.size$GeneSymbol &
-           edge.list[,1] %in% best.graph.size$GeneSymbol)
-  which(v1 | v2)
-}
-
-#' @noRd
-.size <- function(obj)
-{
-  deg                 <- igraph::degree(obj)
-  size                <- deg
-  size[deg <  3]      <- 3
-  size[deg >= 3]      <- 5
-  size[deg >  5]      <- 10
-  unname(size)
-}
-
-#' @noRd
-#' @import data.table
-.edge.subset <- function(edge.list, idxs)
-{
-  fr  <- t(apply(edge.list[idxs, ], 1, function(e) sort(e)))
-  rel <- data.table::data.table(Gene1=c(fr[, 1]),
-                                Gene2=c(fr[, 2])) %>%
-    unique
-  as.data.frame(rel)
-}
-
-#' @noRd
-#' @importFrom graphics plot par legend
-#' @importFrom igraph V layout.kamada.kawai
-.plot.graph <- function(obj, sz, size, show.node.labels)
-{
-  op                  <- graphics::par(family = "Helvetica", font=1)
-  if (sz != -1) size  <- rep(sz, length(size))
-  if (!show.node.labels)
-  {
-    igraph::V(obj)$name <- rep(NA, length(igraph::V(obj)$name))
-  }
-  else
-  {
-    lbgens <- length(igraph::V(obj)$name[igraph::V(obj)$color == "blue"])
-    igraph::V(obj)$name[igraph::V(obj)$color == "blue"] <- rep(NA, lbgens)
-  }
-
-  graphics::plot(
-    obj,
-    vertex.size = size,
-    layout = igraph::layout.kamada.kawai,
-    edge.curved = -.05
-  )
-  graphics::legend(
-    "topleft",
-    box.lty=NULL,
-    bty = "n",
-    border = FALSE,
-    fill = c("blue", "#e34a33", "#fdbb84"),
-    legend = c("Host factors identified by LMM",
-               "Host factors identified by MRW")
-  )
-  graphics::par(op)
+  x@.data %>%
+    .[order(-DiffusionEffect)] %>%
+    .[1:cnt] %>%
+    as.data.frame %>%
+    gridExtra::grid.table(theme=tt)
 }
