@@ -3,7 +3,7 @@
 library(dplyr)
 library(dtplyr)
 library(data.table)
-library(knockdown)
+library(perturbatr)
 library(lme4)
 library(utils)
 library(tidyr)
@@ -149,7 +149,7 @@ run <- function()
   rna.file <- "data/rnai_screen_normalized.rds"
   rnai.screen <- readRDS(rna.file)
   cat(paste("Setting model data\n"))
-  model.data <- knockdown::set.lmm.model.data(rnai.screen, drop=T)@.data
+  model.data <- perturbatr::set.lmm.model.data(rnai.screen, drop=T)@.data
 
   cat(paste("Doing model selection on non-nested models\n"))
   starting.models       <- c("Readout ~ Virus + (1 | GeneSymbol)", "Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol)")

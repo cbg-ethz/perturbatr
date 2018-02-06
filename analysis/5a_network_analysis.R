@@ -3,12 +3,12 @@
 library(dplyr)
 library(dtplyr)
 library(data.table)
-library(knockdown)
+library(perturbatr)
 
 network.propagation <- function(lmm, graph.file)
 {
 
-  diffusion <- knockdown::diffuse(lmm, path=graph.file,
+  diffusion <- perturbatr::diffuse(lmm, path=graph.file,
                                   delete.nodes.on.degree=1,
                                   r=0.20)
 

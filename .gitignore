@@ -1,3 +1,7 @@
+analysis/docker_image.tar
+analysis/data
+analysis/plots
+analysis/docker_image
 inst/create_artificial_data.R
 vignettes/knockout_real_data.Rmd
 data/data
@@ -5,8 +9,8 @@ IFX_*
 src/*.o
 src/*.so
 .Rproj.user/*
-knockout.Rcheck/*
-knockout*tar.gz
+perturbatr.Rcheck/*
+perturbatr*tar.gz
 .nb-gradle/
 .Rhistory
 .Rproj.user

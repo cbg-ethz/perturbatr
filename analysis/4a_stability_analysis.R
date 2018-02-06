@@ -3,7 +3,7 @@
 library(dplyr)
 library(dtplyr)
 library(data.table)
-library(knockdown)
+library(perturbatr)
 library(optparse)
 library(igraph)
 library(mvtnorm)
@@ -97,7 +97,7 @@ boot <- function(dat, rep.cnt, vir.cnt, v)
   {
     s <- paste0("var:", v, ",vir:", vir.cnt, ",rep:", rep.cnt, ",bootstrap:", i)
     tryCatch({
-      subs <- knockdown:::bootstrap(dat)
+      subs <- perturbatr:::bootstrap(dat)
       bench.list[[i]] <-  list(Var=v,
                                Rep=rep.cnt,
                                Vir=vir.cnt,
@@ -163,14 +163,14 @@ ranking.stability.bio <- function(model.data, output.path)
   vrs <- c("HCV", "DENV", "CHIKV", "SARS")
   for (idx in seq(2, length(vrs)))
   {
-    dat <- knockdown::filter(model.data, Virus %in% vrs[1:idx])
+    dat <- perturbatr::filter(model.data, Virus %in% vrs[1:idx])
     i   <- 1
     run <- 1
     repeat
     {
       cat(paste0("Bootstrap bio: ", i, ",v: ", paste0(vrs[1:idx], collapse="_")), "\n")
       tryCatch({
-        rnai.screen.sample <- knockdown:::bootstrap(dat)
+        rnai.screen.sample <- perturbatr:::bootstrap(dat)
         s <- paste0("bootstrap:", i, "virs:", paste0(vrs[1:idx], collapse="_"))
         bench.list[[s]] <- list(Bootstrap=i,
                                 Virus= paste0(vrs[1:idx], collapse="_"),
@@ -210,7 +210,7 @@ run <- function()
 
   rna.file   <- paste(path, "rnai_screen_normalized.rds", sep="/")
   rnai.screen <- readRDS(rna.file)
-  model.data  <- knockdown::filter(rnai.screen, Virus != "CVB")
+  model.data  <- perturbatr::filter(rnai.screen, Virus != "CVB")
   model.data  <- set.lmm.model.data(model.data, weights=list("pooled"=1.5, "single"=1))
 
   ranking.stability.bio(model.data, out.dir)

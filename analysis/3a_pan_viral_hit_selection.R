@@ -4,12 +4,12 @@ library(data.table)
 library(dtplyr)
 library(dplyr)
 library(ggplot2)
-library(knockdown)
+library(perturbatr)
 library(xtable)
 
 .random.effects.model <- function(dat, bootstrap=10)
 {
-  lmm.fit     <- knockdown::lmm(obj=dat,
+  lmm.fit     <- perturbatr::lmm(obj=dat,
                                bootstrap.cnt=bootstrap,
                                drop=T,
                                weights=list(pooled=1.5, single=1))

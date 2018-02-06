@@ -3,12 +3,12 @@
 library(dtplyr)
 library(dplyr)
 library(data.table)
-library(knockdown)
+library(perturbatr)
 
 normalize.chikv.kinome <- function(rnai.screen.raw)
 {
-  chikv.raw  <- knockdown::filter(rnai.screen.raw, Virus=="CHIKV")
-  chikv.norm <- knockdown::preprocess(
+  chikv.raw  <- perturbatr::filter(rnai.screen.raw, Virus=="CHIKV")
+  chikv.norm <- perturbatr::preprocess(
     chikv.raw,
     normalize=c("log",  "background", "robust-z.score"),
     summarization="mean",
@@ -21,7 +21,7 @@ normalize.chikv.kinome <- function(rnai.screen.raw)
 normalize.sars.kinome <- function(rnai.screen.raw)
 {
   sars.raw  <- filter(rnai.screen.raw, Virus=="SARS")
-  sars.norm <- knockdown::preprocess(
+  sars.norm <- perturbatr::preprocess(
     sars.raw,
     normalize=c("log", "background", "robust-z.score"),
     summarization="mean",
@@ -34,8 +34,8 @@ normalize.sars.kinome <- function(rnai.screen.raw)
 
 normalize.hcv.genome <- function(rnai.screen.raw)
 {
-  hcv.g.raw        <- knockdown::filter(rnai.screen.raw, Virus=="HCV", Screen=="Genome")
-  hcv.g.norm       <- knockdown::preprocess(
+  hcv.g.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Genome")
+  hcv.g.norm       <- perturbatr::preprocess(
     hcv.g.raw,
     normalize=c( "log", "b.score", "robust-z.score"),
     summarization="mean",
@@ -47,8 +47,8 @@ normalize.hcv.genome <- function(rnai.screen.raw)
 
 normalize.denv.genome <- function(rnai.screen.raw)
 {
-  denv.g.raw        <- knockdown::filter(rnai.screen.raw, Virus=="DENV", Screen=="Genome")
-  denv.g.norm       <- knockdown::preprocess(
+  denv.g.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Genome")
+  denv.g.norm       <- perturbatr::preprocess(
     denv.g.raw,
     normalize=c( "log",  "b.score",  "robust-z.score"),
     summarization="mean",
@@ -60,8 +60,8 @@ normalize.denv.genome <- function(rnai.screen.raw)
 
 normalize.hcv.kinome <-  function(rnai.screen.raw)
 {
-  hcv.k.raw        <- knockdown::filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
-  hcv.k.norm       <- knockdown::preprocess(
+  hcv.k.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
+  hcv.k.norm       <- perturbatr::preprocess(
     hcv.k.raw,
     normalize=c("log","loess", "b.score", "robust-z.score"),
     summarization="mean",
@@ -75,8 +75,8 @@ normalize.hcv.kinome <-  function(rnai.screen.raw)
 
 normalize.denv.kinome <- function(rnai.screen.raw)
 {
-  denv.k.raw        <- knockdown::filter(rnai.screen.raw, Virus=="DENV", Screen=="Kinome")
-  denv.k.norm       <- knockdown::preprocess(
+  denv.k.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Kinome")
+  denv.k.norm       <- perturbatr::preprocess(
     denv.k.raw,
     normalize=c("log", "loess", "b.score","robust-z.score"),
     summarization="mean",

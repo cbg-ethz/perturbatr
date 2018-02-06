@@ -10,5 +10,7 @@ linters: list(linelen=line_length_linter(80),
 exclusions: list("tests/testthat.R",
                  "tests/testthat/test_analysis_lmm.R",
                  "tests/testthat/test_classes.R",
-                 "tests/testthat/test_methods.R",)
-
+                 "tests/testthat/test_methods.R",
+                 "tests/testthat/test_analysis_rsa.R",
+                 "tests/testthat/test_analysis_ttest.R",
+                 "R/inference_lmm_locfdr.R")

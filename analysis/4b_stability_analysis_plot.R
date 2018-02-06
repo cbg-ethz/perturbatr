@@ -6,7 +6,7 @@ library(tidyr)
 library(data.table)
 library(lme4)
 library(optparse)
-library(knockdown)
+library(perturbatr)
 library(ggplot2)
 library(hashmap)
 library(ggthemr)
@@ -90,7 +90,7 @@ jaccard <- function(s1, s2) { length(intersect(s1, s2)) / length(union(s1, s2)) 
                           Bootstrap=el$Bootstrap,
                           GeneSymbol=c(lmm.genes, pmm.genes),
                           Effect=c(lmm.effects, pmm.effects),
-                          Model=c(rep("knockdown", length(lmm.genes)),
+                          Model=c(rep("perturbatr", length(lmm.genes)),
                                   rep("PMM", length(pmm.genes))))))
       }
     }
@@ -114,12 +114,12 @@ rank.lmm.bio <- function(fls.bio, ranking.table, out.dir)
                  Bootstrap=e[[1]],
                  GeneSymbol=c(lmm.genes, pmm.genes),
                  Effect=c(lmm.effects, pmm.effects),
-                 Model=c(rep("knockdown", length(lmm.genes)),
+                 Model=c(rep("perturbatr", length(lmm.genes)),
                          rep("PMM", length(pmm.genes))))
     }))
 
   bootstrap.data <- bootstrap.data %>%
-    dplyr::filter(Model=="knockdown") %>%
+    dplyr::filter(Model=="perturbatr") %>%
     group_by(Virus, Bootstrap) %>%
     dplyr::arrange(-abs(Effect)) %>% ungroup
   virs <- unique(bootstrap.data$Virus)
@@ -185,7 +185,7 @@ rank.lmm.syn <- function(fls.stn, ranking.table, out.dir)
 {
   bootstrap.data <- .get.syn.bst.data(fls.stn)
 
-  bootstrap.data <- bootstrap.data %>% dplyr::filter(Model == "knockdown")
+  bootstrap.data <- bootstrap.data %>% dplyr::filter(Model == "perturbatr")
   # just look at full data set this time
   bootstrap.data <- dplyr::filter(bootstrap.data, VirusCount==4)
   bootstrap.data <-

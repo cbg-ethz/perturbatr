@@ -1,4 +1,4 @@
-# Knockdown data analysis
+# Data analysis
 
 The folder contains files needed to recreate the data analysis for the presented paper.
 

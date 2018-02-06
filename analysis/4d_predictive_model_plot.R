@@ -5,7 +5,7 @@ library(data.table)
 library(tidyr)
 library(lme4)
 library(optparse)
-library(knockdown)
+library(perturbatr)
 library(ggplot2)
 library(uuid)
 library(lubridate)
@@ -30,7 +30,7 @@ bio.pred <- function(fls.bio)
 
   df <- df %>% dplyr::filter(Sampling=="CV")
 
-  df$Model[df$Model == "LMM"] <- "knockdown"
+  df$Model[df$Model == "LMM"] <- "perturbatr"
   df$Virus <- paste(df$Virus, "viruses")
 
   p <-
@@ -74,7 +74,7 @@ syn.pred <- function(fls.stn)
       dff
     }))
 
-    df$Model[df$Model == "LMM"] <- "knockdown"
+    df$Model[df$Model == "LMM"] <- "perturbatr"
     df$Virus <- paste(df$VirusCount, "viruses")
     df <- dplyr::filter(df, Mean==0.5, Virus=="4 viruses")
     df$Variance[df$Variance == 1] <- "Low variance"
