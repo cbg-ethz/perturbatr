@@ -49,18 +49,10 @@ plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
   pl3 <- try({
     .plot.effect.matrices.perturbation.analysed.hm(x, size)
   })
-  pl4 <- try({
-    .plot.hit.counts(x, size)
-  })
-  pl5 <- try({
-    .plot.vulcano(x, size)
-  })
 
   return(list(gene.effect.barplot        = pl,
               nested.gene.effect.barplot = pl2,
-              nested.gene.effect.matrix  = pl3,
-              nested.gene.hit.counts     = pl4,
-              volcano                    = pl5))
+              nested.gene.effect.matrix  = pl3))
 }
 
 
@@ -132,149 +124,6 @@ plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
                    axis.text.y  = ggplot2::element_text(size=size),
                    axis.title   = ggplot2::element_blank(),
                    axis.ticks   = ggplot2::element_blank())
-  pl
-}
-
-
-#' @noRd
-#' @importFrom dplyr group_by summarize mutate
-.plot.hit.counts <- function(x, size)
-{
-  obj <- x@.nested.gene.effects
-  single.res <- obj %>%
-    dplyr::mutate(Sign=sign(Effect)) %>%
-    dplyr::group_by(Condition, Sign) %>%
-    dplyr::summarize(cnt=n()) %>%
-    ungroup %>%
-    dplyr::mutate(Count=cnt*Sign)
-
-  pl <-
-    ggplot2::ggplot(single.res, ggplot2::aes(x=Condition, y=Count, fill=factor(Sign))) +
-    ggplot2::geom_bar(stat="identity", position="dodge") +
-    ggplot2::scale_fill_manual("",
-      values = c(.colors()$red, "grey", .colors()$blue),
-      limits = c("1",  "0", "-1"),
-      labels=c("Positive", "None", "Negative")) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none",
-                   text = ggplot2::element_text(size=22),
-                   axis.text.y=ggplot2::element_blank()) +
-    ggplot2::geom_hline(yintercept=0) +
-    ggplot2::ylab("Count hits") +
-    ggplot2::geom_text(ggplot2::aes(x=Condition, y=ifelse(Count>0, Count+1, Count-1),
-                           label=abs(Count)), size=5, colour="black")
-  pl
-}
-
-
-#' @noRd
-#' @import ggplot2
-.plot.vulcano <- function(obj, ...)
-{
-  gpes <- obj@.gene.effects
-  gpes$Qval[is.na(gpes$Qval)] <- 1
-  x      <- gpes$Effect
-  y      <- -log10(gpes$Qval + 0.0001)
-  ctrls  <- gpes$Control
-  genes  <- gpes$GeneSymbol
-  effect.thresh <- obj@.params$effect.size
-  sig.thresh    <- -log10(obj@.params$qval.threshold)
-
-  colors <- rep("grey", length(ctrls))
-  colors[abs(x) >= effect.thresh & y < sig.thresh] <- "blue"
-  colors[which(ctrls == -1)] <- "red"
-  colors[which(ctrls == 1)]  <- "green"
-
-  xlim         <- range(x[is.finite(x)])
-  ylim         <- range(y[is.finite(y)])
-  hits.idx     <- abs(x) >= effect.thresh & y < sig.thresh
-  pos.ctrl.idx <- which(ctrls == 1)
-  neg.ctrl.idx <- which(ctrls == -1)
-  no.hit.idx   <- which(colors == "grey")
-  nohits       <- data.frame(Effect=x[no.hit.idx],
-                             sig=y[no.hit.idx], Gene=genes[no.hit.idx])
-  hits         <- data.frame(Effect=x[hits.idx],
-                             sig=y[hits.idx], Gene=genes[hits.idx])
-  pos.ctrls    <- data.frame(Effect=x[pos.ctrl.idx],
-                             sig=y[pos.ctrl.idx], Gene=genes[pos.ctrl.idx])
-  neg.ctrls    <- data.frame(Effect=x[neg.ctrl.idx],
-                             sig=y[neg.ctrl.idx], Gene=genes[neg.ctrl.idx])
-  pl <-
-    ggplot2::ggplot() +
-    ggplot2::xlim(xlim) +
-    ggplot2::ylim(ylim) +
-    ggplot2::xlab("Readout") +
-    ggplot2::ylab("-log(q-value)")
-  if (length(nohits$Effect) != 0)
-    pl <- pl +
-    ggplot2::geom_point(ggplot2::aes(x=nohits$Effect, y=nohits$sig),
-                        col="grey",size=.5)
-  if (length(hits$Effect) != 0)
-    pl <- pl +
-    ggplot2::geom_point(ggplot2::aes(x=hits$Effect, y=hits$sig, color="Hit"),
-                        size=1.5, alpha=.75)
-  if (sig.thresh > 0)
-    pl <- pl +
-    ggplot2::geom_hline(yintercept=sig.thresh, alpha=.75, linetype="dashed") +
-    ggplot2::geom_text(
-      ggplot2::aes(xlim[1], sig.thresh,
-          label = paste("Significance threshold:", sig.thresh),
-          vjust = -.25, hjust=0), size = 4)
-  if (effect.thresh > 0)
-  {
-    pl <- pl +
-      ggplot2::geom_vline(xintercept=effect.thresh,
-                          alpha=.75, linetype="dotdash") +
-      ggplot2::geom_vline(xintercept=-effect.thresh,
-                          alpha=.75, linetype="dotdash") +
-      ggplot2::geom_text(ggplot2::aes(effect.thresh, ylim[2],
-                             label = paste("Effect threshold:", effect.thresh),
-                             vjust = 0, hjust=-.01), size = 4)
-  }
-  if (length(pos.ctrls$Effect) != 0)
-  {
-    pl <- pl +
-      ggplot2::geom_point(ggplot2::aes(x=pos.ctrls$Effect,
-                              y=pos.ctrls$sig,
-                              col="Positive control"), size=1.5, alpha=.75)
-  }
-  if (length(neg.ctrls$Effect) != 0)
-  {
-    pl <- pl +
-      ggplot2::geom_point(ggplot2::aes(x=neg.ctrls$Effect,
-                              y=neg.ctrls$sig,
-                              col="Negative control"), size=1.5, alpha=.75)
-  }
-  if (length(pos.ctrls$Effect) != 0)
-  {
-    pl <- pl +
-      ggplot2::geom_text(ggplot2::aes(x=pos.ctrls$Effect,
-                             y=pos.ctrls$sig,
-                             label=pos.ctrls$Gene),
-                         hjust=0, vjust=0,
-                         check_overlap=TRUE,
-                         nudge_x=0.05, size=4)
-  }
-  if (length(neg.ctrls$Effect) != 0)
-  {
-    pl <- pl +
-      ggplot2::geom_text(ggplot2::aes(x=neg.ctrls$Effect,
-                             y=(neg.ctrls$sig),
-                             label=neg.ctrls$Gene),
-                         hjust=0, vjust=0,
-                         check_overlap=TRUE,
-                         nudge_x=0.05, size=4)
-  }
-  pl <- pl +
-    ggplot2::scale_color_manual(name="Points",
-                                values=c(.colors()$blue,
-                                         .colors()$red,
-                                         .colors()$green)) +
-    ggplot2::guides(color=ggplot2::guide_legend(title=NULL)) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(axis.text   = ggplot2::element_text(size=12),
-                   axis.title  = ggplot2::element_text(size=14, face="bold"),
-                   legend.text = ggplot2::element_text(size=14))
   pl
 }
 
