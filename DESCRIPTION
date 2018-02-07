@@ -38,7 +38,8 @@ Imports:
     utils,
     graphics,
     scales,
-    gridExtra
+    gridExtra,
+    magrittr
 biocViews: Regression, Normalization, Preprocessing, CellBasedAssays, Network
 Suggests:
     testthat,
@@ -59,8 +60,8 @@ Collate:
     'inference_lmm_fdr.R'
     'inference_lmm.R'
     'inference_lmm_model_data.R'
+    'inference_test.R'
     'inference_tstatistic.R'
-    'inference_util.R'
     'methods_combine.R'
     'methods_filter.R'
     'methods_select.R'

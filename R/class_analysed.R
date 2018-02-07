@@ -130,11 +130,11 @@ setClass(
 #' @slot .gene.hits  prioritized genes
 #'
 setClass(
-	"perturbation.tstatistic.analysed",
-	contains  = "perturbation.analysed",
-	slots     = list(.gene.hits="data.table"),
-	prototype = prototype(.inference=.inference.types()$T.TEST,
-												.is.bootstrapped=FALSE)
+  "perturbation.tstatistic.analysed",
+  contains  = "perturbation.analysed",
+  slots     = list(.gene.hits="data.table"),
+  prototype = prototype(.inference=.inference.types()$T.TEST,
+                        .is.bootstrapped=FALSE)
 )
 
 
@@ -149,9 +149,9 @@ setClass(
 #' @slot .gene.hits  prioritized genes
 #'
 setClass(
-	"perturbation.hyper.analysed",
-	contains  = "perturbation.analysed",
-	slots     = list(.gene.hits="data.table"),
-	prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST,
-												.is.bootstrapped=FALSE)
+  "perturbation.hyper.analysed",
+  contains  = "perturbation.analysed",
+  slots     = list(.gene.hits="data.table"),
+  prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST,
+                        .is.bootstrapped=FALSE)
 )

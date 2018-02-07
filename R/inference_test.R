@@ -18,16 +18,17 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-
-.summarize.two.sided <- . %>%
+#' @noRd
+#' @import magrittr
+priorititize.statistic <- . %>%
   dplyr::summarize(HitRatio   = (sum(Hit == TRUE, na.rm=TRUE) / n()),
-                   Pval       = metap::sumlog(Pval)$p,
-  								 Qval       = metap::sumlog(Qval)$p,
-  								 MeanEffect = mean(Readout, na.rm=TRUE),
-  								 MaxEffect  = max(Readout, na.rm=TRUE),
-  								 MinEffect  = min(Readout, na.rm=TRUE),
-  								 MinPval    = min(Pval, na.rm=TRUE),
-  								 MinQval    = min(Qval, na.rm=TRUE),
-  								 AllPval=paste(sprintf("%03f", Pval), collapse=","),
-  								 AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
-	ungroup
+                   Pval  = metap::sumlog(Pval)$p,
+                   Qval  = metap::sumlog(Qval)$p,
+                   MeanEffect = mean(Readout,na.rm=TRUE),
+                   MaxEffect  = max(Readout, na.rm=TRUE),
+                   MinEffect  = min(Readout, na.rm=TRUE),
+                   MinPval    = min(Pval, na.rm=TRUE),
+                   MinQval    = min(Qval, na.rm=TRUE),
+                   AllPval=paste(sprintf("%03f", Pval), collapse=","),
+                   AllQval=paste(sprintf("%03f", Qval), collapse=",")) %>%
+  ungroup

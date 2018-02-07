@@ -5,8 +5,7 @@
 \alias{hyper.statistic}
 \alias{hyper.statistic,perturbation.normalized.data-method}
 \alias{hyper.statistic,perturbation.data-method}
-\title{Calculate statistics based on the hypergeometric-distribution to
- analyse the data.}
+\title{Hyper geometric test for perturbation screens}
 \usage{
 hyper.statistic(obj, padjust = c("BH", "bonferroni"),
   summ.method = c("mean", "median"), level = c("gene", "sirna"),
@@ -48,7 +47,8 @@ if level=gene is chosen}
 returns a \code{perturbation.hyper.analysed} object
 }
 \description{
-TODO
+Calculate statistics based on the hypergeometric-distribution to
+ analyse the data.
 }
 \examples{
  data(rnaiscreen)

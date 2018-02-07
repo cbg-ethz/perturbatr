@@ -20,5 +20,5 @@ Takes a perturbation data set and selects columns by some
 }
 \examples{
  data(rnaiscreen)
- perturbatr::select(my.perturbation.data, GeneSymbol, Readout)
+ perturbatr::select(rnaiscreen, GeneSymbol, Readout)
 }

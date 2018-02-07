@@ -36,9 +36,11 @@ returns a \code{perturbation.diffusion.analysed} object
 TODO
 }
 \examples{
+\dontrun{
  data(rnaiscreen)
  rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
  res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
  graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
  diffu      <- diffuse(res, path=graph.file, r=0.1)
+}
 }

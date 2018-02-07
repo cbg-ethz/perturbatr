@@ -55,10 +55,11 @@ setClass(
   contains  = "perturbation.data",
   validity  = function(object)
   {
-  	.check(object@.data, .required.data.cols())
-  	return(TRUE)
+    .check(object@.data, .required.data.cols())
+    return(TRUE)
   }
 )
+
 
 #' @title Data wrapper for normalized perturbation data
 #'
@@ -73,7 +74,7 @@ setClass(
   contains  = "perturbation.data",
   validity  = function(object)
   {
-  	.check(object@.data, .required.data.cols())
+    .check(object@.data, .required.data.cols())
     return(TRUE)
   }
 )
@@ -92,7 +93,7 @@ setClass(
   contains  = "perturbation.data",
   validity  = function(object)
   {
-  	.check(object@.data, .required.hm.cols())
+    .check(object@.data, .required.hm.cols())
     return(TRUE)
   }
 )

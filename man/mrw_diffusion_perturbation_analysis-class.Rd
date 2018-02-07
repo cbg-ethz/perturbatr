@@ -6,6 +6,6 @@
 \title{Data wrapper for analysed perturbation data using Markov random walks
  with restarts}
 \description{
-Class \code{perturbation.mrw.diffusion.analysed} is a wrapper for a
-  \code{data.table} object containing the perturbation data
+Class \code{perturbation.mrw.diffusion.analysed} is a wrapper
+for a \code{data.table} object containing the perturbation data
 }

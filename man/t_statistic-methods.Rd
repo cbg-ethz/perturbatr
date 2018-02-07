@@ -44,6 +44,7 @@ For this you should use a standardization before.
 \examples{
  data(rnaiscreen)
  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
- v1.data.norm <- perturbatr::preprocess(v1.dat)
+ v1.data.norm <- perturbatr::preprocess(v1.dat, normalize="z.score") \%>\%
+   filter(GeneSymbol == "c1qb", Screen=="Kinome")
  v1.res <- tstatistic(v1.data.norm)
 }

@@ -49,31 +49,29 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
       da <- data.table::data.table(bootstrap  =
                                   paste0("Bootstrap_", sprintf("%03i", i)),
                                   Effect     = re$gene.effects$Effect,
-                                  GeneSymbol = re$gene.effects$GeneSymbol
-				)
+                                  GeneSymbol = re$gene.effects$GeneSymbol)
+        li[[i]] <- da
+        i <- i + 1
+      }, error = function(e) {
+         print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
+      }, warning = function(e) {
+        print(e)
+      }
+    )
 
-				li[[i]] <- da
-				i <- i + 1
+    if (i > bootstrap.cnt) break
+    if (ctr == mistrial.cnt)
+      stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
+  }
 
-			}, error = function(e) {
-				print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
-			}, warning = function(e) {
-				print(e)
-			}
-		)
-		if (i > bootstrap.cnt) break
-		if (ctr == mistrial.cnt)
-			stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
-	}
+  btst.dat <- data.table::rbindlist(li)
+  fdrs     <- .ge.fdrs(btst.dat, bootstrap.cnt)
 
-	btst.dat <- data.table::rbindlist(li)
-	fdrs     <- .ge.fdrs(btst.dat, bootstrap.cnt)
+  # join bootstrap table with fdr table
+  ret  <- dplyr::left_join(
+    fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
 
-	# join bootstrap table with fdr table
-	ret  <- dplyr::left_join(
-		fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
-
-	list(ret=ret, btst=TRUE)
+  list(ret=ret, btst=TRUE)
 }
 
 #' @noRd
@@ -81,13 +79,14 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
 .ge.fdrs <- function(btst.dat, cnt)
 {
   res <-
-		dplyr::group_by(btst.dat, GeneSymbol) %>%
-		dplyr::do(.conf.int(.$Effect, cnt)) %>%
-		ungroup %>%
-		.[order(Pval)] %>%
-		dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
-	assertthat::assert_that(all(order(res$Pval)  == order(res$Qval)))
-	res
+    dplyr::group_by(btst.dat, GeneSymbol) %>%
+    dplyr::do(.conf.int(.$Effect, cnt)) %>%
+    ungroup %>%
+    .[order(Pval)] %>%
+    dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
+  assertthat::assert_that(all(order(res$Pval)  == order(res$Qval)))
+
+  res
 }
 
 #' @noRd

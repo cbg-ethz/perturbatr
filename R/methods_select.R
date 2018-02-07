@@ -33,7 +33,7 @@
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  perturbatr::select(my.perturbation.data, GeneSymbol, Readout)
+#'  perturbatr::select(rnaiscreen, GeneSymbol, Readout)
 select <- function(obj, ...) UseMethod("select")
 
 

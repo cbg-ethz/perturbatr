@@ -27,12 +27,12 @@
 #' @noRd
 .check <- function(object, cols)
 {
-	ps   <- paste(cols, collapse=", " )
-	coln <- colnames(object)
-	if (!all(cols %in% coln))
-	{
-		msg <- paste("Your data needs cols:", ps)
-		msg <- paste(msg, "\nYou have:", paste0(coln, collapse=", "))
-		stop(msg)
-	}
+  ps   <- paste(cols, collapse=", " )
+  coln <- colnames(object)
+  if (!all(cols %in% coln))
+  {
+    msg <- paste("Your data needs cols:", ps)
+    msg <- paste(msg, "\nYou have:", paste0(coln, collapse=", "))
+    stop(msg)
+  }
 }

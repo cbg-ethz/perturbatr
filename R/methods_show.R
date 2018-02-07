@@ -25,15 +25,15 @@
 #' @import data.table
 #' @importFrom dplyr select
 setMethod(
-	"show",
-	"perturbation.raw.data",
-	function(object)
-	{
-		cat(paste0("A raw perturbation data-set\n\n"))
-		object@.data[ ,.SD[sample(.N, 2)], by="Condition"] %>%
-			dplyr::select(Condition, GeneSymbol, Readout) %>%
-			print
-	}
+  "show",
+  "perturbation.raw.data",
+  function(object)
+  {
+    cat(paste0("A raw perturbation data-set\n\n"))
+    object@.data[ ,.SD[sample(.N, 2)], by="Condition"] %>%
+      dplyr::select(Condition, GeneSymbol, Readout) %>%
+      print
+  }
 )
 
 #' @aliases show,perturbation.data-method
