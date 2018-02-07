@@ -1,7 +1,5 @@
 language: r
 
-cache: packages
-
 matrix:
   include:
     - os: osx
