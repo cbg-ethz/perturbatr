@@ -29,7 +29,8 @@ vignette: >
   my.data <- rnaiscreen@.data %>%
     dplyr::filter(Condition=="V1") %>%
     dplyr::select(Condition, Replicate, Plate, RowIdx, ColIdx,
-                  GeneSymbol, Readout, Control, Perturbation)
+                  GeneSymbol, Readout, Control, Perturbation) %>%
+    as.data.frame
 ```
 
 # Introduction
@@ -46,7 +47,7 @@ You supposedly start with something like a `data.frame`. In order to create a
 perturbation data set you need to transform it into a `data.table` first:
 
 ```{r, include=TRUE, size="tiny"}
-  print(my.data)
+  head(my.data)
 ```
 
 You can then use your data-set `my.data` and cast it to a `perturbation.data` object:

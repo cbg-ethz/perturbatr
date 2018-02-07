@@ -1,7 +1,7 @@
 Package: perturbatr
 Type: Package
 Title: Statistical Analysis of High-Throughput Genetic Perturbation Screens
-Version: 0.99.0
+Version: 0.99.1
 Date: 2018-02-1
 Authors@R: person("Simon", "Dirmeier",
 	email = "simon.dirmeier@web.de", role = c("aut", "cre"))
@@ -14,7 +14,7 @@ Description: perturbatr does statistical analysis of large-scale genetic perturb
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1
-Depends: R (>= 3.4)
+Depends: R (>= 3.5)
 Imports:
     dplyr,
     ggplot2,
@@ -48,7 +48,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate: 
+Collate:
     'util_enums.R'
     'class_analysed.R'
     'class_data.R'

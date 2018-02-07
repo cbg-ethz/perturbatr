@@ -59,8 +59,8 @@ nge.fdrs <- function(obj, ...)
 }
 
 
-#' This is the implementation of Efron's local fdr with some additions regarding the return values.
-#' It is licensed under GPL2
+#' This is the implementation of Efron's local fdr with some additions
+#' regarding the return values. It is licensed under GPL2.
 #'
 #' @noRd
 #' @importFrom splines ns
@@ -150,7 +150,7 @@ nge.fdrs <- function(obj, ...)
     mlests = locmle(zz, xlim = c(med, b * sc))
     if (N > 5e+05)
     {
-      warning("length(zz) > 500,000: For ML estimation, a wider interval than optimal was used.  To use the optimal interval, rerun with mlests = c(",
+      warning("length(zz) > 500,000. Rerun with mlests = c(",
               mlests[1], ", ", b * mlests[2], ").\n", sep = "")
       mlests = locmle(zz, xlim = c(med, sc))
     }
@@ -172,9 +172,9 @@ nge.fdrs <- function(obj, ...)
     fp0["mleSD", 1:3] = mlests[4:6]
   }
   if (sum(is.na(fp0[c(3, 5), 1:2])) == 0 & nulltype > 1)
-    if (abs(fp0["cmest", 1] - mlests[1]) > 0.05 | abs(log(fp0["cmest",
-                                                              2]/mlests[2])) > 0.05)
-      warning("Discrepancy between central matching and maximum likelihood estimates.\nConsider rerunning with nulltype = 1")
+    if (abs(fp0["cmest", 1] - mlests[1]) > 0.05 |
+        abs(log(fp0["cmest", 2]/mlests[2])) > 0.05)
+      warning("Consider rerunning with nulltype = 1")
   if (is.na(mlests[1]))
   {
     if (nulltype == 1)
@@ -235,14 +235,14 @@ nge.fdrs <- function(obj, ...)
                                                   fall)
   iup <- (1:K)[x >= xmax]
   ido <- (1:K)[x <= xmax]
-  Eleft <- sum((1 - fdr[ido]) * fdr[ido] * fall[ido])/sum((1 -
-                                                             fdr[ido]) * fall[ido])
-  Eleft0 <- sum((1 - fdr0[ido]) * fdr0[ido] * fall[ido])/sum((1 -
-                                                                fdr0[ido]) * fall[ido])
-  Eright <- sum((1 - fdr[iup]) * fdr[iup] * fall[iup])/sum((1 -
-                                                              fdr[iup]) * fall[iup])
-  Eright0 <- sum((1 - fdr0[iup]) * fdr0[iup] * fall[iup])/sum((1 -
-                                                                 fdr0[iup]) * fall[iup])
+  Eleft <- sum((1 - fdr[ido]) * fdr[ido] * fall[ido]) /
+            sum((1 - fdr[ido]) * fall[ido])
+  Eleft0 <- sum((1 - fdr0[ido]) * fdr0[ido] * fall[ido]) /
+            sum((1 - fdr0[ido]) * fall[ido])
+  Eright <- sum((1 - fdr[iup]) * fdr[iup] * fall[iup]) /
+            sum((1 - fdr[iup]) * fall[iup])
+  Eright0 <- sum((1 - fdr0[iup]) * fdr0[iup] * fall[iup]) /
+            sum((1 - fdr0[iup]) * fall[iup])
   Efdr <- c(Efdr, Eleft, Eright, Efdrtheo, Eleft0, Eright0)
   Efdr[which(is.na(Efdr))] = 1
   names(Efdr) <- c("Efdr", "Eleft", "Eright", "Efdrtheo", "Eleft0",
@@ -369,8 +369,8 @@ nge.fdrs <- function(obj, ...)
 }
 
 
-#' This is the implementation of Efron's local fdr with some additions regarding the return values.
-#' It is licensed under GPL2
+#' This is the implementation of Efron's local fdr with some additions
+#' regarding the return values. It is licensed under GPL2.
 #'
 #' @noRd
 #' @importFrom stats dnorm pnorm
@@ -498,8 +498,8 @@ locmle <- function (z, xlim, Jmle = 35, d = 0, s = 1, ep = 1/1e+05, sw = 0,
 }
 
 
-#' This is the implementation of Efron's local fdr with some additions regarding the return values.
-#' It is licensed under GPL2
+#' This is the implementation of Efron's local fdr with some additions
+#' regarding the return values. It is licensed under GPL2.
 #'
 #' @noRd
 loccov2 <- function (X, X0, i0, f, ests, N)

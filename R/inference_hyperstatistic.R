@@ -215,11 +215,11 @@ setMethod(
 #' @importFrom dplyr mutate
 .hypertest <- function(all.genes, sirnas, plates, rows, cols, readouts, level)
 {
-	fr <- data.table::data.table(genes=all.genes, sirnas=sirnas,
-                               plates=plates, rows=rows, cols=cols,
+	fr <- data.table::data.table(genes = all.genes, sirnas=sirnas,
+                               plates = plates, rows=rows, cols=cols,
                                # leave the abs, since we rank the whole thing
-                               readout=abs(readouts),
-                               ord=1:length(all.genes)) %>%
+                               readout = abs(readouts),
+                               ord     = seq(all.genes)) %>%
     dplyr::mutate(rank=rank(-readout, ties.method="max")) %>%
     .[order(rank)]
 
@@ -270,7 +270,7 @@ setMethod(
 #' @importFrom stats phyper
 .hypertest.grp.test <- function(ndrawn, ranks, N)
 {
-  t(sapply(1:ndrawn, function(i)
+  t(sapply(seq(ndrawn), function(i)
   {
     prob <- stats::phyper(i - 1, ranks[i], N - ranks[i],
                           ndrawn, lower.tail = FALSE, log.p=FALSE)

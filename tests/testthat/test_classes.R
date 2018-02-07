@@ -36,7 +36,7 @@ dat.norm  <- preprocess(rnaiscreen, normalize="z.score")
 dat.tana  <- tstatistic(dat.norm)
 dat.hana  <- hyper.statistic(dat.norm)
 dat.lmm   <- hm(dat.norm, effect.size=0.01)
-dat.diff  <- diffuse(dat.lmm, node.start.count=1, path=graph.file)
+
 
 testthat::test_that("raw object has correct class", {
   testthat::expect_s4_class(dat, "perturbation.raw.data")
