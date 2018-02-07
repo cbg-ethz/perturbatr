@@ -42,6 +42,7 @@ returns a \code{perturbation.tstatistic.analysed} object
 For this you should use a standardization before.
 }
 \examples{
+ library(magrittr)
  data(rnaiscreen)
  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
  v1.data.norm <- perturbatr::preprocess(v1.dat, normalize="z.score") \%>\%

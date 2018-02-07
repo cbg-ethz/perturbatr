@@ -46,6 +46,7 @@
 #'
 #' @return returns a \code{perturbation.tstatistic.analysed} object
 #' @examples
+#'  library(magrittr)
 #'  data(rnaiscreen)
 #'  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
 #'  v1.data.norm <- perturbatr::preprocess(v1.dat, normalize="z.score") %>%
