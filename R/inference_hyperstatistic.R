@@ -215,7 +215,7 @@ setMethod(
 #' @importFrom dplyr mutate
 .hypertest <- function(all.genes, sirnas, plates, rows, cols, readouts, level)
 {
-	fr <- data.table::data.table(genes = all.genes, sirnas=sirnas,
+  fr <- data.table::data.table(genes = all.genes, sirnas=sirnas,
                                plates = plates, rows=rows, cols=cols,
                                # leave the abs, since we rank the whole thing
                                readout = abs(readouts),
@@ -277,7 +277,7 @@ setMethod(
     prob <- max(prob, 0.0)
     cutoff <- i
    c(prob=prob, cutoff=cutoff)
-	}))
+  }))
 }
 
 #' @noRd

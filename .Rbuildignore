@@ -25,4 +25,5 @@ LICENSE
 ^README-.*\.png$
 ^docs$
 ^NEWS.md$
-inst/figure/
+^inst/figure
+^inst/figure/*

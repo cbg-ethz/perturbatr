@@ -43,7 +43,7 @@
 {
   nrow <- max(rows)
   ncol <- max(cols)
-  fr <- data.frame(rows, cols, readouts, ord=1:length(readouts))
+  fr <- data.frame(rows, cols, readouts, ord=seq(readouts))
   fr <- fr[order(fr$rows, fr$cols),]
   # this is needed in case the data is not sorted
   readout.mat <- matrix(fr$readouts, nrow, ncol, byrow=TRUE)

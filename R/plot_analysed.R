@@ -67,12 +67,12 @@ plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
   if ("Condition" %in% colnames(x))
   {
     x <- dplyr::filter(x, Control == 0) %>%
-      .[order(abs(Effect), decreasing=TRUE), .SD[1:25], by=Condition] %>%
+      .[order(abs(Effect), decreasing=TRUE), .SD[seq(25)], by=Condition] %>%
       dplyr::filter(!is.na(GeneSymbol))
   }
   else
   {
-    x <- x[order(abs(Effect), decreasing=TRUE), .SD[1:25]] %>%
+    x <- x[order(abs(Effect), decreasing=TRUE), .SD[seq(25)]] %>%
       dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
   }
 
@@ -95,7 +95,7 @@ plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
   effect.matrices <- .effect.matrices(x)
   ge <- effect.matrices$gene.effects %>%
     .[order(-abs(Effect))]  %>%
-    .[1:25]
+    .[seq(25)]
 
   gpe <-  effect.matrices$nested.gene.effects %>%
     dplyr::filter(GeneSymbol %in% ge$GeneSymbol) %>%
@@ -115,7 +115,8 @@ plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
                                   name     = "Nested gene effect") +
     ggplot2::coord_flip() +
     ggplot2::theme_minimal() +
-    ggplot2::theme(text=ggplot2::element_text(size = size, family = "Helvetica"),
+    ggplot2::theme(text=ggplot2::element_text(size = size,
+                                              family = "Helvetica"),
                    aspect.ratio = 2,
                    axis.text.x  = ggplot2::element_text(angle=45,
                                                         hjust = 1,
@@ -167,7 +168,7 @@ plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
 #' @importFrom dplyr group_by summarize mutate filter
 .plot.perturbation.analysed <- function(x, size, main="", ...)
 {
-  df <- x@.gene.hits[order(abs(MeanEffect), decreasing=TRUE), .SD[1:25]] %>%
+  df <- x@.gene.hits[order(abs(MeanEffect), decreasing=TRUE), .SD[seq(25)]] %>%
     dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect)) %>%
     dplyr::rename(Effect=MeanEffect)
 
@@ -181,7 +182,7 @@ plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
     ggplot2::ggplot(x) +
     ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol, y=abs(Effect),
                                   fill=factor(sign(Effect))),
-    									stat="identity") +
+                                  stat="identity") +
     ggplot2::scale_fill_manual("Trend",
       values = c(.colors()$red, "grey", .colors()$blue),
       limits = c("1",  "0", "-1"),
@@ -194,7 +195,8 @@ plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
                    axis.title.x = ggplot2::element_blank(),
                    axis.title.y = ggplot2::element_blank(),
                    axis.ticks=ggplot2::element_blank(),
-                   text = ggplot2::element_text(size = size, family = "Helvetica"),
+                   text = ggplot2::element_text(size = size,
+                                                family = "Helvetica"),
                    axis.text.x = ggplot2::element_text(
                                               size = size - 2,
                                               family = "Helvetica"),

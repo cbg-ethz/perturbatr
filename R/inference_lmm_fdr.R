@@ -94,8 +94,8 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
 #' @importFrom stats t.test
 conf.int <- function(eff, cnt)
 {
-	t <- stats::t.test(eff, mu=0, na.rm=TRUE)
-	tibble::tibble(Mean  = mean(eff, na.rm=TRUE),
+  t <- stats::t.test(eff, mu=0, na.rm=TRUE)
+  tibble::tibble(Mean  = mean(eff, na.rm=TRUE),
                  Pval  = t$p.value,
                  Lower = t$conf.int[1],
                  Upper = t$conf.int[2])

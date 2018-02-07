@@ -160,7 +160,7 @@ setMethod(
   data.table::setDT(ret)[,Pval := as.numeric(Pval)]
   data.table::setDT(ret)[,Qval := p.adjust(Pval, method=padjust)]
 
-  	ret
+  ret
 }
 
 #' @noRd

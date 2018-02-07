@@ -104,7 +104,8 @@ set.hm.model.data.perturbation.normalized.data <- function(
       dplyr::select(-drop)
   }
 
-  new("perturbation.hm.data", .data=data.table::as.data.table(droplevels(hm.mat)))
+  new("perturbation.hm.data",
+      .data=data.table::as.data.table(droplevels(hm.mat)))
 
 }
 

@@ -77,7 +77,8 @@ setMethod(
   "perturbation.hm.analysed",
   function(object)
   {
-    cat(paste0("A perturbation data-set analysed using a hierachical model\n\n"))
+    cat(paste0(
+      "A perturbation data-set analysed using a hierachical model\n\n"))
     gps <- object@.nested.gene.effects %>%
       dplyr::select(GeneSymbol, Condition, Effect) %>%
       tidyr::spread(Condition, Effect)
@@ -96,7 +97,8 @@ setMethod(
   "perturbation.analysed",
   function(object)
   {
-    cat(paste0("A perturbation data-set analysed using a ", object@.inference, "\n\n"))
+    cat(paste0(
+      "A perturbation data-set analysed using a ", object@.inference, "\n\n"))
     print(object@.gene.hits)
   }
 )

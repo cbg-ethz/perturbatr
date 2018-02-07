@@ -48,7 +48,7 @@ plot.perturbation.diffusion.analysed <- function(x, cnt=10, ...)
 
   x@.data %>%
     .[order(-DiffusionEffect)] %>%
-    .[1:cnt] %>%
+    .[seq(cnt)] %>%
     as.data.frame %>%
     gridExtra::grid.table(theme=tt)
 }
