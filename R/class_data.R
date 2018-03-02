@@ -52,7 +52,9 @@ setClass(
     slots    = list(data="data.table", datatype="character")
     validity = function(object)
     {
-        .check(object@.data, .required.data.cols())
+        if (datatype == data.types$RAW()) check(object@.data, 
+                                                .required.hm.cols)_)
+        else check(object@.data, .required.data.cols())
         return(TRUE)
     }
 )
