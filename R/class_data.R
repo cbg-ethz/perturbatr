@@ -24,76 +24,35 @@
 #' @noRd
 .required.data.cols  <- function()
 {
-  c("Condition", "Replicate", "GeneSymbol", "Perturbation","Readout")
+    c("Condition", "Replicate", "GeneSymbol", "Perturbation", "Readout")
 }
+
 
 #' @noRd
 .required.hm.cols   <- function()
 {
-  c("Condition", "GeneSymbol", "Weight", "Readout")
+    c("Condition", "GeneSymbol", "Weight", "Readout")
 }
 
-#' @noRd
-#' @slot .data the perturbation data-set
-setClass(
-  "perturbation.data",
-  contains = "VIRTUAL",
-  slots    = list(.data="data.table")
-)
 
-
-#' @title Data wrapper for raw perturbation data
+#' @title Data wrapper for a data set of a perturbation screen.
 #'
-#' @description Class \code{perturbation.raw.data} is a wrapper for a
-#' \code{data.table} object containing the raw data-set
+#' @description Class \code{PerturbationData} wraps a data set derived
+#'  from a genetic perturbation screen, e.g. using RNA interference or CRISPR.
 #'
-#' @name Raw-data
-#' @rdname perturbation_raw_data-class
+#' @name PerturbationData-class
+#' @rdname PerturbationData-class
+#'
+#' @slot data  the data set as a \code{data.table} object
+#' @slot datatype  the type that describes your data best, for instance
+#'  \code{raw} or \code{normalized}
 #'
 setClass(
-  "perturbation.raw.data",
-  contains  = "perturbation.data",
-  validity  = function(object)
-  {
-    .check(object@.data, .required.data.cols())
-    return(TRUE)
-  }
-)
-
-
-#' @title Data wrapper for normalized perturbation data
-#'
-#' @description Class \code{perturbation.normalized.data} is a wrapper for a
-#' \code{data.table} object containing the normalized data-set
-#'
-#' @name Normalized-data
-#' @rdname perturbation_normalized_data-class
-#'
-setClass(
-  "perturbation.normalized.data",
-  contains  = "perturbation.data",
-  validity  = function(object)
-  {
-    .check(object@.data, .required.data.cols())
-    return(TRUE)
-  }
-)
-
-
-#' @title Data wrapper for hierarchical model perturbation data
-#'
-#' @description Class \code{perturbation.hm.data} is a wrapper for a
-#' \code{data.table} object containing the normalized data-set
-#'
-#' @name HM-data
-#' @rdname perturbation_hm_data-class
-#'
-setClass(
-  "perturbation.hm.data",
-  contains  = "perturbation.data",
-  validity  = function(object)
-  {
-    .check(object@.data, .required.hm.cols())
-    return(TRUE)
-  }
+    "PerturbationData",
+    slots    = list(data="data.table", datatype="character")
+    validity = function(object)
+    {
+        .check(object@.data, .required.data.cols())
+        return(TRUE)
+    }
 )

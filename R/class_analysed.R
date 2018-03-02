@@ -27,131 +27,91 @@ setOldClass("igraph")
 
 #' @title Data wrapper for analysed perturbation data
 #'
-#' @name PerturbationAnalysis-class
-#' @rdname perturbation_analysis-class
+#' @noRd
 #'
-#' @description Abstract class \code{perturbation.analysed} is a wrapper for a
-#'   \code{data.table} object
-#' containing the perturbation data
+#' @slot data  the perturbation data-set
+#' @slot inference  the method for inferenced that has been used
+#' @slot is.bootstrapped  boolean whether bootstrap intervals have been
+#' @slot params  list of some used parameters
 #'
-#' @slot .data  the perturbation data-set
-#' @slot .inference  the method for inferenced that has been used
-#' @slot .is.bootstrapped  boolean whether bootstrap intervals have been
-#' @slot .params  list of some used parameters
-#'  created or not
 setClass(
-  "perturbation.analysed",
-  contains = "VIRTUAL",
-  slots    = list(.data="data.table",
-                  .params="list",
-                  .inference="character",
-                  .is.bootstrapped="logical"),
-  validity = function(object)
-  {
-    stopifnot(object@.inference %in% .inference.types())
-  }
+    "AbstractAnalysedPerturbationExperiment",
+    contains = "VIRTUAL",
+    slots    = list(data="data.table",
+                    params="list",
+                    inference="character",
+                    is.bootstrapped="logical"),
+    validity = function(object)
+    {
+        stopifnot(object@.inference %in% .inference.types())
+    }
+)
+
+
+#' Data wrapper for analysed perturbation data using a standard test statistic
+#'
+#' @name AnalysedPerturbationExperiment-class
+#' @rdname AnalysedPerturbationExperiment-class
+#'
+#' @description Class \code{AnalysedPerturbationExperiment} is a wrapper of an
+#'  analysed data set using a test statistic such as a t-test or hypergeometric
+#'  test.
+#'
+#' @slot gene.hits  prioritized genes
+#'
+setClass(
+    "AnalysedPerturbationExperiment",
+    contains  = "AbstractAnalysedPerturbationExperiment",
+    slots     = list(gene.hits="data.table"),
+    prototype = prototype(is.bootstrapped=FALSE)
 )
 
 
 #' Data wrapper for analysed perturbation data using a hierarchical model
 #'
-#' @name HMAnalysis-class
-#' @rdname hm_perturbation_analysis-class
+#' @name HMAnalysedPerturbationExperiment-class
+#' @rdname HMAnalysedPerturbationExperiment-class
+#' @exportClass HMAnalysedPerturbationExperiment
 #'
-#' @description Class \code{perturbation.hm.analysed} is a wrapper for a
-#'   \code{data.table} object containing the perturbation data
+#' @description Class \code{pHMAnalysedPerturbationExperiment} is a wrapper for
+#'  various objects of an analysis of a perturbation experiment done
+#'  using a hierarchical model.
 #'
-#' @slot .gene.effects  the estimated effect sizes for genes
-#' @slot .nested.gene.effects  the estimated effect sizes for genes on a
+#' @slot gene.effects  the estimated effect sizes for genes
+#' @slot nested.gene.effects  the estimated effect sizes for genes on a
 #'  viral level
-#' @slot .gene.hits  prioritized genes
-#' @slot .neted.gene.hits  nested prioritized genes
-#' @slot .model.fit  the fitted model
+#' @slot nested.gene.hits  nested prioritized genes
+#' @slot model.fit  the fitted model
+#'
 setClass(
-  "perturbation.hm.analysed",
-  contains  = "perturbation.analysed",
-  slots     = list(.gene.effects          = "data.table",
-                   .nested.gene.effects   = "data.table",
-                   .gene.hits             = "data.table",
-                   .nested.gene.hits      = "data.table",
-                   .model.fit             = "list"),
+  "HMAnalysedPerturbationExperiment",
+  contains  = "AnalysedPerturbationExperiment",
+  slots     = list(gene.effects          = "data.table",
+                   nested.gene.effects   = "data.table",
+                   nested.gene.hits      = "data.table",
+                   model.fit             = "list"),
   prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
 )
 
 
-#' @title Data wrapper for analysed perturbation data using network diffusion
+#' @title Data wrapper for analysed perturbation data using network diffusion in
 #'
-#' @name DiffusionAnalysis-class
-#' @rdname diffusion_perturbation_analysis-class
-#'
-#' @import igraph
-#'
-#' @description Class \code{perturbation.diffusion.analysed} is a wrapper for a
-#'   \code{data.table} object containing the perturbation data
-#'
-#' @slot .intitial.model  the model that was provided for analysis
-#' @slot .graph  an igraph object that served for the diffusion process
-setClass(
-  "perturbation.diffusion.analysed",
-  contains  = c("perturbation.analysed", "VIRTUAL"),
-  slots     = list(.initial.model = "ANY",
-                   .graph         = "igraph")
-)
-
-
-
-#' @title Data wrapper for analysed perturbation data using Markov random walks
-#'  with restarts
-#'
-#' @name MRW-DiffusionAnalysis-class
-#' @rdname mrw_diffusion_perturbation_analysis-class
+#' @name NetworkAnalysedPerturbationExperiment-class
+#' @rdname NetworkAnalysedPerturbationExperiment-class
 #'
 #' @import igraph
 #'
-#' @description Class \code{perturbation.mrw.diffusion.analysed} is a wrapper
-#' for a \code{data.table} object containing the perturbation data
+#' @description Class \code{DiffusionAnalysedPerturbationExperiment} is a
+#'  various objects of an analysis of a perturbation experiment done
+#'  using network diffusion. See also \code{\link{diffusion}}.
 #'
+#' @slot intitial.model  the model that was provided for analysis
+#' @slot graph  an igraph object that served for the diffusion process
 setClass(
-  "perturbation.mrw.diffusion.analysed",
-  contains  = "perturbation.diffusion.analysed",
-  prototype = prototype(.inference=.inference.types()$MRW.DIFFUSION,
-                        .is.bootstrapped=FALSE)
-)
-
-
-#' Data wrapper for analysed perturbation data using a standard hypothesis test
-#'
-#' @name TstatisticAnalysis-class
-#' @rdname tstatisic_perturbation_analysis-class
-#'
-#' @description Class \code{perturbation.tstatistic.analysed} is a wrapper for a
-#'   \code{data.table} object containing the perturbation data
-#'
-#' @slot .gene.hits  prioritized genes
-#'
-setClass(
-  "perturbation.tstatistic.analysed",
-  contains  = "perturbation.analysed",
-  slots     = list(.gene.hits="data.table"),
-  prototype = prototype(.inference=.inference.types()$T.TEST,
-                        .is.bootstrapped=FALSE)
-)
-
-
-#' Data wrapper for analysed perturbation data using a standard hypothesis test
-#'
-#' @name HyperAnalysis-class
-#' @rdname hyper_perturbation_analysis-class
-#'
-#' @description Class \code{perturbation.hyper.analysed} is a wrapper for a
-#'   \code{data.table} object containing the perturbation data
-#'
-#' @slot .gene.hits  prioritized genes
-#'
-setClass(
-  "perturbation.hyper.analysed",
-  contains  = "perturbation.analysed",
-  slots     = list(.gene.hits="data.table"),
-  prototype = prototype(.inference=.inference.types()$HYPERGEOMETRIC.TEST,
-                        .is.bootstrapped=FALSE)
+  "NetworkAnalysedPerturbationExperiment",
+  contains  = c("AbstractAnalysedPerturbationExperiment", "VIRTUAL"),
+  slots     = list(initial.model = "ANY",
+                   graph         = "igraph",
+                   inference=.inference.types()$MRW.DIFFUSION,
+                   is.bootstrapped=FALSE)
 )

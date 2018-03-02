@@ -19,7 +19,16 @@
 
 
 #' @noRd
-.inference.types <- function()
+data.types <- function()
+{
+    list(RAW         =  "raw",
+         NORMALIZED  = "normalized",
+         HM          = "hierarchical.model")
+}
+
+
+#' @noRd
+inference.types <- function()
 {
   list(MIXED.MODEL         = "mixed.model",
        HYPERGEOMETRIC.TEST = "hypergeometric.test",
@@ -27,8 +36,9 @@
        MRW.DIFFUSION       = "mrw.diffusion")
 }
 
+
 #' @noRd
-.colors <- function()
+colors <- function()
 {
   list(red   = "#E64B35FF",
        blue  = "#3C5488FF",
