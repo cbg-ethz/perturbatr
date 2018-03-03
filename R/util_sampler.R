@@ -31,7 +31,7 @@
 #'   bootstrap(rnaiscreen)
 bootstrap <- function(obj, level=c("sirna", "condition"))
 {
-  UseMethod("bootstrap")
+    UseMethod("bootstrap")
 }
 
 #' @export
@@ -41,14 +41,14 @@ bootstrap <- function(obj, level=c("sirna", "condition"))
 #' @importFrom dplyr mutate select group_by filter group_indices
 bootstrap.data.table <- function(obj, level=c("sirna", "condition"))
 {
-  dat <- tibble::as.tibble(obj)
-  grps <- dplyr::group_indices(dat, Condition, ScreenType, GeneSymbol)
-  dat  <- dplyr::mutate(dat, grp=grps) %>%
+    dat <- tibble::as.tibble(obj)
+    grps <- dplyr::group_indices(dat, Condition, ScreenType, GeneSymbol)
+    dat  <- dplyr::mutate(dat, grp=grps) %>%
     dplyr::group_by(Condition, ScreenType, GeneSymbol) %>%
     dplyr::mutate(cnt=n()) %>%
     ungroup
 
-  res <- do.call(
+    res <- do.call(
       "rbind",
       lapply(unique(dat$grp),
       function (g)
@@ -58,18 +58,18 @@ bootstrap.data.table <- function(obj, level=c("sirna", "condition"))
         grp.dat[idx,]
       }))
 
-  ret <- dplyr::select(res, -cnt, -grp)
-  ret
+    ret <- dplyr::select(res, -cnt, -grp)
+    ret
 }
 
 
 #' @export
-#' @method bootstrap perturbation.data
+#' @method bootstrap PerturbationData
 #' @import data.table
 #' @importFrom methods new
-bootstrap.perturbation.data <- function(obj, level=c("sirna", "condition"))
+bootstrap.PerturbationData <- function(obj, level=c("sirna", "condition"))
 {
-  res <- bootstrap(obj@.data)
-  ret <- methods::new(class(obj)[1], .data=data.table::as.data.table(res))
-  ret
+    res <- bootstrap(obj@.data)
+    ret <- methods::new(class(obj)[1], .data=data.table::as.data.table(res))
+    ret
 }

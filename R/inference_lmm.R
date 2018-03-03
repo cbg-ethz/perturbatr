@@ -72,6 +72,7 @@ setGeneric(
   package="perturbation"
 )
 
+
 #' @rdname hm-methods
 #' @aliases hm,perturbation.normalized.data-method
 #' @import data.table
@@ -92,6 +93,7 @@ setMethod(
        effect.size, qval.threshold)
   }
 )
+
 
 #' @rdname hm-methods
 #' @aliases hm,perturbation.hm.data-method

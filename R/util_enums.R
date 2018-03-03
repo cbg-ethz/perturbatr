@@ -19,7 +19,7 @@
 
 
 #' @noRd
-data.types <- function()
+.dataTypes <- function()
 {
     list(RAW         =  "raw",
          NORMALIZED  = "normalized",
@@ -28,7 +28,7 @@ data.types <- function()
 
 
 #' @noRd
-inference.types <- function()
+.inferenceTypes <- function()
 {
   list(MIXED.MODEL         = "mixed.model",
        HYPERGEOMETRIC.TEST = "hypergeometric.test",
@@ -38,7 +38,7 @@ inference.types <- function()
 
 
 #' @noRd
-colors <- function()
+.colors <- function()
 {
   list(red   = "#E64B35FF",
        blue  = "#3C5488FF",

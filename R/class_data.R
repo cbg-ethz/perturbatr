@@ -22,14 +22,14 @@
 
 
 #' @noRd
-.required.data.cols  <- function()
+.requiredDataCols  <- function()
 {
     c("Condition", "Replicate", "GeneSymbol", "Perturbation", "Readout")
 }
 
 
 #' @noRd
-.required.hm.cols   <- function()
+.requiredHMCols   <- function()
 {
     c("Condition", "GeneSymbol", "Weight", "Readout")
 }
@@ -43,18 +43,36 @@
 #' @name PerturbationData-class
 #' @rdname PerturbationData-class
 #'
-#' @slot data  the data set as a \code{data.table} object
-#' @slot datatype  the type that describes your data best, for instance
+#' @slot dataSet  the data set as a \code{data.table} object
+#' @slot dataType  the type that describes your data best, for instance
 #'  \code{raw} or \code{normalized}
 #'
 setClass(
     "PerturbationData",
-    slots    = list(data="data.table", datatype="character")
+    slots    = list(dataSet="data.table", dataType="character")
     validity = function(object)
     {
-        if (datatype == data.types$RAW()) check(object@.data, 
-                                                .required.hm.cols)_)
-        else check(object@.data, .required.data.cols())
+        if (dataType == data.types$RAW())
+            check(object@.data,  .requiredHMCols())
+        else check(object@.data, .requiredDataCols())
         return(TRUE)
     }
 )
+
+
+#' @rdname dataSet-methods
+#' @aliases dataSet,PerturbationData-method
+#' @import data.table
+setMethod(
+    "dataSet",
+    signature = signature(obj="PerturbationData"),
+    function(obj) obj@dataSet)
+
+
+#' @rdname dataType-methods
+#' @aliases dataType,PerturbationData-method
+#' @import data.table
+setMethod(
+    "dataType",
+    signature = signature(obj="PerturbationData"),
+    function(obj) obj@dataType)

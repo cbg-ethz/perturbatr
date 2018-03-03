@@ -29,23 +29,59 @@ setOldClass("igraph")
 #'
 #' @noRd
 #'
-#' @slot data  the perturbation data-set
+#' @slot dataSet  the perturbation data-set
 #' @slot inference  the method for inferenced that has been used
-#' @slot is.bootstrapped  boolean whether bootstrap intervals have been
+#' @slot isBootstrapped  boolean whether bootstrap intervals have been
 #' @slot params  list of some used parameters
 #'
 setClass(
     "AbstractAnalysedPerturbationExperiment",
     contains = "VIRTUAL",
-    slots    = list(data="data.table",
+    slots    = list(dataSet="data.table",
                     params="list",
                     inference="character",
-                    is.bootstrapped="logical"),
+                    isBootstrapped="logical"),
     validity = function(object)
     {
         stopifnot(object@.inference %in% .inference.types())
     }
 )
+
+
+#' @rdname dataSet-methods
+#' @aliases dataSet,AbstractAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "dataSet",
+    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    function(obj) obj@dataSet)
+
+
+#' @rdname params-methods
+#' @aliases params,AbstractAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "params",
+    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    function(obj) obj@params)
+
+
+#' @rdname inference-methods
+#' @aliases inference,AbstractAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "inference",
+    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    function(obj) obj@inference)
+
+
+#' @rdname isBootstrapped-methods
+#' @aliases isBootstrapped,AbstractAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "isBootstrapped",
+    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    function(obj) obj@isBootstrapped)
 
 
 #' Data wrapper for analysed perturbation data using a standard test statistic
@@ -57,14 +93,23 @@ setClass(
 #'  analysed data set using a test statistic such as a t-test or hypergeometric
 #'  test.
 #'
-#' @slot gene.hits  prioritized genes
+#' @slot geneHits  prioritized genes
 #'
 setClass(
     "AnalysedPerturbationExperiment",
     contains  = "AbstractAnalysedPerturbationExperiment",
-    slots     = list(gene.hits="data.table"),
-    prototype = prototype(is.bootstrapped=FALSE)
+    slots     = list(geneHits="data.table"),
+    prototype = prototype(isBootstrapped=FALSE)
 )
+
+
+#' @rdname geneHits-methods
+#' @aliases geneHits,AnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "geneHits",
+    signature = signature(obj="AnalysedPerturbationExperiment"),
+    function(obj) obj@geneHits)
 
 
 #' Data wrapper for analysed perturbation data using a hierarchical model
@@ -77,21 +122,57 @@ setClass(
 #'  various objects of an analysis of a perturbation experiment done
 #'  using a hierarchical model.
 #'
-#' @slot gene.effects  the estimated effect sizes for genes
-#' @slot nested.gene.effects  the estimated effect sizes for genes on a
+#' @slot geneEffects  the estimated effect sizes for genes
+#' @slot nestedGeneEffects  the estimated effect sizes for genes on a
 #'  viral level
-#' @slot nested.gene.hits  nested prioritized genes
-#' @slot model.fit  the fitted model
+#' @slot nestedGeneHits  nested prioritized genes
+#' @slot modelFit  the fitted model
 #'
 setClass(
   "HMAnalysedPerturbationExperiment",
   contains  = "AnalysedPerturbationExperiment",
-  slots     = list(gene.effects          = "data.table",
-                   nested.gene.effects   = "data.table",
-                   nested.gene.hits      = "data.table",
-                   model.fit             = "list"),
-  prototype = prototype(.inference=.inference.types()$MIXED.MODEL)
+  slots     = list(geneEffects       = "data.table",
+                   nestedGeneEffects = "data.table",
+                   nestedGeneHits    = "data.table",
+                   modelFit          = "list"),
+  prototype = prototype(inference=.inference.types()$MIXED.MODEL)
 )
+
+
+#' @rdname geneEffects-methods
+#' @aliases geneEffects,HMAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "geneEffects",
+    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    function(obj) obj@geneEffects)
+
+
+#' @rdname nestedGeneEffects-methods
+#' @aliases nestedGeneEffects,HMAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "nestedGeneEffects",
+    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    function(obj) obj@nestedGeneEffects)
+
+
+#' @rdname nestedGeneHits-methods
+#' @aliases nestedGeneHits,HMAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "nestedGeneHits",
+    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    function(obj) obj@nestedGeneHits)
+
+
+#' @rdname modelFit-methods
+#' @aliases modelFit,HMAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "modelFit",
+    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    function(obj) obj@modelFit)
 
 
 #' @title Data wrapper for analysed perturbation data using network diffusion in
@@ -108,10 +189,20 @@ setClass(
 #' @slot intitial.model  the model that was provided for analysis
 #' @slot graph  an igraph object that served for the diffusion process
 setClass(
-  "NetworkAnalysedPerturbationExperiment",
-  contains  = c("AbstractAnalysedPerturbationExperiment", "VIRTUAL"),
-  slots     = list(initial.model = "ANY",
-                   graph         = "igraph",
-                   inference=.inference.types()$MRW.DIFFUSION,
-                   is.bootstrapped=FALSE)
+    "NetworkAnalysedPerturbationExperiment",
+    contains  = c("AbstractAnalysedPerturbationExperiment", "VIRTUAL"),
+    slots     = list(initialModel = "ANY",
+                     graph        = "igraph"),
+                     prototype = prototype(
+                            inference=.inference.types()$MRW.DIFFUSION,
+                            isBootstrapped=FALSE)
 )
+
+
+#' @rdname graph-methods
+#' @aliases graph,NetworkAnalysedPerturbationExperiment-method
+#' @import data.table
+setMethod(
+    "graph",
+    signature = signature(obj="NetworkAnalysedPerturbationExperiment"),
+    function(obj) obj@graph)
