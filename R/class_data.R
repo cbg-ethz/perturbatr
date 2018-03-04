@@ -42,6 +42,7 @@
 #'
 #' @name PerturbationData-class
 #' @rdname PerturbationData-class
+#' @exportClass PerturbationData
 #'
 #' @slot dataSet  the data set as a \code{data.table} object
 #' @slot dataType  the type that describes your data best, for instance
@@ -52,7 +53,7 @@ setClass(
     slots    = list(dataSet="data.table", dataType="character")
     validity = function(object)
     {
-        if (dataType == data.types$RAW())
+        if (dataType == .dataTypes()$RAW())
             check(object@.data,  .requiredHMCols())
         else check(object@.data, .requiredDataCols())
         return(TRUE)

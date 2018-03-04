@@ -22,16 +22,16 @@
 #' @include class_analysed.R
 
 
-#' @title Hyper geometric test for perturbation screens
+#' @title Hyper-geometric test
 #'
-#' @description Calculate statistics based on the hypergeometric-distribution to
-#'  analyse the data.
+#' @description Calculate a test statistic for gene effects based on the
+#' hypergeometric-distribution.
 #'
 #' @export
 #' @docType methods
-#' @rdname hyper_statistic-methods
+#' @rdname hyperStatistic-methods
 #'
-#' @param obj  the data to be analysed
+#' @param obj  a \code{\link{PerturbationData}} object
 #' @param padjust  multiple testing correction method
 #' @param summ.method  summarize single siRNAs using mean or median
 #' @param level  do hypergeometric test on gene level or siRNA level.
@@ -54,61 +54,64 @@
 #'  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
 #'  v1.data.norm <- perturbatr::preprocess(v1.dat)
 #'  v1.res <- hyper.statistic(v1.data.norm)
+#'
 setGeneric(
-  "hyper.statistic",
-  function(obj,
-           padjust          = c("BH", "bonferroni"),
-           summ.method      = c("mean", "median"),
-           level            = c("gene", "sirna"),
-           do.summarization = FALSE,
-           hit.ratio        = 0.5,
-           effect.size      = 0,
-           pval.threshold   = 0.05,
-           qval.threshold   = 1)
-  {
-    standardGeneric("hyper.statistic")
-  },
-  package="perturbation"
+    "hyperStatistic",
+    function(obj,
+             padjust          = c("BH", "bonferroni"),
+             summ.method      = c("mean", "median"),
+             level            = c("gene", "sirna"),
+             do.summarization = FALSE,
+             hit.ratio        = 0.5,
+             effect.size      = 0,
+             pval.threshold   = 0.05,
+             qval.threshold   = 1)
+    {
+      standardGeneric("hyperStatistic")
+    }
 )
 
-#' @rdname hyper_statistic-methods
-#' @aliases hyper.statistic,perturbation.data-method
+#' @rdname hyperStatistic-methods
+#' @aliases hyperStatistic,PerturbationData-method
 #' @import data.table
 #' @importFrom methods new
 setMethod(
-  "hyper.statistic",
-  signature = signature(obj="perturbation.normalized.data"),
-  function(obj,
-           padjust          = c("BH", "bonferroni"),
-           summ.method      = c("mean", "median"),
-           level            = c("gene", "sirna"),
-           do.summarization = FALSE,
-           hit.ratio        = 0.5,
-           effect.size      = 0,
-           pval.threshold   = 0.05,
-           qval.threshold   = 1)
-  {
-    stopifnot(is.logical(do.summarization))
+    "hyperStatistic",
+    signature = signature(obj="perturbation.normalized.data"),
+    function(obj,
+             padjust          = c("BH", "bonferroni"),
+             summ.method      = c("mean", "median"),
+             level            = c("gene", "sirna"),
+             do.summarization = FALSE,
+             hit.ratio        = 0.5,
+             effect.size      = 0,
+             pval.threshold   = 0.05,
+             qval.threshold   = 1)
+    {
+        stopifnot(is.logical(do.summarization))
+        if (dataType(obj) != .dataTypes()$NORMALIZED)
+            stop("Please preprocess your data before analysing it.")
+        res <- .hyper.statistic(
+            obj              = obj@.data,
+            padjust          = match.arg(padjust),
+            summ.method      = match.arg(summ.method),
+            level            = match.arg(level),
+            do.summarization = do.summarization)
+        priorit <- .prioritize.hyper.statistic(
+            res, hit.ratio, effect.size, pval.threshold, qval.threshold)
 
-    res <- .hyper.statistic(
-      obj              = obj@.data,
-      padjust          = match.arg(padjust),
-      summ.method      = match.arg(summ.method),
-      level            = match.arg(level),
-      do.summarization = do.summarization)
-    priorit <- .prioritize.hyper.statistic(
-      res, hit.ratio, effect.size, pval.threshold, qval.threshold)
+        ret <- methods::new(
+            "AnalysedPerturbationData",
+            geneHits  = data.table::as.data.table(priorit),
+            inference = .inferenceTypes()$HYPERGEOMETRIC.TEST,
+            dataSet   = data.table::as.data.table(dataSet(obj),
+            params    = list(effect.size=effect.size,
+                             hit.ratio=hit.ratio,
+                             pval.threshold=pval.threshold,
+                             qval.threshold=qval.threshold))
 
-    ret <- methods::new(
-      "perturbation.hyper.analysed",
-      .gene.hits = data.table::as.data.table(priorit),
-      .data      = data.table::as.data.table(obj@.data),
-      .params=list(effect.size=effect.size,
-                   hit.ratio=hit.ratio,
-                   pval.threshold=pval.threshold,
-                   qval.threshold=qval.threshold))
-    ret
-  }
+        ret
+    }
 )
 
 #' @noRd
@@ -122,23 +125,22 @@ setMethod(
                              level,
                              do.summarization)
 {
-  if (do.summarization & level=="sirna")
-    stop("Cant do summarization on sirna level. Choose level=gene")
-  if (level=="gene" & do.summarization)
-    message(paste("Summarizing with ", summ.method, "!", sep=""))
+    if (do.summarization & level=="sirna")
+        stop("Cant do summarization on sirna level. Choose level=gene")
+    if (level=="gene" & do.summarization)
+        message(paste("Summarizing with ", summ.method, "!", sep=""))
 
-  summ.method <- .summarization.method(summ.method)
-  ret <- dplyr::group_by(obj, Condition, Screen, ReadoutType,
-                         ScreenType, Library, Design, Cell) %>%
-    dplyr::mutate(grp = .GRP) %>% ungroup
-  grps <- unique(ret$grp)
+    summ.method <- .summarization.method(summ.method)
+    ret <- dplyr::group_by(obj, Condition, Screen, ReadoutType,
+                           ScreenType, Library, Design, Cell) %>%
+        dplyr::mutate(grp = .GRP) %>% ungroup
+    grps <- unique(ret$grp)
 
-  res <- data.table::rbindlist(
-    lapply(
-      grps, function (g)
-      {
-        grp.dat <- dplyr::filter(ret, grp==g)
-        message(paste("Doing grp: ", paste(grp.dat$Condition[1],
+    res <- data.table::rbindlist(lapply(
+        grps, function (g)
+        {
+            grp.dat <- dplyr::filter(ret, grp==g)
+            message(paste("Doing grp: ", paste(grp.dat$Condition[1],
                                            grp.dat$Screen[1],
                                            grp.dat$ScreenType[1],
                                            grp.dat$ReadoutType[1],
@@ -151,9 +153,9 @@ setMethod(
         fr
       }
     )
-  )
+    )
 
-  res
+    res
 }
 
 #' @noRd
@@ -266,19 +268,21 @@ setMethod(
   paste(min.prob, is.hit, sep="_")
 }
 
+
 #' @noRd
 #' @importFrom stats phyper
 .hypertest.grp.test <- function(ndrawn, ranks, N)
 {
-  t(sapply(seq(ndrawn), function(i)
-  {
-    prob <- stats::phyper(i - 1, ranks[i], N - ranks[i],
-                          ndrawn, lower.tail = FALSE, log.p=FALSE)
-    prob <- max(prob, 0.0)
-    cutoff <- i
-   c(prob=prob, cutoff=cutoff)
-  }))
+    t(sapply(seq(ndrawn), function(i)
+    {
+        prob <- stats::phyper(i - 1, ranks[i], N - ranks[i],
+                              ndrawn, lower.tail = FALSE, log.p=FALSE)
+        prob <- max(prob, 0.0)
+        cutoff <- i
+        c(prob=prob, cutoff=cutoff)
+    }))
 }
+
 
 #' @noRd
 #' @import data.table
@@ -290,14 +294,14 @@ setMethod(
                                         pval.threshold,
                                         qval.threshold)
 {
-  if (effect.size != 0)    stop("Effect size not yet implemented")
-  if (qval.threshold != 1) stop("Q-value not  yet implemented")
-  res <- dplyr::group_by(obj, Condition, Screen, Library,
-                         ScreenType, ReadoutType,
-                         Design, Cell,
-                         GeneSymbol, Entrez) %>%
-    priorititize.statistic() %>%
-    dplyr::filter(HitRatio >= hit.ratio)
+    if (effect.size != 0)    stop("Effect size not yet implemented")
+    if (qval.threshold != 1) stop("Q-value not  yet implemented")
+    res <- dplyr::group_by(obj, Condition, Screen, Library,
+                           ScreenType, ReadoutType,
+                           Design, Cell,
+                           GeneSymbol, Entrez) %>%
+        priorititize.statistic() %>%
+        dplyr::filter(HitRatio >= hit.ratio)
 
-  res
+    res
 }

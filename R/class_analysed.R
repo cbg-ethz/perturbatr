@@ -35,7 +35,7 @@ setOldClass("igraph")
 #' @slot params  list of some used parameters
 #'
 setClass(
-    "AbstractAnalysedPerturbationExperiment",
+    "AbstractAnalysedPerturbationData",
     contains = "VIRTUAL",
     slots    = list(dataSet="data.table",
                     params="list",
@@ -49,76 +49,77 @@ setClass(
 
 
 #' @rdname dataSet-methods
-#' @aliases dataSet,AbstractAnalysedPerturbationExperiment-method
+#' @aliases dataSet,AbstractAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "dataSet",
-    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    signature = signature(obj="AbstractAnalysedPerturbationData"),
     function(obj) obj@dataSet)
 
 
 #' @rdname params-methods
-#' @aliases params,AbstractAnalysedPerturbationExperiment-method
+#' @aliases params,AbstractAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "params",
-    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    signature = signature(obj="AbstractAnalysedPerturbationData"),
     function(obj) obj@params)
 
 
 #' @rdname inference-methods
-#' @aliases inference,AbstractAnalysedPerturbationExperiment-method
+#' @aliases inference,AbstractAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "inference",
-    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    signature = signature(obj="AbstractAnalysedPerturbationData"),
     function(obj) obj@inference)
 
 
 #' @rdname isBootstrapped-methods
-#' @aliases isBootstrapped,AbstractAnalysedPerturbationExperiment-method
+#' @aliases isBootstrapped,AbstractAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "isBootstrapped",
-    signature = signature(obj="AbstractAnalysedPerturbationExperiment"),
+    signature = signature(obj="AbstractAnalysedPerturbationData"),
     function(obj) obj@isBootstrapped)
 
 
 #' Data wrapper for analysed perturbation data using a standard test statistic
 #'
-#' @name AnalysedPerturbationExperiment-class
-#' @rdname AnalysedPerturbationExperiment-class
+#' @name AnalysedPerturbationData-class
+#' @rdname AnalysedPerturbationData-class
+#' @exportClass AnalysedPerturbationData
 #'
-#' @description Class \code{AnalysedPerturbationExperiment} is a wrapper of an
+#' @description Class \code{AnalysedPerturbationData} is a wrapper of an
 #'  analysed data set using a test statistic such as a t-test or hypergeometric
 #'  test.
 #'
 #' @slot geneHits  prioritized genes
 #'
 setClass(
-    "AnalysedPerturbationExperiment",
-    contains  = "AbstractAnalysedPerturbationExperiment",
+    "AnalysedPerturbationData",
+    contains  = "AbstractAnalysedPerturbationData",
     slots     = list(geneHits="data.table"),
     prototype = prototype(isBootstrapped=FALSE)
 )
 
 
 #' @rdname geneHits-methods
-#' @aliases geneHits,AnalysedPerturbationExperiment-method
+#' @aliases geneHits,AnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "geneHits",
-    signature = signature(obj="AnalysedPerturbationExperiment"),
+    signature = signature(obj="AnalysedPerturbationData"),
     function(obj) obj@geneHits)
 
 
 #' Data wrapper for analysed perturbation data using a hierarchical model
 #'
-#' @name HMAnalysedPerturbationExperiment-class
-#' @rdname HMAnalysedPerturbationExperiment-class
-#' @exportClass HMAnalysedPerturbationExperiment
+#' @name HMAnalysedPerturbationData-class
+#' @rdname HMAnalysedPerturbationData-class
+#' @exportClass HMAnalysedPerturbationData
 #'
-#' @description Class \code{pHMAnalysedPerturbationExperiment} is a wrapper for
+#' @description Class \code{HMAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
 #'  using a hierarchical model.
 #'
@@ -129,8 +130,8 @@ setMethod(
 #' @slot modelFit  the fitted model
 #'
 setClass(
-  "HMAnalysedPerturbationExperiment",
-  contains  = "AnalysedPerturbationExperiment",
+  "HMAnalysedPerturbationData",
+  contains  = "AnalysedPerturbationData",
   slots     = list(geneEffects       = "data.table",
                    nestedGeneEffects = "data.table",
                    nestedGeneHits    = "data.table",
@@ -140,57 +141,58 @@ setClass(
 
 
 #' @rdname geneEffects-methods
-#' @aliases geneEffects,HMAnalysedPerturbationExperiment-method
+#' @aliases geneEffects,HMAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "geneEffects",
-    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    signature = signature(obj="HMAnalysedPerturbationData"),
     function(obj) obj@geneEffects)
 
 
 #' @rdname nestedGeneEffects-methods
-#' @aliases nestedGeneEffects,HMAnalysedPerturbationExperiment-method
+#' @aliases nestedGeneEffects,HMAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "nestedGeneEffects",
-    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    signature = signature(obj="HMAnalysedPerturbationData"),
     function(obj) obj@nestedGeneEffects)
 
 
 #' @rdname nestedGeneHits-methods
-#' @aliases nestedGeneHits,HMAnalysedPerturbationExperiment-method
+#' @aliases nestedGeneHits,HMAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "nestedGeneHits",
-    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    signature = signature(obj="HMAnalysedPerturbationData"),
     function(obj) obj@nestedGeneHits)
 
 
 #' @rdname modelFit-methods
-#' @aliases modelFit,HMAnalysedPerturbationExperiment-method
+#' @aliases modelFit,HMAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "modelFit",
-    signature = signature(obj="HMAnalysedPerturbationExperiment"),
+    signature = signature(obj="HMAnalysedPerturbationData"),
     function(obj) obj@modelFit)
 
 
 #' @title Data wrapper for analysed perturbation data using network diffusion in
 #'
-#' @name NetworkAnalysedPerturbationExperiment-class
-#' @rdname NetworkAnalysedPerturbationExperiment-class
+#' @name NetworkAnalysedPerturbationData-class
+#' @rdname NetworkAnalysedPerturbationData-class
+#' @exportClass NetworkAnalysedPerturbationData
 #'
 #' @import igraph
 #'
-#' @description Class \code{DiffusionAnalysedPerturbationExperiment} is a
+#' @description Class \code{NetworkAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
 #'  using network diffusion. See also \code{\link{diffusion}}.
 #'
 #' @slot intitial.model  the model that was provided for analysis
 #' @slot graph  an igraph object that served for the diffusion process
 setClass(
-    "NetworkAnalysedPerturbationExperiment",
-    contains  = c("AbstractAnalysedPerturbationExperiment", "VIRTUAL"),
+    "NetworkAnalysedPerturbationData",
+    contains  = c("AbstractAnalysedPerturbationData", "VIRTUAL"),
     slots     = list(initialModel = "ANY",
                      graph        = "igraph"),
                      prototype = prototype(
@@ -200,9 +202,9 @@ setClass(
 
 
 #' @rdname graph-methods
-#' @aliases graph,NetworkAnalysedPerturbationExperiment-method
+#' @aliases graph,NetworkAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "graph",
-    signature = signature(obj="NetworkAnalysedPerturbationExperiment"),
+    signature = signature(obj="NetworkAnalysedPerturbationData"),
     function(obj) obj@graph)

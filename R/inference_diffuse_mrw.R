@@ -34,56 +34,56 @@ mrw <- function(hits,
                 graph,
                 do.bootstrap)
 {
-  message("Diffusion using Markov random walks.")
-  diffuse.data <- .do.mrw(hits, adjm, r)
-  res  <- diffuse.data$frame
+    message("Diffusion using Markov random walks.")
+    diffuse.data <- .do.mrw(hits, adjm, r)
+    res  <- diffuse.data$frame
 
-  is.boot <- FALSE
-  if (!is.null(bootstrap.hits) && do.bootstrap)
-  {
-    is.boot <- TRUE
-    boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
-    res          <- dplyr::left_join(diffuse.data$frame,
-                                     boot.intrvls,
-                                     by="GeneSymbol")
-  }
+    is.boot <- FALSE
+    if (!is.null(bootstrap.hits) && do.bootstrap)
+    {
+        is.boot <- TRUE
+        boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
+        res          <- dplyr::left_join(diffuse.data$frame,
+                                         boot.intrvls,
+                                         by="GeneSymbol")
+    }
 
-  ret <- new("perturbation.mrw.diffusion.analysed",
-             .graph           = graph,
-             .params          = list(
-               restart.probaility     = r,
+    ret <- new("NetworkAnalysedPerturbationData",
+             graph           = graph,
+             params          = list(
+               restart.probability     = r,
                delete.nodes.on.degree = delete.nodes.on.degree),
-             .data            = data.table::as.data.table(res),
-             .is.bootstrapped = is.boot
-  )
+             dataSet        = data.table::as.data.table(res),
+             isBootstrapped = is.boot)
 
-  ret
+    ret
 }
+
 
 #' @noRd
 #' @importFrom diffusr random.walk
 .do.mrw <- function(hits, adjm, r)
 {
-  diffuse.data <- .init.starting.distribution(hits, adjm)
-  mrw          <- diffusr::random.walk(
-    abs(diffuse.data$frame$Effect),
-    as.matrix(diffuse.data$adjm),
-    r)
-  diffuse.data$frame$DiffusionEffect <- mrw
-  diffuse.data
+    diffuse.data <- .init.starting.distribution(hits, adjm)
+    mrw          <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
+                                         as.matrix(diffuse.data$adjm),
+                                         r)
+    diffuse.data$frame$DiffusionEffect <- mrw
+    diffuse.data
 }
+
 
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr left_join
 .init.starting.distribution <- function(hits, adjm)
 {
-  res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
-                           hits,
-                           by="GeneSymbol")
-  data.table::setDT(res)[is.na(Effect), Effect := 0]
-  list(frame=res, adjm=adjm)
+    res  <- dplyr::left_join(data.table::data.table(GeneSymbol=colnames(adjm)),
+                             hits, by="GeneSymbol")
+    data.table::setDT(res)[is.na(Effect), Effect := 0]
+    list(frame=res, adjm=adjm)
 }
+
 
 #' @noRd
 #' @import data.table
@@ -93,37 +93,32 @@ mrw <- function(hits,
 #' @import doParallel
 .significance.mrw <- function(bootstrap.hits, adjm, r)
 {
-  boot.g <- data.table::as.data.table(
-    tidyr::gather(bootstrap.hits, Boot, Effect, -GeneSymbol))
+    boot.g <- data.table::as.data.table(
+      tidyr::gather(bootstrap.hits, Boot, Effect, -GeneSymbol))
 
-  # init multicore
-  doParallel::registerDoParallel(
-    ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),
-           max(1, parallel::detectCores() - 1), 1L)
-  )
-  # to diffusion
-  li <- foreach::foreach(lo=unique(boot.g$Boot)) %dopar%
-  {
-    hits  <- dplyr::filter(boot.g, Boot==lo)
-    hits  <- dplyr::select(hits, -Boot)
-    dd.lo <- .do.mrw(hits, adjm, r)
-    dd.lo$frame$boot <- lo
-    dd.lo$frame
-  }
-  # stop multiprocessing
-  doParallel::stopImplicitCluster()
 
-  # TODO: how to do hypothesis test here?
-  # prolly using some dirichlet-kind of thing
-  # -> calculate means -> calculate alphas ->
-  # -> calculate variance -> calculate alpha_0
-  flat.dat <- data.table::rbindlist(li) %>% dplyr::select(-Effect)
-  ret <- flat.dat  %>%
-    dplyr::group_by(GeneSymbol) %>%
-    dplyr::summarise(Mean=mean(DiffusionEffect, na.rm=TRUE)) %>%
-    ungroup %>%
-    dplyr::left_join(tidyr::spread(flat.dat, boot, DiffusionEffect),
-                     by="GeneSymbol")
+    doParallel::registerDoParallel(
+      ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),
+             max(1, parallel::detectCores() - 1), 1L))
 
-  ret
+    li <- foreach::foreach(lo=unique(boot.g$Boot)) %dopar%
+    {
+      hits  <- dplyr::filter(boot.g, Boot==lo)
+      hits  <- dplyr::select(hits, -Boot)
+      dd.lo <- .do.mrw(hits, adjm, r)
+      dd.lo$frame$boot <- lo
+      dd.lo$frame
+    }
+
+    doParallel::stopImplicitCluster()
+
+    flat.dat <- data.table::rbindlist(li) %>% dplyr::select(-Effect)
+    ret <- flat.dat  %>%
+      dplyr::group_by(GeneSymbol) %>%
+      dplyr::summarise(Mean=mean(DiffusionEffect, na.rm=TRUE)) %>%
+      ungroup %>%
+      dplyr::left_join(tidyr::spread(flat.dat, boot, DiffusionEffect),
+                       by="GeneSymbol")
+
+    ret
 }

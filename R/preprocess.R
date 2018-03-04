@@ -100,8 +100,7 @@ setGeneric(
            drop               = TRUE)
   {
     standardGeneric("preprocess")
-  },
-  package="perturbation"
+  }
 )
 
 
