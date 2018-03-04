@@ -91,49 +91,44 @@ setMethod(
            qval.threshold=.2)
   {
     md <- setModelData(obj, drop, weights)
-    hm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore,
-       effect.size, qval.threshold)
+    .hm(md, formula, drop, weights, bootstrap.cnt, effect.size, qval.threshold)
   }
 )
 
 
-#' @rdname hm-methods
-#' @aliases hm,perturbation.hm.data-method
+#' @noRd
 #' @import data.table
-setMethod(
-  "hm",
-  signature = signature(obj="perturbation.hm.data"),
-  function(obj,
-           drop=TRUE,
-           weights=NULL,
-           rel.mat.path=NULL,
-           bootstrap.cnt=0,
-           ignore=1,
-           effect.size=0.01,
-           qval.threshold=.2)
-  {
-    res     <- .hm.model.data(obj, bootstrap.cnt)
-    priorit <- .prioritize.hm(res, effect.size, qval.threshold)
+#' @importFrom methods new
+.hm  <- function(
+    obj,
+    formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol),
+    drop=TRUE,
+    weights=1,
+    bootstrap.cnt=0,
+    effect.size=0.01,
+    qval.threshold=.2)
+{
+  res     <- .hm.model.data(obj, bootstrap.cnt)
+  priorit <- .prioritize.hm(res, effect.size, qval.threshold)
 
-    ret <- new("perturbation.hm.analysed",
-           .gene.hits             =
-             data.table::as.data.table(priorit$gene.hits),
-           .nested.gene.hits    =
-             data.table::as.data.table(priorit$nested.gene.hits),
-           .gene.effects          = data.table::
-             as.data.table(res$gene.effects),
-           .nested.gene.effects =
-             data.table::as.data.table(res$nested.gene.effects),
-           .data                  = data.table::
-             as.data.table(res$model.data@.data),
-           .model.fit             = res$model,
-           .is.bootstrapped       = res$btst,
-           .params                = list(effect.size=effect.size,
-                                         qval.threshold=qval.threshold))
+  ret <- methods::new("HMAnalysedPerturbationData",
+          geneHits = data.table::as.data.table(priorit$gene.hits),
+          nestedGeneHits = data.table::as.data.table(priorit$nested.gene.hits),
+          geneEffects = data.table::as.data.table(res$gene.effects),
+          nestedGeneEffects = data.table::as.data.table(res$nested.gene.effects),
+          data = data.table::as.data.table(res$model.data@.data),
+          modelFit = res$model,
+          isBootstrapped = res$btst,
+          params = list(formula=formula,
+                        effect.size=effect.size,
+                        qval.threshold=qval.threshold,
+                        weights=weights,
+                        drop=drop,
+                        bootstrap.cnt=bootstrap.cnt))
 
-    ret
-  }
-)
+  ret
+}
+
 
 #' @noRd
 #' @import data.table
@@ -147,7 +142,7 @@ setMethod(
 
   # save gene control mappings
   gene.control.map <-
-    dplyr::select(md@.data, GeneSymbol, Control) %>%
+    dplyr::select(md, GeneSymbol, Control) %>%
     unique %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
   mult.gen.cnt <- (gene.control.map %>%
@@ -160,19 +155,19 @@ setMethod(
             i.e. several genes are both control and not control!")
   }
 
-  message("Fitting hm")
+  message("Fitting hierarchical model")
   fit.hm   <- .hm(md)
   ref      <- .ranef(fit.hm)
   ge.fdrs  <- ge.fdrs(md, ref, bootstrap.cnt)
   nge.fdrs <- nge.fdrs(ref$nested.gene.effects)
 
   # set together the gene/fdr/effects and the mappings
-  ges     <- dplyr::full_join(ref$gene.effects, gene.control.map,
-                              by="GeneSymbol") %>%
+  ges <- dplyr::full_join(ref$gene.effects, gene.control.map,
+                          by="GeneSymbol") %>%
     dplyr::full_join(dplyr::select(ge.fdrs$ret, GeneSymbol, Qval),
                      by="GeneSymbol")
-  nges     <- dplyr::full_join(nge.fdrs$nested.gene.matrix,
-                              gene.control.map, by="GeneSymbol")
+  nges <- dplyr::full_join(nge.fdrs$nested.gene.matrix,
+                           gene.control.map, by="GeneSymbol")
 
   ret <- list(gene.effects        = ges,
               nested.gene.effects = nges,
@@ -187,19 +182,10 @@ setMethod(
 #' @import data.table
 #' @importFrom lme4 lmer
 #' @importFrom stats as.formula
-.hm <- function(md)
+.hm <- function(md, formula)
 {
-
-  .init.formula <- function()
-  {
-    frm.str <- paste0("Readout ~ Condition + ",
-                      "(1 | GeneSymbol) + (1 | Condition:GeneSymbol) + ",
-                      "(1 | ScreenType) + (1 | Condition:ScreenType)")
-    frm.str
-  }
-
-  lme4::lmer(stats::as.formula(.init.formula()),
-             data = md@.data, weights = md@.data$Weight, verbose = FALSE)
+  lme4::lmer(stats::as.formula(formula),
+             data = md, weights = md$Weight, verbose = FALSE)
 }
 
 #' @noRd

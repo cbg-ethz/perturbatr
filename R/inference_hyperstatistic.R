@@ -24,8 +24,13 @@
 
 #' @title Hyper-geometric test
 #'
-#' @description Calculate a test statistic for gene effects based on the
-#' hypergeometric-distribution.
+#' @description First test statistics for perturbations
+#'  based on the hyper-geometric distribution are computed. Then the test
+#'  statistics for
+#'  perturbations, like siRNAs or gRNAs, are aggregated to a signficance level
+#'  for the genes that they correspond to. That means, for instance, for 10
+#'  gRNAs that target gene A, first the statistical significance for the 10
+#'  guides is estimated, and finally the significance of gene A is computed.
 #'
 #' @export
 #' @docType methods
@@ -34,19 +39,23 @@
 #' @param obj  a \code{\link{PerturbationData}} object
 #' @param padjust  multiple testing correction method
 #' @param summ.method  summarize single siRNAs using mean or median
-#' @param level  do hypergeometric test on gene level or siRNA level.
+#' @param level  do hypergeometric test on gene level or perturbation level.
 #'  If level=sirna is chosen, multiple replicates have to be given.
 #'  If level=gene we use all the sirnas for a gene and optionally summarize
 #'  siRNAs over replicate level.
 #' @param do.summarization  boolean flag whether sirnas should be summarized
 #'  if level=gene is chosen
-#' @param hit.ratio  ratio of succesful hits such that a gene is considered a
-#'  'hit'
+#' @param hit.ratio  the ratio of suffesfully identified perturbations for a
+#'  gene, in order to make it count as statistically significant. For instance,
+#'  for a CRISPR screen where 10 guides have been used for a gene, a
+#'  \code{hit.ratio} of .5 would require 5 guide to be estimated significant.
 #' @param effect.size  the mean effect size used for hit prioritization
-#' @param pval.threshold  p-value threshold when a siRNA should be considered a
-#'  'hit'
-#' @param qval.threshold  q-value threshold when a siRNA should be considered a
-#'  'hit'
+#' @param pval.threshold  p-value threshold when a perturbation should be
+#'  considered a 'hit', e.g. that the perturbation resulted in a significant
+#'  change in phenotype
+#' @param qval.threshold  q-value threshold when a perturbation should be
+#'  considered a 'hit', e.g. that the perturbation resulted in a significant
+#'  change in phenotype
 #'
 #' @return returns a \code{perturbation.hyper.analysed} object
 #' @examples
@@ -90,7 +99,7 @@ setMethod(
     {
         stopifnot(is.logical(do.summarization))
         check.normalized(obj)
-        
+
         res <- .hyper.statistic(
             obj              = obj@.data,
             padjust          = match.arg(padjust),

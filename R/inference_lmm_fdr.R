@@ -25,50 +25,52 @@
 #' @importFrom lme4 ranef
 ge.fdrs <- function(md, ref, bootstrap.cnt)
 {
-    if (!is.numeric(bootstrap.cnt) | bootstrap.cnt < 10)
+  if (!is.numeric(bootstrap.cnt) | bootstrap.cnt < 10)
+  {
+    dt <- data.table::data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
+                                 Qval=NA_real_)
+    return(list(ret=dt, btst=FALSE))
+  }
+
+  message("Bootstrapping...this might take a while.")
+  li   <- list()
+  i    <- 1
+  ctr  <- 1
+  mistrial.cnt <- bootstrap.cnt * 10
+  repeat
+  {
+    ctr <- ctr + 1
+    tryCatch({
+        bt.sample <- bootstrap(md)
+        lmm.fit   <- .hm(bt.sample)
+        re        <- .ranef(lmm.fit)
+        da <- data.table::data.table(
+            bootstrap  = paste0("Bootstrap_", sprintf("%03i", i)),
+            Effect     = re$gene.effects$Effect,
+            GeneSymbol = re$gene.effects$GeneSymbol)
+        li[[i]] <- da
+        i <- i + 1
+    }, error = function(e) {
+      print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
+    }, warning = function(e) {
+      print(e)
+    })
+
+    if (i > bootstrap.cnt) { break }
+    if (ctr == mistrial.cnt)
     {
-      dt <- data.table::data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
-                                   Qval=NA_real_)
-      return(list(ret=dt, btst=FALSE))
+        stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
     }
+  }
 
-    message("Bootstrapping...this might take a while.")
-    li   <- list()
-    i    <- 1
-    ctr  <- 1
-    mistrial.cnt <- bootstrap.cnt * 10
-    repeat
-    {
-        ctr <- ctr + 1
-        tryCatch({
-            bt.sample <- bootstrap(md)
-            lmm.fit   <- .hmm(bt.sample)
-            re        <- .ranef(lmm.fit)
-            da <- data.table::data.table(
-                bootstrap  = paste0("Bootstrap_", sprintf("%03i", i)),
-                Effect     = re$gene.effects$Effect,
-                GeneSymbol = re$gene.effects$GeneSymbol)
-            li[[i]] <- da
-            i <- i + 1
-        }, error = function(e) {
-          print(paste("Didn't fit:", i, ", error:", e)); i <<- 1000
-        }, warning = function(e) {
-          print(e)
-        })
+  btst.dat <- data.table::rbindlist(li)
+  fdrs     <- .ge.fdrs(btst.dat, bootstrap.cnt)
 
-        if (i > bootstrap.cnt) break
-        if (ctr == mistrial.cnt)
-            stop(paste0("Breaking after ", mistrial.cnt ," mis-trials!"))
-    }
+  # join bootstrap table with fdr table
+  ret  <- dplyr::left_join(
+      fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
 
-    btst.dat <- data.table::rbindlist(li)
-    fdrs     <- .ge.fdrs(btst.dat, bootstrap.cnt)
-
-    # join bootstrap table with fdr table
-    ret  <- dplyr::left_join(
-        fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
-
-    list(ret=ret, btst=TRUE)
+  list(ret=ret, btst=TRUE)
 }
 
 
@@ -76,15 +78,13 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
 #' @importFrom assertthat assert_that
 .ge.fdrs <- function(btst.dat, cnt)
 {
-    res <-
-        dplyr::group_by(btst.dat, GeneSymbol) %>%
-        dplyr::do(.conf.int(.$Effect, cnt)) %>%
-        ungroup %>%
-        .[order(Pval)] %>%
-        dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
-    assertthat::assert_that(all(order(res$Pval)  == order(res$Qval)))
+  res <- dplyr::group_by(btst.dat, GeneSymbol) %>%
+      dplyr::do(.conf.int(.$Effect, cnt)) %>%
+      ungroup %>%
+      .[order(Pval)] %>%
+      dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
 
-    res
+  res
 }
 
 
@@ -93,9 +93,9 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
 #' @importFrom stats t.test
 conf.int <- function(eff, cnt)
 {
-    t <- stats::t.test(eff, mu=0, na.rm=TRUE)
-    tibble::tibble(Mean  = mean(eff, na.rm=TRUE),
-                   Pval  = t$p.value,
-                   Lower = t$conf.int[1],
-                   Upper = t$conf.int[2])
+  t <- stats::t.test(eff, mu=0, na.rm=TRUE)
+  tibble::tibble(Mean  = mean(eff, na.rm=TRUE),
+                 Pval  = t$p.value,
+                 Lower = t$conf.int[1],
+                 Upper = t$conf.int[2])
 }

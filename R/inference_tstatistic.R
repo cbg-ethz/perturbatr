@@ -19,30 +19,40 @@
 
 
 #' @include class_data.R
+#' @include class_analysed.R
 
 
-#' @title Calculate statistics based on the t-test to analyse the data.
+#' @title T-test
 #'
-#' @description For this you should use a standardization before.
+#' @description First test statistics for perturbations
+#'  based on Student's t distribution are computed. Then the test
+#'  statistics for
+#'  perturbations, like siRNAs or gRNAs, are aggregated to a signficance level
+#'  for the genes that they correspond to. That means, for instance, for 10
+#'  gRNAs that target gene A, first the statistical significance for the 10
+#'  guides is estimated, and finally the significance of gene A is computed.
 #'
 #' @export
 #' @docType methods
-#' @rdname t_statistic-methods
+#' @rdname tStatistic-methods
 #'
 #' @import data.table
 #'
-#' @param obj  the data to be analysed
-#' @param mu  side to which the mean of a siRNA is compared to
+#' @param obj  a \code{\link{PerturbationData}} object
+#' @param mu  side to which the mean of a perturbation is compared to
 #' @param padjust  multiple testing correction method
-#' @param hit.ratio  the ratio of siRNAs
+#' @param hit.ratio  the ratio of suffesfully identified perturbations for a
+#'  gene, in order to make it count as statistically significant. For instance,
+#'  for a CRISPR screen where 10 guides have been used for a gene, a
+#'  \code{hit.ratio} of .5 would require 5 guide to be estimated significant.
 #' @param effect.size  the relative strength of a signal to count as a hit,
-#'  i. e. the biological significance of a gene/sirna
-#' @param pval.threshold  the significance level for a sirna/gene,
-#'  i. e. the statistical significance of a gene/sirna
-#'  to be counted as significant
-#' @param qval.threshold  the significance level of the multiple testing
-#'  corrected p-value. This should be set to an appropriate significance level
-#'  just like the \code{pval.threshold} as well.
+#'  i. e. the biological significance of a gene/perturbation
+#' @param pval.threshold  p-value threshold when a perturbation should be
+#'  considered a 'hit', e.g. that the perturbation resulted in a significant
+#'  change in phenotype
+#' @param qval.threshold  q-value threshold when a perturbation should be
+#'  considered a 'hit', e.g. that the perturbation resulted in a significant
+#'  change in phenotype
 #'
 #' @return returns a \code{perturbation.tstatistic.analysed} object
 #' @examples
@@ -53,7 +63,7 @@
 #'    filter(GeneSymbol == "c1qb", Screen=="Kinome")
 #'  v1.res <- tstatistic(v1.data.norm)
 setGeneric(
-  "tstatistic",
+  "tStatistic",
   function(obj,
            mu=c(0, "scrambled", "control"),
            padjust=c("BH", "bonferroni"),

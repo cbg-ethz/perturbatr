@@ -23,13 +23,20 @@
 #' @export
 #'
 #' @param obj  the object which data should be bootstrapped
-#' @param level  boostrap either on perturbatinos or on conditions
+#' @param ...  groups on which you be bootstrapped. For instance if you want to
+#'  create a normal boostrap sample, you would ignore this argument. If you
+#'  want to separate your data into groups and bootstrap from every group, you
+#'  would give the name of the columns in your \code{obj} to gruop on. For
+#'  instance, if you provide `gene` as an argument, then your data set would be
+#'  grouped into separate `gene` groups and bootstrapping would be conducted on
+#'  every of those groups. Afterwards genes are aggregated
 #' @return returns an object with boostrapped data
 #'
 #' @examples
 #'   data(rnaiscreen)
 #'   bootstrap(rnaiscreen)
-bootstrap <- function(obj, level=c("sirna", "condition"))
+#'   bootstrap(rnaiscreen, "Condition", "Perturbation")
+bootstrap <- function(obj, ...)
 {
     UseMethod("bootstrap")
 }
@@ -39,27 +46,26 @@ bootstrap <- function(obj, level=c("sirna", "condition"))
 #' @import data.table
 #' @importFrom tibble as.tibble
 #' @importFrom dplyr mutate select group_by filter group_indices
-bootstrap.data.table <- function(obj, level=c("sirna", "condition"))
+bootstrap.data.table <- function(obj, ...)
 {
-    dat <- tibble::as.tibble(obj)
-    grps <- dplyr::group_indices(dat, Condition, ScreenType, GeneSymbol)
-    dat  <- dplyr::mutate(dat, grp=grps) %>%
-    dplyr::group_by(Condition, ScreenType, GeneSymbol) %>%
-    dplyr::mutate(cnt=n()) %>%
-    ungroup
+  dat <- tibble::as.tibble(obj)
+  grps <- dplyr::group_indices(dat, Condition, ScreenType, GeneSymbol)
+  dat  <- dplyr::mutate(dat, grp=grps) %>%
+  dplyr::group_by(Condition, ScreenType, GeneSymbol) %>%
+  dplyr::mutate(cnt=n()) %>%
+  ungroup
 
-    res <- do.call(
-      "rbind",
-      lapply(unique(dat$grp),
-      function (g)
-      {
-        grp.dat <- dplyr::filter(dat, grp==g)
-        idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
-        grp.dat[idx,]
-      }))
+  res <- data.table::rbindlist(
+    lapply(unique(dat$grp),
+    function (g)
+    {
+      grp.dat <- dplyr::filter(dat, grp==g)
+      idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
+      grp.dat[idx,]
+    }))
 
-    ret <- dplyr::select(res, -cnt, -grp)
-    ret
+  ret <- dplyr::select(res, -cnt, -grp)
+  ret
 }
 
 
@@ -67,9 +73,11 @@ bootstrap.data.table <- function(obj, level=c("sirna", "condition"))
 #' @method bootstrap PerturbationData
 #' @import data.table
 #' @importFrom methods new
-bootstrap.PerturbationData <- function(obj, level=c("sirna", "condition"))
+bootstrap.PerturbationData <- function(obj, ...)
 {
-    res <- bootstrap(obj@.data)
-    ret <- methods::new(class(obj)[1], .data=data.table::as.data.table(res))
-    ret
+  res <- bootstrap(obj@.data, ...)
+  ret <- methods::new(class(obj)[1],
+                      dataSet  = data.table::as.data.table(res)
+                      dataType = dataType(obj))
+  ret
 }

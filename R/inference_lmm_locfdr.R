@@ -22,7 +22,7 @@
 #' @importFrom tidyr spread
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr select
-nge.fdrs <- function(obj, ...)
+nge.fdrs <- function(obj)
 {
   nges <- tibble::as_tibble(tidyr::spread(obj, Condition, GeneConditionEffect))
   fdrs <- list()
