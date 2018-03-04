@@ -60,7 +60,7 @@ nge.fdrs <- function(obj, ...)
 
 
 #' This is the implementation of Efron's local fdr with some additions
-#' regarding the return values. It is licensed under GPL2.
+#' regarding the return values. It is licensed under GPL-2.
 #'
 #' @noRd
 #' @importFrom splines ns
@@ -362,8 +362,6 @@ nge.fdrs <- function(obj, ...)
     vl$mult = EE
   vl$call = call
   vl$hist.dat <- hist.dat
-
-
 
   invisible(vl)
 }

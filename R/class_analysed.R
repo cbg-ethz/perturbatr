@@ -171,9 +171,9 @@ setMethod(
 #' @aliases modelFit,HMAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
-    "modelFit",
-    signature = signature(obj="HMAnalysedPerturbationData"),
-    function(obj) obj@modelFit)
+  "modelFit",
+  signature = signature(obj="HMAnalysedPerturbationData"),
+  function(obj) obj@modelFit)
 
 
 #' @title Data wrapper for analysed perturbation data using network diffusion in

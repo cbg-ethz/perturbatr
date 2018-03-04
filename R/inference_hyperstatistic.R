@@ -89,8 +89,8 @@ setMethod(
              qval.threshold   = 1)
     {
         stopifnot(is.logical(do.summarization))
-        if (dataType(obj) != .dataTypes()$NORMALIZED)
-            stop("Please preprocess your data before analysing it.")
+        check.normalized(obj)
+        
         res <- .hyper.statistic(
             obj              = obj@.data,
             padjust          = match.arg(padjust),

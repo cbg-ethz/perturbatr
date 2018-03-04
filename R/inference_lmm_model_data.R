@@ -20,114 +20,60 @@
 
 #' Create model data for an hierarchical model
 #'
-#' @export
+#' @docType methods
+#' @rdname setModelData-methods
 #'
 #' @import data.table
 #'
-#' @param obj  an object for which hm model.data is created
-#' @param drop  decide if genes that are not found in every Condition should
+#' @param obj  an data set
+#' @param drop  boolean if genes that are not found in every Condition should
 #'  be dropped
-#' @param ignore  ignore siRNAS that are only found \code{ignore} many times
-#' @param weights  weights to set for the siRNAs
-#' @param rel.mat.path  target-relation matrix (TODO)
+#' @param weights  a numeric vector used as weights for the single
+#'  perturbations
 #'
-#' @return  returns an \code{perturbation.hm.data} object
+#' @import data.table
+#' @importFrom dplyr select filter group_by mutate
+#'
+#' @return  returns an \code{PerturbationData} object
 #' @examples
 #'   data(rnaiscreen)
 #'   rnaiscreen.normalized <- preprocess(rnaiscreen)
-#'   set.hm.model.data(rnaiscreen.normalized)
-set.hm.model.data <- function(obj,
-                              drop=TRUE,
-                              ignore=1,
-                              weights=NULL,
-                              rel.mat.path=NULL)
-{
-  UseMethod("set.hm.model.data")
-}
+#'   setModelData(rnaiscreen.normalized)
+setGeneric(
+  "setModelData",
+  function(obj, drop=TRUE,  weights=NULL)
+)
 
-#' @export
-#' @method set.hm.model.data perturbation.normalized.data
-set.hm.model.data.perturbation.normalized.data <- function(
-  obj, drop=TRUE, ignore=1, weights=NULL, rel.mat.path=NULL)
-{
-  .set.hm.matrix(obj, drop, ignore, weights, rel.mat.path)
-}
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-.set.hm.matrix <- function(obj, drop, ignore, weights=NULL, rel.mat.path=NULL)
-{
-  hm.mat <-
-    dplyr::select(obj@.data, Entrez, GeneSymbol,
-                  Condition, Readout, Control, Library,
-                  Cell, ScreenType, Design, ReadoutType) %>%
-    dplyr::filter(!is.na(GeneSymbol)) %>%
-    # dont take positive controls since these are different between
-    # the pathonges negative control on the other hand should be fine
-    dplyr::filter(Control != 1)
-  data.table::setDT(hm.mat)[, Weight :=
-                                .weights(hm.mat, weights, rel.mat.path)]
-  data.table::setDT(hm.mat)[, VG := paste(Condition, GeneSymbol, sep=":")]
-  #  remove library: not needed any more due to setting of weights
-  data.table::setDT(hm.mat)[, Library := NULL]
-
-  hm.mat$Entrez        <- as.integer(hm.mat$Entrez)
-  hm.mat$Condition         <- as.factor(hm.mat$Condition)
-  hm.mat$VG            <- as.factor(hm.mat$VG)
-  hm.mat$Cell          <- as.factor(hm.mat$Cell)
-  hm.mat$ReadoutType   <- as.factor(hm.mat$ReadoutType)
-  hm.mat$ScreenType    <- as.factor(hm.mat$ScreenType)
-  hm.mat$Design        <- as.factor(hm.mat$Design)
-  hm.mat$GeneSymbol    <- as.factor(hm.mat$GeneSymbol)
-  hm.mat$Weight        <- as.double(hm.mat$Weight)
-  hm.mat$Control       <- as.integer(hm.mat$Control)
-
-  hm.mat <-
-    dplyr::filter(hm.mat, !is.na(Readout)) %>%
-    dplyr::group_by(VG) %>%
-    dplyr::mutate(cnt=n()) %>%
-    ungroup %>%
-    dplyr::filter(cnt >= ignore) %>%
-    dplyr::select(-cnt)
-
-  if (drop)
+#' @rdname setModelData-methods
+#' @aliases setModelData,PerturbationData-method
+setMethod(
+  "setModelData",
+  signature = signature(obj="PerturbationData")
+  function(obj, drop=TRUE, ignore=1, weights=NULL)
   {
-    vir.cnt <- .leuniq(hm.mat$Condition)
-    hm.mat <- dplyr::group_by(hm.mat, GeneSymbol) %>%
-      dplyr::mutate(drop=(length(unique(Condition)) != vir.cnt)) %>%
-      ungroup %>%
-      dplyr::filter(!drop) %>%
-      dplyr::select(-drop)
+    hm.mat <- dataSet(obj@) %>%
+      dplyr::mutate(Weight = as.double(weights)) %>%
+      dplyr::filter(!is.na(GeneSymbol)) %>%
+      dplyr::filter(Control != 1) %>%
+      dplyr::filter(!is.na(Readout))
+
+    data.table::setDT(hm.mat)[, CG := paste(Condition, GeneSymbol, sep=":")]
+
+    hm.mat$Condition     <- as.factor(hm.mat$Condition)
+    hm.mat$CG            <- as.factor(hm.mat$CG)
+    hm.mat$GeneSymbol    <- as.factor(hm.mat$GeneSymbol)
+
+    if (drop)
+    {
+      vir.cnt <- .leuniq(hm.mat$Condition)
+      hm.mat <- dplyr::group_by(hm.mat, GeneSymbol) %>%
+        dplyr::mutate(drop=(length(unique(Condition)) != vir.cnt)) %>%
+        ungroup %>%
+        dplyr::filter(!drop) %>%
+        dplyr::select(-drop)
+    }
+
+    hm.mat
   }
-
-  new("perturbation.hm.data",
-      .data=data.table::as.data.table(droplevels(hm.mat)))
-
-}
-
-#' @noRd
-#' @importFrom assertthat assert_that
-.weights <- function(obj, weights, rel.mat.path)
-{
-  if (is.null(weights)) return(1)
-  else if (!is.list(weights)) stop("Please give a list argument")
-  els <- names(weights)
-  ret <- rep(1, nrow(obj))
-  for (el in els)
-  {
-    idxs <- switch(
-      el,
-      "pooled" = which(obj$Design == "pooled"),
-      "single" = which(obj$Design == "single"),
-      stop("Please provide 'single'/'pooled' list names for setting weights"))
-    ret[idxs] <- as.numeric(weights[[el]])
-    message(paste("Setting", length(idxs), el,
-                  "well weights to:", as.numeric(weights[[el]])))
-  }
-  assertthat::assert_that(length(ret) == nrow(obj))
-  ret
-}
+)

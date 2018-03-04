@@ -24,6 +24,7 @@
   length(unique(obj))
 }
 
+
 #' @noRd
 .check <- function(object, cols)
 {
@@ -35,4 +36,11 @@
     msg <- paste(msg, "\nYou have:", paste0(coln, collapse=", "))
     stop(msg)
   }
+}
+
+#' @noRd
+check.normalized <- function(obj)
+{
+  if (dataType(obj) != .dataTypes()$NORMALIZED)
+      stop("Please preprocess your data before analysing it.")
 }

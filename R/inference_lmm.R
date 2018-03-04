@@ -23,7 +23,8 @@
 #' @include inference_lmm_locfdr.R
 
 
-#' @title Jointly analyse multiple genetic perturbation screens
+#' @title Jointly analyse multiple genetic perturbation screens using a
+#'  hierchical model
 #'
 #' @description Analyse multiple different genetic perturbation screens at once
 #'  using a hierarchical model. The model estimates general relative effect
@@ -37,20 +38,24 @@
 #'
 #' @import data.table
 #'
-#' @param obj  an svd.data object
-#' @param drop  boolean flag if all entries should be dropped that are not
-#'  found in every Condition
-#' @param weights a list of weights
-#' @param rel.mat.path  the (optional) path to a target relation matrix that is
-#'  going to be used for
+#' @param obj  an \code{PerturbationData} object
+#' @param formula  a \code{formula} object that is used to model the readout
+#'  of your data set. If no formula is provided, the formula
+#'  `Readout ~ Condition + (1|GeneSymbol) +  (1|Condition:GeneSymbol)` is used. For
+#'  other data sets with more variables, it might makes sense to use other
+#'  fixed and random effects
+#' @param drop  boolean if genes that are not found in every Condition should
+#'  be dropped
+#' @param weights  a numeric vector used as weights for the single
+#'  perturbations
 #' @param bootstrap.cnt  the number of bootstrap runs you want to do in order
 #'  to estimate a significance level for the gene effects
-#' @param ignore  ignore siRNAs that have been seen only once per group
-#' @param effect.size  the relative effect size used for hit prioritization
+#' @param effect.size  the absolute, relative effect size used for
+#'  hit prioritization
 #' @param qval.threshold  the q-value threshold used for hit prioritization
-#'  if bootstrap.cnt is set
+#'  if \code{bootstrap.cnt} is set
 #'
-#' @return returns a \code{perturbation.hm.analysed} object
+#' @return returns a \code{HMAnalysedPerturbationData} object
 #'
 #' @examples
 #'  data(rnaiscreen)
@@ -59,36 +64,33 @@
 setGeneric(
   "hm",
   function(obj,
+           formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol),
            drop=TRUE,
-           weights=NULL,
-           rel.mat.path=NULL,
+           weights=1,
            bootstrap.cnt=0,
-           ignore=1,
            effect.size=0.05,
            qval.threshold=.2)
   {
     standardGeneric("hm")
-  },
-  package="perturbation"
+  }
 )
 
 
 #' @rdname hm-methods
-#' @aliases hm,perturbation.normalized.data-method
+#' @aliases hm,PerturbationData-method
 #' @import data.table
 setMethod(
   "hm",
-  signature = signature(obj="perturbation.normalized.data"),
+  signature = signature(obj="PerturbationData"),
   function(obj,
+           formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol),
            drop=TRUE,
-           weights=NULL,
-           rel.mat.path=NULL,
+           weights=1,
            bootstrap.cnt=0,
-           ignore=1,
            effect.size=0.05,
            qval.threshold=.2)
   {
-    md <- set.hm.model.data(obj, drop, ignore, weights, rel.mat.path)
+    md <- setModelData(obj, drop, weights)
     hm(md, drop, weights, rel.mat.path, bootstrap.cnt, ignore,
        effect.size, qval.threshold)
   }
