@@ -21,7 +21,7 @@
 #' @noRd
 dataTypes <- function()
 {
-    list(RAW         =  "raw",
+    list(RAW         = "raw",
          NORMALIZED  = "normalized",
          HM          = "hierarchical.model")
 }

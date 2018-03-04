@@ -22,31 +22,30 @@
 #' @include class_analysed.R
 
 
-#' @title Plot a \code{perturbation.mrw.diffusion.analysed} object
+#' @title Plot a \code{NetworkAnalysedPerturbationData} object
 #'
-#' @description Plots a \code{perturbation.mrw.diffusion.analysed} object by
-#' iteratively expanding the neighbors of the hits form the diffusion
+#' @description Creates a table of the gene ranking of a
+#' \code{NetworkAnalysedPerturbationData} object
 #'
-#' @method plot perturbation.diffusion.analysed
+#' @method plot NetworkAnalysedPerturbationData
 #' @export
 #'
 #' @import data.table
 #' @import grid
 #' @importFrom gridExtra tableGrob ttheme_minimal grid.table
 #'
-#' @param x  a \code{perturbation.diffusion.analysed} object
+#' @param x  a \code{NetworkAnalysedPerturbationData} object
 #' @param cnt  number of genes to be shown
-#' @param ...  additional params
 #'
-#' @return returns a plot object
+#' @return returns a table if the first \code{cnt} highest ranked genes
 #'
-plot.perturbation.diffusion.analysed <- function(x, cnt=10, ...)
+plot.NetworkAnalysedPerturbationData <- function(x, cnt=10)
 {
   tt <- gridExtra::ttheme_minimal(
     base_family="Helvetica",
     core=list(bg_params = list(fill="white")))
 
-  x@.data %>%
+  dataSet(x) %>%
     .[order(-DiffusionEffect)] %>%
     .[seq(cnt)] %>%
     as.data.frame %>%

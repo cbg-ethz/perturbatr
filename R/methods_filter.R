@@ -29,23 +29,30 @@
 #' @import data.table
 #'
 #' @param obj  the object to be filtered
-#' @param ...  additional parameters
+#' @param ...  variable number of logical predicates in terms of the column
+#'  names in \code{obj}. Multiple predicates will be combined with a logical
+#'  'and'. Rows where all conditions are met will be kept. The column names do
+#'   not need to be quoted. Wraps around
+#'  \code{\link{dplyr::filter}}.
 #'
-#' @return  returns an object of the same type filtered by some criterion
+#' @return  returns an object of the same type filtered by some criteria
 #'
 #' @examples
 #'  data(rnaiscreen)
 #'  flt.dat <- filter(rnaiscreen, Condition=="V1")
+#'  flt.dat <- filter(rnaiscreen, Condition=="V1", RowIdx==1)
+#'
 filter <- function(obj, ...) UseMethod("filter")
 
 
 #' @export
-#' @method filter perturbation.data
+#' @method filter PerturbationData
 #' @import data.table
 #' @importFrom dplyr filter_
 #' @importFrom lazyeval lazy_dots
-filter.perturbation.data <- function(obj, ...)
+#' @importFrom methods new
+filter.PerturbationData <- function(obj, ...)
 {
-  filt.dat <- dplyr::filter_(obj@.data, .dots = lazyeval::lazy_dots(...))
-  new(class(obj)[1], .data=data.table::as.data.table(filt.dat))
+  filt.dat <- dplyr::filter_(dataSet(obj), .dots = lazyeval::lazy_dots(...))
+  methods::new(class(obj)[1], dataSet=data.table::as.data.table(filt.dat))
 }

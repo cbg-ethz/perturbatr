@@ -21,84 +21,40 @@
 #' @include util_enums.R
 
 
-#' @aliases show,perturbation.data-method
+#' @aliases show,PerturbationData-method
 #' @import data.table
 #' @importFrom dplyr select
 setMethod(
   "show",
-  "perturbation.raw.data",
+  "PerturbationData",
   function(object)
   {
-    cat(paste0("A raw perturbation data-set\n\n"))
-    object@.data[ ,.SD[sample(.N, 2)], by="Condition"] %>%
+    tp <- dataType(object)
+    cat(paste("A", tp, "perturbation data-set\n\n"))
+    dataSet(object)[ ,.SD[sample(.N, 2)], by="Condition"] %>%
       dplyr::select(Condition, GeneSymbol, Readout) %>%
       print
   }
 )
 
-#' @aliases show,perturbation.data-method
-#' @import data.table
-#' @importFrom dplyr select
-setMethod(
-  "show",
-  "perturbation.data",
-  function(object)
-  {
-    cat(paste0("A perturbation data-set\n\n"))
-      object@.data[ ,.SD[sample(.N, 2)], by="Condition"] %>%
-        dplyr::select(Condition, GeneSymbol, Readout) %>%
-        print
-  }
-)
 
-
-#' @aliases show,perturbation.hm.data-method
-#' @import data.table
-#' @importFrom dplyr select
-setMethod(
-  "show",
-  "perturbation.hm.data",
-  function(object)
-  {
-    cat(paste0("A perturbation data-set for HM\n\n"))
-    object@.data[ ,.SD[sample(.N, 2)], by="Condition"] %>%
-      dplyr::select(Condition, GeneSymbol, Readout, Weight) %>%
-      print
-  }
-)
-
-
-#' @aliases show,perturbation.hm.analysed-method
+#' @aliases show,HMAnalysedPerturbationData-method
 #' @import data.table
 #' @importFrom dplyr select left_join
 #' @importFrom tidyr spread
 setMethod(
   "show",
-  "perturbation.hm.analysed",
+  "HMAnalysedPerturbationData",
   function(object)
   {
     cat(paste0(
       "A perturbation data-set analysed using a hierachical model\n\n"))
-    gps <- object@.nested.gene.effects %>%
+    gps <- nestedGeneEffects(objects) %>%
       dplyr::select(GeneSymbol, Condition, Effect) %>%
       tidyr::spread(Condition, Effect)
-    ges <- object@.gene.effects %>%
+    ges <- geneEffects(object) %>%
       dplyr::select(GeneSymbol, Effect, Qval)
     mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
     print(data.table::as.data.table(mer))
-  }
-)
-
-#' @aliases show,perturbation.analysed-method
-#' @import data.table
-#' @importFrom dplyr select
-setMethod(
-  "show",
-  "perturbation.analysed",
-  function(object)
-  {
-    cat(paste0(
-      "A perturbation data-set analysed using a ", object@.inference, "\n\n"))
-    print(object@.gene.hits)
   }
 )

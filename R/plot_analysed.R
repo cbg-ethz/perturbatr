@@ -22,9 +22,10 @@
 #' @include class_analysed.R
 #' @include util_enums.R
 
+
 #' @noRd
 #' @export
-#' @method plot perturbation.hm.analysed
+#' @method plot HMAnalysedPerturbationData
 #' @import ggplot2
 #' @import data.table
 #' @importFrom dplyr filter
@@ -35,16 +36,16 @@
 #'
 #' @return returns a list of plots
 #'
-plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
+plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 {
   pl <- try({
     .plot.perturbation.hm.analysed(
-      x@.gene.hits, main=main, size=size)
+      geneHits(x), main=main, size=size)
   })
   pl2 <- try({
-    .plot.perturbation.hm.analysed(x@.nested.gene.hits, main="", size=size) +
+    .plot.perturbation.hm.analysed(nestedGeneHits(x), main="", size=size) +
       ggplot2::facet_wrap( ~ Condition,
-        ncol=ceiling(length(unique(x@.nested.gene.hits$Condition))/2))
+        ncol=ceiling(length(unique(nestedGeneHits(x)$Condition))/2))
   })
   pl3 <- try({
     .plot.effect.matrices.perturbation.analysed.hm(x, size)
@@ -128,40 +129,6 @@ plot.perturbation.hm.analysed <- function(x, size=10, main="", ...)
 }
 
 
-#' Plot a \code{perturbation.hyper.analysed} object
-#'
-#' @export
-#' @import data.table
-#' @method plot perturbation.hyper.analysed
-#'
-#' @param x  the object to plot
-#' @param size  size of the text
-#' @param ...  additional parameters
-#'
-#' @return returns a plot object
-plot.perturbation.hyper.analysed <- function(x, size=10, ...)
-{
-  .plot.perturbation.analysed(x, ...)
-}
-
-
-#' Plot a \code{perturbation.tstatistic.analysed} object
-#'
-#' @export
-#' @import data.table
-#' @method plot perturbation.tstatistic.analysed
-#'
-#' @param x  the object to plot
-#' @param size  size of the text
-#' @param ...  additional parameters
-#'
-#' @return returns a plot object
-plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
-{
-  .plot.perturbation.analysed(x, size, ...)
-}
-
-
 #' @noRd
 #' @import data.table
 #' @import ggplot2
@@ -177,6 +144,7 @@ plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
 }
 
 
+#' @noRd
 .plot.bars <- function(x, size, main, ...)
 {
     ggplot2::ggplot(x) +
@@ -203,5 +171,4 @@ plot.perturbation.tstatistic.analysed <- function(x, size=10, ...)
                    strip.text=ggplot2::element_text(face=x$font)) +
     ggplot2::coord_flip() +
     ggplot2::ggtitle(main)
-
 }

@@ -28,13 +28,6 @@
 }
 
 
-#' @noRd
-.requiredHMCols   <- function()
-{
-    c("Condition", "GeneSymbol", "Weight", "Readout")
-}
-
-
 #' @title Data wrapper for a data set of a perturbation screen.
 #'
 #' @description Class \code{PerturbationData} wraps a data set derived
@@ -53,9 +46,7 @@ setClass(
     slots    = list(dataSet="data.table", dataType="character")
     validity = function(object)
     {
-        if (dataType == .dataTypes()$RAW())
-            check(object@.data,  .requiredHMCols())
-        else check(object@.data, .requiredDataCols())
+        check(object@.data, .requiredDataCols())
         return(TRUE)
     }
 )

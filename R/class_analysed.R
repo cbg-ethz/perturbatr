@@ -84,26 +84,6 @@ setMethod(
     function(obj) obj@isBootstrapped)
 
 
-#' Data wrapper for analysed perturbation data using a standard test statistic
-#'
-#' @name AnalysedPerturbationData-class
-#' @rdname AnalysedPerturbationData-class
-#' @exportClass AnalysedPerturbationData
-#'
-#' @description Class \code{AnalysedPerturbationData} is a wrapper of an
-#'  analysed data set using a test statistic such as a t-test or hypergeometric
-#'  test.
-#'
-#' @slot geneHits  prioritized genes
-#'
-setClass(
-    "AnalysedPerturbationData",
-    contains  = "AbstractAnalysedPerturbationData",
-    slots     = list(geneHits="data.table"),
-    prototype = prototype(isBootstrapped=FALSE)
-)
-
-
 #' @rdname geneHits-methods
 #' @aliases geneHits,AnalysedPerturbationData-method
 #' @import data.table
@@ -124,6 +104,7 @@ setMethod(
 #'  using a hierarchical model.
 #'
 #' @slot geneEffects  the estimated effect sizes for genes
+#' @slot geneHits  prioritized genes
 #' @slot nestedGeneEffects  the estimated effect sizes for genes on a
 #'  viral level
 #' @slot nestedGeneHits  nested prioritized genes
@@ -131,8 +112,9 @@ setMethod(
 #'
 setClass(
   "HMAnalysedPerturbationData",
-  contains  = "AnalysedPerturbationData",
+  contains  = c("AbstractAnalysedPerturbationData"),
   slots     = list(geneEffects       = "data.table",
+                   geneHits          = "data.table",
                    nestedGeneEffects = "data.table",
                    nestedGeneHits    = "data.table",
                    modelFit          = "list"),

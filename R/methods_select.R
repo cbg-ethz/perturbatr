@@ -27,9 +27,11 @@
 #' @import data.table
 #'
 #' @param obj  the object of which columns should be selected
-#' @param ...  additional parameters
+#' @param ...  variable number of unquoted columns names from \code{obj} to
+#'  subset from. Negative column names will be deselected. Wraps around
+#'  \code{\link{dplyr::select}}.
 #'
-#' @return  returns a \code{data.table} with specified column
+#' @return  returns a \code{tibble} with the specified columns
 #'
 #' @examples
 #'  data(rnaiscreen)
@@ -42,8 +44,9 @@ select <- function(obj, ...) UseMethod("select")
 #' @import data.table
 #' @importFrom dplyr select_
 #' @importFrom lazyeval lazy_dots
+#' @importFrom tibble as_tibble
 select.perturbation.data <- function(obj, ...)
 {
   dplyr::select_(obj@.data, .dots = lazyeval::lazy_dots(...)) %>%
-    as.data.table
+    tibble::as_tibble
 }

@@ -23,28 +23,16 @@
 
 
 
-#' @method plot perturbation.raw.data
+#' @title Plot perturbation data
+#'
+#' @description Creates a barplot of replicate and gene counts of a
+#'  \code{PerturbationData} object.
+#'
+#' @method plot PerturbationData
 #' @export
-#' @noRd
+#'
 #' @import data.table
-#'
-#' @param x  the object to plot
-#' @param size  size of letters
-#' @param ...  additional parameters
-#'
-#' @return  returns a plot object
-plot.perturbation.raw.data <- function(x, size=10, ...)
-{
-  x@.data <- dplyr::filter(x@.data, ReadoutClass=="Readout")
-  plot.perturbation.normalized.data(x, size, ...)
-}
-
-
-#' @method plot perturbation.normalized.data
-#' @export
-#' @noRd
 #' @import ggplot2
-#' @import data.table
 #' @importFrom dplyr summarize
 #' @importFrom dplyr group_by
 #' @importFrom tidyr gather
@@ -52,20 +40,22 @@ plot.perturbation.raw.data <- function(x, size=10, ...)
 #'
 #' @param x  the object to plot
 #' @param size  size of letters
-#' @param ...  additional parameters
 #'
 #' @return  returns a plot object
-plot.perturbation.normalized.data <- function(x, size, ...)
+#'
+plot.PerturbationData <- function(x, size=10)
 {
-  numb.frame <-
-    dplyr::group_by(x@.data, Condition) %>%
+  dat <- dataSet(x)
+  if (dataType(x) == .dataTypes()$RAW && "ReadoutClass" %in% colnames(dat))
+    dat <- dplyr::filter(dat, ReadoutClass="Readout")
+
+  pl <-
+    dplyr::group_by(dat, Condition) %>%
     dplyr::summarize(Replicates = length(unique(Replicate)),
                      Genes      = length(unique(GeneSymbol))) %>%
     tidyr::gather(Type, Count, Replicates, Genes) %>%
-    dplyr::mutate(Count = as.integer(Count))
-
-  pl <-
-    ggplot2::ggplot(numb.frame, ggplot2::aes(x=Condition, y = Count)) +
+    dplyr::mutate(Count = as.integer(Count)) %>%
+    ggplot2::ggplot(ggplot2::aes(x=Condition, y = Count)) +
     ggplot2::geom_bar(ggplot2::aes(fill=Condition), stat="identity") +
     ggplot2::scale_fill_grey(start=0.3) +
     ggplot2::scale_y_continuous(breaks=scales::pretty_breaks(5)) +

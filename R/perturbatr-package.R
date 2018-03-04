@@ -1,6 +1,6 @@
 # perturbatr: analysis of high-throughput gene perturbation screens
 #
-# Copyright (C) 2015 - 2016 Simon Dirmeier
+# Copyright (C) 2018 Simon Dirmeier
 #
 # This file is part of perturbatr
 #
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with perturbatr If not, see <http://www.gnu.org/licenses/>.
+# along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
 #' perturbatr
