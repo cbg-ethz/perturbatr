@@ -25,30 +25,26 @@ data(rnaiscreen)
 ft <- hm(rnaiscreen, effect.size=0.01)
 
 
-testthat::test_that("dataSet for PerturbationData has correct columns", {
-  testthat::expect_true(all(sorted(colnames(dataSet(rnaiscreen))) %in%
-                            sorted(perturbatr:::.requiredDataCols())))
+testthat::test_that("read graph returns igraph object", {
+  fl <- system.file("extdata", "graph_file.tsv", package="perturbatr")
+  gr <- perturbatr:::read.graph(path=fl, graph=NULL)
+  testthat::expect_true(class(gr) == "igraph")
 })
 
 
-testthat::test_that("filtering works correctly", {
-  testthat::expect_true(class(dataSet(ft))[1] == "data.table")
+testthat::test_that("check columns does its job", {
+  testthat::expect_silent(check.columns(rnaiscreen, "Condition"))
 })
 
 
-testthat::test_that("filtering works correctly", {
-  frn <- perturbatr::filter(rnaiscreen, Condition == "V1")
-  testthat::expect_true(all(dataSet(frn)$Condition == "V1"))
+testthat::test_that("check columns throws on wrong cols", {
+  testthat::expect_error(check.columns(rnaiscreen, "wrong col"))
 })
 
 
-testthat::test_that("binding works correctly", {
-  rnait <- rbind(rnaiscreen, rnaiscreen)
-  testthat::expect_equal(nrow(dataSet(rnait)), 2 * nrow(dataSet(rnaiscreen)))
-})
-
-
-testthat::test_that("selecting works correctly", {
-  rnait <- perturbatr::select(rnaiscreen, Condition)
-  testthat::expect_equal(ncol(rnait), 1)
+testthat::test_that("effect matrixes returns correct", {
+  ef <- effect.matrices(ft)
+  testthat::expect_true(class(ef) == "list")
+  testthat::expect_true(class(ef$gene.effects) == "data.table")
+  testthat::expect_true(class(ef$nested.gene.effects) == "data.table")
 })

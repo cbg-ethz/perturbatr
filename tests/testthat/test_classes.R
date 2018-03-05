@@ -18,46 +18,37 @@
 # along with perturbatr If not, see <http://www.gnu.org/licenses/>.
 
 
-context("class")
+context("clazz")
 
-
-graph.file <- system.file("extdata", "graph_file.tsv", package="perturbatr")
 data(rnaiscreen)
-
-test.dat <- rnaiscreen@.data %>%
+test.dat <- dataSet(rnaiscreen) %>%
   dplyr::filter(Condition == "V1") %>%
   dplyr::select(Condition, Replicate, Plate, RowIdx, ColIdx,
                 GeneSymbol, Readout, Control, Perturbation) %>%
   as.data.frame
 
-dat        <- methods::as(test.dat, "perturbation.data")
-
-dat.norm  <- preprocess(rnaiscreen, normalize="z.score")
-dat.tana  <- tstatistic(dat.norm)
-dat.hana  <- hyper.statistic(dat.norm)
-dat.lmm   <- hm(dat.norm, effect.size=0.01)
+dat <- methods::as(test.dat, "PerturbationData")
+dat.lmm <- hm(dat, effect.size=0.01)
 
 
 testthat::test_that("raw object has correct class", {
-  testthat::expect_s4_class(dat, "perturbation.raw.data")
+  dat  <- data.table(A=rnorm(10))
+  dat2 <- data.frame(Condition=rnorm(10), Replicate=1, GeneSymbol="A")
+  testthat::expect_error(methods::as(dat, "PerturbationData"))
+  testthat::expect_error(methods::as(dat2, "PerturbationData"))
 })
 
 
-testthat::test_that("normalized object has correct class", {
-  testthat::expect_s4_class(dat.norm, "perturbation.normalized.data")
-})
-
-
-testthat::test_that("tstatistic analysed object has correct class", {
-  testthat::expect_s4_class(dat.tana, "perturbation.tstatistic.analysed")
-})
-
-
-testthat::test_that("hyperstatistic analysed object has correct class", {
-  testthat::expect_s4_class(dat.hana, "perturbation.hyper.analysed")
+testthat::test_that("raw object has correct class", {
+  testthat::expect_s4_class(dat, "PerturbationData")
 })
 
 
 testthat::test_that("hm analysed object has correct class", {
-  testthat::expect_s4_class(dat.lmm, "perturbation.hm.analysed")
+  testthat::expect_s4_class(dat.lmm, "HMAnalysedPerturbationData")
+})
+
+
+testthat::test_that("hm analysed object has correct class", {
+  testthat::expect_error(methods::new("AbstractAnalysedPerturbationData"))
 })

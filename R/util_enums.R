@@ -27,7 +27,7 @@ inferenceTypes <- function()
 
 
 #' @noRd
-.colors <- function()
+colors <- function()
 {
   list(red   = "#E64B35FF",
        blue  = "#3C5488FF",

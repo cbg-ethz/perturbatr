@@ -31,9 +31,6 @@
 #' @param weights  a numeric vector used as weights for the single
 #'  perturbations
 #'
-#' @import data.table
-#' @importFrom dplyr select filter group_by mutate
-#'
 #' @return  returns an \code{PerturbationData} object
 #' @examples
 #'   data(rnaiscreen)
@@ -47,6 +44,8 @@ setGeneric(
 
 #' @rdname setModelData-methods
 #' @aliases setModelData,PerturbationData-method
+#' @import data.table
+#' @importFrom dplyr select filter group_by mutate ungroup
 setMethod(
   "setModelData",
   signature = signature(obj="PerturbationData"),
@@ -63,14 +62,14 @@ setMethod(
 
     if (drop)
     {
-      vir.cnt <- length(unique(hm.mat$Condition))
+      vir.cnt <- leuniq(hm.mat$Condition)
       hm.mat <- dplyr::group_by(hm.mat, GeneSymbol) %>%
-        dplyr::mutate(drop=(length(unique(Condition)) != vir.cnt)) %>%
-        ungroup %>%
+        dplyr::mutate(drop=(leuniq(Condition) != vir.cnt)) %>%
+        dplyr::ungroup() %>%
         dplyr::filter(!drop) %>%
         dplyr::select(-drop)
     }
 
-    hm.mat
+    data.table::as.data.table(hm.mat)
   }
 )

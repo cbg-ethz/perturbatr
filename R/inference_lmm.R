@@ -132,7 +132,7 @@ setMethod(
 
 #' @noRd
 #' @import data.table
-#' @importFrom dplyr mutate full_join select group_by n
+#' @importFrom dplyr mutate full_join select group_by n pull
 .hm.model.data <- function(md, bootstrap.cnt)
 {
   if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
@@ -143,36 +143,37 @@ setMethod(
   # save gene control mappings
   gene.control.map <-
     dplyr::select(md, GeneSymbol, Control) %>%
-    unique %>%
+    unique() %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
-  mult.gen.cnt <- (gene.control.map %>%
+  mult.gen.cnt <- gene.control.map %>%
                      dplyr::group_by(GeneSymbol) %>%
-                     dplyr::mutate(cnt = n()))$cnt %>%
-    unique
+                     dplyr::mutate(cnt = n()) %>%
+    dplur::pull(cnt) %>%
+    unique()
   if (length(mult.gen.cnt) != 1)
   {
-    warning("Found multiple gene-control entries for several genes,
-            i.e. several genes are both control and not control!")
+    warning(paste("Found multiple gene-control entries for several genes,",
+                   "i.e. several genes are both control and not control!"))
   }
 
   message("Fitting hierarchical model")
-  fit.hm   <- .hm(md)
+  fit.hm   <- .hm(md, formula)
   ref      <- .ranef(fit.hm)
-  ge.fdrs  <- ge.fdrs(md, ref, bootstrap.cnt)
-  nge.fdrs <- nge.fdrs(ref$nested.gene.effects)
+  ge.fdrs.ef  <- ge.fdrs(md, ref, bootstrap.cnt)
+  nge.fdrs.ef <- nge.fdrs(ref$nested.gene.effects)
 
   # set together the gene/fdr/effects and the mappings
   ges <- dplyr::full_join(ref$gene.effects, gene.control.map,
                           by="GeneSymbol") %>%
-    dplyr::full_join(dplyr::select(ge.fdrs$ret, GeneSymbol, Qval),
-                     by="GeneSymbol")
-  nges <- dplyr::full_join(nge.fdrs$nested.gene.matrix,
+    dplyr::full_join(dplyr::select(ge.fdrs.ef$ret, GeneSymbol, Qval),
+                                   by="GeneSymbol")
+  nges <- dplyr::full_join(nge.fdrs.ef$nested.gene.matrix,
                            gene.control.map, by="GeneSymbol")
 
   ret <- list(gene.effects        = ges,
               nested.gene.effects = nges,
               model.data          = md,
-              model = list(fit=fit.hm, ge.fdrs=ge.fdrs, nge.fdrs=nge.fdrs),
+              model = list(fit=fit.hm, ge.fdrs=ge.fdrs.ef, nge.fdrs=nge.fdrs.ef),
               btst                = ge.fdrs$btst)
   ret
 }

@@ -31,8 +31,14 @@ nge.fdrs <- function(obj)
   {
     nges[[ paste0("Qval.", i) ]] <- NA_real_
     nges.loc  <- dplyr::select(nges, "GeneSymbol", i)
-    fdrs[[i]] <- .localfdr(nges.loc[[i]])
-    nges[[ paste0("Qval.", i) ]] <- fdrs[[i]]$fdr
+    tryCatch({
+        fdrs[[i]] <- .localfdr(nges.loc[[i]])
+        nges[[ paste0("Qval.", i) ]] <- fdrs[[i]]$fdr
+      }, error = function(e) {
+        nges[[ paste0("Qval.", i) ]] <- rep(NA_real_, length(nges.loc[[i]]))
+      }
+    )
+
   }
 
   .gather.locfdr(nges, fdrs)

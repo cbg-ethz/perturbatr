@@ -26,7 +26,7 @@ vignette: >
   library(methods)
   library(perturbatr)
   data(rnaiscreen)
-  my.data <- dataSet(rnaiscreen %>%
+  my.data <- dataSet(rnaiscreen) %>%
     dplyr::filter(Condition=="V1") %>%
     dplyr::select(Condition, Replicate, GeneSymbol, Perturbation, Readout) %>%
     as.data.frame

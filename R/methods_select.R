@@ -40,13 +40,13 @@ select <- function(obj, ...) UseMethod("select")
 
 
 #' @export
-#' @method select perturbation.data
+#' @method select PerturbationData
 #' @import data.table
 #' @importFrom dplyr select_
 #' @importFrom lazyeval lazy_dots
 #' @importFrom tibble as_tibble
-select.perturbation.data <- function(obj, ...)
+select.PerturbationData <- function(obj, ...)
 {
-  dplyr::select_(obj@.data, .dots = lazyeval::lazy_dots(...)) %>%
-    tibble::as_tibble
+  df <- dplyr::select_(dataSet(obj), .dots = lazyeval::lazy_dots(...))
+  tibble::as.tibble(df)
 }
