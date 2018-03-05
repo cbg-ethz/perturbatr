@@ -12,8 +12,5 @@ Class \code{PerturbationData} wraps a data set derived
 
 \describe{
 \item{\code{dataSet}}{the data set as a \code{data.table} object}
-
-\item{\code{dataType}}{the type that describes your data best, for instance
-\code{raw} or \code{normalized}}
 }}
 

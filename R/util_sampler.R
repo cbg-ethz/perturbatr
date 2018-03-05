@@ -77,7 +77,6 @@ bootstrap.PerturbationData <- function(obj, ...)
 {
   res <- bootstrap(dataSet(obj), ...)
   ret <- methods::new(class(obj)[1],
-                      dataSet  = data.table::as.data.table(res),
-                      dataType = dataType(obj))
+                      dataSet  = data.table::as.data.table(res))
   ret
 }

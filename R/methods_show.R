@@ -29,8 +29,7 @@ setMethod(
   "PerturbationData",
   function(object)
   {
-    tp <- dataType(object)
-    cat(paste("A", tp, "perturbation data-set\n\n"))
+    cat("A perturbation data set\n\n")
     dataSet(object)[ ,.SD[sample(.N, 2)], by="Condition"] %>%
       dplyr::select(Condition, GeneSymbol, Readout) %>%
       print

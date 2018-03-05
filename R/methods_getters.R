@@ -33,23 +33,6 @@
 setGeneric("dataSet", function(obj) standardGeneric("dataSet"))
 
 
-#' @title Getter for a data set type
-#'
-#' @description Returns the type of data set that underlies an S4 wrapper class
-#'  as \code{character}. We distinguish between different data types, like raw
-#'  or normalized, in order to keep track of which methods can be applied to
-#'  the S4 wrapper.
-#'
-#' @export
-#' @docType methods
-#' @rdname dataType-methods
-#'
-#' @param obj  the object for which you want to extract the underlying data type
-#' @return  returns a \code{character}.
-#'
-setGeneric("dataType", function(obj) standardGeneric("dataType"))
-
-
 #' @title Getter for parameters used for analysis of perturbation data
 #'
 #' @description Returns the parameters used in the analysis of a perturbation

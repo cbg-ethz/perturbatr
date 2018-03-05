@@ -39,8 +39,6 @@
 #' @exportClass PerturbationData
 #'
 #' @slot dataSet  the data set as a \code{data.table} object
-#' @slot dataType  the type that describes your data best, for instance
-#'  \code{raw} or \code{normalized}
 #'
 setClass(
     "PerturbationData",

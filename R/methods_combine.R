@@ -39,10 +39,8 @@ rbind.PerturbationData <-  function(...)
   args  <- list(...)
   if (length(args) < 2) return(args[[1]])
   clazz <- unlist(lapply(args, function(e) class(e)[1]))
-  types <- unlist(lapply(args, function(e) dataType(e)))
   if(any(clazz != clazz[1])) stop("Data classes do not agree")
-  if(any(types != types[1])) stop("Data types do not agree")
-  dat   <- data.table::rbindlist(lapply(args, function(e) e@.data))
+  dat   <- data.table::rbindlist(lapply(args, function(e) dataSet(e)))
 
-  methods::new(clazz[1], .data=dat)
+  methods::new(clazz[1], dataSet=dat)
 }

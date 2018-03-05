@@ -27,3 +27,4 @@ LICENSE
 ^NEWS.md$
 ^inst/figure
 ^inst/figure/*
+^data/rnaiscreen_datatable.rds$
