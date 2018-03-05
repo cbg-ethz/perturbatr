@@ -41,7 +41,7 @@
 #'   setModelData(rnaiscreen.normalized)
 setGeneric(
   "setModelData",
-  function(obj, drop=TRUE,  weights=NULL)
+  function(obj, drop=TRUE, weights=NULL) { standardGeneric("setModelData") }
 )
 
 
@@ -49,10 +49,10 @@ setGeneric(
 #' @aliases setModelData,PerturbationData-method
 setMethod(
   "setModelData",
-  signature = signature(obj="PerturbationData")
+  signature = signature(obj="PerturbationData"),
   function(obj, drop=TRUE, ignore=1, weights=NULL)
   {
-    hm.mat <- dataSet(obj@) %>%
+    hm.mat <- dataSet(obj) %>%
       dplyr::mutate(Weight = as.double(weights)) %>%
       dplyr::filter(!is.na(GeneSymbol)) %>%
       dplyr::filter(Control != 1) %>%

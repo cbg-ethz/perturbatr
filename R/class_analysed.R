@@ -19,6 +19,7 @@
 
 
 #' @include util_enums.R
+#' @include methods_getters.R
 
 
 #' Make igraph recognizable by S4
@@ -43,7 +44,7 @@ setClass(
                     isBootstrapped="logical"),
     validity = function(object)
     {
-        stopifnot(object@.inference %in% .inference.types())
+        stopifnot(obj@inference %in% inferenceTypes())
     }
 )
 
@@ -118,7 +119,7 @@ setClass(
                    nestedGeneEffects = "data.table",
                    nestedGeneHits    = "data.table",
                    modelFit          = "list"),
-  prototype = prototype(inference=.inference.types()$MIXED.MODEL)
+  prototype = prototype(inference=inferenceTypes()$MIXED.MODEL)
 )
 
 
@@ -178,7 +179,7 @@ setClass(
     slots     = list(initialModel = "ANY",
                      graph        = "igraph"),
                      prototype = prototype(
-                            inference=.inference.types()$MRW.DIFFUSION,
+                            inference=inferenceTypes()$MRW.DIFFUSION,
                             isBootstrapped=FALSE)
 )
 

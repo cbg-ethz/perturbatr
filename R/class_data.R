@@ -19,6 +19,7 @@
 
 
 #' @include util_enums.R
+#' @include methods_getters.R
 
 
 #' @noRd
@@ -43,7 +44,7 @@
 #'
 setClass(
     "PerturbationData",
-    slots    = list(dataSet="data.table", dataType="character")
+    slots    = list(dataSet="data.table", dataType="character"),
     validity = function(object)
     {
         check(object@.data, .requiredDataCols())
