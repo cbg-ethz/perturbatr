@@ -26,141 +26,143 @@ vignette: >
   library(methods)
   library(perturbatr)
   data(rnaiscreen)
-  my.data <- rnaiscreen@.data %>%
+  my.data <- dataSet(rnaiscreen %>%
     dplyr::filter(Condition=="V1") %>%
-    dplyr::select(Condition, Replicate, Plate, RowIdx, ColIdx,
-                  GeneSymbol, Readout, Control, Perturbation) %>%
+    dplyr::select(Condition, Replicate, GeneSymbol, Perturbation, Readout) %>%
     as.data.frame
 ```
 
 # Introduction
 
-`perturbatr` does stage-wise analysis of large-scale genetic perturbation screens for integrated datasets consisting of several screens. The package provides various tools for normalisation, plotting and analysis. For single perturbation screens classical analyses using hypothesis testing are implemented. For multiple integrated perturbation screens we developed a hierarchical model that considers the variance between the different biological settings the data are derived from. Our model first estimates an overall relative size for all genes (hits). The resulting hit lists is then be further extended using a network propagation algorithm to correct for false negatives and positives.
+`perturbatr` does stage-wise analysis of large-scale genetic
+ perturbation screens for integrated data sets consisting of multiple screens.
+ For multiple integrated perturbation screens a hierarchical model that
+ considers the variance between different biological conditions is fitted.
+ That means that we first estimate relative effect sizes for all genes.
+ The resulting hit lists is then further extended using a network
+ propagation algorithm to correct for false negatives.
 
 # Tutorial
 
 This tutorial walks you to the basic functionality of `perturbatr` using a pan-pathogenic data set of several RNAi screening studies.
 
-## Creating a raw data-set
+## Creating a `PerturbationData` object
 
-You supposedly start with something like a `data.frame`. In order to create a
-perturbation data set you need to transform it into a `data.table` first:
+You supposedly start with something like a `data.frame` or `data.table`:
 
 ```{r, include=TRUE, size="tiny"}
   head(my.data)
 ```
 
-You can then use your data-set `my.data` and cast it to a `perturbation.data` object:
+In order to create a perturbation data set you only need to call the `as`
+method:
 
 ```{r, include=TRUE, eval=TRUE}
-  my.perturbation.data <- methods::as(my.data, "perturbation.data")
+  my.perturbation.data <- methods::as(my.data, "PerturbationData")
 ```
 
-Coercing your `data.table` to `perturbation.data` will automatically warn you if
-your table is formatted wrongly.
+Coercing your `data.frame` to `PerturbationData` will automatically warn you if
+your table is formatted wrongly. You need at least the following column names
+order to be able to do analysis of perturbation screens using `perturbatr`:
 
-## Working with `perturbation.data` S4 objects
+* Condition: an identifier that best describes the respective screen. For instance this can be the name of a virus for pathogen screens, the name of a cell line, organoid or the like. The *condition* describes a single data set, i.e. if you want to integrate multiple different data sets, make sure to give each a different condition.
+* Replicate: an integer representing the replicate number of a screen.
+* GeneSymbol: the HUGO identifier, ENTREZ id, etc. as character.
+* Perturbation: a siRNA id or gRNA id that describes the knockout/knockdown for the gene
+* Readout: a *normalized* readout like a log-fold change for gRNAs, a GFP signal, etc.
 
-For objects that inherit the abstract `perturbation.data` class, we provide basic
-`select`, `filter` and `rbind` functionality:
+Depending on how you want to model the readout using the hierarchical model, you might want to add additional
+columns. For the sake of simplicity this suffices though.
+
+## Working with `PerturbationData` S4 objects
+
+A `PerturbationData` object consists of a single slot that stores your data. We
+bundled your data into an `S4` object such that dispatch is easier to handle and to make sure that your data set has the correct columns:
 
 ```{r, eval=TRUE, include=TRUE}
+  my.perturbation.data
+  dataSet(my.perturbation.data)
+```
+
+`PerturbationData` has some basic `select`, `filter` and `rbind` functionality.
+Similar to `dplyr::filter` you can select rows by some predicate(s). In the example below we extract all rows from the data set that have a positive readout.
+
+```{r, eval=TRUE, include=TRUE}
+  perturbatr::filter(my.perturbation.data, Readout > 0)
+```
+
+Filtering on multiple rows works by just adding predicates:
+```{r, eval=TRUE, include=TRUE}
+  perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
+```
+
+If you want to combine data sets you can call `rbind`, which will automatically dispatch on `PerturbationData` object:
+```{r, eval=TRUE, include=TRUE}
+  dh <- perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
+  rbind(dh, dh)
+```
+
+Finally you can subset a set of columns just as by using `dplyr::select`. The selected columns are provided by a variable number of unquoted column names:
+```{r, eval=TRUE, include=TRUE}
   perturbatr::select(my.perturbation.data, GeneSymbol, Readout)
-  rbind(perturbatr::filter(my.perturbation.data, Readout > 0),
-        perturbatr::filter(my.perturbation.data, Readout < 0))
 ```
 
-## Preprocessing
+Notice, that if you `select` some columns on `PerturbationData` it returns a
+`tibble`. That is because, once you subset it, it is no longer guaranteed to have the required columns.
 
-Before starting to work with the data we might just want to have a plain look how many genes and replicates we have.
-We use one of the provided artificial data-sets for this.
+## Data analysis using a hierarchical model and network diffusion
 
-```{r, eval=TRUE, include=TRUE, warning=FALSE, fig.align="center", fig.width=4, fig.height=4}
-  data(rnaiscreen)
-  plot(rnaiscreen)
+Finally, after having set up the data set, we analyse it using a hierarchical model and network diffusion. We **expect you already normalized the data sets accordingly**. As noted above, if you want to analyse multiple data sets, make sure that every data set corresponds to a unique `Condition`.
+
+For the sake of simplicity, you can model your readout as a linear combination of fixed effects and clustering effects for genes and genes nested in a condition:
+
+$$y_{cgp} = x_c \beta + \gamma_g  + \delta_{cg} + \dots + y_{cgp}$$
+
+where $y_{cgpt}$ is the phenotype for a condition $c$, gene $g$ and perturbation $p$. This would correspond to the `formula`
+
+```{r, eval=FALSE, include=TRUE, warning=FALSE, message=FALSE}
+  Readout ~ Condition + (1|GeneSymbol) + (1|Condition:GeneSymbol)
 ```
 
-### Normalisation
-
-The `preprocess` method offers a collection of common techniques to normalize
-RNAi-screening data. We just call it with the standard parameters, which takes the natural
-logarithm on every plate and afterwards computes a more robust version of the standard Z-score.
+which is the default argument. You can see that we model the gene effect using different intercepts for each gene. To use the hierarchical model with the above formula, call:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
-  v1.data      <- perturbatr::filter(rnaiscreen, Condition == "V1")
-  v1.data.norm <- perturbatr::preprocess(v1.data)
+  res <- hm(my.perturbation.data, effect.size=0.01)
 ```
 
-The result object has class `perturbation.normalized.data` which can be used for analysis.
+Depending on your data set different clustering effects might be present of course. So let's have a look at our data again:
 
-In the example above we just computed the log and robust Z-scores for every
-plate separately. Often, when we have for instance information of cell-counts,
-cell-viability or expect spatial effects due to several batch effects other
-normalization methods are more suitable. Furthermore when your data-set
-comprises multiple different screens, you might want to normalize every screen
-separately.
-
-In this case you would first filter the data-set by single experiments. For our provided
-filtering by `Condition` and `Screen` results int a single experiment;
-*for your data this might be different though*.
-
-```{r, eval=TRUE, include=T}
-  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
-  v2.dat <- perturbatr::filter(rnaiscreen, Condition=="V2")
+```{r, include=TRUE, size="tiny"}
+  dataSet(my.perturbation.data)
 ```
 
-## Data-analysis
-
-After preprocessing of raw RNAi data, analysis can either be done on the single
-viral level using hypothesis tests or using a maximum
-likelihood approach for joint analysis of an integreted data set.
-
-### Hypothesis testing
-
-Suppose we normalized our data-set and centered the data around zero. One way to find significant genes
-is to use a standard `t-test`:
-
-```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width=4}
-  v1.dat <- perturbatr::filter(rnaiscreen, Condition=="V1")
-  v1.data.norm <- perturbatr::preprocess(v1.dat)
-  v1.res <- tstatistic(v1.data.norm)
-  plot(v1.res)
-```
-
-Alternatively you can also use an iterative hyper-geometric test with `hyper.statistic` [@konig2007probability]. We also refer the interested reader to a recent model for hit prioritization using a penalized linear model by [@schmich2015gesper].
-
-### Joint maximum likelihood inference of integrated data sets
-
-If we want to analyse several pathogens add once and detect host factors common to all of those other appraoches might make more sense.
-For this we developed a hierchical model that separately treats biological effects from different settings called `hm`.
-We describe the phenotype/readout by a linear combination of fixed effects and random effects (inspired by [@ramo2014simultaneous]) as:
-
-$$y_{vgst} = x_v \beta + \gamma_g  + \delta_{vg} + \zeta_t + \xi_{vt} + \epsilon_{vgst},$$
-where $y_{vgst}$ is the phenotype for a virus $v$, gene $g$, siRNA $s$ and infection type $t$.
-Since RNAi screens are prone to having large variance, we try to capture as much of the
-variance using random effects for genes, viruses and the infection types. You call the
-random effects model using:
+For viral perturbation screens, as simulated by our example data set, we know that viruses make use of different host factors during their life cycle. That means while some genes are required during *entry and replication*, others might play a role in *assembly and release* of the virions. So we have reason to believe that the stage of the infection also introduces a clustering effect. In that case we would need to add a random effect for the stage of the infection.
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
-  rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
-  res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
+  frm <- Readout ~ Condition + (1|GeneSymbol) +
+                               (1|Condition:GeneSymbol) +
+                               (1|ScreenType) +
+                               (1|Condition:ScreenType)
+  res <- hm(my.perturbation.data, formula = frm, effect.size=0.01)
 ```
 
-If we `plot` our result we are getting a list of multiple plots. The most informative one that shows the top 25 genes:
+**Note that for your own data different effects might be visible. Thus, before modelling you need to exploratorily detect possible effects.**
+
+Let's take the last result and plot them. This yields a list of multiple plots. The most informative one that shows the top 25 genes:
 
 ```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=4, warning=FALSE, message=FALSE}
   pl <- plot(res)
   print(pl[[1]])
 ```
 
-Next we might want to *smooth* the effect from the hierarchical model using network diffusion. For that we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualisation of the graph and newly detected hits using the diffusion. In our example we do not compute the diffusion, because loading the graph takes a lot memory, but go ahead a try yourself:
-
+Next we might want to *smooth* the effect from the hierarchical model using network diffusion, by that possibly reduce the number of some false negatives. For that we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualization of the graph and newly detected hits using the diffusion. In our example we do not compute the diffusion, because loading the graph takes a lot of memory, but go ahead a try yourself:
 
 ```{r eval=FALSE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
   diffu      <- diffuse(res, path=graph.file, r=0.1)
   plot(diffu)
 ```
+
 ## Session info
 
 ```{r eval=TRUE, include=TRUE}

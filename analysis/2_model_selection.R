@@ -133,7 +133,7 @@ fixed.effects.model.selection.stacking <- function(rnai.screen, model.data, star
       mo <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol)")
       mo2 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol)")
       mo3 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType)")
-      mo4 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | ScreenType )")
+      mo4 <- paste0("Readout ~ Virus + ", paste(c , collapse=" + "), " + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | ScreenType:GeneSymbol)")
       model.formulas <- c(model.formulas, mo, mo2)
     }
   }

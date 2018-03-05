@@ -19,14 +19,6 @@
 
 
 #' @noRd
-dataTypes <- function()
-{
-    list(NORMALIZED  = "normalized",
-         HM          = "hierarchical.model")
-}
-
-
-#' @noRd
 inferenceTypes <- function()
 {
   list(MIXED.MODEL         = "mixed.model",

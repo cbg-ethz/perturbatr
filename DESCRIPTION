@@ -6,15 +6,12 @@ Date: 2018-02-1
 Authors@R: person("Simon", "Dirmeier",
 	email = "simon.dirmeier@web.de", role = c("aut", "cre"))
 Maintainer: Simon Dirmeier <simon.dirmeier@web.de>
-Description: perturbatr does statistical analysis of large-scale genetic
-  perturbation screens using a random effects model and network diffusion.
-  perturbatr analyses dat sets from single perturbation experiments and
-  multiple integrated data sets alike by modelling the different biological
-  conditions using random effects. The random effects model computes
-  pan-screen gene effects for all genes, e.g. effect sizes for genes over all
-  screens. In order to account for possible false negatives, we employ network
-  diffusion by mapping the gene effects onto a genetic network and smoothing
-  the estimated effects over the edges of the network.
+Description: perturbatr does stage-wise analysis of large-scale genetic
+ perturbation screens for integrated data sets consisting of multiple screens.
+ For multiple integrated perturbation screens a hierarchical model that
+ considers the variance between different biological conditions is fitted.
+ The resulting list of gene effects is then further extended using a network
+ propagation algorithm to correct for false negatives.
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1

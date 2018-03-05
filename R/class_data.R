@@ -44,10 +44,10 @@
 #'
 setClass(
     "PerturbationData",
-    slots    = list(dataSet="data.table", dataType="character"),
+    slots    = list(dataSet="data.table"),
     validity = function(object)
     {
-        check(object@.data, .requiredDataCols())
+        check.columns(object@dataSet, .requiredDataCols())
         return(TRUE)
     }
 )
@@ -60,12 +60,3 @@ setMethod(
     "dataSet",
     signature = signature(obj="PerturbationData"),
     function(obj) obj@dataSet)
-
-
-#' @rdname dataType-methods
-#' @aliases dataType,PerturbationData-method
-#' @import data.table
-setMethod(
-    "dataType",
-    signature = signature(obj="PerturbationData"),
-    function(obj) obj@dataType)
