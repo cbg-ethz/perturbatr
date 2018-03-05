@@ -21,11 +21,11 @@
 #' @include class_data.R
 
 
-#' @title Pre-processing routine for data normalization, summarization and removal
-#' of low viability siRNAs.
+#' @title Pre-processing for perturbation data
 #'
-#' @description \code{preproces} normalizes the data for comparable phenotypes.
-#' TODO
+#' @description \code{preprocess} can be used for various preprocessing tasks,
+#'  such as normalization, summarization, cell removal, removal of cytotoxic
+#'  siRNAs or gRNAs.
 #'
 #' @export
 #' @docType methods
@@ -41,29 +41,38 @@
 #'  \item{\emph{loess} }{ fits a local regression model to correct
 #'                        for cell numbers per well}
 #'  \item{\emph{b.score} }{ uses Tukey's median polish to correct
-#'                          for row and column effects}
-#'  \item{\emph{z.score} }{ standardizes a plate}
-#'  \item{\emph{robust-z.score} }{ standardizes a plate using the median
+#'                          for row and column effects. B-scores can only be
+#'                          used if data is provided in plate format, i.e.
+#'                          when  \code{obj} contains columns named 'Plate',
+#'                          'RowIdx' and 'ColIdx'. Otherwise an error will be
+#'                           thrown.}
+#'  \item{\emph{z.score} }{ standardizes a the data set.}
+#'  \item{\emph{robust-z.score} }{ standardizes the data set using the median
 #'                                 instead of mean and the MAD instead if the
-#'                                 standard deviation}
+#'                                 standard deviation,}
 #'  \item{\emph{background} }{ substracts mean/median of some row/column or
-#'                             all NA genes}
+#'                             all NA genes. This }
 #'  \item{\emph{qq} }{ quantile-quantile normalization on replicates}
 #' }
 #' @param normalize.viability  boolean flag if the viability should also be
-#'  normalized
+#'  normalized. This is only important if \code{obj} contains a column named
+#'  'ReadoutClass', where some of the rows are labelled 'Readout' and some
+#'  are labelled 'Viability'.
 #' @param rm.cytotoxic  gene name of neutral gene against which viability is
 #'  testet (e.g. \emph{Scrambled} or \emph{PIK3CA}), etc.
-#' @param rm.outlier.wells  remove wells that have a extreme number of cells
-#'  (outliers), e.g. by taking quantiles or absolute numbers
+#' @param rm.outlier.wells  vector of quantiles, for instance `c(.05, .95)`
+#'   The readout of wells with cell counts outside the quantile boundaries are
+#'   set to NA.
 #' @param z.score.level  if z-scores are used for normalisation, choose either
-#'   'plate' or 'control' to calculate statistics for
+#'  'plate', if you want to correct on a plate-wise level and your data is
+#'  in plate format, 'control' if you want to correct against a negative
+#'
 #' @param z.score.mu  the gene you want to compare to, e.g. 'scrambled', 'tp53'
 #' @param poc.ctrl  the control used for poc-normalization, e.g. 'scrambled'
 #' @param background.row  index of the row to correct backgorund against
 #' @param background.column  index of column to correct backgorund against
-#' @param outlier.well.range outlier cells will be removed based on this range
-#' @param summarization  method of how to summarize screens (needed where? :/)
+#' @param summarization  method of how to summarize certain criteria
+#'  (i.e. the background correction). Can be either 'mean' or 'median'.
 #' @param drop  boolean if rows that are not needed should be dropped or
 #'   kept (e.g. if you want to check whether all worked out correctly)
 #'
@@ -89,13 +98,12 @@ setGeneric(
            normalize          = c("log", "robust-z.score"),
            normalize.viability= FALSE,
            rm.cytotoxic       = NULL,
-           rm.outlier.wells   = c("none", "quantile", "absolute"),
+           rm.outlier.wells   = NULL,
            z.score.level      = c("plate", "control"),
            z.score.mu         = "scrambled",
            poc.ctrl           = "scrambled",
            background.row     = NULL,
            background.column  = NULL,
-           outlier.well.range = c(.05, .95),
            summarization      = c("mean", "median"),
            drop               = TRUE)
   {
@@ -118,13 +126,12 @@ setMethod(
           normalize           = c("log", "robust-z.score"),
           normalize.viability = FALSE,
           rm.cytotoxic        = NULL,
-          rm.outlier.wells    = c("none", "quantile", "absolute"),
+          rm.outlier.wells    = NULL,
           z.score.level       = c("plate", "control"),
           z.score.mu          = "scrambled",
           poc.ctrl            = "scrambled",
           background.row      = NULL,
           background.column   = NULL,
-          outlier.well.range  = c(.05, .95),
           summarization       = c("mean", "median"),
           drop                = TRUE)
   {
@@ -133,13 +140,14 @@ setMethod(
     stopifnot(is.logical(drop))
     stopifnot(is.logical(normalize.viability))
 
-    rm.outlier.wells <- match.arg(rm.outlier.wells)
     z.score.level    <- match.arg(z.score.level)
     summarization    <- match.arg(summarization)
 
     # do outlier removal based on cell numbers
-    if (rm.outlier.wells != "none")
-      res <- .remove.outliers(res, rm.outlier.wells, outlier.well.range)
+    if (!is.null(rm.outlier.wells))
+    {
+      res <- .remove.outliers(res, rm.outlier.wells)
+    }
 
     # do normalization
     res   <- .normalize(res,

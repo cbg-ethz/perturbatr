@@ -20,20 +20,13 @@
 
 #' @noRd
 #' @import data.table
-.remove.outliers <- function(obj, rm.outlier.wells, outlier.well.range)
-{
-  .rm.outlier.wells(obj, rm.outlier.wells, outlier.well.range)
-}
-
-#' @noRd
-#' @import data.table
 #' @importFrom dplyr mutate group_by
-.rm.outlier.wells <- function(obj, rm.outlier.wells, outlier.well.range)
+.remove.outliers <- function(obj, rm.outlier.wells)
 {
-  switch(rm.outlier.wells,
-         "quantile" = .rm.wells.quantile(obj, outlier.well.range),
-         "absolute" = stop("not yet implmenented"),
-         stop("Wrong flag."))
+  stopifnot(length(rm.outlier.wells) == 2)
+  if (any(rm.outlier.wells > 1)) stop("Some outlier quantiles >1")
+  if (any(rm.outlier.wells < 0)) stop("Some outlier quantiles <0")
+  .rm.wells.quantile(obj, outlier.well.range),
 }
 
 #' @noRd
