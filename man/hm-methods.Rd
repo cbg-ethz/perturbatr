@@ -3,45 +3,44 @@
 \docType{methods}
 \name{hm}
 \alias{hm}
-\alias{hm,perturbation.normalized.data-method}
-\alias{hm,perturbation.hm.data-method}
-\title{Jointly analyse multiple genetic perturbation screens}
+\alias{hm,PerturbationData-method}
+\title{Jointly analyse multiple genetic perturbation screens using a
+ hierchical model}
 \usage{
-hm(obj, drop = TRUE, weights = NULL, rel.mat.path = NULL,
-  bootstrap.cnt = 0, ignore = 1, effect.size = 0.05,
-  qval.threshold = 0.2)
-
-\S4method{hm}{perturbation.normalized.data}(obj, drop = TRUE,
-  weights = NULL, rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
+hm(obj, formula = Readout ~ Condition + (1 | GeneSymbol) + (1 |
+  Condition:GeneSymbol), drop = TRUE, weights = 1, bootstrap.cnt = 0,
   effect.size = 0.05, qval.threshold = 0.2)
 
-\S4method{hm}{perturbation.hm.data}(obj, drop = TRUE, weights = NULL,
-  rel.mat.path = NULL, bootstrap.cnt = 0, ignore = 1,
-  effect.size = 0.01, qval.threshold = 0.2)
+\S4method{hm}{PerturbationData}(obj, formula = Readout ~ Condition + (1 |
+  GeneSymbol) + (1 | Condition:GeneSymbol), drop = TRUE, weights = 1,
+  bootstrap.cnt = 0, effect.size = 0.05, qval.threshold = 0.2)
 }
 \arguments{
-\item{obj}{an svd.data object}
+\item{obj}{an \code{PerturbationData} object}
 
-\item{drop}{boolean flag if all entries should be dropped that are not
-found in every Condition}
+\item{formula}{a \code{formula} object that is used to model the readout
+of your data set. If no formula is provided, the formula
+`Readout ~ Condition + (1|GeneSymbol) +  (1|Condition:GeneSymbol)` is used. For
+other data sets with more variables, it might makes sense to use other
+fixed and random effects}
 
-\item{weights}{a list of weights}
+\item{drop}{boolean if genes that are not found in every Condition should
+be dropped}
 
-\item{rel.mat.path}{the (optional) path to a target relation matrix that is
-going to be used for}
+\item{weights}{a numeric vector used as weights for the single
+perturbations}
 
 \item{bootstrap.cnt}{the number of bootstrap runs you want to do in order
 to estimate a significance level for the gene effects}
 
-\item{ignore}{ignore siRNAs that have been seen only once per group}
-
-\item{effect.size}{the relative effect size used for hit prioritization}
+\item{effect.size}{the absolute, relative effect size used for
+hit prioritization}
 
 \item{qval.threshold}{the q-value threshold used for hit prioritization
-if bootstrap.cnt is set}
+if \code{bootstrap.cnt} is set}
 }
 \value{
-returns a \code{perturbation.hm.analysed} object
+returns a \code{HMAnalysedPerturbationData} object
 }
 \description{
 Analyse multiple different genetic perturbation screens at once

@@ -4,12 +4,18 @@
 \alias{bootstrap}
 \title{Create a bootstrap sample from a data-set}
 \usage{
-bootstrap(obj, level = c("sirna", "condition"))
+bootstrap(obj, ...)
 }
 \arguments{
 \item{obj}{the object which data should be bootstrapped}
 
-\item{level}{boostrap either on perturbatinos or on conditions}
+\item{...}{groups on which you be bootstrapped. For instance if you want to
+create a normal boostrap sample, you would ignore this argument. If you
+want to separate your data into groups and bootstrap from every group, you
+would give the name of the columns in your \code{obj} to gruop on. For
+instance, if you provide `gene` as an argument, then your data set would be
+grouped into separate `gene` groups and bootstrapping would be conducted on
+every of those groups. Afterwards genes are aggregated}
 }
 \value{
 returns an object with boostrapped data
@@ -20,4 +26,5 @@ Create a bootstrap sample from a data-set
 \examples{
   data(rnaiscreen)
   bootstrap(rnaiscreen)
+  bootstrap(rnaiscreen, "Condition", "Perturbation")
 }

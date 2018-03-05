@@ -9,10 +9,14 @@ filter(obj, ...)
 \arguments{
 \item{obj}{the object to be filtered}
 
-\item{...}{additional parameters}
+\item{...}{variable number of logical predicates in terms of the column
+names in \code{obj}. Multiple predicates will be combined with a logical
+'and'. Rows where all conditions are met will be kept. The column names do
+ not need to be quoted. Wraps around
+\code{\link{dplyr::filter}}.}
 }
 \value{
-returns an object of the same type filtered by some criterion
+returns an object of the same type filtered by some criteria
 }
 \description{
 Takes a perturbation data set and filters the rows by some
@@ -22,4 +26,6 @@ Takes a perturbation data set and filters the rows by some
 \examples{
  data(rnaiscreen)
  flt.dat <- filter(rnaiscreen, Condition=="V1")
+ flt.dat <- filter(rnaiscreen, Condition=="V1", RowIdx==1)
+
 }

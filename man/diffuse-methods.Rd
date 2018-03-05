@@ -3,37 +3,44 @@
 \docType{methods}
 \name{diffuse}
 \alias{diffuse}
-\alias{diffuse,perturbation.hm.analysed-method}
-\title{Smooth the results from an analysis using network diffusion}
+\alias{diffuse,HMAnalysedPerturbationData-method}
+\title{Network diffusion}
 \usage{
 diffuse(obj, path = NULL, graph = NULL, r = 0.5,
-  delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
+  delete.nodes.on.degree = 0, do.bootstrap = FALSE)
 
-\S4method{diffuse}{perturbation.hm.analysed}(obj, path = NULL, graph = NULL,
-  r = 0.5, delete.nodes.on.degree = 0, do.bootstrap = FALSE, ...)
+\S4method{diffuse}{HMAnalysedPerturbationData}(obj, path = NULL,
+  graph = NULL, r = 0.5, delete.nodes.on.degree = 0,
+  do.bootstrap = FALSE)
 }
 \arguments{
-\item{obj}{an analysed object}
+\item{obj}{a \code{\link{AnalysedPerturbationData}} or
+\code{\link{HMAnalysedPerturbationData}} object}
 
 \item{path}{path to the network file (if \code{graph} is \code{NULL})}
 
 \item{graph}{an weighted adjacency matrix (if \code{path} is \code{NULL})}
 
-\item{r}{restart probability of the random if method \code{mrw} is selected}
+\item{r}{restart probability of the random walk}
 
 \item{delete.nodes.on.degree}{delete nodes from the graph with a degree of
 less or equal than \code{delete.nodes.on.degree}}
 
 \item{do.bootstrap}{run a diffusion on every bootstrap sample in case
 bootstrap samples are available}
-
-\item{...}{additional parameters}
 }
 \value{
-returns a \code{perturbation.diffusion.analysed} object
+returns a \code{NetworkAnalysedPerturbationData} object
 }
 \description{
-TODO
+Propagate the estimated gene effects from a previous analysis
+ over a network using network diffusion. First the estimated effects are
+ normalized and mapped to a given genetic network, for instance a PPI or
+ co-expression network. Then the normalized effects are propagated across the
+ edges of the network using a Markov random walk with restarts.
+ By that the initial ranking of genes
+ (as given by their absolute effect sizes) is re-evaluated and the genes are
+ reordered. Thus network diffusion potentially reduced false negative hits.
 }
 \examples{
 \dontrun{

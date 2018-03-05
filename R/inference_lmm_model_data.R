@@ -50,7 +50,7 @@ setGeneric(
 setMethod(
   "setModelData",
   signature = signature(obj="PerturbationData"),
-  function(obj, drop=TRUE, ignore=1, weights=NULL)
+  function(obj, drop=TRUE, weights=NULL)
   {
     hm.mat <- dataSet(obj) %>%
       dplyr::mutate(Weight = as.double(weights)) %>%
@@ -58,15 +58,12 @@ setMethod(
       dplyr::filter(Control != 1) %>%
       dplyr::filter(!is.na(Readout))
 
-    data.table::setDT(hm.mat)[, CG := paste(Condition, GeneSymbol, sep=":")]
-
-    hm.mat$Condition     <- as.factor(hm.mat$Condition)
-    hm.mat$CG            <- as.factor(hm.mat$CG)
-    hm.mat$GeneSymbol    <- as.factor(hm.mat$GeneSymbol)
+    hm.mat$Condition  <- as.factor(hm.mat$Condition)
+    hm.mat$GeneSymbol <- as.factor(hm.mat$GeneSymbol)
 
     if (drop)
     {
-      vir.cnt <- .leuniq(hm.mat$Condition)
+      vir.cnt <- length(unique(hm.mat$Condition))
       hm.mat <- dplyr::group_by(hm.mat, GeneSymbol) %>%
         dplyr::mutate(drop=(length(unique(Condition)) != vir.cnt)) %>%
         ungroup %>%

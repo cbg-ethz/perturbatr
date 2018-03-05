@@ -3,14 +3,14 @@
 \docType{data}
 \name{rnaiscreen}
 \alias{rnaiscreen}
-\title{A sample pan-pathogenic perturbatin dataset}
-\format{A \code{perturbation.data} object containing a data.table with 18
- columns, each describing a necessary feature}
+\title{A sample pan-pathogenic perturbation dataset}
+\format{A \code{PerturbationData} object containing a data.table with 18
+ columns, each describing a feature.}
 \usage{
 data(rnaiscreen)
 }
 \description{
-Example \code{perturbation.data} data-set consisting of two-viral screen with
+Example \code{PerturbationData} object consisting of two viral screens with
  random data.
 }
 \details{
@@ -22,24 +22,32 @@ Example \code{perturbation.data} data-set consisting of two-viral screen with
     \item ColIdx  \code{integer} column index of the well on the plate
     \item GeneSymbol  \code{character} HugoSymbol of a gene
     \item Entrez  \code{integer} entrez ID
-    \item ReadoutType  \code{character} readouttype,
+    \item ReadoutType  \code{character} readout type,
       such as `GFP` or `Luciferase`
     \item Control  \code{integer} coding of controls.
       `-1` for negative control, `1` for positive control, `0` for regular
        sample
     \item Library  \code{character} library type, such as `Ambion`
-    \item siRNAIDs  \code{character} sirna identifier
+    \item Perturbation  \code{character} sirna identifier
     \item Screen  \code{character} identifier,
       for example `Kinome` or `Genome`
     \item Cell  \code{character} cell type, such as `Huh7.5`
     \item ScreenType \code{character} screen type, such as `E/R` for
        entry/replication
     \item Design  \code{character} design of the library, e.g. `pooled`
-    \item Readout  \code{numeric} readout value
+    \item Readout  \code{numeric} readout value, e.g. GFP measurement or read
+       count
     \item ReadoutClass  \code{character} class of the readout, such as
       `Readout` or `Viability`
     \item NumCells  \code{integer} number of measured cells per well
  }
+}
+\examples{
+ data(rnaiscreen)
+ rnaiscreen.normalized <- preprocess(rnaiscreen)
+ fit <- hm(rnaiscreen.normalized)
+ pls <- plot(fit)
+ pls[[1]]
 }
 \author{
 Simon Dirmeier | Computational Biology Group, ETH ZURICH |

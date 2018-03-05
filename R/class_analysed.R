@@ -49,6 +49,60 @@ setClass(
 )
 
 
+#' Data wrapper for analysed perturbation data using a hierarchical model
+#'
+#' @name HMAnalysedPerturbationData-class
+#' @rdname HMAnalysedPerturbationData-class
+#' @exportClass HMAnalysedPerturbationData
+#'
+#' @description Class \code{HMAnalysedPerturbationData} is a wrapper for
+#'  various objects of an analysis of a perturbation experiment done
+#'  using a hierarchical model.
+#'
+#' @slot geneEffects  the estimated effect sizes for genes
+#' @slot geneHits  prioritized genes
+#' @slot nestedGeneEffects  the estimated effect sizes for genes on a
+#'  viral level
+#' @slot nestedGeneHits  nested prioritized genes
+#' @slot modelFit  the fitted model
+#'
+setClass(
+  "HMAnalysedPerturbationData",
+  contains  = c("AbstractAnalysedPerturbationData"),
+  slots     = list(geneEffects       = "data.table",
+                   geneHits          = "data.table",
+                   nestedGeneEffects = "data.table",
+                   nestedGeneHits    = "data.table",
+                   modelFit          = "list"),
+  prototype = prototype(inference=inferenceTypes()$MIXED.MODEL)
+)
+
+
+#' @title Data wrapper for analysed perturbation data using network diffusion in
+#'
+#' @name NetworkAnalysedPerturbationData-class
+#' @rdname NetworkAnalysedPerturbationData-class
+#' @exportClass NetworkAnalysedPerturbationData
+#'
+#' @import igraph
+#'
+#' @description Class \code{NetworkAnalysedPerturbationData} is a wrapper for
+#'  various objects of an analysis of a perturbation experiment done
+#'  using network diffusion. See also \code{\link{diffusion}}.
+#'
+#' @slot intitial.model  the model that was provided for analysis
+#' @slot graph  an igraph object that served for the diffusion process
+setClass(
+    "NetworkAnalysedPerturbationData",
+    contains  = c("AbstractAnalysedPerturbationData", "VIRTUAL"),
+    slots     = list(initialModel = "ANY",
+                     graph        = "igraph"),
+                     prototype = prototype(
+                            inference=inferenceTypes()$MRW.DIFFUSION,
+                            isBootstrapped=FALSE)
+)
+
+
 #' @rdname dataSet-methods
 #' @aliases dataSet,AbstractAnalysedPerturbationData-method
 #' @import data.table
@@ -86,41 +140,12 @@ setMethod(
 
 
 #' @rdname geneHits-methods
-#' @aliases geneHits,AnalysedPerturbationData-method
+#' @aliases geneHits,HMAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "geneHits",
-    signature = signature(obj="AnalysedPerturbationData"),
+    signature = signature(obj="HMAnalysedPerturbationData"),
     function(obj) obj@geneHits)
-
-
-#' Data wrapper for analysed perturbation data using a hierarchical model
-#'
-#' @name HMAnalysedPerturbationData-class
-#' @rdname HMAnalysedPerturbationData-class
-#' @exportClass HMAnalysedPerturbationData
-#'
-#' @description Class \code{HMAnalysedPerturbationData} is a wrapper for
-#'  various objects of an analysis of a perturbation experiment done
-#'  using a hierarchical model.
-#'
-#' @slot geneEffects  the estimated effect sizes for genes
-#' @slot geneHits  prioritized genes
-#' @slot nestedGeneEffects  the estimated effect sizes for genes on a
-#'  viral level
-#' @slot nestedGeneHits  nested prioritized genes
-#' @slot modelFit  the fitted model
-#'
-setClass(
-  "HMAnalysedPerturbationData",
-  contains  = c("AbstractAnalysedPerturbationData"),
-  slots     = list(geneEffects       = "data.table",
-                   geneHits          = "data.table",
-                   nestedGeneEffects = "data.table",
-                   nestedGeneHits    = "data.table",
-                   modelFit          = "list"),
-  prototype = prototype(inference=inferenceTypes()$MIXED.MODEL)
-)
 
 
 #' @rdname geneEffects-methods
@@ -157,31 +182,6 @@ setMethod(
   "modelFit",
   signature = signature(obj="HMAnalysedPerturbationData"),
   function(obj) obj@modelFit)
-
-
-#' @title Data wrapper for analysed perturbation data using network diffusion in
-#'
-#' @name NetworkAnalysedPerturbationData-class
-#' @rdname NetworkAnalysedPerturbationData-class
-#' @exportClass NetworkAnalysedPerturbationData
-#'
-#' @import igraph
-#'
-#' @description Class \code{NetworkAnalysedPerturbationData} is a wrapper for
-#'  various objects of an analysis of a perturbation experiment done
-#'  using network diffusion. See also \code{\link{diffusion}}.
-#'
-#' @slot intitial.model  the model that was provided for analysis
-#' @slot graph  an igraph object that served for the diffusion process
-setClass(
-    "NetworkAnalysedPerturbationData",
-    contains  = c("AbstractAnalysedPerturbationData", "VIRTUAL"),
-    slots     = list(initialModel = "ANY",
-                     graph        = "igraph"),
-                     prototype = prototype(
-                            inference=inferenceTypes()$MRW.DIFFUSION,
-                            isBootstrapped=FALSE)
-)
 
 
 #' @rdname graph-methods

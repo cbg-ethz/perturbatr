@@ -9,10 +9,12 @@ select(obj, ...)
 \arguments{
 \item{obj}{the object of which columns should be selected}
 
-\item{...}{additional parameters}
+\item{...}{variable number of unquoted columns names from \code{obj} to
+subset from. Negative column names will be deselected. Wraps around
+\code{\link{dplyr::select}}.}
 }
 \value{
-returns a \code{data.table} with specified column
+returns a \code{tibble} with the specified columns
 }
 \description{
 Takes a perturbation data set and selects columns by some

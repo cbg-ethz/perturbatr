@@ -122,7 +122,7 @@ setGeneric("geneHits", function(obj) standardGeneric("geneHits"))
 #' @rdname geneEffects-methods
 #'
 #' @param obj  the object for which you want to extract the underlying gene
-#' @qq  returns a \code{list}.
+#' @return  returns a \code{list}.
 #'
 setGeneric("geneEffects", function(obj) standardGeneric("geneEffects"))
 
