@@ -21,8 +21,7 @@
 #' @noRd
 dataTypes <- function()
 {
-    list(RAW         = "raw",
-         NORMALIZED  = "normalized",
+    list(NORMALIZED  = "normalized",
          HM          = "hierarchical.model")
 }
 
@@ -31,8 +30,6 @@ dataTypes <- function()
 inferenceTypes <- function()
 {
   list(MIXED.MODEL         = "mixed.model",
-       HYPERGEOMETRIC.TEST = "hypergeometric.test",
-       T.TEST              = "t.test",
        MRW.DIFFUSION       = "mrw.diffusion")
 }
 

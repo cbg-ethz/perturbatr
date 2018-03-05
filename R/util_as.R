@@ -22,10 +22,10 @@
 #' @import data.table
 methods::setAs(
   "data.table",
-  "perturbation.data",
+  "PerturbationData",
   function(from)
   {
-    return(methods::new("perturbation.raw.data", .data=from))
+    return(methods::new("PerturbationData", dataSet=from))
 	}
 )
 
@@ -34,9 +34,9 @@ methods::setAs(
 #' @import data.table
 methods::setAs(
   "data.frame",
-  "perturbation.data",
+  "PerturbationData",
   function(from)
   {
-    methods::as(data.table::as.data.table(from), "perturbation.data")
+    methods::as(data.table::as.data.table(from), "PerturbationData")
   }
 )

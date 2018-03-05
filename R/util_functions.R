@@ -19,28 +19,21 @@
 
 
 #' @noRd
-.leuniq <- function(obj)
+leuniq <- function(obj)
 {
   length(unique(obj))
 }
 
 
 #' @noRd
-.check <- function(object, cols)
+check.columns <- function(object, required.cols)
 {
-  ps   <- paste(cols, collapse=", " )
+  ps   <- paste(required.cols, collapse=", " )
   coln <- colnames(object)
-  if (!all(cols %in% coln))
+  if (!all(required.cols %in% coln))
   {
     msg <- paste("Your data needs cols:", ps)
     msg <- paste(msg, "\nYou have:", paste0(coln, collapse=", "))
     stop(msg)
   }
-}
-
-#' @noRd
-check.normalized <- function(obj)
-{
-  if (dataType(obj) != .dataTypes()$NORMALIZED)
-      stop("Please preprocess your data before analysing it.")
 }

@@ -19,25 +19,23 @@
 
 
 #' @noRd
-#' @param obj  the object to calculate the effect matrices for
-#' @param ...  additional parameters
-.effect.matrices <- function(obj, ...)
+effect.matrices <- function(obj)
 {
-  UseMethod(".effect.matrices")
+  UseMethod("effect.matrices")
 }
 
 #' @noRd
-#' @method .effect.matrices perturbation.hm.analysed
+#' @method .effect.matrices HMAnalysedPerturbationData
 #' @import data.table
 #' @importFrom dplyr filter select
 #' @importFrom tidyr spread
-.effect.matrices.perturbation.hm.analysed <- function(obj, ...)
+effect.matrices.HMAnalysedPerturbationData <- function(obj)
 {
-  g <- obj@.gene.hits %>%
+  g <- geneHits(obj) %>%
     dplyr::select(GeneSymbol, Effect) %>%
     .[order(-abs(Effect))]
 
-  pg <- obj@.nested.gene.effects %>%
+  pg <- nestedGeneEffects(obj) %>%
     dplyr::select(Condition, GeneSymbol, Effect) %>%
     tidyr::spread(Condition, Effect)
 

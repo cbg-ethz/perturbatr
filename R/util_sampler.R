@@ -48,11 +48,11 @@ bootstrap <- function(obj, ...)
 #' @importFrom dplyr mutate select group_by filter group_indices
 bootstrap.data.table <- function(obj, ...)
 {
-  dat <- tibble::as.tibble(obj)
-  grps <- dplyr::group_indices(dat, Condition, ScreenType, GeneSymbol)
+  dat  <- tibble::as.tibble(obj)
+  grps <- dplyr::group_indices_(obj, .dots=lazyeval::lazy_dots(...))
   dat  <- dplyr::mutate(dat, grp=grps) %>%
-  dplyr::group_by(Condition, ScreenType, GeneSymbol) %>%
-  dplyr::mutate(cnt=n()) %>%
+    dplyr::group_by_(.dots=lazyeval::lazy_dots(...)) %>%
+    dplyr::mutate(cnt=n()) %>%
   ungroup
 
   res <- data.table::rbindlist(
@@ -61,7 +61,7 @@ bootstrap.data.table <- function(obj, ...)
     {
       grp.dat <- dplyr::filter(dat, grp==g)
       idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
-      grp.dat[idx,]
+      grp.dat[idx, ]
     }))
 
   ret <- dplyr::select(res, -cnt, -grp)
@@ -75,7 +75,7 @@ bootstrap.data.table <- function(obj, ...)
 #' @importFrom methods new
 bootstrap.PerturbationData <- function(obj, ...)
 {
-  res <- bootstrap(obj@.data, ...)
+  res <- bootstrap(dataSet(obj), ...)
   ret <- methods::new(class(obj)[1],
                       dataSet  = data.table::as.data.table(res)
                       dataType = dataType(obj))
