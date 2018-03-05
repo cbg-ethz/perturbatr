@@ -11,7 +11,7 @@ select(obj, ...)
 
 \item{...}{variable number of unquoted columns names from \code{obj} to
 subset from. Negative column names will be deselected. Wraps around
-\code{\link{dplyr::select}}.}
+\code{dplyr::select}.}
 }
 \value{
 returns a \code{tibble} with the specified columns

@@ -6,9 +6,9 @@
 \alias{setModelData,PerturbationData-method}
 \title{Create model data for an hierarchical model}
 \usage{
-setModelData(obj, drop = TRUE, weights = NULL)
+setModelData(obj, drop = TRUE, weights = 1)
 
-\S4method{setModelData}{PerturbationData}(obj, drop = TRUE, weights = NULL)
+\S4method{setModelData}{PerturbationData}(obj, drop = TRUE, weights = 1)
 }
 \arguments{
 \item{obj}{an data set}

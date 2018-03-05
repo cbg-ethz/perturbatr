@@ -9,10 +9,11 @@ bootstrap(obj, ...)
 \arguments{
 \item{obj}{the object which data should be bootstrapped}
 
-\item{...}{groups on which you be bootstrapped. For instance if you want to
+\item{...}{groups on which you be bootstrapped. If you want to
 create a normal boostrap sample, you would ignore this argument. If you
 want to separate your data into groups and bootstrap from every group, you
-would give the name of the columns in your \code{obj} to gruop on. For
+would give the unquoted name of the columns in your \code{obj} to group on.
+For
 instance, if you provide `gene` as an argument, then your data set would be
 grouped into separate `gene` groups and bootstrapping would be conducted on
 every of those groups. Afterwards genes are aggregated}
@@ -26,5 +27,5 @@ Create a bootstrap sample from a data-set
 \examples{
   data(rnaiscreen)
   bootstrap(rnaiscreen)
-  bootstrap(rnaiscreen, "Condition", "Perturbation")
+  bootstrap(rnaiscreen, Condition, Perturbation)
 }

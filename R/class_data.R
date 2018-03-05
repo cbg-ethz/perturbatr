@@ -25,7 +25,8 @@
 #' @noRd
 .requiredDataCols  <- function()
 {
-    c("Condition", "Replicate", "GeneSymbol", "Perturbation", "Readout")
+    c("Condition", "Replicate", "GeneSymbol", "Perturbation",
+       "Readout", "Control")
 }
 
 

@@ -38,7 +38,7 @@
 #'   setModelData(rnaiscreen.normalized)
 setGeneric(
   "setModelData",
-  function(obj, drop=TRUE, weights=NULL) { standardGeneric("setModelData") }
+  function(obj, drop=TRUE, weights=1) { standardGeneric("setModelData") }
 )
 
 
@@ -49,7 +49,7 @@ setGeneric(
 setMethod(
   "setModelData",
   signature = signature(obj="PerturbationData"),
-  function(obj, drop=TRUE, weights=NULL)
+  function(obj, drop=TRUE, weights=1)
   {
     hm.mat <- dataSet(obj) %>%
       dplyr::mutate(Weight = as.double(weights)) %>%

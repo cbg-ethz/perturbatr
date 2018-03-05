@@ -76,6 +76,7 @@ ge.fdrs <- function(md, ref, bootstrap.cnt)
 
 #' @noRd
 #' @importFrom assertthat assert_that
+#' @importFrom stats p.adjust
 .ge.fdrs <- function(btst.dat, cnt)
 {
   res <- dplyr::group_by(btst.dat, GeneSymbol) %>%

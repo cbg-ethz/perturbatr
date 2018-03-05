@@ -48,7 +48,7 @@ setMethod(
   {
     cat(paste0(
       "A perturbation data-set analysed using a hierachical model\n\n"))
-    gps <- nestedGeneEffects(objects) %>%
+    gps <- nestedGeneEffects(object) %>%
       dplyr::select(GeneSymbol, Condition, Effect) %>%
       tidyr::spread(Condition, Effect)
     ges <- geneEffects(object) %>%

@@ -4,12 +4,14 @@
 \alias{plot.NetworkAnalysedPerturbationData}
 \title{Plot a \code{NetworkAnalysedPerturbationData} object}
 \usage{
-\method{plot}{NetworkAnalysedPerturbationData}(x, cnt = 10)
+\method{plot}{NetworkAnalysedPerturbationData}(x, cnt = 10, ...)
 }
 \arguments{
 \item{x}{a \code{NetworkAnalysedPerturbationData} object}
 
 \item{cnt}{number of genes to be shown}
+
+\item{...}{additional parameters}
 }
 \value{
 returns a table if the first \code{cnt} highest ranked genes

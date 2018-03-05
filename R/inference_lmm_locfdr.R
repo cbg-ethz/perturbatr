@@ -71,7 +71,7 @@ nge.fdrs <- function(obj)
 #' @noRd
 #' @importFrom splines ns
 #' @importFrom utils head
-#' @importFrom stats cor
+#' @importFrom stats cor median
 #' @importFrom graphics hist
 #' @importFrom stats glm quantile poly lm approx poisson qnorm
 .localfdr <- function(zz, bre = 120, df = 7, pct = 0, pct0 = 1/4, nulltype = 1,

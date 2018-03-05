@@ -44,7 +44,7 @@ setClass(
                     isBootstrapped="logical"),
     validity = function(object)
     {
-        stopifnot(obj@inference %in% inferenceTypes())
+        stopifnot(object@inference %in% inferenceTypes())
     }
 )
 
@@ -88,9 +88,9 @@ setClass(
 #'
 #' @description Class \code{NetworkAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
-#'  using network diffusion. See also \code{\link{diffusion}}.
+#'  using network diffusion. See also \code{\link{diffuse}}.
 #'
-#' @slot intitial.model  the model that was provided for analysis
+#' @slot intitialModel  the model that was provided for analysis
 #' @slot graph  an igraph object that served for the diffusion process
 setClass(
     "NetworkAnalysedPerturbationData",

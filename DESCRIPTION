@@ -40,7 +40,8 @@ Imports:
     graphics,
     scales,
     gridExtra,
-    magrittr
+    magrittr,
+    formula.tools
 biocViews: Regression, CellBasedAssays, Network
 Suggests:
     testthat,

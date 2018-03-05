@@ -36,10 +36,11 @@
 #'
 #' @param x  a \code{NetworkAnalysedPerturbationData} object
 #' @param cnt  number of genes to be shown
+#' @param ...  additional parameters
 #'
 #' @return returns a table if the first \code{cnt} highest ranked genes
 #'
-plot.NetworkAnalysedPerturbationData <- function(x, cnt=10)
+plot.NetworkAnalysedPerturbationData <- function(x, cnt=10, ...)
 {
   tt <- gridExtra::ttheme_minimal(
     base_family="Helvetica",
@@ -48,6 +49,6 @@ plot.NetworkAnalysedPerturbationData <- function(x, cnt=10)
   dataSet(x) %>%
     .[order(-DiffusionEffect)] %>%
     .[seq(cnt)] %>%
-    as.data.frame %>%
+    as.data.frame() %>%
     gridExtra::grid.table(theme=tt)
 }

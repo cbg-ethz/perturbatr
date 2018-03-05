@@ -7,12 +7,12 @@
 \description{
 Class \code{NetworkAnalysedPerturbationData} is a wrapper for
  various objects of an analysis of a perturbation experiment done
- using network diffusion. See also \code{\link{diffusion}}.
+ using network diffusion. See also \code{\link{diffuse}}.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{intitial.model}}{the model that was provided for analysis}
+\item{\code{intitialModel}}{the model that was provided for analysis}
 
 \item{\code{graph}}{an igraph object that served for the diffusion process}
 }}

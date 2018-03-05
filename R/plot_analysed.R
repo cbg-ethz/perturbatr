@@ -93,7 +93,7 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 .plot.effect.matrices.perturbation.analysed.hm <- function(x, size, ...)
 {
 
-  effect.matrices <- .effect.matrices(x)
+  effect.matrices <- effect.matrices(x)
   ge <- effect.matrices$gene.effects %>%
     .[order(-abs(Effect))]  %>%
     .[seq(25)]
@@ -110,8 +110,8 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
     ggplot2::geom_tile(ggplot2::aes(fill = Effect), colour="black") +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +
-    ggplot2::scale_fill_gradient2(low      = .colors()$blue,
-                                  high     = .colors()$red,
+    ggplot2::scale_fill_gradient2(low      = colors()$blue,
+                                  high     = colors()$red,
                                   na.value = "white",
                                   name     = "Nested gene effect") +
     ggplot2::coord_flip() +
@@ -152,7 +152,7 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
                                   fill=factor(sign(Effect))),
                                   stat="identity") +
     ggplot2::scale_fill_manual("Trend",
-      values = c(.colors()$red, "grey", .colors()$blue),
+      values = c(colors()$red, "grey", colors()$blue),
       limits = c("1",  "0", "-1"),
       labels=c("Positive", "None", "Negative")) +
     ggplot2::scale_x_discrete(labels = rev(sort(x$GeneSymbol)),

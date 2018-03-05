@@ -22,7 +22,6 @@
 #' @include class_analysed.R
 
 
-
 #' @title Plot perturbation data
 #'
 #' @description Creates a barplot of replicate and gene counts of a
@@ -40,15 +39,13 @@
 #'
 #' @param x  the object to plot
 #' @param size  size of letters
+#' @param ...  additional parameters
 #'
 #' @return  returns a plot object
 #'
-plot.PerturbationData <- function(x, size=10)
+plot.PerturbationData <- function(x, size=10, ...)
 {
   dat <- dataSet(x)
-  if (dataType(x) == .dataTypes()$RAW && "ReadoutClass" %in% colnames(dat))
-    dat <- dplyr::filter(dat, ReadoutClass="Readout")
-
   pl <-
     dplyr::group_by(dat, Condition) %>%
     dplyr::summarize(Replicates = length(unique(Replicate)),

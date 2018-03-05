@@ -37,6 +37,7 @@
 #' @rdname hm-methods
 #'
 #' @import data.table
+#' @import formula.tools
 #'
 #' @param obj  an \code{PerturbationData} object
 #' @param formula  a \code{formula} object that is used to model the readout
@@ -91,7 +92,7 @@ setMethod(
            qval.threshold=.2)
   {
     md <- setModelData(obj, drop, weights)
-    .hm(md, formula, drop, weights, bootstrap.cnt, effect.size, qval.threshold)
+    .hm(md, as.character(formula), drop, weights, bootstrap.cnt, effect.size, qval.threshold)
   }
 )
 
@@ -99,32 +100,27 @@ setMethod(
 #' @noRd
 #' @import data.table
 #' @importFrom methods new
-.hm  <- function(
-    obj,
-    formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol),
-    drop=TRUE,
-    weights=1,
-    bootstrap.cnt=0,
-    effect.size=0.01,
-    qval.threshold=.2)
+.hm  <- function(obj, formula, drop, weights, bootstrap.cnt,
+                 effect.size, qval.threshold)
 {
-  res     <- .hm.model.data(obj, bootstrap.cnt)
+  res     <- .hm.model.data(obj, formula, bootstrap.cnt)
   priorit <- .prioritize.hm(res, effect.size, qval.threshold)
+  params  <- list(formula=formula,
+                  effect.size=effect.size,
+                  qval.threshold=qval.threshold,
+                  weights=weights,
+                  drop=drop,
+                  bootstrap.cnt=bootstrap.cnt)
 
   ret <- methods::new("HMAnalysedPerturbationData",
           geneHits = data.table::as.data.table(priorit$gene.hits),
           nestedGeneHits = data.table::as.data.table(priorit$nested.gene.hits),
           geneEffects = data.table::as.data.table(res$gene.effects),
           nestedGeneEffects = data.table::as.data.table(res$nested.gene.effects),
-          data = data.table::as.data.table(res$model.data@.data),
+          dataSet = data.table::as.data.table(res$model.data),
           modelFit = res$model,
           isBootstrapped = res$btst,
-          params = list(formula=formula,
-                        effect.size=effect.size,
-                        qval.threshold=qval.threshold,
-                        weights=weights,
-                        drop=drop,
-                        bootstrap.cnt=bootstrap.cnt))
+          params = params)
 
   ret
 }
@@ -133,7 +129,7 @@ setMethod(
 #' @noRd
 #' @import data.table
 #' @importFrom dplyr mutate full_join select group_by n pull
-.hm.model.data <- function(md, bootstrap.cnt)
+.hm.model.data <- function(md, formula, bootstrap.cnt)
 {
   if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
   {
@@ -145,11 +141,11 @@ setMethod(
     dplyr::select(md, GeneSymbol, Control) %>%
     unique() %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
-  mult.gen.cnt <- gene.control.map %>%
-                     dplyr::group_by(GeneSymbol) %>%
-                     dplyr::mutate(cnt = n()) %>%
-    dplur::pull(cnt) %>%
+  mult.gen.cnt <- dplyr::group_by(gene.control.map, GeneSymbol) %>%
+    dplyr::mutate(cnt = n()) %>%
+    dplyr::pull(cnt) %>%
     unique()
+
   if (length(mult.gen.cnt) != 1)
   {
     warning(paste("Found multiple gene-control entries for several genes,",
@@ -157,7 +153,7 @@ setMethod(
   }
 
   message("Fitting hierarchical model")
-  fit.hm   <- .hm(md, formula)
+  fit.hm   <- .hm.fit(md, formula)
   ref      <- .ranef(fit.hm)
   ge.fdrs.ef  <- ge.fdrs(md, ref, bootstrap.cnt)
   nge.fdrs.ef <- nge.fdrs(ref$nested.gene.effects)
@@ -173,8 +169,8 @@ setMethod(
   ret <- list(gene.effects        = ges,
               nested.gene.effects = nges,
               model.data          = md,
-              model = list(fit=fit.hm, ge.fdrs=ge.fdrs.ef, nge.fdrs=nge.fdrs.ef),
-              btst                = ge.fdrs$btst)
+              model = list(fit=fit.hm,ge.fdrs=ge.fdrs.ef, nge.fdrs=nge.fdrs.ef),
+              btst                = ge.fdrs.ef$btst)
   ret
 }
 
@@ -183,9 +179,11 @@ setMethod(
 #' @import data.table
 #' @importFrom lme4 lmer
 #' @importFrom stats as.formula
-.hm <- function(md, formula)
+.hm.fit <- function(md, formula)
 {
-  lme4::lmer(stats::as.formula(formula),
+  print(formula)
+  print(md)
+  lme4::lmer(as.formula(formula),
              data = md, weights = md$Weight, verbose = FALSE)
 }
 

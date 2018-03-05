@@ -33,7 +33,7 @@
 #'  names in \code{obj}. Multiple predicates will be combined with a logical
 #'  'and'. Rows where all conditions are met will be kept. The column names do
 #'   not need to be quoted. Wraps around
-#'  \code{\link{dplyr::filter}}.
+#'  \code{dplyr::filter}.
 #'
 #' @return  returns an object of the same type filtered by some criteria
 #'

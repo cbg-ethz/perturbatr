@@ -23,19 +23,21 @@
 #' @export
 #'
 #' @param obj  the object which data should be bootstrapped
-#' @param ...  groups on which you be bootstrapped. For instance if you want to
+#' @param ...  groups on which you be bootstrapped. If you want to
 #'  create a normal boostrap sample, you would ignore this argument. If you
 #'  want to separate your data into groups and bootstrap from every group, you
-#'  would give the name of the columns in your \code{obj} to gruop on. For
+#'  would give the unquoted name of the columns in your \code{obj} to group on.
+#'  For
 #'  instance, if you provide `gene` as an argument, then your data set would be
 #'  grouped into separate `gene` groups and bootstrapping would be conducted on
 #'  every of those groups. Afterwards genes are aggregated
+#'
 #' @return returns an object with boostrapped data
 #'
 #' @examples
 #'   data(rnaiscreen)
 #'   bootstrap(rnaiscreen)
-#'   bootstrap(rnaiscreen, "Condition", "Perturbation")
+#'   bootstrap(rnaiscreen, Condition, Perturbation)
 bootstrap <- function(obj, ...)
 {
     UseMethod("bootstrap")
@@ -49,10 +51,10 @@ bootstrap <- function(obj, ...)
 bootstrap.data.table <- function(obj, ...)
 {
   dat  <- tibble::as.tibble(obj)
-  grps <- dplyr::group_indices_(obj, .dots=lazyeval::lazy_dots(...))
+  grps <- dplyr::group_indices_(obj, .dots = lazyeval::lazy_dots(...))
   dat  <- dplyr::mutate(dat, grp=grps) %>%
-    dplyr::group_by_(.dots=lazyeval::lazy_dots(...)) %>%
-    dplyr::mutate(cnt=n()) %>%
+    dplyr::group_by_(.dots = lazyeval::lazy_dots(...)) %>%
+    dplyr::mutate(cnt = n()) %>%
   ungroup
 
   res <- data.table::rbindlist(
@@ -77,6 +79,6 @@ bootstrap.PerturbationData <- function(obj, ...)
 {
   res <- bootstrap(dataSet(obj), ...)
   ret <- methods::new(class(obj)[1],
-                      dataSet  = data.table::as.data.table(res))
+                      dataSet = data.table::as.data.table(res))
   ret
 }

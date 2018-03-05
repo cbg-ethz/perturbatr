@@ -4,12 +4,14 @@
 \alias{plot.PerturbationData}
 \title{Plot perturbation data}
 \usage{
-\method{plot}{PerturbationData}(x, size = 10)
+\method{plot}{PerturbationData}(x, size = 10, ...)
 }
 \arguments{
 \item{x}{the object to plot}
 
 \item{size}{size of letters}
+
+\item{...}{additional parameters}
 }
 \value{
 returns a plot object
