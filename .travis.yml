@@ -14,17 +14,9 @@ r_packages:
   - covr
   - testthat
   - lintr
-  - lme4
-  - tidyverse
   - assertthat
-  - data.table
-  - diffusr
-  - dtplyr
-  - locfdr
-  - metap
 
 bioc_packages:
-  - limma
   - BiocCheck
   - BiocStyle
 
