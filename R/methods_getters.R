@@ -29,7 +29,9 @@
 #'
 #' @param obj  the object for which you want to extract the underlying data
 #' @return  returns a \code{data.table}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  dataSet(rnaiscreen)
 setGeneric("dataSet", function(obj) standardGeneric("dataSet"))
 
 
@@ -45,7 +47,10 @@ setGeneric("dataSet", function(obj) standardGeneric("dataSet"))
 #'
 #' @param obj  the object for which you want to extract the underlying params
 #' @return  returns a \code{list}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  params(ft)
 setGeneric("params", function(obj) standardGeneric("params"))
 
 
@@ -61,7 +66,10 @@ setGeneric("params", function(obj) standardGeneric("params"))
 #'
 #' @param obj  the object for which you want to extract the underlying inference
 #' @return  returns a \code{character}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  inference(ft)
 setGeneric("inference", function(obj) standardGeneric("inference"))
 
 
@@ -76,7 +84,10 @@ setGeneric("inference", function(obj) standardGeneric("inference"))
 #'
 #' @param obj  the object for which you want to extract the boolean
 #' @return  returns a \code{boolean}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  isBootstrapped(ft)
 setGeneric("isBootstrapped", function(obj) standardGeneric("isBootstrapped"))
 
 
@@ -121,7 +132,10 @@ setGeneric("geneEffects", function(obj) standardGeneric("geneEffects"))
 #'
 #' @param obj  the object for which you want to extract the underlying effects
 #' @return  returns a \code{data.table}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  nestedGeneEffects(ft)
 setGeneric(
     "nestedGeneEffects", function(obj) standardGeneric("nestedGeneEffects"))
 
@@ -137,7 +151,10 @@ setGeneric(
 #'
 #' @param obj  the object for which you want to extract the underlying gene hits
 #' @return  returns a \code{data.table}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  nestedGeneHits(ft)
 setGeneric("nestedGeneHits", function(obj) standardGeneric("nestedGeneHits"))
 
 
@@ -152,7 +169,10 @@ setGeneric("nestedGeneHits", function(obj) standardGeneric("nestedGeneHits"))
 #'
 #' @param obj  the object for which you want to extract the underlying fit
 #' @return  returns a \code{list}
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  modelFit(ft)
 setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 
 
@@ -167,5 +187,12 @@ setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 #'
 #' @param obj  the object for which you want to extract the underlying graph
 #' @return  returns a \code{igraph} object
-#'
+#' @examples
+#'  \dontrun{
+#'   data(rnaiscreen)
+#'   graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
+#'   ft <- hm(rnaiscreen)
+#'   diffu <- diffuse(ft, path=graph.file, r=0.1)
+#'   graph(diffu)
+#'  }
 setGeneric("graph", function(obj) standardGeneric("graph"))

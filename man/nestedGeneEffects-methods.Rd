@@ -20,3 +20,8 @@ returns a \code{data.table}.
 Returns a \code{data.table} containing the list of nested genes
  effects, i.e. a table of nested cluster effects.
 }
+\examples{
+ data(rnaiscreen)
+ ft <- hm(rnaiscreen)
+ nestedGeneEffects(ft)
+}

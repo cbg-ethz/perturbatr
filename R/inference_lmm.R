@@ -181,8 +181,6 @@ setMethod(
 #' @importFrom stats as.formula
 .hm.fit <- function(md, formula)
 {
-  print(formula)
-  print(md)
   lme4::lmer(as.formula(formula),
              data = md, weights = md$Weight, verbose = FALSE)
 }

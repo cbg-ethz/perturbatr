@@ -14,8 +14,7 @@ diffuse(obj, path = NULL, graph = NULL, r = 0.5,
   do.bootstrap = FALSE)
 }
 \arguments{
-\item{obj}{a \code{\link{AnalysedPerturbationData}} or
-\code{\link{HMAnalysedPerturbationData}} object}
+\item{obj}{\code{\link{HMAnalysedPerturbationData}} object}
 
 \item{path}{path to the network file (if \code{graph} is \code{NULL})}
 

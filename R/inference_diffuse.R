@@ -40,8 +40,7 @@
 #'
 #' @import data.table
 #'
-#' @param obj  a \code{\link{AnalysedPerturbationData}} or
-#'   \code{\link{HMAnalysedPerturbationData}} object
+#' @param obj  \code{\link{HMAnalysedPerturbationData}} object
 #' @param path   path to the network file (if \code{graph} is \code{NULL})
 #' @param graph  an weighted adjacency matrix (if \code{path} is \code{NULL})
 #' @param r  restart probability of the random walk

@@ -26,7 +26,7 @@ methods::setAs(
   function(from)
   {
     return(methods::new("PerturbationData", dataSet=from))
-	}
+  }
 )
 
 #' @noRd

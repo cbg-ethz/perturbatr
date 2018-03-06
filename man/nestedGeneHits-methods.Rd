@@ -20,3 +20,8 @@ returns a \code{data.table}.
 Returns a \code{data.table} containing the genes that have been
  identified as essential genes in a perturbation screen.
 }
+\examples{
+ data(rnaiscreen)
+ ft <- hm(rnaiscreen)
+ nestedGeneHits(ft)
+}

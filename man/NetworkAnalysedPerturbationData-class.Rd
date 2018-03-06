@@ -3,7 +3,7 @@
 \docType{class}
 \name{NetworkAnalysedPerturbationData-class}
 \alias{NetworkAnalysedPerturbationData-class}
-\title{Data wrapper for analysed perturbation data using network diffusion in}
+\title{Data wrapper for analysed perturbation data using network diffusion}
 \description{
 Class \code{NetworkAnalysedPerturbationData} is a wrapper for
  various objects of an analysis of a perturbation experiment done

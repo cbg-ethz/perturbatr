@@ -20,3 +20,12 @@ returns a \code{igraph} object
 Returns the graph that has been used for analysis using network
  diffusion.
 }
+\examples{
+ \dontrun{
+  data(rnaiscreen)
+  graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
+  ft <- hm(rnaiscreen)
+  diffu <- diffuse(ft, path=graph.file, r=0.1)
+  graph(diffu)
+ }
+}

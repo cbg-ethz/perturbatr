@@ -20,3 +20,8 @@ returns a \code{list}
 Returns the mixed effects model fit from the analysis using a
  hierarchical model.
 }
+\examples{
+ data(rnaiscreen)
+ ft <- hm(rnaiscreen)
+ modelFit(ft)
+}

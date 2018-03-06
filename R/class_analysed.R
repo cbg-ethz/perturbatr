@@ -78,7 +78,7 @@ setClass(
 )
 
 
-#' @title Data wrapper for analysed perturbation data using network diffusion in
+#' @title Data wrapper for analysed perturbation data using network diffusion
 #'
 #' @name NetworkAnalysedPerturbationData-class
 #' @rdname NetworkAnalysedPerturbationData-class

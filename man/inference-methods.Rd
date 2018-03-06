@@ -21,3 +21,8 @@ Returns the inference used in the analysis of a perturbation
  analysis. This can for instance be a standard t-test or a hierarchical
  model.
 }
+\examples{
+ data(rnaiscreen)
+ ft <- hm(rnaiscreen)
+ inference(ft)
+}

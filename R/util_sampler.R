@@ -61,7 +61,7 @@ bootstrap.data.table <- function(obj, ...)
     lapply(unique(dat$grp),
     function (g)
     {
-      grp.dat <- dplyr::filter(dat, grp==g)
+      grp.dat <- dplyr::filter(dat, grp == g)
       idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
       grp.dat[idx, ]
     }))

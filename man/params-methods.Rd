@@ -21,3 +21,8 @@ Returns the parameters used in the analysis of a perturbation
  analysis. Parameters are for instance the significance level, the effect
  size or restart probability of a random walk.
 }
+\examples{
+ data(rnaiscreen)
+ ft <- hm(rnaiscreen)
+ params(ft)
+}

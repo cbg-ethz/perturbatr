@@ -20,3 +20,8 @@ returns a \code{boolean}.
 Returns a boolean if for the analysed object bootstrapping was
  used to create confidence intervals.
 }
+\examples{
+ data(rnaiscreen)
+ ft <- hm(rnaiscreen)
+ isBootstrapped(ft)
+}

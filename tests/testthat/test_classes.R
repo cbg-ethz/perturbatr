@@ -22,7 +22,6 @@ context("clazz")
 
 data(rnaiscreen)
 test.dat <- dataSet(rnaiscreen) %>%
-  dplyr::filter(Condition == "V1") %>%
   dplyr::select(Condition, Replicate, Plate, RowIdx, ColIdx,
                 GeneSymbol, Readout, Control, Perturbation) %>%
   as.data.frame

@@ -28,23 +28,23 @@ ft <- hm(rnaiscreen, effect.size=0.01)
 testthat::test_that("read graph returns igraph object", {
   fl <- system.file("extdata", "graph_file.tsv", package="perturbatr")
   gr <- perturbatr:::read.graph(path=fl, graph=NULL)
-  testthat::expect_true(class(gr) == "igraph")
+  testthat::expect_true(class(gr)[1] == "igraph")
 })
 
 
 testthat::test_that("check columns does its job", {
-  testthat::expect_silent(check.columns(rnaiscreen, "Condition"))
+  testthat::expect_silent(check.columns(rnaiscreen@dataSet, "Condition"))
 })
 
 
 testthat::test_that("check columns throws on wrong cols", {
-  testthat::expect_error(check.columns(rnaiscreen, "wrong col"))
+  testthat::expect_error(check.columns(rnaiscreen@dataSet, "wrong col"))
 })
 
 
 testthat::test_that("effect matrixes returns correct", {
   ef <- effect.matrices(ft)
   testthat::expect_true(class(ef) == "list")
-  testthat::expect_true(class(ef$gene.effects) == "data.table")
-  testthat::expect_true(class(ef$nested.gene.effects) == "data.table")
+  testthat::expect_true(class(ef$gene.effects)[1] == "data.table")
+  testthat::expect_true(class(ef$nested.gene.effects)[1] == "data.table")
 })

@@ -26,8 +26,9 @@ ft <- hm(rnaiscreen, effect.size=0.01)
 
 
 testthat::test_that("dataSet for PerturbationData has correct columns", {
-  testthat::expect_true(all(sorted(colnames(dataSet(rnaiscreen))) %in%
-                            sorted(perturbatr:::.requiredDataCols())))
+  tr <- sort(perturbatr:::.requiredDataCols()) %in%
+        sort(colnames(dataSet(rnaiscreen)))
+  testthat::expect_true(all(tr))
 })
 
 

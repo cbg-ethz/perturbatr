@@ -24,3 +24,7 @@ returns a \code{data.table}.
 Returns the data set that underlies an S4 wrapper class
  as \code{data.table}.
 }
+\examples{
+ data(rnaiscreen)
+ dataSet(rnaiscreen)
+}
