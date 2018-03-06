@@ -96,7 +96,6 @@ mrw <- function(hits,
     boot.g <- data.table::as.data.table(
       tidyr::gather(bootstrap.hits, Boot, Effect, -GeneSymbol))
 
-
     doParallel::registerDoParallel(
       ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),
              max(1, parallel::detectCores() - 1), 1L))

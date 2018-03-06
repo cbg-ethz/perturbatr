@@ -191,7 +191,7 @@ setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 #'  \dontrun{
 #'   data(rnaiscreen)
 #'   graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
-#'   ft <- hm(rnaiscreen)
+#'   ft <- hm(rnaiscreen, effect.size=0.01)
 #'   diffu <- diffuse(ft, path=graph.file, r=0.1)
 #'   graph(diffu)
 #'  }
