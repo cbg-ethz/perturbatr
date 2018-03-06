@@ -5,7 +5,7 @@
 \alias{hm}
 \alias{hm,PerturbationData-method}
 \title{Jointly analyse multiple genetic perturbation screens using a
- hierchical model}
+ hierarchical model}
 \usage{
 hm(obj, formula = Readout ~ Condition + (1 | GeneSymbol) + (1 |
   Condition:GeneSymbol), drop = TRUE, weights = 1, bootstrap.cnt = 0,

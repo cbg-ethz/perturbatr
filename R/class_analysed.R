@@ -59,10 +59,11 @@ setClass(
 #'
 #' @description Class \code{HMAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
-#'  using a hierarchical model. \code{HMAnalysedPerturbationData} exposes
-#'  getters for its members of the same name.
-#'  However, we do not provide setters, because the data should be treated as
-#'  constant once set. \code{HMAnalysedPerturbationData} do not need to be
+#'  using a hierarchical model. Class \code{HMAnalysedPerturbationData} exposes
+#'  getters for its members of the same name, but no setters, because the data
+#'  should be treated as
+#'  constant once set. Objects of class \code{HMAnalysedPerturbationData}
+#'  do not need to be
 #'  constructed manually but are returned from calling \code{\link{hm}} (see
 #'  the examples).
 #'
@@ -98,11 +99,11 @@ setClass(
 #'
 #' @description Class \code{NetworkAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
-#'  using network diffusion. See also \code{\link{diffuse}}.
-#'  \code{NetworkAnalysedPerturbationData} exposes
-#'  getters for its members of the same name.
-#'  However, we do not provide setters, because the data should be treated as
-#'  constant once set. \code{NetworkAnalysedPerturbationData} do not need to be
+#'  using network diffusion. Class \code{NetworkAnalysedPerturbationData}
+#' exposes getters for its members of the same name,
+#'  but no setters, because the data should be treated as
+#'  constant once set. Objects of class \code{NetworkAnalysedPerturbationData}
+#'  do not need to be
 #'  constructed manually but are returned from calling \code{\link{diffuse}}
 #'  (see the examples).
 #'

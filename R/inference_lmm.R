@@ -24,7 +24,7 @@
 
 
 #' @title Jointly analyse multiple genetic perturbation screens using a
-#'  hierchical model
+#'  hierarchical model
 #'
 #' @description Analyse multiple different genetic perturbation screens at once
 #'  using a hierarchical model. The model estimates general relative effect
