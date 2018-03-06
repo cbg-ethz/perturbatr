@@ -42,8 +42,8 @@
 #' @param obj  an \code{PerturbationData} object
 #' @param formula  a \code{formula} object that is used to model the readout
 #'  of your data set. If no formula is provided, the formula
-#'  `Readout ~ Condition + (1|GeneSymbol) +  (1|Condition:GeneSymbol)` is used. For
-#'  other data sets with more variables, it might makes sense to use other
+#'  `Readout ~ Condition + (1|GeneSymbol) +  (1|Condition:GeneSymbol)` is used.
+#' For other data sets with more variables, it might makes sense to use other
 #'  fixed and random effects
 #' @param drop  boolean if genes that are not found in every Condition should
 #'  be dropped
@@ -60,8 +60,7 @@
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
-#'  res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
+#'  res <- hm(rnaiscreen, effect.size=0.01)
 setGeneric(
   "hm",
   function(obj,
@@ -92,7 +91,8 @@ setMethod(
            qval.threshold=.2)
   {
     md <- setModelData(obj, drop, weights)
-    .hm(md, as.character(formula), drop, weights, bootstrap.cnt, effect.size, qval.threshold)
+    .hm(md, as.character(formula), drop, weights,
+        bootstrap.cnt, effect.size, qval.threshold)
   }
 )
 
@@ -116,7 +116,8 @@ setMethod(
           geneHits = data.table::as.data.table(priorit$gene.hits),
           nestedGeneHits = data.table::as.data.table(priorit$nested.gene.hits),
           geneEffects = data.table::as.data.table(res$gene.effects),
-          nestedGeneEffects = data.table::as.data.table(res$nested.gene.effects),
+          nestedGeneEffects = data.table::as.data.table(
+            res$nested.gene.effects),
           dataSet = data.table::as.data.table(res$model.data),
           modelFit = res$model,
           isBootstrapped = res$btst,
@@ -227,7 +228,6 @@ setMethod(
   nge <- obj$nested.gene.effects %>%
     dplyr::filter(abs(Effect) >= eft, Qval <= fdrt) %>%
     dplyr::arrange(-abs(Effect))
-
 
   list(gene.hits=ge, nested.gene.hits=nge)
 }

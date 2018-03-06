@@ -25,6 +25,7 @@
 #' @noRd
 #' @import data.table
 #' @importFrom diffusr random.walk
+#' @importFrom methods new
 mrw <- function(hits,
                 mod,
                 bootstrap.hits,
@@ -48,12 +49,13 @@ mrw <- function(hits,
                                          by="GeneSymbol")
     }
 
-    ret <- new("NetworkAnalysedPerturbationData",
+    ret <- methods::new("NetworkAnalysedPerturbationData",
              graph           = graph,
              params          = list(
                restart.probability     = r,
                delete.nodes.on.degree = delete.nodes.on.degree),
-             dataSet        = data.table::as.data.table(res),
+             dataSet        = hits,
+             geneEffects    = res,
              isBootstrapped = is.boot)
 
     ret

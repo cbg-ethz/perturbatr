@@ -23,6 +23,7 @@
 #' Statistical analysis of high-throughput genetic perturbation screens
 #'
 #' @import dtplyr
+#' @import magrittr
 #'
 #' @author Simon Dirmeier | Computational Biology Group,
 #'  ETH ZURICH | \email{simon.dirmeier@@web.de}

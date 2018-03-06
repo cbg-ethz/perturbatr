@@ -3,12 +3,12 @@
 \docType{methods}
 \name{geneEffects}
 \alias{geneEffects}
-\alias{geneEffects,HMAnalysedPerturbationData-method}
+\alias{geneEffects,AbstractAnalysedPerturbationData-method}
 \title{Getter for the complete list of genes and their effect sizes}
 \usage{
 geneEffects(obj)
 
-\S4method{geneEffects}{HMAnalysedPerturbationData}(obj)
+\S4method{geneEffects}{AbstractAnalysedPerturbationData}(obj)
 }
 \arguments{
 \item{obj}{the object for which you want to extract the underlying gene}
@@ -19,4 +19,9 @@ returns a \code{list}.
 \description{
 Returns a \code{data.table} containing the list of genes that
 have been used in the study along with their estimated effect sizes.
+}
+\examples{
+ data(rnaiscreen)
+ ft <- hm(rnaiscreen)
+ geneEffects(ft)
 }

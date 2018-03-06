@@ -64,8 +64,7 @@
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  rnaiscreen.normalized <- preprocess(rnaiscreen)
-#'  fit <- hm(rnaiscreen.normalized)
+#'  fit <- hm(rnaiscreen)
 #'  pls <- plot(fit)
 #'  pls[[1]]
 NA

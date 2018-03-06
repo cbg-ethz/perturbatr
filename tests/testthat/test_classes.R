@@ -30,7 +30,7 @@ dat <- methods::as(test.dat, "PerturbationData")
 dat.lmm <- hm(dat, effect.size=0.01)
 
 
-testthat::test_that("raw object has correct class", {
+testthat::test_that("data object has correct class", {
   dat  <- data.table(A=rnorm(10))
   dat2 <- data.frame(Condition=rnorm(10), Replicate=1, GeneSymbol="A")
   testthat::expect_error(methods::as(dat, "PerturbationData"))

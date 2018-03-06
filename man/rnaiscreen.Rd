@@ -44,8 +44,7 @@ Example \code{PerturbationData} object consisting of two viral screens with
 }
 \examples{
  data(rnaiscreen)
- rnaiscreen.normalized <- preprocess(rnaiscreen)
- fit <- hm(rnaiscreen.normalized)
+ fit <- hm(rnaiscreen)
  pls <- plot(fit)
  pls[[1]]
 }

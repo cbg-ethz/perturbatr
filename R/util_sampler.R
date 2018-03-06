@@ -47,15 +47,15 @@ bootstrap <- function(obj, ...)
 #' @method bootstrap data.table
 #' @import data.table
 #' @importFrom tibble as.tibble
-#' @importFrom dplyr mutate select group_by filter group_indices
+#' @importFrom dplyr mutate select group_by filter group_indices n ungroup
 bootstrap.data.table <- function(obj, ...)
 {
   dat  <- tibble::as.tibble(obj)
-  grps <- dplyr::group_indices_(obj, .dots = lazyeval::lazy_dots(...))
-  dat  <- dplyr::mutate(dat, grp=grps) %>%
+  dat  <- dplyr::group_by_(dat, .dots = lazyeval::lazy_dots(...)) %>%
+    { dplyr::mutate(dplyr::ungroup(.), grp = dplyr::group_indices(.)) } %>%
     dplyr::group_by_(.dots = lazyeval::lazy_dots(...)) %>%
     dplyr::mutate(cnt = n()) %>%
-  ungroup
+    dplyr::ungroup()
 
   res <- data.table::rbindlist(
     lapply(unique(dat$grp),

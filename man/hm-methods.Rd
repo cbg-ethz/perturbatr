@@ -19,10 +19,10 @@ hm(obj, formula = Readout ~ Condition + (1 | GeneSymbol) + (1 |
 \item{obj}{an \code{PerturbationData} object}
 
 \item{formula}{a \code{formula} object that is used to model the readout
-of your data set. If no formula is provided, the formula
-`Readout ~ Condition + (1|GeneSymbol) +  (1|Condition:GeneSymbol)` is used. For
-other data sets with more variables, it might makes sense to use other
-fixed and random effects}
+ of your data set. If no formula is provided, the formula
+ `Readout ~ Condition + (1|GeneSymbol) +  (1|Condition:GeneSymbol)` is used.
+For other data sets with more variables, it might makes sense to use other
+ fixed and random effects}
 
 \item{drop}{boolean if genes that are not found in every Condition should
 be dropped}
@@ -51,6 +51,5 @@ Analyse multiple different genetic perturbation screens at once
 }
 \examples{
  data(rnaiscreen)
- rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
- res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
+ res <- hm(rnaiscreen, effect.size=0.01)
 }

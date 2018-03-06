@@ -40,7 +40,7 @@
 #'
 #' @import data.table
 #'
-#' @param obj  \code{\link{HMAnalysedPerturbationData}} object
+#' @param obj  \code{HMAnalysedPerturbationData} object
 #' @param path   path to the network file (if \code{graph} is \code{NULL})
 #' @param graph  an weighted adjacency matrix (if \code{path} is \code{NULL})
 #' @param r  restart probability of the random walk
@@ -52,13 +52,12 @@
 #' @return returns a \code{NetworkAnalysedPerturbationData} object
 #'
 #' @examples
-#' \dontrun{
 #'  data(rnaiscreen)
 #'  res        <- hm(rnaiscreen, effect.size=0.01)
 #'  graph.file <- system.file("extdata", "graph_file.tsv",
 #'                             package = "perturbatr")
 #'  diffu      <- diffuse(res, path=graph.file, r=0.1)
-#' }
+#'
 setGeneric(
     "diffuse",
     function(obj,
@@ -87,7 +86,7 @@ setMethod(
              delete.nodes.on.degree=0,
              do.bootstrap=FALSE)
     {
-        hits <- dplyr::select(obj@.gene.hits, GeneSymbol, Effect) %>%
+        hits <- dplyr::select(geneHits(obj), GeneSymbol, Effect) %>%
             dplyr::mutate(Effect = abs(Effect))
         if (nrow(hits) == 0)
             stop("Your prior analysis did not yield hits for genes")
@@ -95,7 +94,7 @@ setMethod(
         bootstrap.hits <- NULL
         if (isBootstrapped(obj))
         {
-            bootstrap.hits <- obj@.model.fit$ge.fdrs$ret %>%
+            bootstrap.hits <- modelFit(obj)$ge.fdrs$ret %>%
               dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
               dplyr::select(-Mean, -Pval, -Qval, -Lower, -Upper)
         }
@@ -144,7 +143,7 @@ setMethod(
 #' @import igraph
 .get.graph <- function(path, graph, delete.nodes.on.degree)
 {
-    graph <- .read.graph(path=path, graph=graph)
+    graph <- read.graph(path=path, graph=graph)
     if (igraph::is.directed(graph))
       stop("Please provide an undirected graph")
     # get connected components
@@ -152,7 +151,8 @@ setMethod(
     if (length(comps$csize) > 1)
       message("Only taking largest connected component to ensure ergodicity.")
     # get the genes that are not in the largest component
-    non.max.comp.genes <- names(which(comps$membership != which.max(comps$csize)))
+    non.max.comp.genes <- names(
+      which(comps$membership != which.max(comps$csize)))
     # remove the genes that are not in the largest component
     # this is needed to ensure ergocity
     graph <- igraph::delete.vertices(graph, non.max.comp.genes)

@@ -102,7 +102,10 @@ setGeneric("isBootstrapped", function(obj) standardGeneric("isBootstrapped"))
 #'
 #' @param obj  the object for which you want to extract the underlying gene hits
 #' @return  returns a \code{data.table}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  geneHits(ft)
 setGeneric("geneHits", function(obj) standardGeneric("geneHits"))
 
 
@@ -117,7 +120,10 @@ setGeneric("geneHits", function(obj) standardGeneric("geneHits"))
 #'
 #' @param obj  the object for which you want to extract the underlying gene
 #' @return  returns a \code{list}.
-#'
+#' @examples
+#'  data(rnaiscreen)
+#'  ft <- hm(rnaiscreen)
+#'  geneEffects(ft)
 setGeneric("geneEffects", function(obj) standardGeneric("geneEffects"))
 
 
@@ -190,7 +196,8 @@ setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 #' @examples
 #'  \dontrun{
 #'   data(rnaiscreen)
-#'   graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
+#'   graph.file <- system.file("extdata", "graph_file.tsv",
+#'                             package = "perturbatr")
 #'   ft <- hm(rnaiscreen, effect.size=0.01)
 #'   diffu <- diffuse(ft, path=graph.file, r=0.1)
 #'   graph(diffu)

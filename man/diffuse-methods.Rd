@@ -14,7 +14,7 @@ diffuse(obj, path = NULL, graph = NULL, r = 0.5,
   do.bootstrap = FALSE)
 }
 \arguments{
-\item{obj}{\code{\link{HMAnalysedPerturbationData}} object}
+\item{obj}{\code{HMAnalysedPerturbationData} object}
 
 \item{path}{path to the network file (if \code{graph} is \code{NULL})}
 
@@ -42,12 +42,10 @@ Propagate the estimated gene effects from a previous analysis
  reordered. Thus network diffusion potentially reduced false negative hits.
 }
 \examples{
-\dontrun{
  data(rnaiscreen)
- rnaiscreen.normalized <- preprocess(rnaiscreen, normalize="robust-z.score")
- res                   <- hm(rnaiscreen.normalized, effect.size=0.01)
+ res        <- hm(rnaiscreen, effect.size=0.01)
  graph.file <- system.file("extdata", "graph_file.tsv",
                             package = "perturbatr")
  diffu      <- diffuse(res, path=graph.file, r=0.1)
-}
+
 }

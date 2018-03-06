@@ -8,11 +8,15 @@
 Class \code{NetworkAnalysedPerturbationData} is a wrapper for
  various objects of an analysis of a perturbation experiment done
  using network diffusion. See also \code{\link{diffuse}}.
+ \code{NetworkAnalysedPerturbationData} exposes
+ getters for its members of the same name.
+ However, we do not provide setters, because the data should be treated as
+ constant once set.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{intitialModel}}{the model that was provided for analysis}
+\item{\code{initialModel}}{the model that was provided for analysis}
 
 \item{\code{graph}}{an igraph object that served for the diffusion process}
 }}

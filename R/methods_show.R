@@ -30,7 +30,7 @@ setMethod(
   function(object)
   {
     cat("A perturbation data set\n\n")
-    dataSet(object)[ ,.SD[sample(.N, 2)], by="Condition"] %>%
+    dataSet(object)[ ,.SD[sample(.N, min(.N, 2))], by="Condition"] %>%
       dplyr::select(Condition, GeneSymbol, Readout) %>%
       print
   }

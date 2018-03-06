@@ -7,13 +7,14 @@
 \description{
 Class \code{HMAnalysedPerturbationData} is a wrapper for
  various objects of an analysis of a perturbation experiment done
- using a hierarchical model.
+ using a hierarchical model. \code{HMAnalysedPerturbationData} exposes
+ getters for its members of the same name.
+ However, we do not provide setters, because the data should be treated as
+ constant once set.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{geneEffects}}{the estimated effect sizes for genes}
-
 \item{\code{geneHits}}{prioritized genes}
 
 \item{\code{nestedGeneEffects}}{the estimated effect sizes for genes on a

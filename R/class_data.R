@@ -34,12 +34,23 @@
 #'
 #' @description Class \code{PerturbationData} wraps a data set derived
 #'  from a genetic perturbation screen, e.g. using RNA interference or CRISPR.
+#'  \code{PerturbationData} exposes getters for its members of the same name.
+#'  However, we do not provide setters, because the data should be treated as
+#'  constant once set.
 #'
 #' @name PerturbationData-class
 #' @rdname PerturbationData-class
 #' @exportClass PerturbationData
 #'
 #' @slot dataSet  the data set as a \code{data.table} object
+#' @examples
+#'   df <- data.frame(Condition    = c("V1", "V2", "V3"),
+#'                    Replicate    = c(1, 1, 1),
+#'                    GeneSymbol   = c("TP52", "NegCtrl", "PosCtrl"),
+#'                    Perturbation = c("P1", "P2", "P3"),
+#'                    Readout      = c(123, 121, 12),
+#'                    Control      = c(0, -1, 1))
+#'   methods::as(df, "PerturbationData")
 #'
 setClass(
     "PerturbationData",

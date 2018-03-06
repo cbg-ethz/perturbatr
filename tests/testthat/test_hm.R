@@ -25,23 +25,6 @@ data(rnaiscreen)
 hm.fit  <- hm(rnaiscreen, effect.size=0.01, qval.threshold=1)
 
 
-testthat::test_that("hm has correct inference", {
-  testthat::expect_equal(inference(hm.fit),
-                         perturbatr:::inferenceTypes()$MIXED.MODEL)
-})
-
-
-testthat::test_that("hm has correct inference", {
-  testthat::expect_equal(inference(hm.fit),
-                         perturbatr:::inferenceTypes()$MIXED.MODEL)
-})
-
-
-testthat::test_that("hm has not been bootstrapped", {
-  testthat::expect_false(isBootstrapped(hm.fit))
-})
-
-
 testthat::test_that("hm uses qval threshold of 1", {
   testthat::expect_equal(params(hm.fit)$qval.threshold, 1)
 })
@@ -51,9 +34,59 @@ testthat::test_that("hm uses effect size threshold of .01", {
   testthat::expect_equal(params(hm.fit)$effect.size, .01, tolerance=0.001)
 })
 
+
 testthat::test_that("hm has correct inference", {
   fit  <- hm(rnaiscreen, effect.size=0.01, qval.threshold=1,
              formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol) +
                                 (1|ScreenType)+(1|Condition:ScreenType))
-  testthat::expect_silent(1)
+  pars <- params(fit)$formula
+  print(pars)
+  testthat::expect_true(is.character(pars))
+  testthat::expect_true(pars == "Readout ~ Condition + (1 | GeneSymbol) + (1 | Condition:GeneSymbol) + (1 | ScreenType) + (1 | Condition:ScreenType)")
+})
+
+
+testthat::test_that("hm object returns params", {
+  testthat::expect_true(class(params(hm.fit))[1] == "list")
+})
+
+
+testthat::test_that("hm object returns modelfit", {
+  testthat::expect_true(class(modelFit(hm.fit))[1] == "list")
+})
+
+
+testthat::test_that("hm object returns data", {
+  testthat::expect_true(class(dataSet(hm.fit))[1] == "data.table")
+})
+
+
+testthat::test_that("hm object returns gene effects", {
+  testthat::expect_true(class(geneEffects(hm.fit))[1] == "data.table")
+})
+
+
+testthat::test_that("hm object returns gene hits", {
+  testthat::expect_true(class(geneHits(hm.fit))[1] == "data.table")
+})
+
+
+testthat::test_that("hm object returns nested gene effects", {
+  testthat::expect_true(class(nestedGeneEffects(hm.fit))[1] == "data.table")
+})
+
+
+testthat::test_that("hm object returns nested gene hits", {
+  testthat::expect_true(class(nestedGeneHits(hm.fit))[1] == "data.table")
+})
+
+
+testthat::test_that("hm object returns bootstrapping boolean", {
+  testthat::expect_false(isBootstrapped(hm.fit))
+})
+
+
+testthat::test_that("hm object returns inference", {
+  testthat::expect_true(inference(hm.fit) ==
+                        perturbatr:::inferenceTypes()$MIXED.MODEL)
 })

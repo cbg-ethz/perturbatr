@@ -32,10 +32,7 @@
 #'  perturbations
 #'
 #' @return  returns an \code{PerturbationData} object
-#' @examples
-#'   data(rnaiscreen)
-#'   rnaiscreen.normalized <- preprocess(rnaiscreen)
-#'   setModelData(rnaiscreen.normalized)
+#'
 setGeneric(
   "setModelData",
   function(obj, drop=TRUE, weights=1) { standardGeneric("setModelData") }

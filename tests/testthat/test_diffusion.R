@@ -23,17 +23,35 @@ context("diffusion")
 
 data(rnaiscreen)
 hm.fit  <- hm(rnaiscreen, effect.size=0.01, qval.threshold=1)
+graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
+res <- diffuse(hm.fit, path=graph.file, r=0.1)
 
-testthat::test_that("diffusion runs smoothly", {
-  graph.file <- system.file("extdata", "graph_file.tsv",
-                            package = "perturbatr")
-  testthat::expect_silent(diffuse(hm.fit, path=graph.file, r=0.1))
+testthat::test_that("diffusion object returns graph", {
+  testthat::expect_true(class(graph(res))[1] == "igraph")
 })
 
-testthat::test_that("diffusion runs smoothly", {
-  graph.file <- system.file("extdata", "graph_file.tsv",
-                            package = "perturbatr")
-  res <- diffuse(hm.fit, path=graph.file, r=0.1)
-  testthat::expect_true(class(graph(res))[1] == "igraph")
-  testthat::expect_true(class(graph(res))[1] == "igraph")
+
+testthat::test_that("diffusion object returns params", {
+  testthat::expect_true(class(params(res))[1] == "list")
+})
+
+
+testthat::test_that("diffusion object returns data", {
+  testthat::expect_true(class(dataSet(res))[1] == "data.table")
+})
+
+
+testthat::test_that("diffusion object returns gene effects", {
+  testthat::expect_true(class(geneEffects(res))[1] == "data.table")
+})
+
+
+testthat::test_that("diffusion object returns bootstrapping boolean", {
+  testthat::expect_false(isBootstrapped(res))
+})
+
+
+testthat::test_that("diffusion object returns inference", {
+  testthat::expect_true(inference(res) ==
+                        perturbatr:::inferenceTypes()$ MRW.DIFFUSION)
 })

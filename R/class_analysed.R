@@ -31,6 +31,7 @@ setOldClass("igraph")
 #' @noRd
 #'
 #' @slot dataSet  the perturbation data-set
+#' @slot geneEffects  the estimated effect sizes for genes
 #' @slot inference  the method for inferenced that has been used
 #' @slot isBootstrapped  boolean whether bootstrap intervals have been
 #' @slot params  list of some used parameters
@@ -38,10 +39,11 @@ setOldClass("igraph")
 setClass(
     "AbstractAnalysedPerturbationData",
     contains = "VIRTUAL",
-    slots    = list(dataSet="data.table",
-                    params="list",
-                    inference="character",
-                    isBootstrapped="logical"),
+    slots    = list(dataSet        = "data.table",
+                    params         = "list",
+                    geneEffects    = "data.table",
+                    inference      = "character",
+                    isBootstrapped = "logical"),
     validity = function(object)
     {
         stopifnot(object@inference %in% inferenceTypes())
@@ -57,19 +59,20 @@ setClass(
 #'
 #' @description Class \code{HMAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
-#'  using a hierarchical model.
+#'  using a hierarchical model. \code{HMAnalysedPerturbationData} exposes
+#'  getters for its members of the same name.
+#'  However, we do not provide setters, because the data should be treated as
+#'  constant once set.
 #'
-#' @slot geneEffects  the estimated effect sizes for genes
 #' @slot geneHits  prioritized genes
 #' @slot nestedGeneEffects  the estimated effect sizes for genes on a
 #'  viral level
 #' @slot nestedGeneHits  nested prioritized genes
 #' @slot modelFit  the fitted model
-#'
 setClass(
   "HMAnalysedPerturbationData",
   contains  = c("AbstractAnalysedPerturbationData"),
-  slots     = list(geneEffects       = "data.table",
+  slots     = list(
                    geneHits          = "data.table",
                    nestedGeneEffects = "data.table",
                    nestedGeneHits    = "data.table",
@@ -89,17 +92,21 @@ setClass(
 #' @description Class \code{NetworkAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
 #'  using network diffusion. See also \code{\link{diffuse}}.
+#'  \code{NetworkAnalysedPerturbationData} exposes
+#'  getters for its members of the same name.
+#'  However, we do not provide setters, because the data should be treated as
+#'  constant once set.
 #'
-#' @slot intitialModel  the model that was provided for analysis
+#' @slot initialModel  the model that was provided for analysis
 #' @slot graph  an igraph object that served for the diffusion process
+#'
 setClass(
-    "NetworkAnalysedPerturbationData",
-    contains  = c("AbstractAnalysedPerturbationData", "VIRTUAL"),
-    slots     = list(initialModel = "ANY",
-                     graph        = "igraph"),
-                     prototype = prototype(
-                            inference=inferenceTypes()$MRW.DIFFUSION,
-                            isBootstrapped=FALSE)
+  "NetworkAnalysedPerturbationData",
+  contains  = c("AbstractAnalysedPerturbationData"),
+  slots     = list(initialModel = "ANY",
+                   graph        = "igraph"),
+  prototype = prototype(inference=inferenceTypes()$MRW.DIFFUSION,
+                        isBootstrapped=FALSE)
 )
 
 
@@ -149,11 +156,11 @@ setMethod(
 
 
 #' @rdname geneEffects-methods
-#' @aliases geneEffects,HMAnalysedPerturbationData-method
+#' @aliases geneEffects,AbstractAnalysedPerturbationData-method
 #' @import data.table
 setMethod(
     "geneEffects",
-    signature = signature(obj="HMAnalysedPerturbationData"),
+    signature = signature(obj="AbstractAnalysedPerturbationData"),
     function(obj) obj@geneEffects)
 
 
