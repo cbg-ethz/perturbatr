@@ -33,6 +33,7 @@ build_script:
   - travis-tool.sh install_r knitr
   - travis-tool.sh install_r rmarkdown
   - travis-tool.sh install_r covr
+  - travis-tool.sh install_r data.table
 
 test_script:
   - travis-tool.sh run_tests

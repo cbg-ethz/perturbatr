@@ -1,5 +1,7 @@
 language: r
 
+cache: packages
+
 matrix:
   include:
     - os: osx
@@ -23,6 +25,7 @@ bioc_packages:
 env:
   global:
     - LINTR_COMMENT_BOT=false
+
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
