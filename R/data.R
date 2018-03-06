@@ -52,7 +52,7 @@
 #'  }
 #
 #' @author Simon Dirmeier | Computational Biology Group, ETH ZURICH |
-#'  \email{simon.dirmeier@@bsse.ethz.ch}
+#'  \email{simon.dirmeier@@web.de}
 #'
 #' @name rnaiscreen
 #'

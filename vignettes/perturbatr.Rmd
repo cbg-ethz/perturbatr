@@ -84,7 +84,7 @@ bundled your data into an `S4` object such that dispatch is easier to handle and
   dataSet(my.perturbation.data)
 ```
 
-`PerturbationData` has some basic `select`, `filter` and `rbind` functionality.
+`PerturbationData` has some basic `filter` and `rbind` functionality.
 Similar to `dplyr::filter` you can select rows by some predicate(s). In the example below we extract all rows from the data set that have a positive readout.
 
 ```{r, eval=TRUE, include=TRUE}
@@ -101,14 +101,6 @@ If you want to combine data sets you can call `rbind`, which will automatically 
   dh <- perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
   rbind(dh, dh)
 ```
-
-Finally you can subset a set of columns just as by using `dplyr::select`. The selected columns are provided by a variable number of unquoted column names:
-```{r, eval=TRUE, include=TRUE}
-  perturbatr::select(my.perturbation.data, GeneSymbol, Readout)
-```
-
-Notice, that if you `select` some columns on `PerturbationData` it returns a
-`tibble`. That is because, once you subset it, it is no longer guaranteed to have the required columns.
 
 ## Data analysis using a hierarchical model and network diffusion
 

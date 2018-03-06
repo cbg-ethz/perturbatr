@@ -36,7 +36,9 @@
 #'  from a genetic perturbation screen, e.g. using RNA interference or CRISPR.
 #'  \code{PerturbationData} exposes getters for its members of the same name.
 #'  However, we do not provide setters, because the data should be treated as
-#'  constant once set.
+#'  constant once set. The easiest way to construct a \code{PerturbationData}
+#'  object is by first creating a \code{data.frame} and then calling \code{as}.
+#'  See the examples to construct an object. 
 #'
 #' @name PerturbationData-class
 #' @rdname PerturbationData-class

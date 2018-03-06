@@ -46,6 +46,6 @@ Propagate the estimated gene effects from a previous analysis
  res        <- hm(rnaiscreen, effect.size=0.01)
  graph.file <- system.file("extdata", "graph_file.tsv",
                             package = "perturbatr")
- diffu      <- diffuse(res, path=graph.file, r=0.1)
+ diffu      <- diffuse(res, path=graph.file, r=1)
 
 }

@@ -50,7 +50,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'methods_getters.R'
     'util_enums.R'
     'class_analysed.R'
@@ -64,7 +64,6 @@ Collate:
     'inference_lmm_model_data.R'
     'methods_combine.R'
     'methods_filter.R'
-    'methods_select.R'
     'methods_show.R'
     'perturbatr-package.R'
     'plot_data.R'

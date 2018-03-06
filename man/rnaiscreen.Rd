@@ -50,7 +50,7 @@ Example \code{PerturbationData} object consisting of two viral screens with
 }
 \author{
 Simon Dirmeier | Computational Biology Group, ETH ZURICH |
- \email{simon.dirmeier@bsse.ethz.ch}
+ \email{simon.dirmeier@web.de}
 }
 \keyword{data}
 \keyword{datasets}

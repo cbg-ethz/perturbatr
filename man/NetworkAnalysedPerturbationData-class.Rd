@@ -11,7 +11,9 @@ Class \code{NetworkAnalysedPerturbationData} is a wrapper for
  \code{NetworkAnalysedPerturbationData} exposes
  getters for its members of the same name.
  However, we do not provide setters, because the data should be treated as
- constant once set.
+ constant once set. \code{NetworkAnalysedPerturbationData} do not need to be
+ constructed manually but are returned from calling \code{\link{diffuse}}
+ (see the examples).
 }
 \section{Slots}{
 
@@ -21,3 +23,10 @@ Class \code{NetworkAnalysedPerturbationData} is a wrapper for
 \item{\code{graph}}{an igraph object that served for the diffusion process}
 }}
 
+\examples{
+ data(rnaiscreen)
+ hm.fit <- hm(rnaiscreen, effect.size=0.01)
+ graph.file <- system.file("extdata", "graph_file.tsv",
+                                       package = "perturbatr")
+ res <- diffuse(hm.fit, path=graph.file, r=1)
+}

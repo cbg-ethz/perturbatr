@@ -62,13 +62,20 @@ setClass(
 #'  using a hierarchical model. \code{HMAnalysedPerturbationData} exposes
 #'  getters for its members of the same name.
 #'  However, we do not provide setters, because the data should be treated as
-#'  constant once set.
+#'  constant once set. \code{HMAnalysedPerturbationData} do not need to be
+#'  constructed manually but are returned from calling \code{\link{hm}} (see
+#'  the examples).
 #'
 #' @slot geneHits  prioritized genes
 #' @slot nestedGeneEffects  the estimated effect sizes for genes on a
 #'  viral level
 #' @slot nestedGeneHits  nested prioritized genes
 #' @slot modelFit  the fitted model
+#'
+#' @examples
+#'  data(rnaiscreen)
+#'  res <- hm(rnaiscreen, effect.size=0.01)
+#'  class(res)
 setClass(
   "HMAnalysedPerturbationData",
   contains  = c("AbstractAnalysedPerturbationData"),
@@ -95,11 +102,19 @@ setClass(
 #'  \code{NetworkAnalysedPerturbationData} exposes
 #'  getters for its members of the same name.
 #'  However, we do not provide setters, because the data should be treated as
-#'  constant once set.
+#'  constant once set. \code{NetworkAnalysedPerturbationData} do not need to be
+#'  constructed manually but are returned from calling \code{\link{diffuse}}
+#'  (see the examples).
 #'
 #' @slot initialModel  the model that was provided for analysis
 #' @slot graph  an igraph object that served for the diffusion process
 #'
+#' @examples
+#'  data(rnaiscreen)
+#'  hm.fit <- hm(rnaiscreen, effect.size=0.01)
+#'  graph.file <- system.file("extdata", "graph_file.tsv",
+#'                                        package = "perturbatr")
+#'  res <- diffuse(hm.fit, path=graph.file, r=1)
 setClass(
   "NetworkAnalysedPerturbationData",
   contains  = c("AbstractAnalysedPerturbationData"),

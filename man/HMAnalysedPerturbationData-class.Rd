@@ -10,7 +10,9 @@ Class \code{HMAnalysedPerturbationData} is a wrapper for
  using a hierarchical model. \code{HMAnalysedPerturbationData} exposes
  getters for its members of the same name.
  However, we do not provide setters, because the data should be treated as
- constant once set.
+ constant once set. \code{HMAnalysedPerturbationData} do not need to be
+ constructed manually but are returned from calling \code{\link{hm}} (see
+ the examples).
 }
 \section{Slots}{
 
@@ -25,3 +27,8 @@ viral level}
 \item{\code{modelFit}}{the fitted model}
 }}
 
+\examples{
+ data(rnaiscreen)
+ res <- hm(rnaiscreen, effect.size=0.01)
+ class(res)
+}

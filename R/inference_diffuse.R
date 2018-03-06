@@ -56,19 +56,19 @@
 #'  res        <- hm(rnaiscreen, effect.size=0.01)
 #'  graph.file <- system.file("extdata", "graph_file.tsv",
 #'                             package = "perturbatr")
-#'  diffu      <- diffuse(res, path=graph.file, r=0.1)
+#'  diffu      <- diffuse(res, path=graph.file, r=1)
 #'
 setGeneric(
-    "diffuse",
-    function(obj,
-             path=NULL,
-             graph=NULL,
-             r=0.5,
-             delete.nodes.on.degree=0,
-             do.bootstrap=FALSE)
-    {
-        standardGeneric("diffuse")
-    }
+  "diffuse",
+  function(obj,
+           path=NULL,
+           graph=NULL,
+           r=0.5,
+           delete.nodes.on.degree=0,
+           do.bootstrap=FALSE)
+  {
+      standardGeneric("diffuse")
+  }
 )
 
 
@@ -77,39 +77,39 @@ setGeneric(
 #' @import data.table
 #' @importFrom dplyr select filter
 setMethod(
-    "diffuse",
-    signature=signature(obj="HMAnalysedPerturbationData"),
-    function(obj,
-             path=NULL,
-             graph=NULL,
-             r=0.5,
-             delete.nodes.on.degree=0,
-             do.bootstrap=FALSE)
+  "diffuse",
+  signature=signature(obj="HMAnalysedPerturbationData"),
+  function(obj,
+           path=NULL,
+           graph=NULL,
+           r=0.5,
+           delete.nodes.on.degree=0,
+           do.bootstrap=FALSE)
+  {
+    hits <- dplyr::select(geneHits(obj), GeneSymbol, Effect) %>%
+        dplyr::mutate(Effect = abs(Effect))
+    if (nrow(hits) == 0)
+        stop("Your prior analysis did not yield hits for genes")
+
+    bootstrap.hits <- NULL
+    if (isBootstrapped(obj))
     {
-        hits <- dplyr::select(geneHits(obj), GeneSymbol, Effect) %>%
-            dplyr::mutate(Effect = abs(Effect))
-        if (nrow(hits) == 0)
-            stop("Your prior analysis did not yield hits for genes")
-
-        bootstrap.hits <- NULL
-        if (isBootstrapped(obj))
-        {
-            bootstrap.hits <- modelFit(obj)$ge.fdrs$ret %>%
-              dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
-              dplyr::select(-Mean, -Pval, -Qval, -Lower, -Upper)
-        }
-
-        ret <- .diffuse(hits,
-                        mod=obj,
-                        bootstrap.hits=bootstrap.hits,
-                        path=path,
-                        graph=graph,
-                        method=method,
-                        r=r,
-                        delete.nodes.on.degree=delete.nodes.on.degree,
-                        do.bootstrap=do.bootstrap)
-        ret
+        bootstrap.hits <- modelFit(obj)$ge.fdrs$ret %>%
+          dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
+          dplyr::select(-Mean, -Pval, -Qval, -Lower, -Upper)
     }
+
+    ret <- .diffuse(hits,
+                    mod=obj,
+                    bootstrap.hits=bootstrap.hits,
+                    path=path,
+                    graph=graph,
+                    method=method,
+                    r=r,
+                    delete.nodes.on.degree=delete.nodes.on.degree,
+                    do.bootstrap=do.bootstrap)
+    ret
+  }
 )
 
 
@@ -125,17 +125,17 @@ setMethod(
                      delete.nodes.on.degree,
                      do.bootstrap)
 {
-    graph <- .get.graph(path, graph, delete.nodes.on.degree)
-    adjm   <- igraph::get.adjacency(graph, attr="weight")
+  graph <- .get.graph(path, graph, delete.nodes.on.degree)
+  adjm   <- igraph::get.adjacency(graph, attr="weight")
 
-    l <- mrw(hits=hits,
-             delete.nodes.on.degree=delete.nodes.on.degree,
-             mod=mod,
-             bootstrap.hits=bootstrap.hits,
-             adjm=adjm,
-             r=r,
-             graph=graph,
-             do.bootstrap=do.bootstrap)
+  l <- mrw(hits=hits,
+           delete.nodes.on.degree=delete.nodes.on.degree,
+           mod=mod,
+           bootstrap.hits=bootstrap.hits,
+           adjm=adjm,
+           r=r,
+           graph=graph,
+           do.bootstrap=do.bootstrap)
 
   l
 }
@@ -143,23 +143,23 @@ setMethod(
 #' @import igraph
 .get.graph <- function(path, graph, delete.nodes.on.degree)
 {
-    graph <- read.graph(path=path, graph=graph)
-    if (igraph::is.directed(graph))
-      stop("Please provide an undirected graph")
-    # get connected components
-    comps <- igraph::components(graph)
-    if (length(comps$csize) > 1)
-      message("Only taking largest connected component to ensure ergodicity.")
-    # get the genes that are not in the largest component
-    non.max.comp.genes <- names(
-      which(comps$membership != which.max(comps$csize)))
-    # remove the genes that are not in the largest component
-    # this is needed to ensure ergocity
-    graph <- igraph::delete.vertices(graph, non.max.comp.genes)
-    # delete vertexes with node degree less than ...
-    graph <- igraph::delete.vertices(
-        graph,
-        igraph::V(graph)[igraph::degree(graph) <= delete.nodes.on.degree])
+  graph <- read.graph(path=path, graph=graph)
+  if (igraph::is.directed(graph))
+    stop("Please provide an undirected graph")
+  # get connected components
+  comps <- igraph::components(graph)
+  if (length(comps$csize) > 1)
+    message("Only taking largest connected component to ensure ergodicity.")
+  # get the genes that are not in the largest component
+  non.max.comp.genes <- names(
+    which(comps$membership != which.max(comps$csize)))
+  # remove the genes that are not in the largest component
+  # this is needed to ensure ergocity
+  graph <- igraph::delete.vertices(graph, non.max.comp.genes)
+  # delete vertexes with node degree less than ...
+  graph <- igraph::delete.vertices(
+      graph,
+      igraph::V(graph)[igraph::degree(graph) <= delete.nodes.on.degree])
 
-    graph
+  graph
 }

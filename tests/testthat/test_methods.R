@@ -47,9 +47,3 @@ testthat::test_that("binding works correctly", {
   rnait <- rbind(rnaiscreen, rnaiscreen)
   testthat::expect_equal(nrow(dataSet(rnait)), 2 * nrow(dataSet(rnaiscreen)))
 })
-
-
-testthat::test_that("selecting works correctly", {
-  rnait <- perturbatr::select(rnaiscreen, Condition)
-  testthat::expect_equal(ncol(rnait), 1)
-})
