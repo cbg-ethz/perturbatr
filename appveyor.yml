@@ -15,10 +15,10 @@ environment:
     WARNINGS_ARE_ERRORS: 1
 
   matrix:
-  - R_VERSION: devel
+  - R_VERSION: release
     GCC_PATH: mingw_32
 
-  - R_VERSION: devel
+  - R_VERSION: release
     R_ARCH: x64
     GCC_PATH: mingw_64
 

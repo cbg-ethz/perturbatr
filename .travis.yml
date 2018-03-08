@@ -6,10 +6,10 @@ matrix:
   include:
     - os: osx
       latex: false
-      r: bioc-devel
+      r: bioc-release
     - os: linux
       dist: trusty
-      r: bioc-devel
+      r: bioc-elease
 
 r_packages:
   - devtools
