@@ -2,7 +2,6 @@
 
 [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![Build Status](https://travis-ci.org/cbg-ethz/perturbatr.svg?branch=master)](https://travis-ci.org/cbg-ethz/perturbatr)
-[![Build status](https://ci.appveyor.com/api/projects/status/llwiphrm76ygsatc?svg=true)](https://ci.appveyor.com/project/dirmeier/perturbatr)
 [![codecov](https://codecov.io/gh/cbg-ethz/perturbatr/branch/master/graph/badge.svg)](https://codecov.io/gh/cbg-ethz/perturbatr)
 [![bioc](https://bioconductor.org/shields/years-in-bioc/perturbatr.svg)](https://bioconductor.org/packages/release/bioc/html/perturbatr.html)
 
@@ -17,6 +16,19 @@ considers the variance between different biological conditions is fitted.
 That means that we first estimate relative effect sizes for all genes.
 The resulting hit lists is then further extended using a network
 propagation algorithm to correct for false negatives. and positives.
+
+```{r}
+data(rnaiscreen)
+graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
+
+frm <- Readout ~ Condition +
+                 (1|GeneSymbol) + (1|Condition:GeneSymbol) +
+                 (1|ScreenType) + (1|Condition:ScreenType)
+res <- hm(rnaiscreen, formula = frm, effect.size=0.01)
+diffu      <- diffuse(res, path=graph.file, r=0.1)
+
+plot(diffu)
+```
 
 ## Installation
 

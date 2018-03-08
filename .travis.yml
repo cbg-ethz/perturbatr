@@ -4,12 +4,9 @@ cache: packages
 
 matrix:
   include:
-    - os: osx
-      latex: false
-      r: bioc-release
     - os: linux
       dist: trusty
-      r: bioc-elease
+      r: bioc-devel
 
 r_packages:
   - devtools
