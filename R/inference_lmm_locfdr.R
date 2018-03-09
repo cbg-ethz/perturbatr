@@ -141,7 +141,7 @@ nge.fdrs <- function(obj)
     X0 <- cbind(1, x - xmax, (x - xmax)^2)
     xmaxx <- -co[2]/(2 * co[3]) + xmax
     sighat <- 1/sqrt(-2 * co[3])
-    fp0["cmest", 1:2] <- c(xmaxx, sighat)
+    fp0["cmest", seq(2)] <- c(xmaxx, sighat)
 
     l0 <- as.vector(X0 %*% co)
     f0 <- exp(l0)
@@ -176,10 +176,10 @@ nge.fdrs <- function(obj)
     }
     else mlests = locmle(zz, xlim = c(mlests[1], b * mlests[2]),
                          d = mlests[1], s = mlests[2])
-    fp0["mlest", 1:3] = mlests[1:3]
-    fp0["mleSD", 1:3] = mlests[4:6]
+    fp0["mlest", seq(3)] = mlests[seq(3)]
+    fp0["mleSD", seq(3)] = mlests[seq(from=4, to=6)]
   }
-  if (sum(is.na(fp0[c(3, 5), 1:2])) == 0 & nulltype > 1)
+  if (sum(is.na(fp0[c(3, 5), seq(2)])) == 0 & nulltype > 1)
     if (abs(fp0["cmest", 1] - mlests[1]) > 0.05 |
         abs(log(fp0["cmest", 2]/mlests[2])) > 0.05)
       warning("Consider rerunning with nulltype = 1")
@@ -241,8 +241,8 @@ nge.fdrs <- function(obj)
   Efdr <- sum((1 - fdr) * fdr * fall)/sum((1 - fdr) * fall)
   Efdrtheo <- sum((1 - fdr0) * fdr0 * fall)/sum((1 - fdr0) *
                                                   fall)
-  iup <- (1:K)[x >= xmax]
-  ido <- (1:K)[x <= xmax]
+  iup <- (seq(K))[x >= xmax]
+  ido <- (seq(K))[x <= xmax]
   Eleft <- sum((1 - fdr[ido]) * fdr[ido] * fall[ido]) /
             sum((1 - fdr[ido]) * fall[ido])
   Eleft0 <- sum((1 - fdr0[ido]) * fdr0[ido] * fall[ido]) /
@@ -260,7 +260,7 @@ nge.fdrs <- function(obj)
   if (!missing(mult)) {
     mul = c(1, mult)
     EE = rep(0, length(mul))
-    for (m in 1:length(EE)) {
+    for (m in seq(EE)) {
       xe = sqrt(mul[m]) * x
       f1e = approx(xe, f1, x, rule = 2, ties = mean)$y
       f1e = (f1e * sum(f1))/sum(f1e)
@@ -309,7 +309,7 @@ nge.fdrs <- function(obj)
   fd <- fdr
   if (nulltype == 0)
     fd <- fdr0
-  for (i in 1:99) cdf1[i] <- sum(f1[fd <= p1[i]])
+  for (i in seq(99)) cdf1[i] <- sum(f1[fd <= p1[i]])
 
   cdf1 <- cbind(p1, cdf1/cdf1[99])
   mat <- cbind(x, fdr, Fdrl, Fdrr, f, f0, f00, fdr0, yall,
@@ -327,7 +327,7 @@ nge.fdrs <- function(obj)
     z.2[2] = stats::approx(fd[m:nx], x[m:nx], 0.2, ties = mean)$y
   }
   if (fd[1] < 0.2) {
-    z.2[1] = stats::approx(fd[1:m], x[1:m], 0.2, ties = mean)$y
+    z.2[1] = stats::approx(fd[seq(m)], x[seq(m)], 0.2, ties = mean)$y
   }
 
   hist.dat <- list()
@@ -379,7 +379,7 @@ locmle <- function (z, xlim, Jmle = 35, d = 0, s = 1, ep = 1/1e+05, sw = 0,
   N0 = length(z0)
   Y = c(mean(z0), mean(z0^2))
   that = N0/N
-  for (j in 1:Jmle) {
+  for (j in seq(Jmle)) {
     bet = c(d/s^2, -1/(2 * s^2))
     aa = (aorig - d)/s
     bb = (borig - d)/s

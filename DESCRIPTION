@@ -1,7 +1,7 @@
 Package: perturbatr
 Type: Package
 Title: Statistical Analysis of High-Throughput Genetic Perturbation Screens
-Version: 0.99.7
+Version: 0.99.10
 Date: 2018-03-06
 Authors@R: person("Simon", "Dirmeier",
 	email = "simon.dirmeier@web.de", role = c("aut", "cre"))
@@ -50,7 +50,7 @@ Suggests:
     rmarkdown,
     BiocStyle
 VignetteBuilder: knitr
-Collate:
+Collate: 
     'methods_getters.R'
     'util_enums.R'
     'class_analysed.R'
@@ -74,3 +74,4 @@ Collate:
     'util_functions.R'
     'util_graph.R'
     'util_sampler.R'
+    'zzz.R'

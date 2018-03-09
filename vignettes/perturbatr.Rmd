@@ -175,7 +175,7 @@ for the stage of the infection.
 Let's take the last result and plot them. This yields a list of multiple
 plots. The most informative one that shows the top 25 genes:
 
-```{r include=TRUE, fig.align="center", fig.width=4, warning=FALSE, message=FALSE}
+```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   pl <- plot(res)
   pl[[1]]
 ```

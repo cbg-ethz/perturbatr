@@ -130,21 +130,6 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 
 
 #' @noRd
-#' @import data.table
-#' @import ggplot2
-#' @importFrom dplyr group_by summarize mutate filter
-.plot.perturbation.analysed <- function(x, size, main="", ...)
-{
-  df <- x@.gene.hits[order(abs(MeanEffect), decreasing=TRUE), .SD[seq(25)]] %>%
-    dplyr::filter(!is.na(GeneSymbol), !is.na(MeanEffect)) %>%
-    dplyr::rename(Effect=MeanEffect)
-
-  pl <- .plot.bars(df, size, main, ...)
-  pl
-}
-
-
-#' @noRd
 .plot.bars <- function(x, size, main, ...)
 {
     ggplot2::ggplot(x) +

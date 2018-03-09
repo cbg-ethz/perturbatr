@@ -226,8 +226,11 @@ setMethod(
     ge <- dplyr::filter(ge, Qval <= fdrt)
 
   nge <- obj$nested.gene.effects %>%
-    dplyr::filter(abs(Effect) >= eft, Qval <= fdrt) %>%
+    dplyr::filter(abs(Effect) >= eft) %>%
     dplyr::arrange(-abs(Effect))
+
+  if(all(!is.na(nge$Qval)))
+    nge <- nge %>% dplyr::filter(Qval <= fdrt)
 
   list(gene.hits=ge, nested.gene.hits=nge)
 }

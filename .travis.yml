@@ -25,6 +25,6 @@ env:
 
 
 after_success:
-  - Rscript -e 'library(covr); codecov()'
+  - Rscript -e 'covr::codecov(); covr::coveralls()'
   - Rscript -e 'lintr::lint_package()'
   - R CMD BiocCheck $PKG_TARBALL
