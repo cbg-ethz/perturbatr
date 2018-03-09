@@ -25,6 +25,15 @@ data(rnaiscreen)
 hm.fit  <- hm(rnaiscreen, effect.size=0.01, qval.threshold=1)
 
 
+testthat::test_that("hm object prints", {
+  testthat::expect_output(show(hm.fit))
+})
+
+testthat::test_that("hm object plots", {
+  suppressWarnings(s <- plot(hm.fit))
+  testthat::expect_silent(s[[1]])
+})
+
 testthat::test_that("hm uses qval threshold of 1", {
   testthat::expect_equal(params(hm.fit)$qval.threshold, 1)
 })
@@ -89,4 +98,17 @@ testthat::test_that("hm object returns bootstrapping boolean", {
 testthat::test_that("hm object returns inference", {
   testthat::expect_true(inference(hm.fit) ==
                         perturbatr:::inferenceTypes()$MIXED.MODEL)
+})
+
+
+testthat::test_that("hm bootstrapping throws with boostrap < 10", {
+  testthat::expect_error(
+    hm(rnaiscreen, effect.size=0.01, qval.threshold=1, bootstrap.cnt=4))
+})
+
+
+testthat::test_that("hm bootstrapping works", {
+  ft <- hm(rnaiscreen, effect.size=0.01, qval.threshold=1, bootstrap.cnt=10)
+  testthat::expect_true(isBootstrapped(ft))
+  testthat::expect_true(all(!is.na(geneHits(ft))))
 })

@@ -27,7 +27,8 @@ vignette: >
   library(perturbatr)
   data(rnaiscreen)
   my.data <- dataSet(rnaiscreen) %>%    
-    dplyr::select(Condition, Replicate, GeneSymbol, Perturbation, Readout,      Control) %>%
+    dplyr::select(Condition, Replicate, GeneSymbol, 
+                  Perturbation, Readout, Control) %>%
     as.data.frame()
 ```
 
@@ -43,7 +44,8 @@ vignette: >
 
 # Tutorial
 
-This tutorial walks you to the basic functionality of `perturbatr` using a pan-pathogenic data set of several RNAi screening studies.
+This tutorial walks you to the basic functionality of `perturbatr` 
+using a pan-pathogenic data set of several RNAi screening studies.
 
 ## Creating a `PerturbationData` object
 
@@ -64,20 +66,30 @@ Coercing your `data.frame` to `PerturbationData` will automatically warn you if
 your table is formatted wrongly. You need at least the following column names
 order to be able to do analysis of perturbation screens using `perturbatr`:
 
-* Condition: an identifier that best describes the respective screen. For instance this can be the name of a virus for pathogen screens, the name of a cell line, organoid or the like. The *condition* describes a single data set, i.e. if you want to integrate multiple different data sets, make sure to give each a different condition.
+* Condition: an identifier that best describes the respective screen. 
+For instance this can be the name of a virus for pathogen screens, the name 
+of a cell line, organoid or the like. The *condition* describes a single data 
+set, i.e. if you want to integrate multiple different data sets, make sure to 
+give each a different condition.
 * Replicate: an integer representing the replicate number of a screen.
 * GeneSymbol: the HUGO identifier, ENTREZ id, etc. as character.
-* Perturbation: a siRNA id or gRNA id that describes the knockout/knockdown for the gene
-* Readout: a *normalized* readout like a log-fold change for gRNAs, a GFP signal, etc.
-* Control: vector of integers representing perturbations that have been used as negative or positive controls. A negative control is marked with '-1', a positive control with '1' and a normal sample with '0'.
+* Perturbation: a siRNA id or gRNA id that describes the knockout/knockdown for 
+the gene.
+* Readout: a *normalized* readout like a log-fold change for gRNAs, 
+a GFP signal, etc.
+* Control: vector of integers representing perturbations that have been
+used as negative or positive controls. A negative control is marked with
+'-1', a positive control with '1' and a normal sample with '0'.
 
-Depending on how you want to model the readout using the hierarchical model, you might want to add additional
+Depending on how you want to model the readout using the hierarchical model, 
+you might want to add additional
 columns. For the sake of simplicity this suffices though.
 
 ## Working with `PerturbationData` S4 objects
 
 A `PerturbationData` object consists of a single slot that stores your data. We
-bundled your data into an `S4` object such that dispatch is easier to handle and to make sure that your data set has the correct columns:
+bundled your data into an `S4` object such that dispatch is easier to handle
+and to make sure that your data set has the correct columns:
 
 ```{r, eval=TRUE, include=TRUE}
   my.perturbation.data
@@ -85,7 +97,9 @@ bundled your data into an `S4` object such that dispatch is easier to handle and
 ```
 
 `PerturbationData` has some basic `filter` and `rbind` functionality.
-Similar to `dplyr::filter` you can select rows by some predicate(s). In the example below we extract all rows from the data set that have a positive readout.
+Similar to `dplyr::filter` you can select rows by some predicate(s). In the
+example below we extract all rows from the data set that have a positive
+readout.
 
 ```{r, eval=TRUE, include=TRUE}
   perturbatr::filter(my.perturbation.data, Readout > 0)
@@ -96,7 +110,8 @@ Filtering on multiple rows works by just adding predicates:
   perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
 ```
 
-If you want to combine data sets you can call `rbind`, which will automatically dispatch on `PerturbationData` object:
+If you want to combine data sets you can call `rbind`, which will 
+automatically dispatch on `PerturbationData` object:
 ```{r, eval=TRUE, include=TRUE}
   dh <- perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
   rbind(dh, dh)
@@ -104,32 +119,48 @@ If you want to combine data sets you can call `rbind`, which will automatically 
 
 ## Data analysis using a hierarchical model and network diffusion
 
-Finally, after having set up the data set, we analyse it using a hierarchical model and network diffusion. We **expect you already normalized the data sets accordingly**. As noted above, if you want to analyse multiple data sets, make sure that every data set corresponds to a unique `Condition`.
+Finally, after having set up the data set, we analyse it using a hierarchical 
+model and network diffusion. 
+We **expect you already normalized the data sets accordingly**. 
+As noted above, if you want to analyse multiple data sets, make sure that
+every data set corresponds to a unique `Condition`.
 
-For the sake of simplicity, you can model your readout as a linear combination of fixed effects and clustering effects for genes and genes nested in a condition:
+For the sake of simplicity, you can model your readout as a linear combination
+of fixed effects and clustering effects for genes and genes 
+nested in a condition:
 
 $$y_{cgp} = x_c \beta + \gamma_g  + \delta_{cg} + \dots + y_{cgp}$$
 
-where $y_{cgpt}$ is the phenotype for a condition $c$, gene $g$ and perturbation $p$. This would correspond to the `formula`
+where $y_{cgpt}$ is the phenotype for a condition $c$, gene $g$ and 
+perturbation $p$. This would correspond to the `formula`
 
 ```{r, eval=FALSE, include=TRUE, warning=FALSE, message=FALSE}
   Readout ~ Condition + (1|GeneSymbol) + (1|Condition:GeneSymbol)
 ```
 
-which is the default argument. You can see that we model the gene effect using different intercepts for each gene. To use the hierarchical model with the above formula, call:
+which is the default argument. You can see that we model the gene effect using 
+different intercepts for each gene. To use the hierarchical model with the 
+above formula, call:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   data(rnaiscreen)
   res <- hm(rnaiscreen, effect.size=0.01)
 ```
 
-Depending on your data set different clustering effects might be present of course. So let's have a look at our data again:
+Depending on your data set different clustering effects might be present of 
+course. So let's have a look at our data again:
 
 ```{r, include=TRUE, size="tiny"}
   dataSet(rnaiscreen)
 ```
 
-For viral perturbation screens, as simulated by our example data set, we know that viruses make use of different host factors during their life cycle. That means while some genes are required during *entry and replication*, others might play a role in *assembly and release* of the virions. So we have reason to believe that the stage of the infection also introduces a clustering effect. In that case we would need to add a random effect for the stage of the infection.
+For viral perturbation screens, as simulated by our example data set, we know 
+that viruses make use of different host factors during their life cycle. 
+That means while some genes are required during *entry and replication*, 
+others might play a role in *assembly and release* of the virions. 
+So we have reason to believe that the stage of the infection also introduces 
+a clustering effect. In that case we would need to add a random effect 
+for the stage of the infection.
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   frm <- Readout ~ Condition +
@@ -138,19 +169,25 @@ For viral perturbation screens, as simulated by our example data set, we know th
   res <- hm(rnaiscreen, formula = frm, effect.size=0.01)
 ```
 
-**Note that for your own data different effects might be visible. Thus, before modelling you need to exploratorily detect possible effects.**
+**Note that for your own data different effects might be visible. Thus,** 
+**before modelling you need to exploratorily detect possible effects.**
 
-Let's take the last result and plot them. This yields a list of multiple plots. The most informative one that shows the top 25 genes:
+Let's take the last result and plot them. This yields a list of multiple
+plots. The most informative one that shows the top 25 genes:
 
-```{r eval=TRUE, include=TRUE, fig.align="center", fig.width=4, warning=FALSE, message=FALSE}
+```{r include=TRUE, fig.align="center", fig.width=4, warning=FALSE, message=FALSE}
   pl <- plot(res)
   pl[[1]]
 ```
 
-Next we might want to *smooth* the effect from the hierarchical model using network diffusion, by that possibly reduce the number of some false negatives. For that we need a graph file and call the `diffuse` function. If we plot the results we get a nice visualization of the graph and newly detected hits using the diffusion. In our example we do not compute the diffusion, because loading the graph takes a lot of memory, but go ahead a try yourself:
+Next we might want to *smooth* the effect from the hierarchical model using 
+network diffusion, by that possibly reduce the number of some false negatives.
+For that we need a graph file and call the `diffuse` function. If we plot the
+results we get a list of reranked genes:
 
-```{r eval=FALSE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
-  graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
+```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
+  graph.file <- system.file("extdata", "graph_file.tsv",
+                            package = "perturbatr")
   diffu      <- diffuse(res, path=graph.file, r=0.1)
   plot(diffu)
 ```

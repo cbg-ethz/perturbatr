@@ -25,6 +25,10 @@ data(rnaiscreen)
 ft <- hm(rnaiscreen, effect.size=0.01)
 
 
+testthat::test_that("data plots", {
+  testthat::expect_silent(s <- plot(rnaiscreen))
+})
+
 testthat::test_that("read graph returns igraph object", {
   fl <- system.file("extdata", "graph_file.tsv", package="perturbatr")
   gr <- perturbatr:::read.graph(path=fl, graph=NULL)

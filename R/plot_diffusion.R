@@ -46,7 +46,7 @@ plot.NetworkAnalysedPerturbationData <- function(x, cnt=10, ...)
     base_family="Helvetica",
     core=list(bg_params = list(fill="white")))
 
-  dataSet(x) %>%
+  geneEffects(x) %>%
     .[order(-DiffusionEffect)] %>%
     .[seq(cnt)] %>%
     as.data.frame() %>%

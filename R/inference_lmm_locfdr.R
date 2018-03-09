@@ -36,9 +36,10 @@ nge.fdrs <- function(obj)
         nges[[ paste0("Qval.", i) ]] <- fdrs[[i]]$fdr
       }, error = function(e) {
         nges[[ paste0("Qval.", i) ]] <- rep(NA_real_, length(nges.loc[[i]]))
+        warnings(paste(
+          "Estimation for local FDRs failed, returning NA for all values."))
       }
     )
-
   }
 
   .gather.locfdr(nges, fdrs)
@@ -52,12 +53,13 @@ nge.fdrs <- function(obj)
 
   # parse the result matrix into a fdr matrix
   fdr.mat <- nges[,c(1, grep("Qval", colnames(nges)))] %>%
-   tidyr::gather(Condition, Qval, 2:ncol(.)) %>%
-   dplyr::mutate(Condition = gsub("Qval.", "", Condition))
+    tidyr::gather(Condition, Qval, 2:ncol(.)) %>%
+    dplyr::mutate(Condition = gsub("Qval.", "", Condition))
 
   # join both matrices
   nested.gene.matrix <-
-    dplyr::full_join(gene.effect.mat, fdr.mat, by=c("GeneSymbol", "Condition"))
+    dplyr::full_join(gene.effect.mat,
+                     fdr.mat, by=c("GeneSymbol", "Condition"))
 
   list(nges=nges,
        fdrs=fdrs,
@@ -109,8 +111,8 @@ nge.fdrs <- function(obj)
   colnames(fp0) = c("delta", "sigma", "p0")
 
   rownames(fp0) = c("thest", "theSD", "mlest", "mleSD", "cmest",  "cmeSD")
-  fp0["thest", 1:2] = c(0, 1)
-  fp0["theSD", 1:2] = 0
+  fp0["thest", seq(2)] = c(0, 1)
+  fp0["theSD", seq(2)] = 0
   imax <- seq(l)[l == max(l)][1]
   xmax <- x[imax]
 
@@ -120,7 +122,7 @@ nge.fdrs <- function(obj)
   lo0 <- stats::quantile(zz, pctlo)
   hi0 <- stats::quantile(zz, pctup)
   nx  <- length(x)
-  i0  <- (1:nx)[x > lo0 & x < hi0]
+  i0  <- (seq(nx))[x > lo0 & x < hi0]
   x0  <- x[i0]
   y0  <- l[i0]
   X00 <- cbind(x0 - xmax, (x0 - xmax)^2)
@@ -253,9 +255,8 @@ nge.fdrs <- function(obj)
   Efdr[which(is.na(Efdr))] = 1
   names(Efdr) <- c("Efdr", "Eleft", "Eright", "Efdrtheo", "Eleft0",
                    "Eright0")
-  if (nulltype == 0)
-    f1 <- (1 - fdr0) * fall
-  else f1 <- (1 - fdr) * fall
+
+  f1 <- (1 - fdr) * fall
   if (!missing(mult)) {
     mul = c(1, mult)
     EE = rep(0, length(mul))
@@ -288,33 +289,16 @@ nge.fdrs <- function(obj)
     else stop("With sw=3, nulltype must equal 0, 1, or 2.")
     return(Ilfdr)
   }
-  if (nulltype == 0)
-    Cov = Cov0.out$Cov
-  else if (nulltype == 1)
-    Cov = ml.out$Cov.lfdr
-  else Cov = Cov2.out$Cov
+  Cov = ml.out$Cov.lfdr
   lfdrse <- diag(Cov)^0.5
-  fp0["cmeSD", 1:3] = Cov2.out$stdev[c(2, 3, 1)]
+  fp0["cmeSD", seq(3)] = Cov2.out$stdev[c(2, 3, 1)]
   if (nulltype == 3)
     fp0["cmeSD", 4] = fp0["cmeSD", 2]
   fp0["theSD", 3] = Cov0.out$stdev[1]
   if (sw == 2) {
-    if (nulltype == 0) {
-      pds = fp0["thest", c(3, 1, 2)]
-      stdev = fp0["theSD", c(3, 1, 2)]
-      pds. = t(Cov0.out$pds.)
-    }
-    else if (nulltype == 1) {
-      pds = fp0["mlest", c(3, 1, 2)]
-      stdev = fp0["mleSD", c(3, 1, 2)]
-      pds. = t(ml.out$pds.)
-    }
-    else if (nulltype == 2) {
-      pds = fp0["cmest", c(3, 1, 2)]
-      stdev = fp0["cmeSD", c(3, 1, 2)]
-      pds. = t(Cov2.out$pds.)
-    }
-    else stop("With sw=2, nulltype must equal 0, 1, or 2.")
+    pds = fp0["mlest", c(3, 1, 2)]
+    stdev = fp0["mleSD", c(3, 1, 2)]
+    pds. = t(ml.out$pds.)
     colnames(pds.) = names(pds) = c("p0", "delhat", "sighat")
     names(stdev) = c("sdp0", "sddelhat", "sdsighat")
     return(list(pds = pds, x = x, f = f, pds. = pds., stdev = stdev))
@@ -410,8 +394,8 @@ locmle <- function (z, xlim, Jmle = 35, d = 0, s = 1, ep = 1/1e+05, sw = 0,
     H = c(H0, H1, H2, H3, H4)
     r = d/s
     I = matrix(rep(0, 25), 5)
-    for (i in 0:4) I[i + 1, 0:(i + 1)] = choose(i, 0:i)
-    u1 = s^(0:4)
+    for (i in seq(from=0, to=4)) I[i + 1, 0:(i + 1)] = choose(i, 0:i)
+    u1 = s^(seq(from=0, to=4))
     II = pmax(row(I) - col(I), 0)
     II = r^II
     I = u1 * (I * II)

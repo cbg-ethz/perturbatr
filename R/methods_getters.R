@@ -194,12 +194,10 @@ setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 #' @param obj  the object for which you want to extract the underlying graph
 #' @return  returns a \code{igraph} object
 #' @examples
-#'  \dontrun{
-#'   data(rnaiscreen)
-#'   graph.file <- system.file("extdata", "graph_file.tsv",
+#'  data(rnaiscreen)
+#'  graph.file <- system.file("extdata", "graph_file.tsv",
 #'                             package = "perturbatr")
-#'   ft <- hm(rnaiscreen, effect.size=0.01)
-#'   diffu <- diffuse(ft, path=graph.file, r=0.1)
-#'   graph(diffu)
-#'  }
+#'  ft <- hm(rnaiscreen, effect.size=0.01)
+#'  diffu <- diffuse(ft, path=graph.file, r=1)
+#'  graph(diffu)
 setGeneric("graph", function(obj) standardGeneric("graph"))

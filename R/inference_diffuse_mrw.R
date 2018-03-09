@@ -35,30 +35,30 @@ mrw <- function(hits,
                 graph,
                 do.bootstrap)
 {
-    message("Diffusion using Markov random walks.")
-    diffuse.data <- .do.mrw(hits, adjm, r)
-    res  <- diffuse.data$frame
+  message("Diffusion using Markov random walks.")
+  diffuse.data <- .do.mrw(hits, adjm, r)
+  res  <- diffuse.data$frame
 
-    is.boot <- FALSE
-    if (!is.null(bootstrap.hits) && do.bootstrap)
-    {
-        is.boot <- TRUE
-        boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
-        res          <- dplyr::left_join(diffuse.data$frame,
-                                         boot.intrvls,
-                                         by="GeneSymbol")
-    }
 
-    ret <- methods::new("NetworkAnalysedPerturbationData",
-             graph           = graph,
-             params          = list(
-               restart.probability     = r,
-               delete.nodes.on.degree = delete.nodes.on.degree),
-             dataSet        = hits,
-             geneEffects    = res,
-             isBootstrapped = is.boot)
+  is.boot <- if (!is.null(bootstrap.hits) && do.bootstrap)
+  {
+      boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
+      res          <- dplyr::left_join(diffuse.data$frame,
+                                       boot.intrvls,
+                                       by="GeneSymbol")
+      TRUE
+  } else FALSE
 
-    ret
+  ret <- methods::new("NetworkAnalysedPerturbationData",
+           graph           = graph,
+           params          = list(
+             restart.probability     = r,
+             delete.nodes.on.degree = delete.nodes.on.degree),
+           dataSet        = hits,
+           geneEffects    = data.table::as.data.table(res),
+           isBootstrapped = is.boot)
+
+  ret
 }
 
 
@@ -121,5 +121,5 @@ mrw <- function(hits,
       dplyr::left_join(tidyr::spread(flat.dat, boot, DiffusionEffect),
                        by="GeneSymbol")
 
-    ret
+    data.table::as.data.table(ret)
 }

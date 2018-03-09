@@ -21,11 +21,11 @@ propagation algorithm to correct for false negatives. and positives.
 data(rnaiscreen)
 graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
 
-frm <- Readout ~ Condition +
-                 (1|GeneSymbol) + (1|Condition:GeneSymbol) +
-                 (1|ScreenType) + (1|Condition:ScreenType)
-res <- hm(rnaiscreen, formula = frm, effect.size=0.01)
-diffu      <- diffuse(res, path=graph.file, r=0.1)
+frm   <- Readout ~ Condition +
+                   (1|GeneSymbol) + (1|Condition:GeneSymbol) +
+                   (1|ScreenType) + (1|Condition:ScreenType)
+ft    <- hm(rnaiscreen, formula = frm, effect.size=0.01)
+diffu <- diffuse(ft, path=graph.file, r=0.1)
 
 plot(diffu)
 ```

@@ -26,6 +26,17 @@ hm.fit  <- hm(rnaiscreen, effect.size=0.01, qval.threshold=1)
 graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
 res <- diffuse(hm.fit, path=graph.file, r=0.1)
 
+
+testthat::test_that("diffusion object prints", {
+  testthat::expect_output(show(res))
+})
+
+
+testthat::test_that("diffusion object plots", {
+  testthat::expect_silent(s <- plot(res))
+})
+
+
 testthat::test_that("diffusion object returns graph", {
   testthat::expect_true(class(graph(res))[1] == "igraph")
 })
@@ -55,3 +66,5 @@ testthat::test_that("diffusion object returns inference", {
   testthat::expect_true(inference(res) ==
                         perturbatr:::inferenceTypes()$ MRW.DIFFUSION)
 })
+
+

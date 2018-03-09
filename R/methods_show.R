@@ -30,9 +30,9 @@ setMethod(
   function(object)
   {
     cat("A perturbation data set\n\n")
-    dataSet(object)[ ,.SD[sample(.N, min(.N, 2))], by="Condition"] %>%
-      dplyr::select(Condition, GeneSymbol, Readout) %>%
-      print
+    dat <- dataSet(object)[ ,.SD[sample(.N, min(.N, 2))], by="Condition"] %>%
+      dplyr::select(Condition, GeneSymbol, Readout)
+    print(data.table::as.data.table(dat))
   }
 )
 
@@ -55,5 +55,23 @@ setMethod(
       dplyr::select(GeneSymbol, Effect, Qval)
     mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
     print(data.table::as.data.table(mer))
+  }
+)
+
+
+#' @aliases show,NetworkAnalysedPerturbationData-method
+#' @import data.table
+#' @importFrom dplyr select arrange
+setMethod(
+  "show",
+  "NetworkAnalysedPerturbationData",
+  function(object)
+  {
+    cat(paste0(
+      "A perturbation data-set analysed usingnetwork diffuson\n\n"))
+    gps <- geneEffects(object) %>%
+      dplyr::select(GeneSymbol, Effect, DiffusionEffect) %>%
+      dplyr::arrange(-DiffusionEffect)
+    print(data.table::as.data.table(gps))
   }
 )

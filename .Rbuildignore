@@ -28,4 +28,4 @@ LICENSE
 ^inst/figure
 ^inst/figure/*
 ^data/rnaiscreen_datatable.rds$
-^perturbR.Rproj$
+^perturbatr.Rproj$

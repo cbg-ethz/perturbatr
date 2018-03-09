@@ -43,6 +43,11 @@ testthat::test_that("raw object has correct class", {
 })
 
 
+testthat::test_that("raw object prints", {
+  testthat::expect_output(show(rnaiscreen))
+})
+
+
 testthat::test_that("hm analysed object has correct class", {
   testthat::expect_s4_class(dat.lmm, "HMAnalysedPerturbationData")
 })

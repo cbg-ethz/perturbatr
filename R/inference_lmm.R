@@ -154,9 +154,9 @@ setMethod(
   }
 
   message("Fitting hierarchical model")
-  fit.hm   <- .hm.fit(md, formula)
-  ref      <- .ranef(fit.hm)
-  ge.fdrs.ef  <- ge.fdrs(md, ref, bootstrap.cnt)
+  fit.hm      <- .hm.fit(md, formula)
+  ref         <- .ranef(fit.hm)
+  ge.fdrs.ef  <- ge.fdrs(md, ref, bootstrap.cnt, formula)
   nge.fdrs.ef <- nge.fdrs(ref$nested.gene.effects)
 
   # set together the gene/fdr/effects and the mappings
