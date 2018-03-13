@@ -45,6 +45,7 @@ nge.fdrs <- function(obj)
   .gather.locfdr(nges, fdrs)
 }
 
+
 .gather.locfdr <- function(nges, fdrs)
 {
   # parse the result matrix into a gene matrix
@@ -54,7 +55,7 @@ nge.fdrs <- function(obj)
   # parse the result matrix into a fdr matrix
   fdr.mat <- nges[,c(1, grep("Qval", colnames(nges)))] %>%
     tidyr::gather(Condition, Qval, 2:ncol(.)) %>%
-    dplyr::mutate(Condition = gsub("Qval.", "", Condition))
+    dplyr::mutate(Condition = sub("Qval.", "", Condition))
 
   # join both matrices
   nested.gene.matrix <-
