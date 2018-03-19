@@ -39,9 +39,9 @@ setOldClass("igraph")
 setClass(
     "AbstractAnalysedPerturbationData",
     contains = "VIRTUAL",
-    slots    = list(dataSet        = "data.table",
+    slots    = list(dataSet        = "tbl_df",
                     params         = "list",
-                    geneEffects    = "data.table",
+                    geneEffects    = "tbl_df",
                     inference      = "character",
                     isBootstrapped = "logical"),
     validity = function(object)
@@ -81,9 +81,9 @@ setClass(
   "HMAnalysedPerturbationData",
   contains  = c("AbstractAnalysedPerturbationData"),
   slots     = list(
-                   geneHits          = "data.table",
-                   nestedGeneEffects = "data.table",
-                   nestedGeneHits    = "data.table",
+                   geneHits          = "tbl_df",
+                   nestedGeneEffects = "tbl_df",
+                   nestedGeneHits    = "tbl_df",
                    modelFit          = "list"),
   prototype = prototype(inference=inferenceTypes()$MIXED.MODEL)
 )
@@ -128,7 +128,7 @@ setClass(
 
 #' @rdname dataSet-methods
 #' @aliases dataSet,AbstractAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "dataSet",
     signature = signature(obj="AbstractAnalysedPerturbationData"),
@@ -137,7 +137,7 @@ setMethod(
 
 #' @rdname params-methods
 #' @aliases params,AbstractAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "params",
     signature = signature(obj="AbstractAnalysedPerturbationData"),
@@ -146,7 +146,7 @@ setMethod(
 
 #' @rdname inference-methods
 #' @aliases inference,AbstractAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "inference",
     signature = signature(obj="AbstractAnalysedPerturbationData"),
@@ -155,7 +155,7 @@ setMethod(
 
 #' @rdname isBootstrapped-methods
 #' @aliases isBootstrapped,AbstractAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "isBootstrapped",
     signature = signature(obj="AbstractAnalysedPerturbationData"),
@@ -164,7 +164,7 @@ setMethod(
 
 #' @rdname geneHits-methods
 #' @aliases geneHits,HMAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "geneHits",
     signature = signature(obj="HMAnalysedPerturbationData"),
@@ -173,7 +173,7 @@ setMethod(
 
 #' @rdname geneEffects-methods
 #' @aliases geneEffects,AbstractAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "geneEffects",
     signature = signature(obj="AbstractAnalysedPerturbationData"),
@@ -182,7 +182,7 @@ setMethod(
 
 #' @rdname nestedGeneEffects-methods
 #' @aliases nestedGeneEffects,HMAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "nestedGeneEffects",
     signature = signature(obj="HMAnalysedPerturbationData"),
@@ -191,7 +191,7 @@ setMethod(
 
 #' @rdname nestedGeneHits-methods
 #' @aliases nestedGeneHits,HMAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "nestedGeneHits",
     signature = signature(obj="HMAnalysedPerturbationData"),
@@ -200,7 +200,7 @@ setMethod(
 
 #' @rdname modelFit-methods
 #' @aliases modelFit,HMAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
   "modelFit",
   signature = signature(obj="HMAnalysedPerturbationData"),
@@ -209,7 +209,7 @@ setMethod(
 
 #' @rdname graph-methods
 #' @aliases graph,NetworkAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "graph",
     signature = signature(obj="NetworkAnalysedPerturbationData"),

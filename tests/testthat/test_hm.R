@@ -49,7 +49,6 @@ testthat::test_that("hm has correct inference", {
              formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol) +
                                 (1|ScreenType)+(1|Condition:ScreenType))
   pars <- params(fit)$formula
-  print(pars)
   testthat::expect_true(is.character(pars))
   testthat::expect_true(pars == "Readout ~ Condition + (1 | GeneSymbol) + (1 | Condition:GeneSymbol) + (1 | ScreenType) + (1 | Condition:ScreenType)")
 })

@@ -44,7 +44,7 @@
 #' @rdname PerturbationData-class
 #' @exportClass PerturbationData
 #'
-#' @slot dataSet  the data set as a \code{data.table} object
+#' @slot dataSet  the data set as a \code{tibble}
 #' @examples
 #'   df <- data.frame(Condition    = c("V1", "V2", "V3"),
 #'                    Replicate    = c(1, 1, 1),
@@ -56,7 +56,7 @@
 #'
 setClass(
     "PerturbationData",
-    slots    = list(dataSet="data.table"),
+    slots    = list(dataSet="tibble"),
     validity = function(object)
     {
         check.columns(object@dataSet, .requiredDataCols())
@@ -67,7 +67,7 @@ setClass(
 
 #' @rdname dataSet-methods
 #' @aliases dataSet,PerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
     "dataSet",
     signature = signature(obj="PerturbationData"),
