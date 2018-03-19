@@ -30,7 +30,7 @@
 #' @method plot PerturbationData
 #' @export
 #'
-#' @import data.table
+#' @import tibble
 #' @import ggplot2
 #' @importFrom dplyr summarize
 #' @importFrom dplyr group_by

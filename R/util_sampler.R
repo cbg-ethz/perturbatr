@@ -44,11 +44,10 @@ bootstrap <- function(obj, ...)
 }
 
 #' @export
-#' @method bootstrap data.table
-#' @import data.table
-#' @importFrom tibble as.tibble
-#' @importFrom dplyr mutate select group_by filter group_indices n ungroup
-bootstrap.data.table <- function(obj, ...)
+#' @method bootstrap tbl_df
+#' @import tibble
+#' @import dplyr
+bootstrap.tbl_df <- function(obj, ...)
 {
   dat  <- tibble::as.tibble(obj)
   dat  <- dplyr::group_by_(dat, .dots = lazyeval::lazy_dots(...)) %>%
@@ -57,7 +56,7 @@ bootstrap.data.table <- function(obj, ...)
     dplyr::mutate(cnt = n()) %>%
     dplyr::ungroup()
 
-  res <- data.table::rbindlist(
+  res <- dplyr::bind_rows(
     lapply(unique(dat$grp),
     function (g)
     {
@@ -73,12 +72,11 @@ bootstrap.data.table <- function(obj, ...)
 
 #' @export
 #' @method bootstrap PerturbationData
-#' @import data.table
+#' @import tibble
 #' @importFrom methods new
 bootstrap.PerturbationData <- function(obj, ...)
 {
   res <- bootstrap(dataSet(obj), ...)
-  ret <- methods::new(class(obj)[1],
-                      dataSet = data.table::as.data.table(res))
+  ret <- methods::new(class(obj)[1], dataSet = tibble::tibble(res))
   ret
 }

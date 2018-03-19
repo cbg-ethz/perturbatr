@@ -18,11 +18,11 @@ dataSet(obj)
 \item{obj}{the object for which you want to extract the underlying data}
 }
 \value{
-returns a \code{data.table}.
+returns a \code{tibble}.
 }
 \description{
 Returns the data set that underlies an S4 wrapper class
- as \code{data.table}.
+ as \code{tibble}.
 }
 \examples{
  data(rnaiscreen)

@@ -49,6 +49,6 @@ testthat::test_that("check columns throws on wrong cols", {
 testthat::test_that("effect matrixes returns correct", {
   ef <- effect.matrices(ft)
   testthat::expect_true(class(ef) == "list")
-  testthat::expect_true(class(ef$gene.effects)[1] == "data.table")
-  testthat::expect_true(class(ef$nested.gene.effects)[1] == "data.table")
+  testthat::expect_true(class(ef$gene.effects)[1] == "tbl_df")
+  testthat::expect_true(class(ef$nested.gene.effects)[1] == "tbl_df")
 })

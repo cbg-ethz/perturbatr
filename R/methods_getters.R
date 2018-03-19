@@ -21,14 +21,14 @@
 #' @title Getter for a data set
 #'
 #' @description Returns the data set that underlies an S4 wrapper class
-#'  as \code{data.table}.
+#'  as \code{tibble}.
 #'
 #' @export
 #' @docType methods
 #' @rdname dataSet-methods
 #'
 #' @param obj  the object for which you want to extract the underlying data
-#' @return  returns a \code{data.table}.
+#' @return  returns a \code{tibble}.
 #' @examples
 #'  data(rnaiscreen)
 #'  dataSet(rnaiscreen)
@@ -93,7 +93,7 @@ setGeneric("isBootstrapped", function(obj) standardGeneric("isBootstrapped"))
 
 #' @title Getter for identified essential genes
 #'
-#' @description Returns a \code{data.table} containing the genes that have been
+#' @description Returns a \code{tibble} containing the genes that have been
 #'  identified as essential genes in a perturbation screen.
 #'
 #' @export
@@ -101,7 +101,7 @@ setGeneric("isBootstrapped", function(obj) standardGeneric("isBootstrapped"))
 #' @rdname geneHits-methods
 #'
 #' @param obj  the object for which you want to extract the underlying gene hits
-#' @return  returns a \code{data.table}.
+#' @return  returns a \code{tibble}.
 #' @examples
 #'  data(rnaiscreen)
 #'  ft <- hm(rnaiscreen)
@@ -111,7 +111,7 @@ setGeneric("geneHits", function(obj) standardGeneric("geneHits"))
 
 #' @title Getter for the complete list of genes and their effect sizes
 #'
-#' @description Returns a \code{data.table} containing the list of genes that
+#' @description Returns a \code{tibble} containing the list of genes that
 #' have been used in the study along with their estimated effect sizes.
 #'
 #' @export
@@ -129,7 +129,7 @@ setGeneric("geneEffects", function(obj) standardGeneric("geneEffects"))
 
 #' @title Getter for the completed list of nested gene effects
 #'
-#' @description Returns a \code{data.table} containing the list of nested genes
+#' @description Returns a \code{tibble} containing the list of nested genes
 #'  effects, i.e. a table of nested cluster effects.
 #'
 #' @export
@@ -137,7 +137,7 @@ setGeneric("geneEffects", function(obj) standardGeneric("geneEffects"))
 #' @rdname nestedGeneEffects-methods
 #'
 #' @param obj  the object for which you want to extract the underlying effects
-#' @return  returns a \code{data.table}.
+#' @return  returns a \code{tibble}.
 #' @examples
 #'  data(rnaiscreen)
 #'  ft <- hm(rnaiscreen)
@@ -148,7 +148,7 @@ setGeneric(
 
 #' @title Getter for identified nested essential genes
 #'
-#' @description Returns a \code{data.table} containing the genes that have been
+#' @description Returns a \code{tibble} containing the genes that have been
 #'  identified as essential genes in a perturbation screen.
 #'
 #' @export
@@ -156,7 +156,7 @@ setGeneric(
 #' @rdname nestedGeneHits-methods
 #'
 #' @param obj  the object for which you want to extract the underlying gene hits
-#' @return  returns a \code{data.table}.
+#' @return  returns a \code{tibble}.
 #' @examples
 #'  data(rnaiscreen)
 #'  ft <- hm(rnaiscreen)

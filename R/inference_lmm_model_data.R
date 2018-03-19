@@ -23,7 +23,7 @@
 #' @docType methods
 #' @rdname setModelData-methods
 #'
-#' @import data.table
+#' @import tibble
 #'
 #' @param obj  an data set
 #' @param drop  boolean if genes that are not found in every Condition should
@@ -41,7 +41,7 @@ setGeneric(
 
 #' @rdname setModelData-methods
 #' @aliases setModelData,PerturbationData-method
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr select filter group_by mutate ungroup
 setMethod(
   "setModelData",
@@ -67,6 +67,6 @@ setMethod(
         dplyr::select(-drop)
     }
 
-    data.table::as.data.table(hm.mat)
+    hm.mat
   }
 )

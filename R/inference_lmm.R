@@ -36,7 +36,7 @@
 #' @docType methods
 #' @rdname hm-methods
 #'
-#' @import data.table
+#' @import tibble
 #' @import formula.tools
 #'
 #' @param obj  an \code{PerturbationData} object
@@ -78,7 +78,7 @@ setGeneric(
 
 #' @rdname hm-methods
 #' @aliases hm,PerturbationData-method
-#' @import data.table
+#' @import tibble
 setMethod(
   "hm",
   signature = signature(obj="PerturbationData"),
@@ -98,7 +98,7 @@ setMethod(
 
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 #' @importFrom methods new
 .hm  <- function(obj, formula, drop, weights, bootstrap.cnt,
                  effect.size, qval.threshold)
@@ -113,12 +113,11 @@ setMethod(
                   bootstrap.cnt=bootstrap.cnt)
 
   ret <- methods::new("HMAnalysedPerturbationData",
-          geneHits = data.table::as.data.table(priorit$gene.hits),
-          nestedGeneHits = data.table::as.data.table(priorit$nested.gene.hits),
-          geneEffects = data.table::as.data.table(res$gene.effects),
-          nestedGeneEffects = data.table::as.data.table(
-            res$nested.gene.effects),
-          dataSet = data.table::as.data.table(res$model.data),
+          geneHits = tibble::as.tibble(priorit$gene.hits),
+          nestedGeneHits = tibble::as.tibble(priorit$nested.gene.hits),
+          geneEffects = tibble::as.tibble(res$gene.effects),
+          nestedGeneEffects = tibble::as.tibble(res$nested.gene.effects),
+          dataSet = tibble::as.tibble(res$model.data),
           modelFit = res$model,
           isBootstrapped = res$btst,
           params = params)
@@ -128,7 +127,7 @@ setMethod(
 
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr mutate full_join select group_by n pull
 .hm.model.data <- function(md, formula, bootstrap.cnt)
 {
@@ -177,7 +176,7 @@ setMethod(
 
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 #' @importFrom lme4 lmer
 #' @importFrom stats as.formula
 .hm.fit <- function(md, formula)
@@ -187,25 +186,25 @@ setMethod(
 }
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr mutate select
 #' @importFrom lme4 ranef
 .ranef <-  function(fit.hm)
 {
   random.effects <- lme4::ranef(fit.hm)
   # create the data table with gene effects
-  ge <- data.table::data.table(
+  ge <- tibble::tibble(
     Effect     = random.effects[["GeneSymbol"]][,1],
     GeneSymbol = as.character(rownames(random.effects[["GeneSymbol"]])))
 
-  # create the data.table with gene-pathogen effects
-  gpe <- data.table::data.table(
+  # create the tibble with gene-pathogen effects
+  gpe <- tibble::tibble(
     gpe = random.effects[["Condition:GeneSymbol"]][,1],
     GenePathID =
       as.character(rownames(random.effects[["Condition:GeneSymbol"]]))) %>%
     dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
 
-  ga <- merge(gpe, ge, by = "GeneSymbol") %>%
+  ga <- base::merge(gpe, ge, by = "GeneSymbol") %>%
     dplyr::mutate(Condition = sub(":.+$", "", GenePathID),
                   GeneConditionEffect = Effect + gpe) %>%
     dplyr::select(-GenePathID, -gpe, -Effect)
@@ -215,12 +214,12 @@ setMethod(
 }
 
 #' @noRd
-#' @import data.table
-#' @importFrom dplyr filter group_by mutate
+#' @import tibble
+#' @importFrom dplyr filter group_by mutate arrange
 .prioritize.hm <- function(obj, eft, fdrt)
 {
-  ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)  %>%
-    .[order(-abs(Effect))]
+  ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)
+  ge <- dplyr::arrange(ge, desc(abs(Effect)))
 
   if (obj$btst)
     ge <- dplyr::filter(ge, Qval <= fdrt)

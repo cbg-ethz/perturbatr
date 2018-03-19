@@ -26,7 +26,7 @@
 #'
 #' @export
 #' @rdname filter-methods
-#' @import data.table
+#' @import tibble
 #'
 #' @param obj  the object to be filtered
 #' @param ...  variable number of logical predicates in terms of the column
@@ -47,12 +47,12 @@ filter <- function(obj, ...) UseMethod("filter")
 
 #' @export
 #' @method filter PerturbationData
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr filter_
 #' @importFrom lazyeval lazy_dots
 #' @importFrom methods new
 filter.PerturbationData <- function(obj, ...)
 {
   filt.dat <- dplyr::filter_(dataSet(obj), .dots = lazyeval::lazy_dots(...))
-  methods::new(class(obj)[1], dataSet=data.table::as.data.table(filt.dat))
+  methods::new(class(obj)[1], dataSet=tibble::as.tibble(filt.dat))
 }

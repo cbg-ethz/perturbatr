@@ -27,7 +27,7 @@
 #' @export
 #' @method plot HMAnalysedPerturbationData
 #' @import ggplot2
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr filter
 #'
 #' @param x  the object to be plotted
@@ -58,24 +58,20 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 #' @import ggplot2
 #' @importFrom dplyr filter
 #' @importFrom methods hasArg
 .plot.perturbation.hm.analysed  <- function(x, main, size, ...)
 {
   pars <- list(...)
+  x <- dplyr::filter(x, Control == 0)
+  x <- x[base::order(-abs(x$Effect)), ]
   if ("Condition" %in% colnames(x))
   {
-    x <- dplyr::filter(x, Control == 0) %>%
-      .[order(abs(Effect), decreasing=TRUE), .SD[seq(25)], by=Condition] %>%
-      dplyr::filter(!is.na(GeneSymbol))
+    x <- dplyr::group_by(x, Condition)
   }
-  else
-  {
-    x <- x[order(abs(Effect), decreasing=TRUE), .SD[seq(25)]] %>%
-      dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
-  }
+  x <- dplyr::filter(x, row_number() <= 25)
 
   x.pos.range  <- max(abs(x$Effect))
   x.lim        <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
@@ -87,7 +83,7 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 #' @import ggplot2
 #' @importFrom tidyr gather
 .plot.effect.matrices.perturbation.analysed.hm <- function(x, size, ...)
@@ -95,14 +91,12 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 
   effect.matrices <- effect.matrices(x)
   ge <- effect.matrices$gene.effects %>%
-    .[order(-abs(Effect))]  %>%
-    .[seq(25)]
+    dplyr::arrange(desc(abs(Effect))) %>%
+    .[seq(25), ]
 
   gpe <-  effect.matrices$nested.gene.effects %>%
     dplyr::filter(GeneSymbol %in% ge$GeneSymbol) %>%
-    tidyr::gather(GeneSymbol)
-
-  colnames(gpe) <- c("GeneSymbol", "Condition", "Effect")
+    tidyr::gather(Condition, Effect, -GeneSymbol)
   gpe$GeneSymbol <- factor(gpe$GeneSymbol, levels=rev(unique(gpe$GeneSymbol)))
 
   pl <-
@@ -152,8 +146,7 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
                                                 family = "Helvetica"),
                    axis.text.x = ggplot2::element_text(
                                               size = size - 2,
-                                              family = "Helvetica"),
-                   strip.text=ggplot2::element_text(face=x$font)) +
+                                              family = "Helvetica")) +
     ggplot2::coord_flip() +
     ggplot2::ggtitle(main)
 }

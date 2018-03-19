@@ -14,10 +14,10 @@ nestedGeneHits(obj)
 \item{obj}{the object for which you want to extract the underlying gene hits}
 }
 \value{
-returns a \code{data.table}.
+returns a \code{tibble}.
 }
 \description{
-Returns a \code{data.table} containing the genes that have been
+Returns a \code{tibble} containing the genes that have been
  identified as essential genes in a perturbation screen.
 }
 \examples{

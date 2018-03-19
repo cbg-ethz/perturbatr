@@ -17,7 +17,7 @@ geneEffects(obj)
 returns a \code{list}.
 }
 \description{
-Returns a \code{data.table} containing the list of genes that
+Returns a \code{tibble} containing the list of genes that
 have been used in the study along with their estimated effect sizes.
 }
 \examples{

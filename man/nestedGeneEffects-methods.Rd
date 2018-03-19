@@ -14,10 +14,10 @@ nestedGeneEffects(obj)
 \item{obj}{the object for which you want to extract the underlying effects}
 }
 \value{
-returns a \code{data.table}.
+returns a \code{tibble}.
 }
 \description{
-Returns a \code{data.table} containing the list of nested genes
+Returns a \code{tibble} containing the list of nested genes
  effects, i.e. a table of nested cluster effects.
 }
 \examples{

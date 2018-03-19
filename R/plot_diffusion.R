@@ -30,7 +30,8 @@
 #' @method plot NetworkAnalysedPerturbationData
 #' @export
 #'
-#' @import data.table
+#' @import tibble
+#' @import dplyr
 #' @import grid
 #' @importFrom gridExtra tableGrob ttheme_minimal grid.table
 #'
@@ -46,9 +47,9 @@ plot.NetworkAnalysedPerturbationData <- function(x, cnt=10, ...)
     base_family="Helvetica",
     core=list(bg_params = list(fill="white")))
 
-  geneEffects(x) %>%
-    .[order(-DiffusionEffect)] %>%
-    .[seq(cnt)] %>%
+  geef <- geneEffects(x)
+  geef[order(-geef$DiffusionEffect),] %>%
+    .[seq(cnt),] %>%
     as.data.frame() %>%
     gridExtra::grid.table(theme=tt)
 }

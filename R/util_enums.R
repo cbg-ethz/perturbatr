@@ -21,8 +21,8 @@
 #' @noRd
 inferenceTypes <- function()
 {
-  list(MIXED.MODEL         = "mixed.model",
-       MRW.DIFFUSION       = "mrw.diffusion")
+  list(MIXED.MODEL   = "mixed.model",
+       MRW.DIFFUSION = "mrw.diffusion")
 }
 
 

@@ -22,23 +22,24 @@
 
 
 #' @aliases show,PerturbationData-method
-#' @import data.table
-#' @importFrom dplyr select
+#' @import tibble
+#' @importFrom dplyr select group_by sample_n
 setMethod(
   "show",
   "PerturbationData",
   function(object)
   {
     cat("A perturbation data set\n\n")
-    dat <- dataSet(object)[ ,.SD[sample(.N, min(.N, 2))], by="Condition"] %>%
+    dat <- dplyr::group_by(dataSet(object), Condition) %>%
+      dplyr::sample_n(2) %>%
       dplyr::select(Condition, GeneSymbol, Readout)
-    print(data.table::as.data.table(dat))
+    print(tibble::as.tibble(dat))
   }
 )
 
 
 #' @aliases show,HMAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr select left_join
 #' @importFrom tidyr spread
 setMethod(
@@ -54,14 +55,14 @@ setMethod(
     ges <- geneEffects(object) %>%
       dplyr::select(GeneSymbol, Effect, Qval)
     mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
-    print(data.table::as.data.table(mer))
+    print(tibble::as.tibble(mer))
   }
 )
 
 
 #' @aliases show,NetworkAnalysedPerturbationData-method
-#' @import data.table
-#' @importFrom dplyr select arrange
+#' @import tibble
+#' @importFrom dplyr select arrange desc
 setMethod(
   "show",
   "NetworkAnalysedPerturbationData",
@@ -70,8 +71,8 @@ setMethod(
     cat(paste0(
       "A perturbation data-set analysed usingnetwork diffuson\n\n"))
     gps <- geneEffects(object) %>%
-      dplyr::select(GeneSymbol, Effect, DiffusionEffect) %>%
-      dplyr::arrange(-DiffusionEffect)
-    print(data.table::as.data.table(gps))
+      dplyr::select(GeneSymbol, Effect, DiffusionEffect)
+    gps <- gps[order(-gps$DiffusionEffect),]
+    print(tibble::as.tibble(gps))
   }
 )

@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with perturbatr If not, see <http://www.gnu.org/licenses/>.
 
-
 context("clazz")
 
 data(rnaiscreen)
@@ -27,16 +26,8 @@ test.dat <- dataSet(rnaiscreen) %>%
   as.data.frame
 
 dat <- methods::as(test.dat, "PerturbationData")
+
 dat.lmm <- hm(dat, effect.size=0.01)
-
-
-testthat::test_that("data object has correct class", {
-  dat  <- data.table(A=rnorm(10))
-  dat2 <- data.frame(Condition=rnorm(10), Replicate=1, GeneSymbol="A")
-  testthat::expect_error(methods::as(dat, "PerturbationData"))
-  testthat::expect_error(methods::as(dat2, "PerturbationData"))
-})
-
 
 testthat::test_that("raw object has correct class", {
   testthat::expect_s4_class(dat, "PerturbationData")

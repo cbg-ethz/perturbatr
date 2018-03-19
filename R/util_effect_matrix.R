@@ -26,14 +26,14 @@ effect.matrices <- function(obj)
 
 #' @noRd
 #' @method .effect.matrices HMAnalysedPerturbationData
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr filter select
 #' @importFrom tidyr spread
 effect.matrices.HMAnalysedPerturbationData <- function(obj)
 {
   g <- geneHits(obj) %>%
     dplyr::select(GeneSymbol, Effect) %>%
-    .[order(-abs(Effect))]
+    dplyr::arrange(desc(abs(Effect)))
 
   pg <- nestedGeneEffects(obj) %>%
     dplyr::select(Condition, GeneSymbol, Effect) %>%

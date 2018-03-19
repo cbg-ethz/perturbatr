@@ -65,27 +65,27 @@ testthat::test_that("hm object returns modelfit", {
 
 
 testthat::test_that("hm object returns data", {
-  testthat::expect_true(class(dataSet(hm.fit))[1] == "data.table")
+  testthat::expect_true(class(dataSet(hm.fit))[1] == "tbl_df")
 })
 
 
 testthat::test_that("hm object returns gene effects", {
-  testthat::expect_true(class(geneEffects(hm.fit))[1] == "data.table")
+  testthat::expect_true(class(geneEffects(hm.fit))[1] == "tbl_df")
 })
 
 
 testthat::test_that("hm object returns gene hits", {
-  testthat::expect_true(class(geneHits(hm.fit))[1] == "data.table")
+  testthat::expect_true(class(geneHits(hm.fit))[1] == "tbl_df")
 })
 
 
 testthat::test_that("hm object returns nested gene effects", {
-  testthat::expect_true(class(nestedGeneEffects(hm.fit))[1] == "data.table")
+  testthat::expect_true(class(nestedGeneEffects(hm.fit))[1] == "tbl_df")
 })
 
 
 testthat::test_that("hm object returns nested gene hits", {
-  testthat::expect_true(class(nestedGeneHits(hm.fit))[1] == "data.table")
+  testthat::expect_true(class(nestedGeneHits(hm.fit))[1] == "tbl_df")
 })
 
 

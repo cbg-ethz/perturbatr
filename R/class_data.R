@@ -56,7 +56,7 @@
 #'
 setClass(
     "PerturbationData",
-    slots    = list(dataSet="tibble"),
+    slots    = list(dataSet="tbl_df"),
     validity = function(object)
     {
         check.columns(object@dataSet, .requiredDataCols())

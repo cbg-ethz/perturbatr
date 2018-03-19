@@ -33,12 +33,12 @@ testthat::test_that("dataSet for PerturbationData has correct columns", {
 
 
 testthat::test_that("filtering works correctly", {
-  testthat::expect_true(class(dataSet(ft))[1] == "data.table")
+  testthat::expect_true(class(dataSet(ft))[1] == "tbl_df")
 })
 
 
 testthat::test_that("filtering works correctly", {
-  frn <- perturbatr::filter(rnaiscreen, Condition == "V1")
+  frn <- filter(rnaiscreen, Condition == "V1")
   testthat::expect_true(all(dataSet(frn)$Condition == "V1"))
 })
 

@@ -19,7 +19,7 @@
 
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr mutate select left_join
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
@@ -27,8 +27,8 @@ ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
 {
   if (!is.numeric(bootstrap.cnt) | bootstrap.cnt < 10)
   {
-    dt <- data.table::data.table(GeneSymbol=ref$gene.effects$GeneSymbol,
-                                 Qval=NA_real_)
+    dt <- tibble::tibble(GeneSymbol=ref$gene.effects$GeneSymbol,
+                         Qval=NA_real_)
     return(list(ret=dt, btst=FALSE))
   }
 
@@ -43,7 +43,7 @@ ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
         bt.sample <- bootstrap(md, Condition, Perturbation)
         lmm.fit   <- .hm.fit(bt.sample, frm)
         re        <- .ranef(lmm.fit)
-        da <- data.table::data.table(
+        da <- tibble::tibble(
             bootstrap  = paste0("Bootstrap_", sprintf("%03i", i)),
             Effect     = re$gene.effects$Effect,
             GeneSymbol = re$gene.effects$GeneSymbol)
@@ -58,7 +58,7 @@ ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
                     mistrial.cnt ," mis-trials!"))
   }
 
-  btst.dat <- data.table::rbindlist(li)
+  btst.dat <- dplyr::bind_rows(li)
   fdrs     <- .ge.fdrs(btst.dat, bootstrap.cnt)
 
   # join bootstrap table with fdr table
@@ -77,7 +77,7 @@ ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
   res <- dplyr::group_by(btst.dat, GeneSymbol) %>%
     dplyr::do(conf.int(.$Effect, cnt)) %>%
     ungroup() %>%
-    .[order(Pval)] %>%
+    dplyr::arrange(Pval) %>%
     dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
 
   res
@@ -85,12 +85,13 @@ ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
 
 
 #' @noRd
+#' @import tibble
 #' @importFrom stats t.test
 conf.int <- function(eff, cnt)
 {
   t <- stats::t.test(eff, mu=0, na.rm=TRUE)
-  data.frame(Mean  = mean(eff, na.rm=TRUE),
-             Pval  = t$p.value,
-             Lower = t$conf.int[1],
-             Upper = t$conf.int[2])
+  tibble::tibble(Mean  = mean(eff, na.rm=TRUE),
+                 Pval  = t$p.value,
+                 Lower = t$conf.int[1],
+                 Upper = t$conf.int[2])
 }

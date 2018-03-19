@@ -4,7 +4,7 @@
 \name{rnaiscreen}
 \alias{rnaiscreen}
 \title{A sample pan-pathogenic perturbation dataset}
-\format{A \code{PerturbationData} object containing a data.table with 18
+\format{A \code{PerturbationData} object containing a \code{tibble} with 18
  columns, each describing a feature.}
 \usage{
 data(rnaiscreen)

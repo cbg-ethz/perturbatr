@@ -16,7 +16,7 @@ Class \code{PerturbationData} wraps a data set derived
 \section{Slots}{
 
 \describe{
-\item{\code{dataSet}}{the data set as a \code{data.table} object}
+\item{\code{dataSet}}{the data set as a \code{tibble}}
 }}
 
 \examples{

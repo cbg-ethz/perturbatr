@@ -59,7 +59,7 @@
 #' @docType data
 #' @keywords datasets data
 #' @usage data(rnaiscreen)
-#' @format A \code{PerturbationData} object containing a data.table with 18
+#' @format A \code{PerturbationData} object containing a \code{tibble} with 18
 #'  columns, each describing a feature.
 #'
 #' @examples

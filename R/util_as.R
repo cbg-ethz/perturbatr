@@ -19,9 +19,9 @@
 
 
 #' @noRd
-#' @import data.table
+#' @import tibble
 methods::setAs(
-  "data.table",
+  "tbl_df",
   "PerturbationData",
   function(from)
   {
@@ -29,14 +29,28 @@ methods::setAs(
   }
 )
 
+
 #' @noRd
 #' @import methods
-#' @import data.table
+#' @import tibble
+methods::setAs(
+  "data.table",
+  "PerturbationData",
+  function(from)
+  {
+    methods::as(tibble::as.tibble(from), "PerturbationData")
+  }
+)
+
+
+#' @noRd
+#' @import methods
+#' @import tibble
 methods::setAs(
   "data.frame",
   "PerturbationData",
   function(from)
   {
-    methods::as(data.table::as.data.table(from), "PerturbationData")
+    methods::as(tibble::as.tibble(from), "PerturbationData")
   }
 )

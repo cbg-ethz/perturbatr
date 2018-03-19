@@ -38,7 +38,7 @@
 #' @docType methods
 #' @rdname diffuse-methods
 #'
-#' @import data.table
+#' @import tibble
 #'
 #' @param obj  \code{HMAnalysedPerturbationData} object
 #' @param path   path to the network file (if \code{graph} is \code{NULL})
@@ -74,7 +74,7 @@ setGeneric(
 
 #' @rdname diffuse-methods
 #' @aliases diffuse,HMAnalysedPerturbationData-method
-#' @import data.table
+#' @import tibble
 #' @importFrom dplyr select filter
 setMethod(
   "diffuse",
@@ -114,7 +114,7 @@ setMethod(
 
 
 #' @noRd
-#' @import data.table igraph
+#' @import igraph
 .diffuse <- function(hits,
                      mod,
                      bootstrap.hits,

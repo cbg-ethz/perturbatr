@@ -48,12 +48,12 @@ testthat::test_that("diffusion object returns params", {
 
 
 testthat::test_that("diffusion object returns data", {
-  testthat::expect_true(class(dataSet(res))[1] == "data.table")
+  testthat::expect_true(class(dataSet(res))[1] == "tbl_df")
 })
 
 
 testthat::test_that("diffusion object returns gene effects", {
-  testthat::expect_true(class(geneEffects(res))[1] == "data.table")
+  testthat::expect_true(class(geneEffects(res))[1] == "tbl_df")
 })
 
 
