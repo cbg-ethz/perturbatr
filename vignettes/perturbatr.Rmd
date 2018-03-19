@@ -20,9 +20,7 @@ vignette: >
 ```{r setup, include=FALSE}
   knitr::opts_chunk$set(echo = TRUE)
   options(warn = -1)
-  library(data.table)
   library(dplyr)
-  library(dtplyr)
   library(methods)
   library(perturbatr)
   data(rnaiscreen)

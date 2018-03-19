@@ -31,7 +31,7 @@ setMethod(
   {
     cat("A perturbation data set\n\n")
     dat <- dplyr::group_by(dataSet(object), Condition) %>%
-      dplyr::sample_n(2) %>%
+      dplyr::sample_n(2, replace=TRUE) %>%
       dplyr::select(Condition, GeneSymbol, Readout)
     print(tibble::as.tibble(dat))
   }

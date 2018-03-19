@@ -1,8 +1,8 @@
 Package: perturbatr
 Type: Package
 Title: Statistical Analysis of High-Throughput Genetic Perturbation Screens
-Version: 0.99.13
-Date: 2018-03-06
+Version: 0.99.14
+Date: 2018-03-19
 Authors@R: person("Simon", "Dirmeier",
 	email = "simon.dirmeier@web.de", role = c("aut", "cre"))
 Maintainer: Simon Dirmeier <simon.dirmeier@web.de>
@@ -16,7 +16,7 @@ License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1
 Depends:
-  R (>= 3.4.3),
+  R (>= 3.5),
   methods,
   stats
 Imports:
