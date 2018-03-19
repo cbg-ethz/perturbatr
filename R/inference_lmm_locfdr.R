@@ -22,9 +22,10 @@
 #' @importFrom tidyr spread
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr select
+#' @importFrom rlang .data
 nge.fdrs <- function(obj)
 {
-  nges <- tibble::as_tibble(tidyr::spread(obj, Condition, GeneConditionEffect))
+  nges <- tidyr::spread(obj, .data$Condition, .data$GeneConditionEffect)
   fdrs <- list()
   # calculate FDRs for every nested-gene effect
   for (i in unique(obj$Condition))
@@ -46,16 +47,19 @@ nge.fdrs <- function(obj)
 }
 
 
+#' @importFrom rlang .data
 .gather.locfdr <- function(nges, fdrs)
 {
   # parse the result matrix into a gene matrix
-  gene.effect.mat <- nges[, grep("Qval", colnames(nges), invert=TRUE)] %>%
-    tidyr::gather(Condition, Effect, 2:ncol(.))
+  gene.effect.mat <- nges[, grep("Qval", colnames(nges), invert=TRUE)]
+  gene.effect.mat <- tidyr::gather(
+    gene.effect.mat, "Condition", "Effect", 2:ncol(gene.effect.mat))
 
   # parse the result matrix into a fdr matrix
-  fdr.mat <- nges[,c(1, grep("Qval", colnames(nges)))] %>%
-    tidyr::gather(Condition, Qval, 2:ncol(.)) %>%
-    dplyr::mutate(Condition = sub("Qval.", "", Condition))
+  fdr.mat <- nges[,c(1, grep("Qval", colnames(nges)))]
+  fdr.mat <- tidyr::gather(fdr.mat, "Condition", "Qval", 2:ncol(fdr.mat))
+  fdr.mat <- dplyr::mutate(fdr.mat,
+                           "Condition" = sub("Qval.", "", .data$Condition))
 
   # join both matrices
   nested.gene.matrix <-

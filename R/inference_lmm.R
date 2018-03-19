@@ -129,6 +129,7 @@ setMethod(
 #' @noRd
 #' @import tibble
 #' @importFrom dplyr mutate full_join select group_by n pull
+#' @importFrom rlang .data
 .hm.model.data <- function(md, formula, bootstrap.cnt)
 {
   if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
@@ -137,14 +138,13 @@ setMethod(
   }
 
   # save gene control mappings
-  gene.control.map <-
-    dplyr::select(md, GeneSymbol, Control) %>%
-    unique() %>%
-    dplyr::mutate(GeneSymbol=as.character(GeneSymbol))
-  mult.gen.cnt <- dplyr::group_by(gene.control.map, GeneSymbol) %>%
-    dplyr::mutate(cnt = n()) %>%
-    dplyr::pull(cnt) %>%
-    unique()
+  gene.control.map <- unique(
+    dplyr::select(md, .data$GeneSymbol, .data$Control))
+  gene.control.map <- dplyr::mutate(
+    gene.control.map, "GeneSymbol" = as.character(.data$GeneSymbol))
+  mult.gen.cnt <- dplyr::group_by(gene.control.map, .data$GeneSymbol)
+  mult.gen.cnt <- dplyr::mutate(mult.gen.cnt, "cnt" = n())
+  mult.gen.cnt <- unique(dplyr::pull(mult.gen.cnt, .data$cnt))
 
   if (length(mult.gen.cnt) != 1)
   {
@@ -159,12 +159,17 @@ setMethod(
   nge.fdrs.ef <- nge.fdrs(ref$nested.gene.effects)
 
   # set together the gene/fdr/effects and the mappings
-  ges <- dplyr::full_join(ref$gene.effects, gene.control.map,
-                          by="GeneSymbol") %>%
-    dplyr::full_join(dplyr::select(ge.fdrs.ef$ret, GeneSymbol, Qval),
-                                   by="GeneSymbol")
-  nges <- dplyr::full_join(nge.fdrs.ef$nested.gene.matrix,
-                           gene.control.map, by="GeneSymbol")
+  ges <- dplyr::full_join(ref$gene.effects, gene.control.map, by="GeneSymbol")
+  ges <- dplyr::full_join(
+    ges,
+    dplyr::select(ge.fdrs.ef$ret, .data$GeneSymbol, .data$Qval),
+    by="GeneSymbol"
+  )
+  nges <- dplyr::full_join(
+    nge.fdrs.ef$nested.gene.matrix,
+    gene.control.map,
+    by="GeneSymbol"
+  )
 
   ret <- list(gene.effects        = ges,
               nested.gene.effects = nges,
@@ -189,6 +194,7 @@ setMethod(
 #' @import tibble
 #' @importFrom dplyr mutate select
 #' @importFrom lme4 ranef
+#' @importFrom rlang .data
 .ranef <-  function(fit.hm)
 {
   random.effects <- lme4::ranef(fit.hm)
@@ -202,12 +208,12 @@ setMethod(
     gpe = random.effects[["Condition:GeneSymbol"]][,1],
     GenePathID =
       as.character(rownames(random.effects[["Condition:GeneSymbol"]]))) %>%
-    dplyr::mutate(GeneSymbol = sub("^.+:", "", GenePathID))
+    dplyr::mutate("GeneSymbol" = sub("^.+:", "", .data$GenePathID))
 
   ga <- base::merge(gpe, ge, by = "GeneSymbol") %>%
-    dplyr::mutate(Condition = sub(":.+$", "", GenePathID),
-                  GeneConditionEffect = Effect + gpe) %>%
-    dplyr::select(-GenePathID, -gpe, -Effect)
+    dplyr::mutate("Condition" = sub(":.+$", "", .data$GenePathID),
+                  "GeneConditionEffect" = .data$Effect + .data$gpe) %>%
+    dplyr::select(-.data$GenePathID, -.data$gpe, -.data$Effect)
 
   list(gene.effects        = ge,
        nested.gene.effects = ga)
@@ -216,20 +222,20 @@ setMethod(
 #' @noRd
 #' @import tibble
 #' @importFrom dplyr filter group_by mutate arrange
+#' @importFrom rlang .data
 .prioritize.hm <- function(obj, eft, fdrt)
 {
-  ge <- dplyr::filter(obj$gene.effects, abs(Effect) >= eft)
-  ge <- dplyr::arrange(ge, desc(abs(Effect)))
+  ge <- dplyr::filter(obj$gene.effects, abs(.data$Effect) >= eft)
+  ge <- dplyr::arrange(ge, desc(abs(.data$Effect)))
 
   if (obj$btst)
-    ge <- dplyr::filter(ge, Qval <= fdrt)
+    ge <- dplyr::filter(ge, .data$Qval <= fdrt)
 
-  nge <- obj$nested.gene.effects %>%
-    dplyr::filter(abs(Effect) >= eft) %>%
-    dplyr::arrange(-abs(Effect))
+  nge <- dplyr::filter(obj$nested.gene.effects, abs(.data$Effect) >= eft)
+  nge <- dplyr::arrange(nge, -abs(.data$Effect))
 
   if(all(!is.na(nge$Qval)))
-    nge <- nge %>% dplyr::filter(Qval <= fdrt)
+    nge <- dplyr::filter(nge, .data$Qval <= fdrt)
 
   list(gene.hits=ge, nested.gene.hits=nge)
 }

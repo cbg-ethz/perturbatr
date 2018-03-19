@@ -23,24 +23,25 @@
 #' @importFrom dplyr mutate select left_join
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
+#' @importFrom rlang .data
 ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
 {
   if (!is.numeric(bootstrap.cnt) | bootstrap.cnt < 10)
   {
-    dt <- tibble::tibble(GeneSymbol=ref$gene.effects$GeneSymbol,
-                         Qval=NA_real_)
+    dt <- tibble::tibble(
+      GeneSymbol=ref$gene.effects$GeneSymbol, Qval=NA_real_)
     return(list(ret=dt, btst=FALSE))
   }
 
   message("Bootstrapping ... this might take a while.")
   li <- list()
-  i <- ctr <- 1
+  i  <- ctr <- 1
   mistrial.cnt <- bootstrap.cnt * 10
   while (i <= bootstrap.cnt)
   {
     ctr <- ctr + 1
     tryCatch({
-        bt.sample <- bootstrap(md, Condition, Perturbation)
+        bt.sample <- bootstrap(md, .data$Condition, .data$Perturbation)
         lmm.fit   <- .hm.fit(bt.sample, frm)
         re        <- .ranef(lmm.fit)
         da <- tibble::tibble(
@@ -63,22 +64,24 @@ ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
 
   # join bootstrap table with fdr table
   ret  <- dplyr::left_join(
-      fdrs, tidyr::spread(btst.dat, bootstrap, Effect), by="GeneSymbol")
+      fdrs, tidyr::spread(btst.dat, .data$bootstrap,
+                          .data$Effect), by="GeneSymbol")
 
   list(ret=ret, btst=TRUE)
 }
 
 
 #' @noRd
+#' @import dplyr
 #' @importFrom assertthat assert_that
 #' @importFrom stats p.adjust
+#' @importFrom rlang .data
 .ge.fdrs <- function(btst.dat, cnt)
 {
-  res <- dplyr::group_by(btst.dat, GeneSymbol) %>%
-    dplyr::do(conf.int(.$Effect, cnt)) %>%
-    ungroup() %>%
-    dplyr::arrange(Pval) %>%
-    dplyr::mutate(Qval=p.adjust(Pval, method="BH"))
+  res <- dplyr::group_by(btst.dat, .data$GeneSymbol)
+  res <- ungroup(dplyr::do(res, conf.int(.data$Effect, cnt)))
+  res <- dplyr::arrange(res, .data$Pval)
+  res <- dplyr::mutate(res, "Qval" = p.adjust(.data$Pval, method="BH"))
 
   res
 }

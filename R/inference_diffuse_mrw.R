@@ -81,8 +81,9 @@ mrw <- function(hits,
 .init.starting.distribution <- function(hits, adjm)
 {
     res <- dplyr::left_join(
-      tibble::tibble(GeneSymbol=colnames(adjm)), hits, by="GeneSymbol")
-    res <- dplyr::mutate(res, Effect = replace(is.na(Effect), 0, Effect))
+      tibble::tibble("GeneSymbol" = colnames(adjm)), hits, by="GeneSymbol")
+    res <- dplyr::mutate(
+      res, "Effect" = replace(is.na(.data$Effect), 0, .data$Effect))
 
     list(frame=res, adjm=adjm)
 }
@@ -94,18 +95,21 @@ mrw <- function(hits,
 #' @import foreach
 #' @import parallel
 #' @import doParallel
+#' @importFrom rlang .data
 .significance.mrw <- function(bootstrap.hits, adjm, r)
 {
-    boot.g <- tidyr::gather(bootstrap.hits, Boot, Effect, -GeneSymbol)
+    boot.g <- tidyr::gather(bootstrap.hits, "Boot", "Effect",
+                            -.data$GeneSymbol)
 
     doParallel::registerDoParallel(
       ifelse(tolower(Sys.info()['sysname']) %in% c("darwin", "unix"),
              max(1, parallel::detectCores() - 1), 1L))
 
-    li <- foreach::foreach(lo=unique(boot.g$Boot)) %dopar%
+    lo <- NULL
+    li <- foreach::foreach(lo = unique(boot.g$Boot)) %dopar%
     {
-      hits  <- dplyr::filter(boot.g, Boot == lo)
-      hits  <- dplyr::select(hits, -Boot)
+      hits  <- dplyr::filter(boot.g, .data$Boot == lo)
+      hits  <- dplyr::select(hits, -.data$Boot)
       dd.lo <- .do.mrw(hits, adjm, r)
       dd.lo$frame$boot <- lo
       dd.lo$frame
@@ -113,15 +117,15 @@ mrw <- function(hits,
 
     doParallel::stopImplicitCluster()
 
-    flat.dat <- dplyr::bind_rows(li) %>%
-      tibble::as.tibble() %>%
-      dplyr::select(-Effect)
-    ret <- flat.dat  %>%
-      dplyr::group_by(GeneSymbol) %>%
-      dplyr::summarise(Mean=mean(DiffusionEffect, na.rm=TRUE)) %>%
-      ungroup() %>%
-      dplyr::left_join(tidyr::spread(flat.dat, boot, DiffusionEffect),
-                       by="GeneSymbol")
+    flat.dat <- dplyr::bind_rows(li)
+    flat.dat <- dplyr::select(flat.dat, -.data$Effect)
+    ret <- dplyr::group_by(flat.dat, .data$GeneSymbol)
+    ret <- ungroup(dplyr::summarise(
+      ret, "Mean"= base::mean(.data$DiffusionEffect, na.rm=TRUE)))
+    ret <- dplyr::left_join(
+      ret,
+      tidyr::spread(flat.dat, .data$boot, .data$DiffusionEffect),
+      by="GeneSymbol")
 
     ret
 }

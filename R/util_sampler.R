@@ -47,25 +47,25 @@ bootstrap <- function(obj, ...)
 #' @method bootstrap tbl_df
 #' @import tibble
 #' @import dplyr
+#' @importFrom rlang .data
 bootstrap.tbl_df <- function(obj, ...)
 {
   dat  <- tibble::as.tibble(obj)
-  dat  <- dplyr::group_by_(dat, .dots = lazyeval::lazy_dots(...)) %>%
-    { dplyr::mutate(dplyr::ungroup(.), grp = dplyr::group_indices(.)) } %>%
-    dplyr::group_by_(.dots = lazyeval::lazy_dots(...)) %>%
-    dplyr::mutate(cnt = n()) %>%
-    dplyr::ungroup()
+  dat  <- dplyr::group_by_(dat, .dots = lazyeval::lazy_dots(...))
+  grps <- dplyr::group_indices(dat)
+  dat  <- dplyr::ungroup(dplyr::mutate(dat, "cnt" = n()))
+  dat$grp <- grps
 
   res <- dplyr::bind_rows(
     lapply(unique(dat$grp),
     function (g)
     {
-      grp.dat <- dplyr::filter(dat, grp == g)
+      grp.dat <- dplyr::filter(dat, .data$grp == g)
       idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
       grp.dat[idx, ]
     }))
 
-  ret <- dplyr::select(res, -cnt, -grp)
+  ret <- dplyr::select(res, -.data$cnt, -.data$grp)
   ret
 }
 
@@ -77,6 +77,6 @@ bootstrap.tbl_df <- function(obj, ...)
 bootstrap.PerturbationData <- function(obj, ...)
 {
   res <- bootstrap(dataSet(obj), ...)
-  ret <- methods::new(class(obj)[1], dataSet = tibble::tibble(res))
+  ret <- methods::new(class(obj)[1], dataSet = tibble::as.tibble(res))
   ret
 }

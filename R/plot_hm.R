@@ -60,23 +60,20 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 #' @noRd
 #' @import tibble
 #' @import ggplot2
-#' @importFrom dplyr filter
+#' @import dplyr
 #' @importFrom methods hasArg
+#' @importFrom rlang .data
 .plot.perturbation.hm.analysed  <- function(x, main, size, ...)
 {
   pars <- list(...)
-  x <- dplyr::filter(x, Control == 0)
+  x <- dplyr::filter(x, .data$Control == 0)
   x <- x[base::order(-abs(x$Effect)), ]
   if ("Condition" %in% colnames(x))
   {
-    x <- dplyr::group_by(x, Condition)
+    x <- dplyr::group_by(x, .data$Condition)
   }
-  x <- dplyr::filter(x, row_number() <= 25)
-
-  x.pos.range  <- max(abs(x$Effect))
-  x.lim        <- c(-x.pos.range, x.pos.range) + c(-x.pos.range, x.pos.range)/5
+  x <- x %>% dplyr::filter(row_number() <= 25)
   x$GeneSymbol <- factor(x$GeneSymbol, levels=rev(unique(x$GeneSymbol)))
-
   pl <- .plot.bars(x, size, main, ...)
   pl
 }
@@ -86,22 +83,23 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 #' @import tibble
 #' @import ggplot2
 #' @importFrom tidyr gather
+#' @importFrom rlang .data
 .plot.effect.matrices.perturbation.analysed.hm <- function(x, size, ...)
 {
 
   effect.matrices <- effect.matrices(x)
-  ge <- effect.matrices$gene.effects %>%
-    dplyr::arrange(desc(abs(Effect))) %>%
-    .[seq(25), ]
+  ge <- effect.matrices$gene.effects
+  ge <- dplyr::arrange(ge, desc(abs(.data$Effect)))
+  ge <- ge[seq(25), ]
 
-  gpe <-  effect.matrices$nested.gene.effects %>%
-    dplyr::filter(GeneSymbol %in% ge$GeneSymbol) %>%
-    tidyr::gather(Condition, Effect, -GeneSymbol)
+  gpe <- effect.matrices$nested.gene.effects
+  gpe <- dplyr::filter(gpe, .data$GeneSymbol %in% ge$GeneSymbol)
+  gpe <- tidyr::gather(gpe, "Condition", "Effect", -.data$GeneSymbol)
   gpe$GeneSymbol <- factor(gpe$GeneSymbol, levels=rev(unique(gpe$GeneSymbol)))
 
   pl <-
-    ggplot2::ggplot(gpe, ggplot2::aes(GeneSymbol, Condition)) +
-    ggplot2::geom_tile(ggplot2::aes(fill = Effect), colour="black") +
+    ggplot2::ggplot(gpe, ggplot2::aes(gpe$GeneSymbol, gpe$Condition)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = gpe$Effect), colour="black") +
     ggplot2::scale_x_discrete(expand = c(0,0)) +
     ggplot2::scale_y_discrete(expand = c(0,0)) +
     ggplot2::scale_fill_gradient2(low      = colors()$blue,
@@ -124,12 +122,13 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 
 
 #' @noRd
+#' @importFrom rlang .data
 .plot.bars <- function(x, size, main, ...)
 {
     ggplot2::ggplot(x) +
-    ggplot2::geom_bar(ggplot2::aes(x=GeneSymbol, y=abs(Effect),
-                                  fill=factor(sign(Effect))),
-                                  stat="identity") +
+    ggplot2::geom_bar(
+      ggplot2::aes(x$GeneSymbol, abs(x$Effect), fill=factor(sign(x$Effect))),
+      stat="identity") +
     ggplot2::scale_fill_manual("Trend",
       values = c(colors()$red, "grey", colors()$blue),
       limits = c("1",  "0", "-1"),

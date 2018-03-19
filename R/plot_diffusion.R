@@ -33,6 +33,7 @@
 #' @import tibble
 #' @import dplyr
 #' @import grid
+#' @importFrom rlang .data
 #' @importFrom gridExtra tableGrob ttheme_minimal grid.table
 #'
 #' @param x  a \code{NetworkAnalysedPerturbationData} object
@@ -48,8 +49,6 @@ plot.NetworkAnalysedPerturbationData <- function(x, cnt=10, ...)
     core=list(bg_params = list(fill="white")))
 
   geef <- geneEffects(x)
-  geef[order(-geef$DiffusionEffect),] %>%
-    .[seq(cnt),] %>%
-    as.data.frame() %>%
-    gridExtra::grid.table(theme=tt)
+  geef <- geef[order(-geef$DiffusionEffect),][seq(cnt),]
+  gridExtra::grid.table(geef, theme=tt)
 }

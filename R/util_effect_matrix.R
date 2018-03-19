@@ -29,15 +29,16 @@ effect.matrices <- function(obj)
 #' @import tibble
 #' @importFrom dplyr filter select
 #' @importFrom tidyr spread
+#' @importFrom rlang .data
 effect.matrices.HMAnalysedPerturbationData <- function(obj)
 {
-  g <- geneHits(obj) %>%
-    dplyr::select(GeneSymbol, Effect) %>%
-    dplyr::arrange(desc(abs(Effect)))
+  g <- geneHits(obj)
+  g <- dplyr::select(g, .data$GeneSymbol, .data$Effect)
+  g <- dplyr::arrange(g, desc(abs(.data$Effect)))
 
-  pg <- nestedGeneEffects(obj) %>%
-    dplyr::select(Condition, GeneSymbol, Effect) %>%
-    tidyr::spread(Condition, Effect)
+  pg <- nestedGeneEffects(obj)
+  pg <- dplyr::select(pg, .data$Condition, .data$GeneSymbol, .data$Effect)
+  pg <- tidyr::spread(pg, .data$Condition, .data$Effect)
 
   list(gene.effects=g, nested.gene.effects=pg)
 }
