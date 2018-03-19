@@ -30,9 +30,9 @@ setMethod(
   function(object)
   {
     cat("A perturbation data set\n\n")
-    dat <- dplyr::group_by(dataSet(object), Condition) %>%
+    dat <- dplyr::group_by(dataSet(object), .data$Condition) %>%
       dplyr::sample_n(2, replace=TRUE) %>%
-      dplyr::select(Condition, GeneSymbol, Readout)
+      dplyr::select(.data$Condition, .data$GeneSymbol, .data$Readout)
     print(base::as.data.frame(dat))
   }
 )
@@ -50,10 +50,10 @@ setMethod(
     cat(paste0(
       "A perturbation data-set analysed using a hierachical model\n\n"))
     gps <- nestedGeneEffects(object) %>%
-      dplyr::select(GeneSymbol, Condition, Effect) %>%
-      tidyr::spread(Condition, Effect)
+      dplyr::select(.data$GeneSymbol, .data$Condition, .data$Effect) %>%
+      tidyr::spread(.data$Condition, .data$Effect)
     ges <- geneEffects(object) %>%
-      dplyr::select(GeneSymbol, Effect, Qval)
+      dplyr::select(.data$GeneSymbol, .data$Effect, .data$Qval)
     mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
     print(base::as.data.frame(mer))
   }
@@ -63,6 +63,7 @@ setMethod(
 #' @aliases show,NetworkAnalysedPerturbationData-method
 #' @import tibble
 #' @importFrom dplyr select arrange desc
+#' @importFrom rlang .data
 setMethod(
   "show",
   "NetworkAnalysedPerturbationData",
@@ -71,7 +72,7 @@ setMethod(
     cat(paste0(
       "A perturbation data-set analysed usingnetwork diffuson\n\n"))
     gps <- geneEffects(object) %>%
-      dplyr::select(GeneSymbol, Effect, DiffusionEffect)
+      dplyr::select(.data$GeneSymbol, .data$Effect, .data$DiffusionEffect)
     gps <- gps[order(-gps$DiffusionEffect),]
     print(base::as.data.frame(gps))
   }

@@ -76,6 +76,7 @@ setGeneric(
 #' @aliases diffuse,HMAnalysedPerturbationData-method
 #' @import tibble
 #' @importFrom dplyr select filter
+#' @importFrom rlang .data
 setMethod(
   "diffuse",
   signature=signature(obj="HMAnalysedPerturbationData"),
@@ -86,8 +87,8 @@ setMethod(
            delete.nodes.on.degree=0,
            do.bootstrap=FALSE)
   {
-    hits <- dplyr::select(geneHits(obj), GeneSymbol, Effect)
-    hits <- dplyr::mutate(hits, Effect = abs(Effect))
+    hits <- dplyr::select(geneHits(obj), .data$GeneSymbol, .data$Effect)
+    hits <- dplyr::mutate(hits, "Effect" = abs(.data$Effect))
     if (nrow(hits) == 0)
         stop("Your prior analysis did not yield hits for genes")
 
@@ -96,9 +97,10 @@ setMethod(
     {
       bootstrap.hits <- modelFit(obj)$ge.fdrs$ret
       bootstrap.hits <- dplyr::filter(bootstrap.hits,
-        GeneSymbol %in% hits$GeneSymbol)
+        .data$GeneSymbol %in% hits$GeneSymbol)
       bootstrap.hits <- dplyr::select(
-        bootstrap.hits, -Mean, -Pval, -Qval, -Lower, -Upper)
+        bootstrap.hits, -.data$Mean, -.data$Pval, -.data$Qval,
+        -.data$Lower, -.data$Upper)
     }
 
     ret <- .diffuse(hits,
@@ -106,7 +108,6 @@ setMethod(
                     bootstrap.hits=bootstrap.hits,
                     path=path,
                     graph=graph,
-                    method=method,
                     r=r,
                     delete.nodes.on.degree=delete.nodes.on.degree,
                     do.bootstrap=do.bootstrap)
@@ -122,7 +123,6 @@ setMethod(
                      bootstrap.hits,
                      path,
                      graph,
-                     method,
                      r,
                      delete.nodes.on.degree,
                      do.bootstrap)

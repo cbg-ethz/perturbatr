@@ -43,6 +43,7 @@ setGeneric(
 #' @aliases setModelData,PerturbationData-method
 #' @import tibble
 #' @importFrom dplyr select filter group_by mutate ungroup
+#' @importFrom rlang .data
 setMethod(
   "setModelData",
   signature = signature(obj="PerturbationData"),
@@ -50,9 +51,9 @@ setMethod(
   {
     hm.mat <- dataSet(obj) %>%
       dplyr::mutate(Weight = as.double(weights)) %>%
-      dplyr::filter(!is.na(GeneSymbol)) %>%
-      dplyr::filter(Control != 1) %>%
-      dplyr::filter(!is.na(Readout))
+      dplyr::filter(!is.na(.data$GeneSymbol)) %>%
+      dplyr::filter(.data$Control != 1) %>%
+      dplyr::filter(!is.na(.data$Readout))
 
     hm.mat$Condition  <- as.factor(hm.mat$Condition)
     hm.mat$GeneSymbol <- as.factor(hm.mat$GeneSymbol)
@@ -60,11 +61,11 @@ setMethod(
     if (drop)
     {
       vir.cnt <- leuniq(hm.mat$Condition)
-      hm.mat <- dplyr::group_by(hm.mat, GeneSymbol) %>%
-        dplyr::mutate(drop=(leuniq(Condition) != vir.cnt)) %>%
+      hm.mat <- dplyr::group_by(hm.mat, .data$GeneSymbol) %>%
+        dplyr::mutate("drop" = (leuniq(.data$Condition) != vir.cnt)) %>%
         dplyr::ungroup() %>%
-        dplyr::filter(!drop) %>%
-        dplyr::select(-drop)
+        dplyr::filter(!.data$drop) %>%
+        dplyr::select(-.data$drop)
     }
 
     hm.mat
