@@ -160,7 +160,8 @@ That means while some genes are required during *entry and replication*,
 others might play a role in *assembly and release* of the virions. 
 So we have reason to believe that the stage of the infection also introduces 
 a clustering effect. In that case we would need to add a random effect 
-for the stage of the infection.
+for the stage of the infection. We estimated the effects using `lme4` 
+[@bates2014lme4].
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   frm <- Readout ~ Condition +
