@@ -95,8 +95,6 @@ setClass(
 #' @rdname NetworkAnalysedPerturbationData-class
 #' @exportClass NetworkAnalysedPerturbationData
 #'
-#' @import igraph
-#'
 #' @description Class \code{NetworkAnalysedPerturbationData} is a wrapper for
 #'  various objects of an analysis of a perturbation experiment done
 #'  using network diffusion. Class \code{NetworkAnalysedPerturbationData}

@@ -31,7 +31,6 @@
 #' @export
 #'
 #' @import tibble
-#' @import dplyr
 #' @import grid
 #' @importFrom rlang .data
 #' @importFrom gridExtra tableGrob ttheme_minimal grid.table

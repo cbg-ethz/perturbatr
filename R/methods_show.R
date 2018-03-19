@@ -33,7 +33,7 @@ setMethod(
     dat <- dplyr::group_by(dataSet(object), Condition) %>%
       dplyr::sample_n(2, replace=TRUE) %>%
       dplyr::select(Condition, GeneSymbol, Readout)
-    print(tibble::as.tibble(dat))
+    print(base::as.data.frame(dat))
   }
 )
 
@@ -55,7 +55,7 @@ setMethod(
     ges <- geneEffects(object) %>%
       dplyr::select(GeneSymbol, Effect, Qval)
     mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
-    print(tibble::as.tibble(mer))
+    print(base::as.data.frame(mer))
   }
 )
 
@@ -73,6 +73,6 @@ setMethod(
     gps <- geneEffects(object) %>%
       dplyr::select(GeneSymbol, Effect, DiffusionEffect)
     gps <- gps[order(-gps$DiffusionEffect),]
-    print(tibble::as.tibble(gps))
+    print(base::as.data.frame(gps))
   }
 )

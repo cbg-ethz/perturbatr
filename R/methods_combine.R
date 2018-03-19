@@ -26,7 +26,7 @@
 #' @method rbind PerturbationData
 #'
 #' @import tibble
-#' @import dplyr
+#' @importFrom dplyr bind_rows
 #' @importFrom methods new
 #'
 #' @param ...  variable number of \code{PerturbationData} objects
@@ -39,9 +39,9 @@ rbind.PerturbationData <-  function(...)
 {
   args  <- list(...)
   if (length(args) < 2) return(args[[1]])
-  clazz <- unlist(lapply(args, function(e) class(e)[1]))
+  clazz <- base::unlist(base::lapply(args, function(e) class(e)[1]))
   if(any(clazz != clazz[1])) stop("Data classes do not agree")
-  dat   <- dplyr::bind_rows(lapply(args, function(e) dataSet(e)))
+  dat   <- dplyr::bind_rows(base::lapply(args, function(e) dataSet(e)))
 
   methods::new(clazz[1], dataSet=dat)
 }

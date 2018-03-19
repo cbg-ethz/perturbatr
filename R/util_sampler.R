@@ -45,8 +45,9 @@ bootstrap <- function(obj, ...)
 
 #' @export
 #' @method bootstrap tbl_df
-#' @import tibble
-#' @import dplyr
+#' @importFrom tibble as.tibble
+#' @importFrom dplyr filter group_by_ ungroup group_indices bind_rows select
+#' @importFrom lazyeval lazy_dots
 #' @importFrom rlang .data
 bootstrap.tbl_df <- function(obj, ...)
 {
@@ -61,7 +62,7 @@ bootstrap.tbl_df <- function(obj, ...)
     function (g)
     {
       grp.dat <- dplyr::filter(dat, .data$grp == g)
-      idx     <- sample(seq(grp.dat$cnt[1]), replace=TRUE)
+      idx     <- base::sample(seq(grp.dat$cnt[1]), replace=TRUE)
       grp.dat[idx, ]
     }))
 

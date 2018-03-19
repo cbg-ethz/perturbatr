@@ -60,7 +60,7 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 #' @noRd
 #' @import tibble
 #' @import ggplot2
-#' @import dplyr
+#' @importFrom dplyr group_by filter row_number
 #' @importFrom methods hasArg
 #' @importFrom rlang .data
 .plot.perturbation.hm.analysed  <- function(x, main, size, ...)
@@ -72,8 +72,8 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
   {
     x <- dplyr::group_by(x, .data$Condition)
   }
-  x <- x %>% dplyr::filter(row_number() <= 25)
-  x$GeneSymbol <- factor(x$GeneSymbol, levels=rev(unique(x$GeneSymbol)))
+  x <- dplyr::filter(x, row_number() <= 25)
+  x$GeneSymbol <- base::factor(x$GeneSymbol, levels=rev(unique(x$GeneSymbol)))
   pl <- .plot.bars(x, size, main, ...)
   pl
 }

@@ -86,17 +86,19 @@ setMethod(
            delete.nodes.on.degree=0,
            do.bootstrap=FALSE)
   {
-    hits <- dplyr::select(geneHits(obj), GeneSymbol, Effect) %>%
-        dplyr::mutate(Effect = abs(Effect))
+    hits <- dplyr::select(geneHits(obj), GeneSymbol, Effect)
+    hits <- dplyr::mutate(hits, Effect = abs(Effect))
     if (nrow(hits) == 0)
         stop("Your prior analysis did not yield hits for genes")
 
     bootstrap.hits <- NULL
     if (isBootstrapped(obj))
     {
-        bootstrap.hits <- modelFit(obj)$ge.fdrs$ret %>%
-          dplyr::filter(GeneSymbol %in% hits$GeneSymbol) %>%
-          dplyr::select(-Mean, -Pval, -Qval, -Lower, -Upper)
+      bootstrap.hits <- modelFit(obj)$ge.fdrs$ret
+      bootstrap.hits <- dplyr::filter(bootstrap.hits,
+        GeneSymbol %in% hits$GeneSymbol)
+      bootstrap.hits <- dplyr::select(
+        bootstrap.hits, -Mean, -Pval, -Qval, -Lower, -Upper)
     }
 
     ret <- .diffuse(hits,
@@ -114,7 +116,7 @@ setMethod(
 
 
 #' @noRd
-#' @import igraph
+#' @importFrom igraph get.adjacency
 .diffuse <- function(hits,
                      mod,
                      bootstrap.hits,
@@ -140,7 +142,8 @@ setMethod(
   l
 }
 
-#' @import igraph
+#' @importFrom igraph is.directed components delete.vertices
+#' @importFrom igraph V degree
 .get.graph <- function(path, graph, delete.nodes.on.degree)
 {
   graph <- read.graph(path=path, graph=graph)

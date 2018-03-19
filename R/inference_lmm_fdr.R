@@ -20,7 +20,7 @@
 
 #' @noRd
 #' @import tibble
-#' @importFrom dplyr mutate select left_join
+#' @importFrom dplyr mutate select left_join bind_rows
 #' @importFrom tidyr spread
 #' @importFrom lme4 ranef
 #' @importFrom rlang .data
@@ -72,14 +72,14 @@ ge.fdrs <- function(md, ref, bootstrap.cnt, frm)
 
 
 #' @noRd
-#' @import dplyr
+#' @importFrom dplyr group_by do arrange mutate ungroup
 #' @importFrom assertthat assert_that
 #' @importFrom stats p.adjust
 #' @importFrom rlang .data
 .ge.fdrs <- function(btst.dat, cnt)
 {
   res <- dplyr::group_by(btst.dat, .data$GeneSymbol)
-  res <- ungroup(dplyr::do(res, conf.int(.data$Effect, cnt)))
+  res <- dplyr::ungroup(dplyr::do(res, conf.int(.data$Effect, cnt)))
   res <- dplyr::arrange(res, .data$Pval)
   res <- dplyr::mutate(res, "Qval" = p.adjust(.data$Pval, method="BH"))
 
