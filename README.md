@@ -2,6 +2,7 @@
 
 [![Project Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![Build Status](https://travis-ci.org/cbg-ethz/perturbatr.svg?branch=master)](https://travis-ci.org/cbg-ethz/perturbatr)
+[![Build app](https://ci.appveyor.com/api/projects/status/a28cs08ug9qng8hn?svg=true)](https://ci.appveyor.com/project/dirmeier/perturbatr)
 [![codecov](https://codecov.io/gh/cbg-ethz/perturbatr/branch/master/graph/badge.svg)](https://codecov.io/gh/cbg-ethz/perturbatr)
 [![bioc](https://bioconductor.org/shields/years-in-bioc/perturbatr.svg)](https://bioconductor.org/packages/release/bioc/html/perturbatr.html)
 
