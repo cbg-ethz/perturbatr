@@ -29,3 +29,4 @@ LICENSE
 ^inst/figure/*
 ^data/rnaiscreen_datatable.rds$
 ^perturbatr.Rproj$
+^pkgdown$

@@ -1,0 +1,23 @@
+authors:
+  Simon Dirmeier:
+    href: http://www.simon-dirmeier.net
+
+navbar:
+  title: "perturbatr"
+  type: inverse
+  left:
+    - text: "Tutorial"
+      href: articles/perturbatr.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "News"
+      href: news/index.html
+  right:
+    - icon: fa-github fa-2x
+      href: https://github.com/cbg-ethz/perturbatr
+    - icon: fa fa-twitter fa-2x
+      href: http://twitter.com/simon_dirmeier/
+
+template:
+  params:
+    bootswatch: lumen

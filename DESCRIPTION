@@ -6,6 +6,8 @@ Date: 2018-03-19
 Authors@R: person("Simon", "Dirmeier",
 	email = "simon.dirmeier@web.de", role = c("aut", "cre"))
 Maintainer: Simon Dirmeier <simon.dirmeier@web.de>
+URL: https://github.com/cbg-ethz/perturbatr
+BugReports: https://github.com/cbg-ethz/perturbatr/issues
 Description: perturbatr does stage-wise analysis of large-scale genetic
  perturbation screens for integrated data sets consisting of multiple screens.
  For multiple integrated perturbation screens a hierarchical model that
