@@ -18,12 +18,6 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr filter
 .loess <- function(obj)
 {
   message("Calculating LOESS model!")
@@ -38,8 +32,6 @@
 }
 
 
-#' @noRd
-#' @importFrom stats lowess
 .loess.plate <- function(n.cells, readout)
 {
   good.idxs <- (!is.na(n.cells) & !is.na(readout))

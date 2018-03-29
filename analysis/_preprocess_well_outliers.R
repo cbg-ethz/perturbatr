@@ -18,15 +18,13 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr mutate group_by
 .remove.outliers <- function(obj, rm.outlier.wells)
 {
   stopifnot(length(rm.outlier.wells) == 2)
   if (any(rm.outlier.wells > 1)) stop("Some outlier quantiles >1")
   if (any(rm.outlier.wells < 0)) stop("Some outlier quantiles <0")
-  .rm.wells.quantile(obj, outlier.well.range),
+
+  .rm.wells.quantile(obj, outlier.well.range)
 }
 
 #' @noRd
@@ -43,8 +41,7 @@
   obj
 }
 
-#' @noRd
-#' @importFrom stats quantile
+
 .rmwqs <- function(read, num, probs)
 {
   re <- read

@@ -1,27 +1,51 @@
 #!/usr/bin/env Rscript
 
-library(dtplyr)
+# perturbatr: analysis of high-throughput gene perturbation screens
+#
+# Copyright (C) 2018 Simon Dirmeier
+#
+# This file is part of perturbatr
+#
+# perturbatr is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# perturbatr is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
+
+
+library(tibble)
+library(readr)
 library(dplyr)
-library(data.table)
 library(perturbatr)
+source("_preprocess.R")
+
 
 normalize.chikv.kinome <- function(rnai.screen.raw)
 {
-  chikv.raw  <- perturbatr::filter(rnai.screen.raw, Virus=="CHIKV")
-  chikv.norm <- perturbatr::preprocess(
+  chikv.raw  <- dplyr::filter(rnai.screen.raw, Condition == "CHIKV")
+  chikv.norm <- preprocess(
     chikv.raw,
     normalize=c("log",  "background", "robust-z.score"),
     summarization="mean",
     z.score.level="plate",
     background.column=12,
     drop=T)
+
   chikv.norm
 }
 
+
 normalize.sars.kinome <- function(rnai.screen.raw)
 {
-  sars.raw  <- filter(rnai.screen.raw, Virus=="SARS")
-  sars.norm <- perturbatr::preprocess(
+  sars.raw  <- dplyr::filter(rnai.screen.raw, Condition == "SARS")
+  sars.norm <- preprocess(
     sars.raw,
     normalize=c("log", "background", "robust-z.score"),
     summarization="mean",
@@ -32,10 +56,11 @@ normalize.sars.kinome <- function(rnai.screen.raw)
   sars.norm
 }
 
+
 normalize.hcv.genome <- function(rnai.screen.raw)
 {
-  hcv.g.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Genome")
-  hcv.g.norm       <- perturbatr::preprocess(
+  hcv.g.raw        <- dplyr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Genome")
+  hcv.g.norm       <- preprocess(
     hcv.g.raw,
     normalize=c( "log", "b.score", "robust-z.score"),
     summarization="mean",
@@ -45,10 +70,11 @@ normalize.hcv.genome <- function(rnai.screen.raw)
   hcv.g.norm
 }
 
+
 normalize.denv.genome <- function(rnai.screen.raw)
 {
-  denv.g.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Genome")
-  denv.g.norm       <- perturbatr::preprocess(
+  denv.g.raw        <- dplyr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Genome")
+  denv.g.norm       <- preprocess(
     denv.g.raw,
     normalize=c( "log",  "b.score",  "robust-z.score"),
     summarization="mean",
@@ -58,10 +84,11 @@ normalize.denv.genome <- function(rnai.screen.raw)
   denv.g.norm
 }
 
+
 normalize.hcv.kinome <-  function(rnai.screen.raw)
 {
-  hcv.k.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
-  hcv.k.norm       <- perturbatr::preprocess(
+  hcv.k.raw        <- dplyr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
+  hcv.k.norm       <- preprocess(
     hcv.k.raw,
     normalize=c("log","loess", "b.score", "robust-z.score"),
     summarization="mean",
@@ -73,10 +100,11 @@ normalize.hcv.kinome <-  function(rnai.screen.raw)
   hcv.k.norm
 }
 
+
 normalize.denv.kinome <- function(rnai.screen.raw)
 {
-  denv.k.raw        <- perturbatr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Kinome")
-  denv.k.norm       <- perturbatr::preprocess(
+  denv.k.raw        <- dplyr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Kinome")
+  denv.k.norm       <- preprocess(
     denv.k.raw,
     normalize=c("log", "loess", "b.score","robust-z.score"),
     summarization="mean",
@@ -88,12 +116,15 @@ normalize.denv.kinome <- function(rnai.screen.raw)
   denv.k.norm
 }
 
+
 normalize <- function(rnai.screen.raw)
 {
   chikv.kinome.norm  <- normalize.chikv.kinome(rnai.screen.raw)
   sars.kinome.norm   <- normalize.sars.kinome(rnai.screen.raw)
+
   hcv.genome.norm    <- normalize.hcv.genome(rnai.screen.raw)
   denv.genome.norm   <- normalize.denv.genome(rnai.screen.raw)
+
   hcv.kinome.norm    <- normalize.hcv.kinome(rnai.screen.raw)
   denv.kinome.norm   <- normalize.denv.kinome(rnai.screen.raw)
 
@@ -110,15 +141,16 @@ normalize <- function(rnai.screen.raw)
 run <- function()
 {
 
-  path    <- "./"
-  outdir <- "./data"
-  outfile <- paste0(outdir, "/", "rnai_screen_normalized", ".rds")
+  file.dir <- "./data"
+  infile   <- paste0(file.dir, "/", "rnai_screen_raw", ".tsv")
+  outfile.rds  <- paste0(file.dir, "/", "rnai_screen_normalized", ".rds")
+  outfile.tsv  <- paste0(file.dir, "/", "rnai_screen_normalized", ".tsv")
 
-  rnai.screen.raw <- readRDS(
-    paste(path, "data/rnai_screen_raw.rds", sep="/"))
+  rnai.screen.raw <- readr::read_tsv(infile)
+  rnai.screen     <- normalize(rnai.screen.raw)
 
-  rnai.screen <- normalize(rnai.screen.raw)
-  saveRDS(rnai.screen, outfile)
+  saveRDS(rnai.screen, outfile.rds)
+  readr::write_tsv(x=rnai.screen, path=outfile.tsv)
 }
 
 run()

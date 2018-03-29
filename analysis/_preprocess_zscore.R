@@ -18,12 +18,7 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr filter
+
 .z.score <- function(obj,
                      method = c("default", "robust"),
                      level  = c("plate", "control"),
@@ -73,10 +68,7 @@
   invisible(val)
 }
 
-#' @noRd
-#' @importFrom stats sd
-#' @importFrom stats median
-#' @importFrom stats mad
+
 .z.score.control <- function(re, method, control, genes, ctrl.gene)
 {
   genes <- tolower(genes)

@@ -18,9 +18,7 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
-#' @import data.table
-#' @importFrom tidyr spread
+
 .normalize <- function(obj,
                        normalize,
                        normalize.viability,
@@ -45,10 +43,7 @@
   res
 }
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr filter
-#' @importFrom methods hasArg
+
 .normalize.within <- function(obj,
                               normalize,
                               normalize.viability,
@@ -92,8 +87,7 @@
   invisible(data.table::rbindlist(list(read.dat, via.dat)))
 }
 
-#' @noRd
-#' @import data.table
+
 .do.normalize.within <- function(obj,
                                  normalize,
                                  method,
@@ -125,7 +119,6 @@
                     background.column = background.column,
                     background.row    = background.row,
                     method            = method),
-                  "qq" =.qq.norm(obj = obj),
                   stop("Give a default normalization method!"))
   }
   obj

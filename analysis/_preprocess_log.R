@@ -18,9 +18,6 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr mutate
 .log.norm <- function(obj)
 {
   message("Calculating log!")

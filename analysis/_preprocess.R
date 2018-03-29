@@ -18,7 +18,19 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @include class_data.R
+library(dplyr)
+library(tibble)
+
+
+source("_preprocess_background.R")
+source("_preprocess_bscore.R")
+source("_preprocess_loess.R")
+source("_preprocess_log.R")
+source("_preprocess_low_viability.R")
+source("_preprocess_poc.R")
+source("_preprocess_raw_data.R")
+source("_preprocess_well_outliers.R")
+source("_preprocess_zscore.R")
 
 
 #' @title Pre-processing for perturbation data
@@ -27,11 +39,6 @@
 #'  such as normalization, summarization, cell removal, removal of cytotoxic
 #'  siRNAs or gRNAs.
 #'
-#' @export
-#' @docType methods
-#' @rdname preprocess-methods
-#'
-#' @import data.table
 #'
 #' @param obj  the object to be normalized
 #' @param normalize  a vector with normalization methods
@@ -75,23 +82,6 @@
 #'  (i.e. the background correction). Can be either 'mean' or 'median'.
 #' @param drop  boolean if rows that are not needed should be dropped or
 #'   kept (e.g. if you want to check whether all worked out correctly)
-#'
-#' @return returns a \code{perturbation.normalized.data} object
-#'
-#' @examples
-#'  data(rnaiscreen)
-#'
-#'  # take the log and standardize
-#'  rnai.norm <- preprocess(rnaiscreen, c("log", "robust-z.score"))
-#'
-#'  # take the log and remove wells based on quantiles
-#'  rnai.norm <- preprocess(rnaiscreen, "log", rm.outlier.wells="quantile")
-#'
-#'  # normalize using correction against 12th columns
-#'  rnai.norm <- preprocess(rnaiscreen, "background", background.column=12)
-#'
-#'  # normalize using local regression and two-way median polish
-#'  rnai.norm <- preprocess(rnaiscreen, c("loess", "b.score"))
 setGeneric(
   "preprocess",
   function(obj,
@@ -112,16 +102,9 @@ setGeneric(
 )
 
 
-#' @rdname preprocess-methods
-#' @aliases preprocess,perturbation.raw.data-method
-#'
-#' @import data.table
-#' @importFrom tidyr spread
-#' @importFrom methods hasArg new
-#' @importFrom dplyr group_by mutate filter select
 setMethod(
   "preprocess",
-  signature = signature(obj="perturbation.raw.data"),
+  signature = signature(obj="tbl_df"),
   function(obj,
           normalize           = c("log", "robust-z.score"),
           normalize.viability = FALSE,
@@ -135,7 +118,7 @@ setMethod(
           summarization       = c("mean", "median"),
           drop                = TRUE)
   {
-    res <- obj@.data
+    res <- obj
 
     stopifnot(is.logical(drop))
     stopifnot(is.logical(normalize.viability))
@@ -163,15 +146,13 @@ setMethod(
     # remove outliers based on cytotoxicity
     res <- .rm.cytotoxic(res, rm.cytotoxic)
     res <- .drop(res, drop)
-    res <- data.table::as.data.table(res)
+    ret <- tibble::as.tibble(res)
 
-    methods::new("perturbation.normalized.data", .data=res)
+    ret
   }
 )
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr select filter
+
 .drop <- function(obj, drop)
 {
   if (drop)
@@ -185,4 +166,16 @@ setMethod(
       dplyr::select(-Remove)
   }
   obj
+}
+
+
+.summarization.method <- function(summ.method)
+{
+  f <- switch(as.character(summ.method),
+              "mean"=base::mean,
+              "median"=stats::median,
+              "min"=base::min,
+              `NA`=NA,
+              stop("wrong method given"))
+  f
 }

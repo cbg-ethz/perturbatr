@@ -18,9 +18,6 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' @noRd
-#' @import data.table
-#' @importFrom dplyr group_by mutate filter select
 .rm.cytotoxic <- function(obj, rm.cytotoxic)
 {
   if (!is.null(rm.cytotoxic) & "Viability" %in% colnames(obj))
@@ -43,16 +40,10 @@
   invisible(obj)
 }
 
+
 #' Summarize the sirna readouts and then decide whether sirnas should be
 #'  removed from the analysis.
 #'
-#' @noRd
-#'
-#' @import data.table
-#' @importFrom assertthat assert_that
-#' @importFrom dplyr group_by
-#' @importFrom dplyr summarize
-#' @importFrom dplyr filter n
 .set.cytotoxic <- function(re, val, sirnas, ctrl, genes,
                            plates, rows, cols, comp.to)
 {
@@ -111,8 +102,7 @@
   remarr
 }
 
-#' @noRd
-#' @importFrom stats t.test
+
 .t.test.vial <- function(vial, cont.vial.thresh, gene, sirna, plate, row, col)
 {
   p.val <- 1.0
