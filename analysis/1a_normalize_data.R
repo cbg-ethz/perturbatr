@@ -24,6 +24,7 @@ library(tibble)
 library(readr)
 library(dplyr)
 library(perturbatr)
+
 source("_preprocess.R")
 
 
@@ -59,24 +60,27 @@ normalize.sars.kinome <- function(rnai.screen.raw)
 
 normalize.hcv.genome <- function(rnai.screen.raw)
 {
-  hcv.g.raw        <- dplyr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Genome")
-  hcv.g.norm       <- preprocess(
+  hcv.g.raw  <- dplyr::filter(rnai.screen.raw, Condition=="HCV",
+                              Screen=="Genome")
+  hcv.g.norm <- preprocess(
     hcv.g.raw,
     normalize=c( "log", "b.score", "robust-z.score"),
     summarization="mean",
     z.score.level="plate",
     drop=T
   )
+
   hcv.g.norm
 }
 
 
 normalize.denv.genome <- function(rnai.screen.raw)
 {
-  denv.g.raw        <- dplyr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Genome")
-  denv.g.norm       <- preprocess(
+  denv.g.raw  <- dplyr::filter(rnai.screen.raw, Condition=="DENV",
+                               Screen=="Genome")
+  denv.g.norm <- preprocess(
     denv.g.raw,
-    normalize=c( "log",  "b.score",  "robust-z.score"),
+    normalize=c("log", "b.score", "robust-z.score"),
     summarization="mean",
     z.score.level="plate",
     drop=T)
@@ -87,15 +91,15 @@ normalize.denv.genome <- function(rnai.screen.raw)
 
 normalize.hcv.kinome <-  function(rnai.screen.raw)
 {
-  hcv.k.raw        <- dplyr::filter(rnai.screen.raw, Virus=="HCV", Screen=="Kinome")
-  hcv.k.norm       <- preprocess(
+  hcv.k.raw  <- dplyr::filter(rnai.screen.raw, Condition=="HCV",
+                              Screen=="Kinome")
+  hcv.k.norm <- preprocess(
     hcv.k.raw,
     normalize=c("log","loess", "b.score", "robust-z.score"),
     summarization="mean",
     z.score.level="plate",
     drop=T,
-    rm.outlier.wells="q",
-    outlier.well.range=c(.05, .95))
+    rm.outlier.wells=c(.05, .95))
 
   hcv.k.norm
 }
@@ -103,15 +107,15 @@ normalize.hcv.kinome <-  function(rnai.screen.raw)
 
 normalize.denv.kinome <- function(rnai.screen.raw)
 {
-  denv.k.raw        <- dplyr::filter(rnai.screen.raw, Virus=="DENV", Screen=="Kinome")
-  denv.k.norm       <- preprocess(
+  denv.k.raw  <- dplyr::filter(rnai.screen.raw,
+                               Condition=="DENV", Screen=="Kinome")
+  denv.k.norm <- preprocess(
     denv.k.raw,
     normalize=c("log", "loess", "b.score","robust-z.score"),
     summarization="mean",
     z.score.level="plate",
     drop=T,
-    rm.outlier.wells="q",
-    outlier.well.range=c(.05, .95))
+    rm.outlier.wells=c(.05, .95))
 
   denv.k.norm
 }
@@ -143,8 +147,8 @@ run <- function()
 
   file.dir <- "./data"
   infile   <- paste0(file.dir, "/", "rnai_screen_raw", ".tsv")
-  outfile.rds  <- paste0(file.dir, "/", "rnai_screen_normalized", ".rds")
-  outfile.tsv  <- paste0(file.dir, "/", "rnai_screen_normalized", ".tsv")
+  outfile.rds  <- paste0(file.dir, "/", "rnai_screen_normalized_2", ".rds")
+  outfile.tsv  <- paste0(file.dir, "/", "rnai_screen_normalized_2", ".tsv")
 
   rnai.screen.raw <- readr::read_tsv(infile)
   rnai.screen     <- normalize(rnai.screen.raw)

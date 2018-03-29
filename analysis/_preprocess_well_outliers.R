@@ -21,24 +21,17 @@
 .remove.outliers <- function(obj, rm.outlier.wells)
 {
   stopifnot(length(rm.outlier.wells) == 2)
-  if (any(rm.outlier.wells > 1)) stop("Some outlier quantiles >1")
-  if (any(rm.outlier.wells < 0)) stop("Some outlier quantiles <0")
-
-  .rm.wells.quantile(obj, outlier.well.range)
-}
-
-#' @noRd
-.rm.wells.quantile <- function(obj, probs)
-{
   stopifnot(all(probs <= 1), all(probs >= 0))
+
   message(paste("Removing wells based on ", probs[1],
                 "% and ", probs[2], "% quantile of cell number!"))
-  obj <- dplyr::group_by(obj, Condition, Screen, Library,
+  ret <- dplyr::group_by(obj, Condition, Screen, Library,
                          ScreenType, ReadoutType, ReadoutClass,
                          Cell, Design) %>%
     dplyr::mutate(Readout=.rmwqs(Readout, NumCells, probs)) %>%
-    ungroup
-  obj
+    ungroup()
+
+  ret
 }
 
 
@@ -51,5 +44,6 @@
     message(paste0("\t..removing x<", quant[1], " | ", quant[2], "<x wells!"))
     re[num < quant[1] | quant[2] < num] <- NA_real_
   }
+
   re
 }

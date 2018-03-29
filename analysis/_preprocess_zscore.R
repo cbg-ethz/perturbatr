@@ -27,20 +27,20 @@
   method <- match.arg(method)
   level  <- match.arg(level)
   message(paste("Calculating", method, "z-scores on", level))
-  if (!is.na(ctrl)) message(paste("...normalizing on", ctrl))
   z.score.data <-
     dplyr::group_by(obj, Condition, Screen, Library,
                     ReadoutType, ScreenType, ReadoutClass,
                     Design, Cell, Replicate, Plate)
-  if (level == "plate")
-  {
+  if (level == "plate") {
     z.score.data <-
       dplyr::mutate(z.score.data, Readout = .z.score.plate(Readout, method))
-  }
-  else if (level == "control")
-  {
+  } else if (level == "control") {
+
+    if (!is.na(ctrl)) message(paste("...normalizing on", ctrl))
+
     check <- dplyr::filter(z.score.data, Control == -1) %>%
       dplyr::mutate(n=n())
+
     if (length(unique(check$n))  > 1)
       warning(paste("Found unequal number of negative controls on plates:",
                     paste(unique(check$n), collapse=", ")))
