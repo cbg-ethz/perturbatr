@@ -1,33 +1,39 @@
 #!/usr/bin/env Rscript
 
-library(data.table)
-library(dtplyr)
+library(tibble)
 library(dplyr)
 library(ggplot2)
 library(perturbatr)
 library(xtable)
 
+
 .random.effects.model <- function(dat, bootstrap=10)
 {
-  lmm.fit     <- perturbatr::lmm(obj=dat,
-                               bootstrap.cnt=bootstrap,
-                               drop=T,
-                               weights=list(pooled=1.5, single=1))
-  lmm.fit
+  weights <- rep(1, nrow(dat))
+  weights[dat$Design == "pooled"] <- 1.5
+
+  lmm.fit <- perturbatr::hm(
+      obj=as(dat, "PerturbationData"),
+      "Readout ~ Condition + (1 | GeneSymbol) + (1 | Condition:GeneSymbol) + (1 | ScreenType) + (1 | Condition:ScreenType)",
+      bootstrap.cnt=0,
+      weights=weights,
+      drop=T)
+
+  (lmm.fit)
 }
 
 random.effects.model <- function(rnai.screen, boo=0)
 {
   lmm.fit     <- .random.effects.model(rnai.screen, boo)
 
-  gene.hits <- lmm.fit@.gene.hits %>%
+  gene.hits <- geneHits(lmm.fit) %>%
     dplyr::select(GeneSymbol, Effect, Qval)
-  gps <- lmm.fit@.gene.pathogen.effects %>%
-    dplyr::select(Virus, GeneSymbol, Effect) %>%
-    tidyr::spread(Virus, Effect)
+  gps <- nestedGeneHits(lmm.fit) %>%
+    dplyr::select(Condition, GeneSymbol, Effect) %>%
+    tidyr::spread(Condition, Effect)
 
   full.table <- dplyr::left_join(gene.hits, gps, by="GeneSymbol") %>%
-    .[order(-abs(Effect))]
+    dplyr::arrange(desc(abs(Effect)))
 
   list(fit=lmm.fit, full.table=full.table)
 }
@@ -35,9 +41,9 @@ random.effects.model <- function(rnai.screen, boo=0)
 
 run <- function()
 {
-  path         <- "./"
-  rnai.file    <- paste(path, "data/rnai_screen_normalized.rds", sep="/")
-  lmm.outfile  <- paste0(path, "/data/", "lmm_fit", ".rds")
+  path        <- "./data"
+  rnai.file   <- paste(path,  "/rnai_screen_normalized_2.rds", sep="/")
+  lmm.outfile <- paste0(path, "/", "lmm_fit", ".rds")
 
   rnai.screen <- readRDS(rnai.file)
   fit <- random.effects.model(rnai.screen)
