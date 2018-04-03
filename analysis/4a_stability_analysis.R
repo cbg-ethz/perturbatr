@@ -44,7 +44,7 @@ library(mvtnorm)
     dplyr::group_by(GeneSymbol, ScreenType, Virus) %>%
     dplyr::mutate(VG=paste(Virus, GeneSymbol, sep=":"),
                   VS=paste(Virus, ScreenType, sep=":")) %>%
-    ungroup
+    ungroup()
 
   effect.data <- dplyr::left_join(effect.data, virus.table, by="Virus")
   effect.data <- dplyr::left_join(effect.data, gene.table, by="GeneSymbol")
@@ -56,7 +56,7 @@ library(mvtnorm)
     dplyr::group_by(VS, VG, ScreenType, GeneSymbol, Virus) %>%
     dplyr::mutate(Effect=sum(VirusEffect, GeneEffect, ScreenEffect,
                              VirusGeneEffect, VirusScreenEffect)) %>%
-    ungroup
+    ungroup()
 
   # repeat every line x times to have replicates
   effect.data <- effect.data[rep(1:nrow(effect.data), each=rep.cnt), ]

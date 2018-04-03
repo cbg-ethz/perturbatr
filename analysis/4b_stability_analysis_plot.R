@@ -71,7 +71,8 @@ rank.lmm.bio <- function(fls.bio, ranking.table, out.dir)
   bootstrap.data <- bootstrap.data %>%
     dplyr::filter(Model=="perturbatr") %>%
     group_by(Virus, Bootstrap) %>%
-    dplyr::arrange(-abs(Effect)) %>% ungroup
+    dplyr::arrange(desc(abs(Effect))) %>%
+    ungroup()
 
   virs <- unique(bootstrap.data$Virus)
 

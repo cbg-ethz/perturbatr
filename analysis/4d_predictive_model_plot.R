@@ -1,10 +1,9 @@
 #!/usr/bin/env Rscript
 
 library(dplyr)
-library(data.table)
+library(tibble)
 library(tidyr)
-library(lme4)
-library(optparse)
+library(argparse)
 library(perturbatr)
 library(ggplot2)
 library(uuid)
@@ -13,6 +12,7 @@ library(ggthemr)
 library(hrbrthemes)
 library(viridis)
 library(cowplot)
+
 
 ggthemr("fresh", "scientific")
 
@@ -24,12 +24,14 @@ bio.pred <- function(fls.bio)
   stab <- readRDS(fls.bio)
   stab <- stab[-1]
 
-  df <- rbindlist(lapply(stab, function(el) {
-    data.table(Virus=length(unlist(stringr::str_split(el$Virus, "_"))),
-               el$sse)}))
-
-  df <- df %>% dplyr::filter(Sampling=="CV")
-
+  df <- purrr::map_dfr(
+      stab,
+      function(el)
+      {
+        data.frame(Virus=length(unlist(stringr::str_split(el$Virus, "_"))),  el$sse)
+      }
+    ) %>%
+    dplyr::filter(Sampling == "CV")
   df$Model[df$Model == "LMM"] <- "perturbatr"
   df$Virus <- paste(df$Virus, "viruses")
 
@@ -56,23 +58,26 @@ bio.pred <- function(fls.bio)
 
 syn.pred <- function(fls.stn)
 {
-    df <- rbindlist(lapply(fls.stn, function (f) {
-      fld <- readRDS(f)
-      me <- stringr::str_match(f, ".*genemean_(.+).rds")[2] %>% as.numeric
-      dff <- NULL
-      ix <- grep("bt$", names(fld$benchmark))
-      for (i in ix)
+    df <- purrr::map_dfr(fls.stn, function (f)
       {
-        curd <- fld$benchmark[[i]]
-        dt <- data.table(VirusCount=curd$Vir,
-                         Mean=me,
-                         ReplicateCount=curd$Rep,
-                         Variance=curd$Var,
-                         curd$sse)
-        dff <- rbindlist(list(dff, dt))
+        fld <- readRDS(f)
+        me <- stringr::str_match(f, ".*genemean_(.+).rds")[2] %>% as.numeric
+        dff <- NULL
+
+        ix <- grep("bt$", names(fld$benchmark))
+        for (i in ix)
+        {
+          curd <- fld$benchmark[[i]]
+          dt <- data.frame(VirusCount=curd$Vir,
+                           Mean=me,
+                           ReplicateCount=curd$Rep,
+                           Variance=curd$Var,
+                           curd$sse)
+          dff <- dplyr::bind_rows(dff, dt)
+        }
+        dff
       }
-      dff
-    }))
+    )
 
     df$Model[df$Model == "LMM"] <- "perturbatr"
     df$Virus <- paste(df$VirusCount, "viruses")
@@ -107,10 +112,10 @@ syn.pred <- function(fls.stn)
 
 run <- function()
 {
-  path <- "./data"
-  out.dir <-  "./plots"
+  data.dir <- "./data"
+  out.dir  <-  "./plots"
 
-  fls <- list.files(path, full.names = T)
+  fls     <- list.files(data.dir, full.names = T)
   fls.bio <- grep("lmm_predictability_bio", fls, value = T)
   fls.stn <- grep("lmm_predictability_synthetic.*0.5.*", fls, value = T)
 
