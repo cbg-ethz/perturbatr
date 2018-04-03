@@ -8,9 +8,8 @@ library(perturbatr)
 network.propagation <- function(lmm, graph.file)
 {
 
-  diffusion <- perturbatr::diffuse(lmm, path=graph.file,
-                                  delete.nodes.on.degree=1,
-                                  r=0.20)
+  diffusion <- perturbatr::diffuse(
+    lmm, path=graph.file, delete.nodes.on.degree=1, r=0.20)
 
   diffusion
 }

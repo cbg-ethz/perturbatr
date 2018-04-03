@@ -1,22 +1,19 @@
 #!/usr/bin/env Rscript
 
-library(dtplyr)
+library(tibble)
 library(dplyr)
 library(tidyr)
-library(lme4)
-library(optparse)
 library(perturbatr)
 library(ggplot2)
 library(hashmap)
-library(hrbrthemes)
 
 
 effect.matrices <- function(obj)
 {
-  g <- obj@.gene.hits %>%
+  g <- geneHits(obj) %>%
     dplyr::select(GeneSymbol, Effect) %>%
-    .[order(-abs(Effect))]
-  pg <- obj@.gene.pathogen.effects %>%
+    dplyr::arrange(desc(abs(Effect)))
+  pg <- nestedGeneEffects(obj) %>%
     dplyr::select(Virus, GeneSymbol, Effect) %>%
     tidyr::spread(Virus, Effect)
 
@@ -26,14 +23,12 @@ effect.matrices <- function(obj)
 
 plot.gene.effects  <- function(x)
 {
-  if ("Virus" %in% colnames(x))
+  if ("Condition" %in% colnames(x))
   {
     x <- dplyr::filter(x, Control == 0) %>%
       .[order(abs(Effect), decreasing=TRUE), .SD[1:25], by=Virus] %>%
       dplyr::filter(!is.na(GeneSymbol))
-  }
-  else
-  {
+  } else {
     x <- x[order(abs(Effect), decreasing=TRUE), .SD[1:25]] %>%
       dplyr::filter(!is.na(GeneSymbol), !is.na(Effect))
   }
@@ -111,13 +106,13 @@ plot.gene.virus.effects <- function(x)
 
 run <- function()
 {
-  path <- "./"
-  out.dir <-  "./plots"
+  data.dir <- "./data"
+  out.dir  <-  "./plots"
 
-  data.file <- paste(path, "data/lmm_fit.rds", sep="/")
+  data.file <- paste(data.dir, "/lmm_fit.rds", sep="/")
   fit       <- readRDS(data.file)
 
-  pl <- plot.gene.effects(fit$fit@.gene.effects)
+  pl <- plot.gene.effects(geneEffects(fit$fit))
   ggsave(
     filename = paste0(out.dir, "/", "gene_effects", ".eps"),
     plot = pl,
@@ -125,8 +120,7 @@ run <- function()
     height = 8)
 
   pl <- plot.gene.virus.effects(fit$fit)
-  ggsave(
-    filename = paste0(out.dir, "/", "effect_matrix", ".eps"),
+  ggsave(filename = paste0(out.dir, "/", "effect_matrix", ".eps"),
     plot = pl,
     width = 8,
     height = 8)

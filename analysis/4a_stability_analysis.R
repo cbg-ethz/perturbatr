@@ -1,42 +1,42 @@
 #!/usr/bin/env Rscript
 
 library(dplyr)
-library(dtplyr)
-library(data.table)
+library(tibble)
 library(perturbatr)
-library(optparse)
+library(argparse)
 library(igraph)
 library(mvtnorm)
-library(ggplot2)
+
 
 .create.noiseless.data <- function(rep.cnt, virus.cnt, genes.cnt, gene.vcov)
 {
+
   screens.cnt    <- 5
 
   viruses      <- paste0("V", 1:virus.cnt)
   virus.effects <- rnorm(virus.cnt, 0, 1)
   if (virus.cnt == 2) { virus.effects[1] <- virus.effects[2] * -1 }
-  virus.table <- data.table(Virus=as.character(viruses), VirusEffect=virus.effects)
+  virus.table <- tibble(Virus=as.character(viruses), VirusEffect=virus.effects)
 
   genes         <- rownames(gene.vcov)
   gene.effects  <- as.vector(mvtnorm::rmvnorm(1, sigma=gene.vcov))
-  gene.table    <- data.table(GeneSymbol=as.character(genes), GeneEffect=gene.effects)
+  gene.table    <- tibble(GeneSymbol=as.character(genes), GeneEffect=gene.effects)
 
   screens         <- paste0("S", 1:screens.cnt)
   screen.effects  <- rnorm(screens.cnt, 0, 1)
   if (screens.cnt == 2) screen.effects[1] <- screen.effects[2] * -1
-  screen.table    <- data.table(ScreenType=as.character(screens), ScreenEffect=screen.effects)
+  screen.table    <- tibble(ScreenType=as.character(screens), ScreenEffect=screen.effects)
 
   VG  <- paste(sep=":", viruses, rep(genes, each=virus.cnt))
   vg.effects <- rnorm(genes.cnt*virus.cnt, 0, 1)
-  vg.table <-  data.table(VG=as.character(VG), VirusGeneEffect=vg.effects)
+  vg.table <-  tibble(VG=as.character(VG), VirusGeneEffect=vg.effects)
 
   VS  <- paste(sep=":", viruses, rep(screens, each=virus.cnt))
   vs.effects <- rnorm(virus.cnt*screens.cnt, 0, 1)
-  vs.table <-  data.table(VS=as.character(VS), VirusScreenEffect=vs.effects)
+  vs.table <-  tibble(VS=as.character(VS), VirusScreenEffect=vs.effects)
 
   # combine effect names and add the respective sum of effects
-  effect.data <- as.data.table(expand.grid(genes, screens, viruses)) %>%
+  effect.data <- as.tibble(expand.grid(genes, screens, viruses)) %>%
     dplyr::rename(GeneSymbol=Var1, ScreenType=Var2, Virus=Var3) %>%
     dplyr::mutate(GeneSymbol=as.character(GeneSymbol),
                   ScreenType=as.character(ScreenType),
@@ -50,25 +50,28 @@ library(ggplot2)
   effect.data <- dplyr::left_join(effect.data, gene.table, by="GeneSymbol")
   effect.data <- dplyr::left_join(effect.data, screen.table, by="ScreenType")
   effect.data <- dplyr::left_join(effect.data, vg.table, by="VG")
-  effect.data <-  dplyr::left_join(effect.data, vs.table, by="VS")
+  effect.data <- dplyr::left_join(effect.data, vs.table, by="VS")
 
   effect.data <- effect.data %>%
     dplyr::group_by(VS, VG, ScreenType, GeneSymbol, Virus) %>%
-    dplyr::mutate(Effect=sum(VirusEffect, GeneEffect, ScreenEffect, VirusGeneEffect, VirusScreenEffect)) %>%
+    dplyr::mutate(Effect=sum(VirusEffect, GeneEffect, ScreenEffect,
+                             VirusGeneEffect, VirusScreenEffect)) %>%
     ungroup
 
   # repeat every line x times to have replicates
-  effect.data <- effect.data[rep(1:nrow(effect.data), each=rep.cnt)]
+  effect.data <- effect.data[rep(1:nrow(effect.data), each=rep.cnt), ]
   effect.data$Weight <- 1
   effect.data$Control <- 0
 
   effect.data
 }
 
+
 .effects <- function(ran)
 {
-  data.table(GeneSymbol=rownames(ran),Effect=ran[,1])
+  tibble(GeneSymbol=rownames(ran),Effect=ran[,1])
 }
+
 
 .graph <- function(n)
 {
@@ -86,8 +89,10 @@ library(ggplot2)
       break
     }, error=function(r){print(r)}, warning=function(r){print(r)})
   }
+
   vcov
 }
+
 
 boot <- function(dat, rep.cnt, vir.cnt, v)
 {
@@ -112,13 +117,24 @@ boot <- function(dat, rep.cnt, vir.cnt, v)
   bench.list
 }
 
+
 analyse <- function(md)
 {
 
-  pmm.fit     <- lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol),
-                            data = md, weights = md$Weight, verbose = F)
-  lmm.fit     <- lme4::lmer(Readout ~ Virus + (1 | GeneSymbol) + (1 | Virus:GeneSymbol) + (1 | ScreenType) + (1 | Virus:ScreenType),
-                            data = md, weights = md$Weight, verbose = F)
+  pmm.fit     <- lme4::lmer(Readout ~ Condition +
+                              (1 | GeneSymbol) +
+                              (1 | Condition:GeneSymbol),
+                            data = md,
+                            weights = md$Weight,
+                            verbose = F)
+  lmm.fit     <- lme4::lmer(Readout ~ Condition +
+                              (1 | GeneSymbol) +
+                              (1 | Condition:GeneSymbol) +
+                              (1 | ScreenType) +
+                              (1 | Condition:ScreenType),
+                            data = md,
+                            weights = md$Weight,
+                            verbose = F)
 
   pmm.effects <- .effects(lme4::ranef(pmm.fit)[["GeneSymbol"]])
   lmm.effects <- .effects(lme4::ranef(lmm.fit)[["GeneSymbol"]])
@@ -126,26 +142,38 @@ analyse <- function(md)
   list(lmm.fit=lmm.effects, pmm.fit=pmm.effects)
 }
 
-ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene.cnt=100)
+
+ranking.stability.sythetic <- function(output.path, virs.cnt,
+                                       rep.cnt, var, gene.cnt=100)
 {
   cat("Synthetic stability ranking\n")
   graph           <- .graph(gene.cnt)
   rownames(graph) <- colnames(graph) <- paste0("G", 1:gene.cnt)
-  noiseless.data  <- .create.noiseless.data(rep.cnt, virs.cnt, gene.cnt, graph)
-  noisy.data <- dplyr::mutate(noiseless.data, Readout=Effect + rnorm(nrow(noiseless.data), 0, var))
-  bench.list            <- list(graph=graph, data=list(Var=0, Rep.cnt=rep.cnt, Vir=virs.cnt, Bootstrap=0, model=noiseless.data))
+  noiseless.data  <- .create.noiseless.data(
+    rep.cnt, virs.cnt, gene.cnt, graph)  %>%
+    dplyr::rename(Condition = Virus)
+
+  noisy.data <- dplyr::mutate(
+    noiseless.data,
+    Readout= Effect + rnorm(nrow(noiseless.data), 0, var))
+  bench.list <- list(
+    graph=graph,
+    data=list(Var=0, Rep.cnt=rep.cnt, Vir=virs.cnt, Bootstrap=0, model=noiseless.data))
 
   s <- paste0("var:", var, ",vir:", virs.cnt, ",rep:", rep.cnt, ",bootstrap:0")
   m <- analyse(noisy.data)
+
   bench.list[[s]] <- list(Var=var, Rep=rep.cnt, Vir=virs.cnt, Bootstrap=0, model=m)
   for (vir.cnt in seq(2, virs.cnt))
   {
-    viruses         <- paste0("V", 1:vir.cnt)
-    sample.data     <- dplyr::filter(noisy.data, Virus %in% viruses)
-    bench.list <- c(bench.list, boot(dat=sample.data, rep.cnt=rep.cnt,vir.cnt=vir.cnt, v=var))
+    viruses     <- paste0("V", 1:vir.cnt)
+    sample.data <- dplyr::filter(noisy.data, Condition %in% viruses)
+    bench.list  <- c(bench.list, boot(dat=sample.data,
+                                      rep.cnt=rep.cnt,vir.cnt=vir.cnt, v=var))
   }
 
-  data.path   <- paste0(output.path, "/lmm_stability_",
+  data.path   <- paste0(output.path,
+                        "/lmm_stability_",
                         "synthetic_data",
                         "_viruscnt_", virs.cnt,
                         "_repcnt_", rep.cnt,
@@ -154,27 +182,28 @@ ranking.stability.sythetic <- function(output.path, virs.cnt, rep.cnt, var, gene
   saveRDS(bench.list, data.path)
 }
 
+
 ranking.stability.bio <- function(model.data, output.path)
 {
   cat("Biological stability ranking\n")
-  rank.all.data <- analyse(model.data@.data)
+  rank.all.data <- analyse(model.data)
   bench.list    <- list(full=rank.all.data)
 
   vrs <- c("HCV", "DENV", "CHIKV", "SARS")
   for (idx in seq(2, length(vrs)))
   {
-    dat <- perturbatr::filter(model.data, Virus %in% vrs[1:idx])
+    dat <- dplyr::filter(model.data, Condition %in% vrs[1:idx])
     i   <- 1
     run <- 1
     repeat
     {
       cat(paste0("Bootstrap bio: ", i, ",v: ", paste0(vrs[1:idx], collapse="_")), "\n")
       tryCatch({
-        rnai.screen.sample <- perturbatr:::bootstrap(dat)
+        rnai.screen.sample <- perturbatr::bootstrap(dat)
         s <- paste0("bootstrap:", i, "virs:", paste0(vrs[1:idx], collapse="_"))
         bench.list[[s]] <- list(Bootstrap=i,
                                 Virus= paste0(vrs[1:idx], collapse="_"),
-                                analyse(rnai.screen.sample@.data))
+                                analyse(rnai.screen.sample))
         i <- i + 1
       }, error=function(e){ print(paste0("Didnt fit ", i, ": ", e)); i <<- 10000 },
          warning=function(e) { print(paste0("Bootstrap bio warning: ", e));  })
@@ -187,10 +216,11 @@ ranking.stability.bio <- function(model.data, output.path)
   saveRDS(bench.list, dat.pth)
 }
 
+
 run <- function()
 {
-  path <- "./data"
-  out.dir <-  "./data"
+  data.dir <- "./data"
+  out.dir  <- "./data"
 
   option_list <- list(
     make_option(c("-v", "--virus"), action="store",
@@ -199,19 +229,22 @@ run <- function()
                 help="replicate count", type="integer"),
     make_option(c("-s", "--sig"), action="store",
                 help="standard deviation", type="integer"))
-  opt_parser <- OptionParser(option_list=option_list)
-  opt        <- parse_args(opt_parser)
+  opt_parser <- ArgumentParser(option_list=option_list)
+  opt        <- opt_parser$parse_args(opt_parser)
 
   if (is.null(opt$virus) || is.null(opt$sig) || is.null(opt$replicate))
   {
-    print_help(opt_parser)
     stop("Please provide correct arguments")
   }
 
-  rna.file   <- paste(path, "rnai_screen_normalized.rds", sep="/")
+  rna.file    <- paste(data.dir, "rnai_screen_normalized_2.rds", sep="/")
   rnai.screen <- readRDS(rna.file)
-  model.data  <- perturbatr::filter(rnai.screen, Virus != "CVB")
-  model.data  <- set.lmm.model.data(model.data, weights=list("pooled"=1.5, "single"=1))
+
+  model.data  <- dplyr::filter(rnai.screen, Condition != "CVB")
+  weights     <- rep(1, nrow(model.data))
+  weights[model.data$Design == "pooled"] <- 1.5
+  model.data <- methods::as(rnai.screen, "PerturbationData")
+  model.data <- perturbatr:::setModelData(model.data, drop=T, weights=weights)
 
   ranking.stability.bio(model.data, out.dir)
   ranking.stability.sythetic(out.dir, opt$virus, opt$replicate, opt$sig)
