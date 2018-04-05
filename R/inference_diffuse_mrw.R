@@ -33,12 +33,12 @@ mrw <- function(hits,
                 r,
                 adjm,
                 graph,
-                do.bootstrap)
+                do.bootstrap,
+                take.largest.component)
 {
   message("Diffusion using Markov random walks.")
   diffuse.data <- .do.mrw(hits, adjm, r)
-  res  <- diffuse.data$frame
-
+  res          <- diffuse.data$frame
 
   is.boot <- if (!is.null(bootstrap.hits) && do.bootstrap)
   {
@@ -52,8 +52,9 @@ mrw <- function(hits,
   ret <- methods::new("NetworkAnalysedPerturbationData",
            graph           = graph,
            params          = list(
-             restart.probability     = r,
-             delete.nodes.on.degree = delete.nodes.on.degree),
+             restart.probability    = r,
+             delete.nodes.on.degree = delete.nodes.on.degree,
+             take.largest.component = take.largest.component),
            dataSet        = hits,
            geneEffects    = res,
            isBootstrapped = is.boot)
@@ -64,13 +65,20 @@ mrw <- function(hits,
 
 #' @noRd
 #' @importFrom diffusr random.walk
+#' @importFrom asserthat assert_that
 .do.mrw <- function(hits, adjm, r)
 {
     diffuse.data <- .init.starting.distribution(hits, adjm)
-    mrw          <- diffusr::random.walk(abs(diffuse.data$frame$Effect),
-                                         as.matrix(diffuse.data$adjm),
-                                         r)
+    assertthat::assert_that(
+      all(diffuse.data$frame$GeneSymbol == colnames(diffuse.data$adjm)),
+      all(diffuse.data$frame$GeneSymbol == rownames(diffuse.data$adjm)))
+
+    mrw          <- diffusr::random.walk(p0=abs(diffuse.data$frame$Effect),
+                                         graph=as.matrix(diffuse.data$adjm),
+                                         r=r)
     diffuse.data$frame$DiffusionEffect <- mrw
+    dplyr::arrange(diffuse.data$frame, -DiffusionEffect)
+
     diffuse.data
 }
 
@@ -83,7 +91,7 @@ mrw <- function(hits,
     res <- dplyr::left_join(
       tibble::tibble("GeneSymbol" = colnames(adjm)), hits, by="GeneSymbol")
     res <- dplyr::mutate(
-      res, "Effect" = replace(is.na(.data$Effect), 0, .data$Effect))
+      res, "Effect" = replace(.data$Effect, is.na(.data$Effect), 0))
 
     list(frame=res, adjm=adjm)
 }
@@ -119,6 +127,7 @@ mrw <- function(hits,
 
     flat.dat <- dplyr::bind_rows(li)
     flat.dat <- dplyr::select(flat.dat, -.data$Effect)
+
     ret <- dplyr::group_by(flat.dat, .data$GeneSymbol)
     ret <- ungroup(dplyr::summarise(
       ret, "Mean"= base::mean(.data$DiffusionEffect, na.rm=TRUE)))

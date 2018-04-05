@@ -18,7 +18,6 @@
 # along with perturbatr. If not, see <http://www.gnu.org/licenses/>.
 
 
-
 .z.score <- function(obj,
                      method = c("default", "robust"),
                      level  = c("plate", "control"),

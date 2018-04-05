@@ -48,6 +48,9 @@
 #'  less or equal than \code{delete.nodes.on.degree}
 #' @param do.bootstrap  run a diffusion on every bootstrap sample in case
 #'  bootstrap samples are available
+#' @param take.largest.component  if \code{true} takes only the largest
+#'  connected component of the graph and discards all nodes that are not in
+#'  the largest component. If \code{false} takes the compete graph.
 #'
 #' @return returns a \code{NetworkAnalysedPerturbationData} object
 #'
@@ -65,7 +68,8 @@ setGeneric(
            graph=NULL,
            r=0.5,
            delete.nodes.on.degree=0,
-           do.bootstrap=FALSE)
+           do.bootstrap=FALSE,
+           take.largest.component=TRUE)
   {
       standardGeneric("diffuse")
   }
@@ -85,7 +89,8 @@ setMethod(
            graph=NULL,
            r=0.5,
            delete.nodes.on.degree=0,
-           do.bootstrap=FALSE)
+           do.bootstrap=FALSE,
+           take.largest.component=TRUE)
   {
     hits <- dplyr::select(geneHits(obj), .data$GeneSymbol, .data$Effect)
     hits <- dplyr::mutate(hits, "Effect" = abs(.data$Effect))
@@ -110,7 +115,8 @@ setMethod(
                     graph=graph,
                     r=r,
                     delete.nodes.on.degree=delete.nodes.on.degree,
-                    do.bootstrap=do.bootstrap)
+                    do.bootstrap=do.bootstrap,
+                    take.largest.component=take.largest.component)
     ret
   }
 )
@@ -125,10 +131,12 @@ setMethod(
                      graph,
                      r,
                      delete.nodes.on.degree,
-                     do.bootstrap)
+                     do.bootstrap,
+                     take.largest.component)
 {
-  graph <- .get.graph(path, graph, delete.nodes.on.degree)
-  adjm   <- igraph::get.adjacency(graph, attr="weight")
+  graph <- .get.graph(path, graph,
+                      delete.nodes.on.degree, take.largest.component)
+  adjm  <- igraph::get.adjacency(graph, attr="weight")
 
   l <- mrw(hits=hits,
            delete.nodes.on.degree=delete.nodes.on.degree,
@@ -137,29 +145,40 @@ setMethod(
            adjm=adjm,
            r=r,
            graph=graph,
-           do.bootstrap=do.bootstrap)
+           do.bootstrap=do.bootstrap,
+           take.largest.component=take.largest.component)
 
   l
 }
 
+
+#' @noRd
 #' @importFrom igraph is.directed components delete.vertices
 #' @importFrom igraph V degree
-.get.graph <- function(path, graph, delete.nodes.on.degree)
+.get.graph <- function(path, graph,
+                       delete.nodes.on.degree, take.largest.component)
 {
   graph <- read.graph(path=path, graph=graph)
-  if (igraph::is.directed(graph))
+  if (igraph::is.directed(graph)) {
     stop("Please provide an undirected graph")
-  # get connected components
-  comps <- igraph::components(graph)
-  if (length(comps$csize) > 1)
-    message("Only taking largest connected component to ensure ergodicity.")
-  # get the genes that are not in the largest component
-  non.max.comp.genes <- names(
-    which(comps$membership != which.max(comps$csize)))
-  # remove the genes that are not in the largest component
-  # this is needed to ensure ergocity
-  graph <- igraph::delete.vertices(graph, non.max.comp.genes)
-  # delete vertexes with node degree less than ...
+  }
+
+  if (take.largest.component) {
+    # get connected components
+    comps <- igraph::components(graph)
+    if (length(comps$csize) > 1) {
+      message("Only taking largest connected component to ensure ergodicity.")
+    }
+
+    # get the genes that are not in the largest component
+    non.max.comp.genes <- names(
+      which(comps$membership != which.max(comps$csize)))
+    # remove the genes that are not in the largest component
+    # this is needed to ensure ergocity
+    graph <- igraph::delete.vertices(graph, non.max.comp.genes)
+  }
+
+  # delete vertexes with node degree less than delete.nodes.on.degree
   graph <- igraph::delete.vertices(
       graph,
       igraph::V(graph)[igraph::degree(graph) <= delete.nodes.on.degree])
