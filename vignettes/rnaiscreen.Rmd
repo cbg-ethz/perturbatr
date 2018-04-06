@@ -20,130 +20,57 @@ vignette: >
   library(dplyr)
   library(methods)
   library(perturbatr)
-  data(sf)
 ```
 
 # Introduction
 
-Here we show an example data analysis using a pan-pathogenic data set of two RNAi screening studies.
-The data set consists of two integrated kinome screens and have been 
+Here we show an example data analysis using a pan-pathogenic data set of three RNAi screening studies.
+The data set consists of two kinome and a druggable genome wide RNAi screen and have been 
 published in @reiss2011recruitment (HCV) and @de2015kinome (SARS).
 
-## Creating a `PerturbationData` object
+# Data analysis
 
-We start with a sample
-
-```{r, include=TRUE, size="tiny"}
-  head(my.data)
-```
-
-In order to create a perturbation data set you only need to call the `as`
-method:
-
-```{r, include=TRUE, eval=TRUE}
-  my.perturbation.data <- methods::as(my.data, "PerturbationData")
-```
-
-Coercing your `data.frame` to `PerturbationData` will automatically warn you if
-your table is formatted wrongly. You need at least the following column names
-order to be able to do analysis of perturbation screens using `perturbatr`:
-
-* Condition: an identifier that best describes the respective screen. 
-For instance this can be the name of a virus for pathogen screens, the name 
-of a cell line, organoid or the like. The *condition* describes a single data 
-set, i.e. if you want to integrate multiple different data sets, make sure to 
-give each a different condition.
-* Replicate: an integer representing the replicate number of a screen.
-* GeneSymbol: the HUGO identifier, ENTREZ id, etc. as character.
-* Perturbation: a siRNA id or gRNA id that describes the knockout/knockdown for 
-the gene.
-* Readout: a *normalized* readout like a log-fold change for gRNAs, 
-a GFP signal, etc.
-* Control: vector of integers representing perturbations that have been
-used as negative or positive controls. A negative control is marked with
-'-1', a positive control with '1' and a normal sample with '0'.
-
-Depending on how you want to model the readout using the hierarchical model, 
-you might want to add additional
-columns. For the sake of simplicity this suffices though.
-
-## Working with `PerturbationData` S4 objects
-
-A `PerturbationData` object consists of a single slot that stores your data. We
-bundled your data into an `S4` object such that dispatch is easier to handle
-and to make sure that your data set has the correct columns:
-
-```{r, eval=TRUE, include=TRUE}
-  my.perturbation.data
-  dataSet(my.perturbation.data)
-```
-
-`PerturbationData` has some basic `filter` and `rbind` functionality.
-Similar to `dplyr::filter` you can select rows by some predicate(s). In the
-example below we extract all rows from the data set that have a positive
-readout.
-
-```{r, eval=TRUE, include=TRUE}
-  perturbatr::filter(my.perturbation.data, Readout > 0)
-```
-
-Filtering on multiple rows works by just adding predicates:
-```{r, eval=TRUE, include=TRUE}
-  perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
-```
-
-If you want to combine data sets you can call `rbind`, which will 
-automatically dispatch on `PerturbationData` object:
-```{r, eval=TRUE, include=TRUE}
-  dh <- perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
-  rbind(dh, dh)
-```
-
-## Data analysis using a hierarchical model and network diffusion
-
-Finally, after having set up the data set, we analyse it using a hierarchical 
-model and network diffusion. 
-We **expect you already normalized the data sets accordingly**. 
-As noted above, if you want to analyse multiple data sets, make sure that
-every data set corresponds to a unique `Condition`.
-
-For the sake of simplicity, you can model your readout as a linear combination
-of fixed effects and clustering effects for genes and genes 
-nested in a condition:
-
-$$y_{cgp} = x_c \beta + \gamma_g  + \delta_{cg} + \dots + y_{cgp}$$
-
-where $y_{cgpt}$ is the phenotype for a condition $c$, gene $g$ and 
-perturbation $p$. This would correspond to the `formula`
-
-```{r, eval=FALSE, include=TRUE, warning=FALSE, message=FALSE}
-  Readout ~ Condition + (1|GeneSymbol) + (1|Condition:GeneSymbol)
-```
-
-which is the default argument. You can see that we model the gene effect using 
-different intercepts for each gene. To use the hierarchical model with the 
-above formula, call:
-
-```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
-  data(rnaiscreen)
-  res <- hm(rnaiscreen, effect.size=0.01)
-```
-
-Depending on your data set different clustering effects might be present of 
-course. So let's have a look at our data again:
+We start with loading the sample data set into memory:
 
 ```{r, include=TRUE, size="tiny"}
-  dataSet(rnaiscreen)
+  data("rnaiscreen")
 ```
 
-For viral perturbation screens, as simulated by our example data set, we know 
-that viruses make use of different host factors during their life cycle. 
-That means while some genes are required during *entry and replication*, 
-others might play a role in *assembly and release* of the virions. 
-So we have reason to believe that the stage of the infection also introduces 
-a clustering effect. In that case we would need to add a random effect 
-for the stage of the infection. We estimated the effects using `lme4` 
-[@bates2014lme4].
+`rnaiscreen` data is of class `PerturbationData` data which supports several methods.
+In our example we already normalized the data set appropriately, so no preprocessing is required.
+
+Before we start, lets have a look at the data in more detail.
+```{r, include=TRUE, size="tiny"}
+  plot(rnaiscreen)
+```
+
+We have roughly the same number of replicates per gene, but the HCV screen has less genes
+than the SARS data set. That is no problem however, because we automatically filter such that the genes are same.
+We also automatically remove positive controls for obvious reasons.
+
+Next we rank the genes using a hierarchical model which requires explicitely modelling the readout of our data set using an
+R `formula`. Let's look at the data in more detail first:
+
+```{r}
+dataSet(rnaiscreen) %>% 
+  str()
+```
+
+Here, variables like `Replicate`, `Plate`, `RowIdx/ColIdx` should not be associated with a change in the response `Readout` as we normalized the data and corrected for batch effects.
+However, the `Readout`s should definitely have been different between `ScreenType`s:
+
+```{r}
+  dataSet(rnaiscreen) %>% pull(ScreenType) %>% unique()
+```
+
+where `E/R` represents that the screen has measured the effect of a gene knockdown during the *entry and replication* stages of the viral 
+lifecycle while `A/R` repesents the gene knockdown's effect having been measures during the *assembly and release* stages of the lifecycle.
+
+A model selection using the Bayesian information criterion indeed suggests the following hierarchical random intercept model:
+
+$$y_{cgtp} \mid\gamma_g, \delta_{cg}, \zeta_t , \xi_{ct} \sim \mathcal{N}(x_c \beta + \gamma_g  + \delta_{cg} + \zeta_t + \xi_{ct},  \sigma^2),$$
+where $y_{cgtp}$ is the readout of virus $c$, gene $g$, stage of the viral lifecycle $t$ (`E/R` vs `A/R`) and $p$ is the perturbation (siRNA) used for gene $g$.
+We estimate the parameters of the model using `lme4` [@bates2014lme4]:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   frm <- Readout ~ Condition +
@@ -152,28 +79,6 @@ for the stage of the infection. We estimated the effects using `lme4`
   res <- hm(rnaiscreen, formula = frm, effect.size=0.01)
 ```
 
-**Note that for your own data different effects might be visible. Thus,** 
-**before modelling you need to exploratorily detect possible effects.**
-
-Let's take the last result and plot them. This yields a list of multiple
-plots. The most informative one that shows the top 25 genes:
-
-```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
-  pl <- plot(res)
-  pl[[1]]
-```
-
-Next we might want to *smooth* the effect from the hierarchical model using 
-network diffusion, by that possibly reduce the number of some false negatives.
-For that we need a graph file and call the `diffuse` function. If we plot the
-results we get a list of reranked genes:
-
-```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
-  graph.file <- system.file("extdata", "graph_file.tsv",
-                            package = "perturbatr")
-  diffu      <- diffuse(res, path=graph.file, r=0.1)
-  plot(diffu)
-```
 
 ## Session info
 

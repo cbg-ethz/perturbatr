@@ -47,22 +47,26 @@
 plot.PerturbationData <- function(x, size=10, ...)
 {
   dat <- dataSet(x)
-  pl <-
+  dat <-
     dplyr::group_by(dat, .data$Condition) %>%
     dplyr::summarize("Replicates" = length(unique(.data$Replicate)),
                      "Genes"      = length(unique(.data$GeneSymbol))) %>%
     tidyr::gather("Type", "Count", .data$Replicates, .data$Genes) %>%
-    dplyr::mutate("Count" = as.integer(.data$Count)) %>%
-    ggplot2::ggplot(ggplot2::aes(x=.data$Condition, y = .data$Count)) +
-    ggplot2::geom_bar(ggplot2::aes(fill=.data$Condition), stat="identity") +
+    dplyr::mutate("Count" = as.integer(.data$Count))
+
+  pl <-
+    ggplot2::ggplot(dat, ggplot2::aes(x = dat$Condition, y = dat$Count)) +
+    ggplot2::geom_bar(ggplot2::aes(fill = dat$Condition), stat="identity") +
     ggplot2::scale_fill_grey(start=0.3) +
-    ggplot2::scale_y_continuous(breaks=scales::pretty_breaks(5)) +
+    ggplot2::scale_x_discrete("") +
+    ggplot2::scale_y_continuous("Count", breaks=scales::pretty_breaks(5)) +
     ggplot2::facet_grid(Type ~ ., scales='free_y') +
-    ggplot2::geom_text(ggplot2::aes(label = .data$Count, y = .data$Count),
+    ggplot2::geom_text(ggplot2::aes(label = dat$Count, y = dat$Count),
                                     size = floor(size/3), vjust=0) +
     ggplot2::theme_minimal() +
     ggplot2::theme(strip.text      = ggplot2::element_text(size = size),
                    text            = ggplot2::element_text(size = size),
+                   panel.grid.major= ggplot2::element_blank(),
                    panel.spacing.y = ggplot2::unit(2, "lines")) +
     ggplot2::guides(fill=FALSE)
 

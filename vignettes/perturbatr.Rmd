@@ -127,9 +127,9 @@ For the sake of simplicity, you can model your readout as a linear combination
 of fixed effects and clustering effects for genes and genes 
 nested in a condition:
 
-$$y_{cgp} = x_c \beta + \gamma_g  + \delta_{cg} + \dots + y_{cgp}$$
+$$y_{cgp} = x_c \beta + \gamma_g  + \delta_{cg} + \dots + \epsilon_{cgp}$$
 
-where $y_{cgpt}$ is the phenotype for a condition $c$, gene $g$ and 
+where $y_{cgp}$ is the phenotype for a condition $c$, gene $g$ and 
 perturbation $p$. This would correspond to the `formula`
 
 ```{r, eval=FALSE, include=TRUE, warning=FALSE, message=FALSE}
