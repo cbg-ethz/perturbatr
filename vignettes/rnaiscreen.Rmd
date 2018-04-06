@@ -76,9 +76,22 @@ We estimate the parameters of the model using `lme4` [@bates2014lme4]:
   frm <- Readout ~ Condition +
                    (1|GeneSymbol) + (1|Condition:GeneSymbol) +
                    (1|ScreenType) + (1|Condition:ScreenType)
-  res <- hm(rnaiscreen, formula = frm, effect.size=0.01)
+  res.hm <- hm(rnaiscreen, formula = frm, effect.size=0.01)
 ```
 
+Let's visualize the results from this analysis:
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  pl <- plot(res.hm)
+  pl[[1]]
+  pl[[2]]
+```
+
+After that we also do network diffusion using a genetic interaction network:
+
+```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
+  diffuse(res.hm, path="graph_file.tsv")
+```
 
 ## Session info
 
