@@ -22,7 +22,7 @@ context("analysis")
 
 
 data(rnaiscreen)
-ft <- hm(rnaiscreen, effect.size=0.01)
+ft <- hm(rnaiscreen)
 
 
 testthat::test_that("data plots", {

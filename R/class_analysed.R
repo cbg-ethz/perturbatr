@@ -73,7 +73,7 @@ setClass(
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  res <- hm(rnaiscreen, effect.size=0.01)
+#'  res <- hm(rnaiscreen)
 #'  class(res)
 setClass(
     "HMAnalysedPerturbationData",
@@ -105,9 +105,10 @@ setClass(
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  hm.fit <- hm(rnaiscreen, effect.size=0.01)
-#'  graph.file <- system.file("extdata", "graph_file.tsv",
-#'                                        package = "perturbatr")
+#'  hm.fit <- hm(rnaiscreen)
+#'  graph.file <- system.file(
+#'    "extdata", "graph_file_small.tsv", package = "perturbatr")
+#'  graph <- read.csv(grapf.gile, )
 #'  res <- diffuse(hm.fit, path=graph.file, r=1)
 setClass(
   "NetworkAnalysedPerturbationData",

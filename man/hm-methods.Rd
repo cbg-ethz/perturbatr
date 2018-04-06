@@ -8,12 +8,11 @@
  hierarchical model}
 \usage{
 hm(obj, formula = Readout ~ Condition + (1 | GeneSymbol) + (1 |
-  Condition:GeneSymbol), drop = TRUE, weights = 1, bootstrap.cnt = 0,
-  effect.size = 0.05, qval.threshold = 0.2)
+  Condition:GeneSymbol), drop = TRUE, weights = 1, bootstrap.cnt = 0)
 
 \S4method{hm}{PerturbationData}(obj, formula = Readout ~ Condition + (1 |
   GeneSymbol) + (1 | Condition:GeneSymbol), drop = TRUE, weights = 1,
-  bootstrap.cnt = 0, effect.size = 0.05, qval.threshold = 0.2)
+  bootstrap.cnt = 0)
 }
 \arguments{
 \item{obj}{an \code{PerturbationData} object}
@@ -32,12 +31,6 @@ perturbations}
 
 \item{bootstrap.cnt}{the number of bootstrap runs you want to do in order
 to estimate a significance level for the gene effects}
-
-\item{effect.size}{the absolute, relative effect size used for
-hit prioritization}
-
-\item{qval.threshold}{the q-value threshold used for hit prioritization
-if \code{bootstrap.cnt} is set}
 }
 \value{
 returns a \code{HMAnalysedPerturbationData} object
@@ -51,5 +44,5 @@ Analyse multiple different genetic perturbation screens at once
 }
 \examples{
  data(rnaiscreen)
- res <- hm(rnaiscreen, effect.size=0.01)
+ res <- hm(rnaiscreen)
 }

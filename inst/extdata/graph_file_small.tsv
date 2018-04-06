@@ -1,4 +1,4 @@
-#Gene_1	Gene_2	weight
+Gene_1	Gene_2	weight
 cacna1s	cav3	0.0829615262337029
 cd247	cd3e	0.622829162050039
 cav3	cd63	0.694910140708089

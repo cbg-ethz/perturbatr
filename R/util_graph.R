@@ -19,34 +19,16 @@
 
 
 #' @noRd
-#' @importFrom utils read.csv
 #' @importFrom igraph graph_from_adjacency_matrix graph.data.frame
-read.graph <- function(path, graph)
+read.graph <- function(graph)
 {
-  if (all(is.null(c(path, graph))))
-  {
-    stop("Please provide either a graph or the file-to a graph!")
-  }
-  if (!is.null(path))
-  {
-    if (!file.exists(path)) stop("'path' does not exist!")
-    tab <- utils::read.csv(path, sep="\t", header=TRUE)
-    gra <- igraph::graph.data.frame(tab, directed=FALSE)
-    if (ncol(tab) == 3)
-    {
-      if (is.null(igraph::E(gra)$weight))
-        stop("Third column sould be 'weight'")
-    }
-  }
-  else if(!is.null(graph))
-  {
-    gra <- igraph::graph_from_adjacency_matrix(
-      graph, weighted=TRUE, mode="undirected")
-  }
-  else
-  {
-    stop("Something went wrong with graph-reading.")
-  }
+  if (!base::is.data.frame(graph))
+    stop("graph needs to be a data.frame/tibble")
+  if (! "weight" %in% colnames(graph))
+    stop("graph needs a column named weight")
+  if (!is.numeric(graph$weight))
+    stop("graph$weight needs to be numeric")
 
+  gra <- igraph::graph_from_data_frame(graph, directed=FALSE)
   gra
 }

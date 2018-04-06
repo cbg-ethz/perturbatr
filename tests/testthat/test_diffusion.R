@@ -22,9 +22,10 @@ context("diffusion")
 
 
 data(rnaiscreen)
-hm.fit  <- hm(rnaiscreen, effect.size=0.01, qval.threshold=1)
-graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
-res <- diffuse(hm.fit, path=graph.file, r=0.1)
+
+hm.fit  <- hm(rnaiscreen)
+graph.file <- system.file("extdata", "graph_file_small.tsv", package = "perturbatr")
+res <- diffuse(hm.fit, path=graph.file, r=0.5)
 
 
 testthat::test_that("diffusion object prints", {
@@ -64,7 +65,7 @@ testthat::test_that("diffusion object returns bootstrapping boolean", {
 
 testthat::test_that("diffusion object returns inference", {
   testthat::expect_true(inference(res) ==
-                        perturbatr:::inferenceTypes()$ MRW.DIFFUSION)
+                        perturbatr:::inferenceTypes()$MRW.DIFFUSION)
 })
 
 

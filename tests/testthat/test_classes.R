@@ -20,14 +20,15 @@
 context("clazz")
 
 data(rnaiscreen)
+
 test.dat <- dataSet(rnaiscreen) %>%
   dplyr::select(Condition, Replicate, Plate, RowIdx, ColIdx,
                 GeneSymbol, Readout, Control, Perturbation) %>%
-  as.data.frame
+  as.data.frame()
 
 dat <- methods::as(test.dat, "PerturbationData")
 
-dat.lmm <- hm(dat, effect.size=0.01)
+dat.lmm <- hm(dat)
 
 testthat::test_that("raw object has correct class", {
   testthat::expect_s4_class(dat, "PerturbationData")
@@ -47,3 +48,4 @@ testthat::test_that("hm analysed object has correct class", {
 testthat::test_that("hm analysed object has correct class", {
   testthat::expect_error(methods::new("AbstractAnalysedPerturbationData"))
 })
+

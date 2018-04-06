@@ -73,6 +73,7 @@ setGeneric(
 #' @rdname hm-methods
 #' @aliases hm,PerturbationData-method
 #' @import tibble
+
 setMethod(
   "hm",
   signature = signature(obj="PerturbationData"),
@@ -82,31 +83,44 @@ setMethod(
            weights=1,
            bootstrap.cnt=0)
   {
+    .check.formula(formula)
     md <- setModelData(obj, drop, weights)
-    .hm(md, as.character(formula), drop, weights,
-        bootstrap.cnt, effect.size, qval.threshold)
+    .hm(md, as.character(formula), drop, weights, bootstrap.cnt)
   }
 )
+
+#' @noRd
+#' @importFrom formula.tools rhs.vars
+.check.formula <- function(formula)
+{
+
+  needed.frms <- c("^Condition$",
+                   "^1 \\| GeneSymbol$",
+                   "^1 \\| GeneSymbol:Condition|Condition:GeneSymbol$")
+  txt         <- c("fixed effect: 'Condition'",
+                   "random intercept: '1 | GeneSymbol'",
+                   "random intercept: '1 | Condition:GeneSymbol'")
+  pre <- "Plase build your formula with a"
+  frm.rhs <- formula.tools::rhs.vars(formula)
+  for (i in seq(needed.frms)) {
+    if (is.na(grep(needed.frms[i], frm.rhs)[1]))
+      stop(paste(pre, txt[i]))
+  }
+}
 
 
 #' @noRd
 #' @import tibble
 #' @importFrom methods new
-.hm  <- function(obj, formula, drop, weights, bootstrap.cnt,
-                 effect.size, qval.threshold)
+.hm  <- function(obj, formula, drop, weights, bootstrap.cnt)
 {
   res     <- .hm.model.data(obj, formula, bootstrap.cnt)
-  priorit <- .prioritize.hm(res, effect.size, qval.threshold)
-  params  <- list(formula=formula,
-                  effect.size=effect.size,
-                  qval.threshold=qval.threshold,
-                  weights=weights,
-                  drop=drop,
-                  bootstrap.cnt=bootstrap.cnt)
+  params  <- list(formula = formula,
+                  weights = weights,
+                  drop    = drop,
+                  bootstrap.cnt = bootstrap.cnt)
 
   ret <- methods::new("HMAnalysedPerturbationData",
-          geneHits = tibble::as.tibble(priorit$gene.hits),
-          nestedGeneHits = tibble::as.tibble(priorit$nested.gene.hits),
           geneEffects = tibble::as.tibble(res$gene.effects),
           nestedGeneEffects = tibble::as.tibble(res$nested.gene.effects),
           dataSet = tibble::as.tibble(res$model.data),
@@ -124,8 +138,7 @@ setMethod(
 #' @importFrom rlang .data
 .hm.model.data <- function(md, formula, bootstrap.cnt)
 {
-  if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1)
-  {
+  if (is.numeric(bootstrap.cnt) & bootstrap.cnt < 10 & bootstrap.cnt >= 1) {
     stop("Please use at least 10 bootstrap runs (better 100/1000).")
   }
 
@@ -138,8 +151,7 @@ setMethod(
   mult.gen.cnt <- dplyr::mutate(mult.gen.cnt, "cnt" = n())
   mult.gen.cnt <- unique(dplyr::pull(mult.gen.cnt, .data$cnt))
 
-  if (length(mult.gen.cnt) != 1)
-  {
+  if (length(mult.gen.cnt) != 1) {
     warning(paste("Found multiple gene-control entries for several genes,",
                    "i.e. several genes are both control and not control!"))
   }
@@ -178,7 +190,7 @@ setMethod(
 #' @importFrom stats as.formula
 .hm.fit <- function(md, formula)
 {
-  lme4::lmer(as.formula(formula),
+  lme4::lmer(stats::as.formula(formula),
              data = md, weights = md$Weight, verbose = FALSE)
 }
 
@@ -209,25 +221,4 @@ setMethod(
 
   list(gene.effects        = ge,
        nested.gene.effects = ga)
-}
-
-#' @noRd
-#' @import tibble
-#' @importFrom dplyr filter group_by mutate arrange
-#' @importFrom rlang .data
-.prioritize.hm <- function(obj, eft, fdrt)
-{
-  ge <- dplyr::filter(obj$gene.effects, abs(.data$Effect) >= eft)
-  ge <- dplyr::arrange(ge, desc(abs(.data$Effect)))
-
-  if (obj$btst)
-    ge <- dplyr::filter(ge, .data$Qval <= fdrt)
-
-  nge <- dplyr::filter(obj$nested.gene.effects, abs(.data$Effect) >= eft)
-  nge <- dplyr::arrange(nge, -abs(.data$Effect))
-
-  if(all(!is.na(nge$Qval)))
-    nge <- dplyr::filter(nge, .data$Qval <= fdrt)
-
-  list(gene.hits=ge, nested.gene.hits=nge)
 }

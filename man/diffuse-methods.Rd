@@ -7,11 +7,12 @@
 \title{Network diffusion}
 \usage{
 diffuse(obj, path = NULL, graph = NULL, r = 0.5,
-  delete.nodes.on.degree = 0, do.bootstrap = FALSE)
+  delete.nodes.on.degree = 0, do.bootstrap = FALSE,
+  take.largest.component = TRUE)
 
 \S4method{diffuse}{HMAnalysedPerturbationData}(obj, path = NULL,
   graph = NULL, r = 0.5, delete.nodes.on.degree = 0,
-  do.bootstrap = FALSE)
+  do.bootstrap = FALSE, take.largest.component = TRUE)
 }
 \arguments{
 \item{obj}{\code{HMAnalysedPerturbationData} object}
@@ -27,6 +28,10 @@ less or equal than \code{delete.nodes.on.degree}}
 
 \item{do.bootstrap}{run a diffusion on every bootstrap sample in case
 bootstrap samples are available}
+
+\item{take.largest.component}{if \code{true} takes only the largest
+connected component of the graph and discards all nodes that are not in
+the largest component. If \code{false} takes the compete graph.}
 }
 \value{
 returns a \code{NetworkAnalysedPerturbationData} object

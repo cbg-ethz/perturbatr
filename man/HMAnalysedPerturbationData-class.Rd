@@ -18,12 +18,8 @@ Class \code{HMAnalysedPerturbationData} is a wrapper for
 \section{Slots}{
 
 \describe{
-\item{\code{geneHits}}{prioritized genes}
-
 \item{\code{nestedGeneEffects}}{the estimated effect sizes for genes on a
 viral level}
-
-\item{\code{nestedGeneHits}}{nested prioritized genes}
 
 \item{\code{modelFit}}{the fitted model}
 }}

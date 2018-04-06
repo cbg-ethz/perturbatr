@@ -65,7 +65,7 @@ mrw <- function(hits,
 
 #' @noRd
 #' @importFrom diffusr random.walk
-#' @importFrom asserthat assert_that
+#' @importFrom assertthat assert_that
 .do.mrw <- function(hits, adjm, r)
 {
     diffuse.data <- .init.starting.distribution(hits, adjm)

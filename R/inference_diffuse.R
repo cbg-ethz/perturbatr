@@ -41,8 +41,11 @@
 #' @import tibble
 #'
 #' @param obj  \code{HMAnalysedPerturbationData} object
-#' @param path   path to the network file (if \code{graph} is \code{NULL})
-#' @param graph  an weighted adjacency matrix (if \code{path} is \code{NULL})
+#' @param graph a \code{data.frame} or \code{tibble} with three columns
+#'  representing a symbolic edge list.
+#'  The first two columns contain node ids. The third column has to be called
+#'  \emph{weight} and is the \emph{non-negative} weight of the edge between
+#'  the two nodes.
 #' @param r  restart probability of the random walk
 #' @param delete.nodes.on.degree  delete nodes from the graph with a degree of
 #'  less or equal than \code{delete.nodes.on.degree}
@@ -56,15 +59,14 @@
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  res        <- hm(rnaiscreen, effect.size=0.01)
-#'  graph.file <- system.file("extdata", "graph_file.tsv",
+#'  res        <- hm(rnaiscreen)
+#'  graph.file <- system.file("extdata", "graph_file_small.tsv",
 #'                             package = "perturbatr")
 #'  diffu      <- diffuse(res, path=graph.file, r=1)
 #'
 setGeneric(
   "diffuse",
   function(obj,
-           path=NULL,
            graph=NULL,
            r=0.5,
            delete.nodes.on.degree=0,
@@ -85,7 +87,6 @@ setMethod(
   "diffuse",
   signature=signature(obj="HMAnalysedPerturbationData"),
   function(obj,
-           path=NULL,
            graph=NULL,
            r=0.5,
            delete.nodes.on.degree=0,
@@ -111,7 +112,6 @@ setMethod(
     ret <- .diffuse(hits,
                     mod=obj,
                     bootstrap.hits=bootstrap.hits,
-                    path=path,
                     graph=graph,
                     r=r,
                     delete.nodes.on.degree=delete.nodes.on.degree,
@@ -127,15 +127,13 @@ setMethod(
 .diffuse <- function(hits,
                      mod,
                      bootstrap.hits,
-                     path,
                      graph,
                      r,
                      delete.nodes.on.degree,
                      do.bootstrap,
                      take.largest.component)
 {
-  graph <- .get.graph(path, graph,
-                      delete.nodes.on.degree, take.largest.component)
+  graph <- .get.graph(graph, delete.nodes.on.degree, take.largest.component)
   adjm  <- igraph::get.adjacency(graph, attr="weight")
 
   l <- mrw(hits=hits,
@@ -155,11 +153,10 @@ setMethod(
 #' @noRd
 #' @importFrom igraph is.directed components delete.vertices
 #' @importFrom igraph V degree
-.get.graph <- function(path, graph,
-                       delete.nodes.on.degree, take.largest.component)
+.get.graph <- function(graph,delete.nodes.on.degree, take.largest.component)
 {
-  graph <- read.graph(path=path, graph=graph)
-  if (igraph::is.directed(graph)) {
+  graph <- read.graph(graph)
+  if (igraph::is.direlcted(graph)) {
     stop("Please provide an undirected graph")
   }
 

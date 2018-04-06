@@ -18,11 +18,11 @@
 # along with perturbatr If not, see <http://www.gnu.org/licenses/>.
 
 
-context("analysis")
+context("methods")
 
 
 data(rnaiscreen)
-ft <- hm(rnaiscreen, effect.size=0.01)
+ft <- hm(rnaiscreen)
 
 
 testthat::test_that("dataSet for PerturbationData has correct columns", {
