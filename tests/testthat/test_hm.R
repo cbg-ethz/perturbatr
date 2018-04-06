@@ -21,8 +21,7 @@
 context("hm analysis")
 
 
-test.file <- system.file("extdata", "testscreen.rds", package = "perturbatr")
-rnaiscreen <- readRDS(test.file)
+data("rnaiscreen")
 hm.fit  <- hm(rnaiscreen)
 
 

@@ -29,9 +29,11 @@ testthat::test_that("data plots", {
   testthat::expect_silent(s <- plot(rnaiscreen))
 })
 
+
 testthat::test_that("read graph returns igraph object", {
-  fl <- system.file("extdata", "graph_file.tsv", package="perturbatr")
-  gr <- perturbatr:::read.graph(path=fl, graph=NULL)
+  graph <- readRDS(system.file(
+    "extdata", "graph_small.rds", package = "perturbatr"))
+  gr <- perturbatr:::read.graph(graph=graph)
   testthat::expect_true(class(gr)[1] == "igraph")
 })
 

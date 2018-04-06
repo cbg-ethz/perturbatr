@@ -22,10 +22,11 @@ context("diffusion")
 
 
 data(rnaiscreen)
-
 hm.fit  <- hm(rnaiscreen)
-graph.file <- system.file("extdata", "graph_file_small.tsv", package = "perturbatr")
-res <- diffuse(hm.fit, path=graph.file, r=0.5)
+
+graph <- readRDS(system.file(
+  "extdata", "graph_small.rds", package = "perturbatr"))
+res <- diffuse(hm.fit, graph=graph, r=0.5)
 
 
 testthat::test_that("diffusion object prints", {

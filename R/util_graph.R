@@ -19,7 +19,7 @@
 
 
 #' @noRd
-#' @importFrom igraph graph_from_adjacency_matrix graph.data.frame
+#' @importFrom igraph graph_from_data_frame
 read.graph <- function(graph)
 {
   if (!base::is.data.frame(graph))

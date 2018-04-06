@@ -159,9 +159,9 @@ setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 #' @return  returns a \code{igraph} object
 #' @examples
 #'  data(rnaiscreen)
-#'  graph.file <- system.file("extdata", "graph_file_small.tsv",
-#'                             package = "perturbatr")
 #'  ft <- hm(rnaiscreen)
-#'  diffu <- diffuse(ft, path=graph.file, r=1)
+#'
+#'  graph <- readRDS(system.file(
+#'    "extdata", "graph_small.rds", package = "perturbatr"))
 #'  graph(diffu)
 setGeneric("graph", function(obj) standardGeneric("graph"))

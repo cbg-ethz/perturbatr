@@ -60,9 +60,10 @@
 #' @examples
 #'  data(rnaiscreen)
 #'  res        <- hm(rnaiscreen)
-#'  graph.file <- system.file("extdata", "graph_file_small.tsv",
-#'                             package = "perturbatr")
-#'  diffu      <- diffuse(res, path=graph.file, r=1)
+#'
+#'  graph <- readRDS(system.file(
+#'    "extdata", "graph_small.rds", package = "perturbatr"))
+#'  res <- diffuse(hm.fit, graph=graph, r=1)
 #'
 setGeneric(
   "diffuse",
@@ -156,9 +157,6 @@ setMethod(
 .get.graph <- function(graph,delete.nodes.on.degree, take.largest.component)
 {
   graph <- read.graph(graph)
-  if (igraph::is.direlcted(graph)) {
-    stop("Please provide an undirected graph")
-  }
 
   if (take.largest.component) {
     # get connected components

@@ -106,10 +106,10 @@ setClass(
 #' @examples
 #'  data(rnaiscreen)
 #'  hm.fit <- hm(rnaiscreen)
-#'  graph.file <- system.file(
-#'    "extdata", "graph_file_small.tsv", package = "perturbatr")
-#'  graph <- read.csv(grapf.gile, )
-#'  res <- diffuse(hm.fit, path=graph.file, r=1)
+#'
+#'  graph <- readRDS(system.file(
+#'    "extdata", "graph_small.rds", package = "perturbatr"))
+#'  res <- diffuse(hm.fit, graph=graph, r=1)
 setClass(
   "NetworkAnalysedPerturbationData",
   contains  = c("AbstractAnalysedPerturbationData"),
