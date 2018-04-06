@@ -39,7 +39,7 @@
 plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
 {
   pl <- try({
-    .plot.perturbation.hm.analysed(geneHits(x), main=main, size=size)
+    .plot.perturbation.hm.analysed(geneEffects(x), main=main, size=size)
   })
   pl2 <- try({
     .plot.effect.matrices.perturbation.analysed.hm(x, size)

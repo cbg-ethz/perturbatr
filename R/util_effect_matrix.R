@@ -32,7 +32,7 @@ effect.matrices <- function(obj)
 #' @importFrom rlang .data
 effect.matrices.HMAnalysedPerturbationData <- function(obj)
 {
-  g <- geneHits(obj)
+  g <- geneEffects(obj)
   g <- dplyr::select(g, .data$GeneSymbol, .data$Effect)
   g <- dplyr::arrange(g, desc(abs(.data$Effect)))
 

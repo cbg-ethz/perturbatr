@@ -51,25 +51,19 @@
 #'  perturbations
 #' @param bootstrap.cnt  the number of bootstrap runs you want to do in order
 #'  to estimate a significance level for the gene effects
-#' @param effect.size  the absolute, relative effect size used for
-#'  hit prioritization
-#' @param qval.threshold  the q-value threshold used for hit prioritization
-#'  if \code{bootstrap.cnt} is set
 #'
 #' @return returns a \code{HMAnalysedPerturbationData} object
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  res <- hm(rnaiscreen, effect.size=0.01)
+#'  res <- hm(rnaiscreen)
 setGeneric(
   "hm",
   function(obj,
            formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol),
            drop=TRUE,
            weights=1,
-           bootstrap.cnt=0,
-           effect.size=0.05,
-           qval.threshold=.2)
+           bootstrap.cnt=0)
   {
     standardGeneric("hm")
   }
@@ -86,9 +80,7 @@ setMethod(
            formula=Readout ~ Condition+(1|GeneSymbol)+(1|Condition:GeneSymbol),
            drop=TRUE,
            weights=1,
-           bootstrap.cnt=0,
-           effect.size=0.05,
-           qval.threshold=.2)
+           bootstrap.cnt=0)
   {
     md <- setModelData(obj, drop, weights)
     .hm(md, as.character(formula), drop, weights,

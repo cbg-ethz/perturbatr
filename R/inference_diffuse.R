@@ -92,10 +92,10 @@ setMethod(
            do.bootstrap=FALSE,
            take.largest.component=TRUE)
   {
-    hits <- dplyr::select(geneHits(obj), .data$GeneSymbol, .data$Effect)
+    hits <- dplyr::select(geneEffects(obj), .data$GeneSymbol, .data$Effect)
     hits <- dplyr::mutate(hits, "Effect" = abs(.data$Effect))
     if (nrow(hits) == 0)
-        stop("Your prior analysis did not yield hits for genes")
+        stop("Your prior analysis did not yield gene effect sizes")
 
     bootstrap.hits <- NULL
     if (isBootstrapped(obj))

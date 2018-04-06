@@ -91,24 +91,6 @@ setGeneric("inference", function(obj) standardGeneric("inference"))
 setGeneric("isBootstrapped", function(obj) standardGeneric("isBootstrapped"))
 
 
-#' @title Getter for identified essential genes
-#'
-#' @description Returns a \code{tibble} containing the genes that have been
-#'  identified as essential genes in a perturbation screen.
-#'
-#' @export
-#' @docType methods
-#' @rdname geneHits-methods
-#'
-#' @param obj  the object for which you want to extract the underlying gene hits
-#' @return  returns a \code{tibble}.
-#' @examples
-#'  data(rnaiscreen)
-#'  ft <- hm(rnaiscreen)
-#'  geneHits(ft)
-setGeneric("geneHits", function(obj) standardGeneric("geneHits"))
-
-
 #' @title Getter for the complete list of genes and their effect sizes
 #'
 #' @description Returns a \code{tibble} containing the list of genes that
@@ -144,24 +126,6 @@ setGeneric("geneEffects", function(obj) standardGeneric("geneEffects"))
 #'  nestedGeneEffects(ft)
 setGeneric(
     "nestedGeneEffects", function(obj) standardGeneric("nestedGeneEffects"))
-
-
-#' @title Getter for identified nested essential genes
-#'
-#' @description Returns a \code{tibble} containing the genes that have been
-#'  identified as essential genes in a perturbation screen.
-#'
-#' @export
-#' @docType methods
-#' @rdname nestedGeneHits-methods
-#'
-#' @param obj  the object for which you want to extract the underlying gene hits
-#' @return  returns a \code{tibble}.
-#' @examples
-#'  data(rnaiscreen)
-#'  ft <- hm(rnaiscreen)
-#'  nestedGeneHits(ft)
-setGeneric("nestedGeneHits", function(obj) standardGeneric("nestedGeneHits"))
 
 
 #' @title Getter for model fit

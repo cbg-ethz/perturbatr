@@ -37,17 +37,17 @@ setOldClass("igraph")
 #' @slot params  list of some used parameters
 #'
 setClass(
-    "AbstractAnalysedPerturbationData",
-    contains = "VIRTUAL",
-    slots    = list(dataSet        = "tbl_df",
-                    params         = "list",
-                    geneEffects    = "tbl_df",
-                    inference      = "character",
-                    isBootstrapped = "logical"),
-    validity = function(object)
-    {
-        stopifnot(object@inference %in% inferenceTypes())
-    }
+  "AbstractAnalysedPerturbationData",
+  contains = "VIRTUAL",
+  slots    = list(dataSet        = "tbl_df",
+                  params         = "list",
+                  geneEffects    = "tbl_df",
+                  inference      = "character",
+                  isBootstrapped = "logical"),
+  validity = function(object)
+  {
+      stopifnot(object@inference %in% inferenceTypes())
+  }
 )
 
 
@@ -67,10 +67,8 @@ setClass(
 #'  constructed manually but are returned from calling \code{\link{hm}} (see
 #'  the examples).
 #'
-#' @slot geneHits  prioritized genes
 #' @slot nestedGeneEffects  the estimated effect sizes for genes on a
 #'  viral level
-#' @slot nestedGeneHits  nested prioritized genes
 #' @slot modelFit  the fitted model
 #'
 #' @examples
@@ -78,14 +76,11 @@ setClass(
 #'  res <- hm(rnaiscreen, effect.size=0.01)
 #'  class(res)
 setClass(
-  "HMAnalysedPerturbationData",
-  contains  = c("AbstractAnalysedPerturbationData"),
-  slots     = list(
-                   geneHits          = "tbl_df",
-                   nestedGeneEffects = "tbl_df",
-                   nestedGeneHits    = "tbl_df",
-                   modelFit          = "list"),
-  prototype = prototype(inference=inferenceTypes()$MIXED.MODEL)
+    "HMAnalysedPerturbationData",
+    contains  = c("AbstractAnalysedPerturbationData"),
+    slots     = list(nestedGeneEffects = "tbl_df",
+                     modelFit          = "list"),
+    prototype = prototype(inference=inferenceTypes()$MIXED.MODEL)
 )
 
 
@@ -160,15 +155,6 @@ setMethod(
     function(obj) obj@isBootstrapped)
 
 
-#' @rdname geneHits-methods
-#' @aliases geneHits,HMAnalysedPerturbationData-method
-#' @import tibble
-setMethod(
-    "geneHits",
-    signature = signature(obj="HMAnalysedPerturbationData"),
-    function(obj) obj@geneHits)
-
-
 #' @rdname geneEffects-methods
 #' @aliases geneEffects,AbstractAnalysedPerturbationData-method
 #' @import tibble
@@ -185,15 +171,6 @@ setMethod(
     "nestedGeneEffects",
     signature = signature(obj="HMAnalysedPerturbationData"),
     function(obj) obj@nestedGeneEffects)
-
-
-#' @rdname nestedGeneHits-methods
-#' @aliases nestedGeneHits,HMAnalysedPerturbationData-method
-#' @import tibble
-setMethod(
-    "nestedGeneHits",
-    signature = signature(obj="HMAnalysedPerturbationData"),
-    function(obj) obj@nestedGeneHits)
 
 
 #' @rdname modelFit-methods
