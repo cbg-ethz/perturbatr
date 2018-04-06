@@ -23,25 +23,15 @@ vignette: >
   data(sf)
 ```
 
-
 # Introduction
 
-`perturbatr` does stage-wise analysis of large-scale genetic
- perturbation screens for integrated data sets consisting of multiple screens.
- For multiple integrated perturbation screens a hierarchical model that
- considers the variance between different biological conditions is fitted.
- That means that we first estimate relative effect sizes for all genes.
- The resulting hit lists is then further extended using a network
- propagation algorithm to correct for false negatives.
-
-# Tutorial
-
-This tutorial walks you to the basic functionality of `perturbatr` 
-using a pan-pathogenic data set of several RNAi screening studies.
+Here we show an example data analysis using a pan-pathogenic data set of two RNAi screening studies.
+The data set consists of two integrated kinome screens and have been 
+published in @reiss2011recruitment (HCV) and @de2015kinome (SARS).
 
 ## Creating a `PerturbationData` object
 
-You supposedly start with something like a `data.frame` or `data.table`:
+We start with a sample
 
 ```{r, include=TRUE, size="tiny"}
   head(my.data)

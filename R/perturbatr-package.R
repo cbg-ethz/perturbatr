@@ -28,6 +28,18 @@
 #'  ETH ZURICH | \email{simon.dirmeier@@web.de}
 #' @name perturbatr-package
 #'
+#' @references
+#'  de Wilde, Adriaan H., et al. (2015),
+#'  A kinome-wide small interfering RNA screen identifies proviral and
+#'  antiviral host factors in severe acute respiratory syndrome coronavirus
+#'  replication, including double-stranded RNA-activated protein kinase and
+#'  early secretory pathway proteins. \cr
+#'  \emph{Journal of virology} \cr \cr
+#'  Reiss, Simon, et al. (2011),
+#'  Recruitment and activation of a lipid kinase by hepatitis C virus NS5A is
+#'  essential for integrity of the membranous replication compartment.\cr
+#'  \emph{Cell Host & Microbe} \cr \cr
+#'
 #' @docType package
 #' @keywords package
 NULL

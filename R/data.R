@@ -20,8 +20,25 @@
 
 #' A sample pan-pathogenic perturbation dataset
 #'
-#' Example \code{PerturbationData} object consisting of two viral screens with
-#'  random data.
+#' Example \code{PerturbationData} object of two integrated viral
+#' RNAi screens that consists of a HCV kinome screen and a SARS kinome screen
+#' (see references).
+#'
+#' @references
+#'  de Wilde, Adriaan H., et al. (2015),
+#'  A kinome-wide small interfering RNA screen identifies proviral and
+#'  antiviral host factors in severe acute respiratory syndrome coronavirus
+#'  replication, including double-stranded RNA-activated protein kinase and
+#'  early secretory pathway proteins. \cr
+#'  \emph{Journal of virology} \cr \cr
+#'  Reiss, Simon, et al. (2011),
+#'  Recruitment and activation of a lipid kinase by hepatitis C virus NS5A is
+#'  essential for integrity of the membranous replication compartment.\cr
+#'  \emph{Cell Host & Microbe} \cr \cr
+#'
+#'  Friedman J., Hastie T., Hoefling H. and Tibshirani R. (2007),
+#'  Pathwise coordinate optimization.\cr
+#'  \emph{The Annals of Applied Statistics}\cr \cr
 #'
 #' \itemize{
 #'     \item Condition  \code{character} names of the viruses
