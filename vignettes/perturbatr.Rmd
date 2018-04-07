@@ -205,7 +205,7 @@ For that we need to supply a graph as a `data.frame` and call the `diffuse` func
 
 ```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   graph <- readRDS(
-    system.file("extdata", "graph_full.rds",package = "perturbatr"))
+    system.file("extdata", "graph_small.rds",package = "perturbatr"))
   diffu <- diffuse(res.hm, graph=graph, r=0.3)
 ```
 
