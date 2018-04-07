@@ -141,8 +141,8 @@ setGeneric(
 #' @return  returns a \code{list}
 #' @examples
 #'  data(rnaiscreen)
-#'  ft <- hm(rnaiscreen)
-#'  modelFit(ft)
+#'  hm.fit <- hm(rnaiscreen)
+#'  ft <- modelFit(hm.fit)
 setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 
 
