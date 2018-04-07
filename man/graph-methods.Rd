@@ -28,5 +28,5 @@ Returns the graph that has been used for analysis using network
    "extdata", "graph_small.rds", package = "perturbatr"))
  diffu <- diffuse(ft, gr, r=1)
 
- graph(gr)
+ graph(diffu)
 }

@@ -214,6 +214,8 @@ of a Markov random walk with restarts.
 ```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   plot(diffu)
 ```
+Further note that we used a very small network here. You might want to redo this analysis with the full graph which is located in 
+`system.file("extdata", "graph_full.rds",package = "perturbatr")`.
 
 ## Session info
 

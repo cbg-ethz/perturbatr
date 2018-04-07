@@ -165,5 +165,5 @@ setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 #'    "extdata", "graph_small.rds", package = "perturbatr"))
 #'  diffu <- diffuse(ft, gr, r=1)
 #'
-#'  graph(gr)
+#'  graph(diffu)
 setGeneric("graph", function(obj) standardGeneric("graph"))
