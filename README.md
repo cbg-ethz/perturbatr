@@ -20,13 +20,14 @@ propagation algorithm to correct for false negatives. and positives.
 
 ```{r}
 data(rnaiscreen)
-graph.file <- system.file("extdata", "graph_file.tsv", package = "perturbatr")
+graph <- readRDS(
+  system.file("extdata", "graph_file.tsv", package = "perturbatr"))
 
 frm   <- Readout ~ Condition +
                    (1|GeneSymbol) + (1|Condition:GeneSymbol) +
                    (1|ScreenType) + (1|Condition:ScreenType)
-ft    <- hm(rnaiscreen, formula = frm, effect.size=0.01)
-diffu <- diffuse(ft, path=graph.file, r=0.1)
+ft    <- hm(rnaiscreen, formula = frm)
+diffu <- diffuse(ft, graph=graph, r=0.3)
 
 plot(diffu)
 ```
