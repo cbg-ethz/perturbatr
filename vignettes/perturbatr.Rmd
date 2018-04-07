@@ -21,13 +21,15 @@ vignette: >
   knitr::opts_chunk$set(echo = TRUE)
   options(warn = -1)
   library(dplyr)
+  library(tibble)
   library(methods)
   library(perturbatr)
   data(rnaiscreen)
-  my.data <- dataSet(rnaiscreen) %>%    
-    dplyr::select(Condition, Replicate, GeneSymbol, 
-                  Perturbation, Readout, Control) %>%
-    as.data.frame()
+  rnaiscreen <- dataSet(rnaiscreen) %>%    
+    dplyr::select(Condition, Replicate, GeneSymbol,
+                  Perturbation, Readout, Control, 
+                  Design, ScreenType, Screen) %>%
+    as.tibble()
 ```
 
 # Introduction
@@ -40,24 +42,27 @@ vignette: >
  The resulting hit lists is then further extended using a network
  propagation algorithm to correct for false negatives.
 
-# Tutorial
+Here we show an example data analysis using a pan-pathogenic data set of three RNAi screening studies.
+The data set consists of two kinome and a druggable genome wide RNAi screen and have been 
+published in @reiss2011recruitment (HCV) and @de2015kinome (SARS).
 
-This tutorial walks you to the basic functionality of `perturbatr` 
-using a pan-pathogenic data set of several RNAi screening studies.
+# Data analysis tutorial
+
+This tutorial walks you to the basic functionality of `perturbatr`.
 
 ## Creating a `PerturbationData` object
 
-You supposedly start with something like a `data.frame` or `data.table`:
+You supposedly start with something like a `data.frame` or `tibble`:
 
 ```{r, include=TRUE, size="tiny"}
-  head(my.data)
+  head(rnaiscreen)
 ```
 
-In order to create a perturbation data set you only need to call the `as`
-method:
+In order to start your analysis you need to create a perturbation data set first.
+For this you only need to call the `as` method on your `data.frame`:
 
 ```{r, include=TRUE, eval=TRUE}
-  my.perturbation.data <- methods::as(my.data, "PerturbationData")
+  rnaiscreen <- methods::as(rnaiscreen, "PerturbationData")
 ```
 
 Coercing your `data.frame` to `PerturbationData` will automatically warn you if
@@ -90,8 +95,8 @@ bundled your data into an `S4` object such that dispatch is easier to handle
 and to make sure that your data set has the correct columns:
 
 ```{r, eval=TRUE, include=TRUE}
-  my.perturbation.data
-  dataSet(my.perturbation.data)
+  rnaiscreen
+  dataSet(rnaiscreen)
 ```
 
 `PerturbationData` has some basic `filter` and `rbind` functionality.
@@ -100,18 +105,18 @@ example below we extract all rows from the data set that have a positive
 readout.
 
 ```{r, eval=TRUE, include=TRUE}
-  perturbatr::filter(my.perturbation.data, Readout > 0)
+  perturbatr::filter(rnaiscreen, Readout > 0)
 ```
 
 Filtering on multiple rows works by just adding predicates:
 ```{r, eval=TRUE, include=TRUE}
-  perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
+  perturbatr::filter(rnaiscreen, Readout > 0, Replicate == 2)
 ```
 
 If you want to combine data sets you can call `rbind`, which will 
 automatically dispatch on `PerturbationData` object:
 ```{r, eval=TRUE, include=TRUE}
-  dh <- perturbatr::filter(my.perturbation.data, Readout > 0, Replicate == 2)
+  dh <- perturbatr::filter(rnaiscreen, Readout > 0, Replicate == 2)
   rbind(dh, dh)
 ```
 
@@ -119,75 +124,94 @@ automatically dispatch on `PerturbationData` object:
 
 Finally, after having set up the data set, we analyse it using a hierarchical 
 model and network diffusion. 
+
 We **expect you already normalized the data sets accordingly**. 
 As noted above, if you want to analyse multiple data sets, make sure that
 every data set corresponds to a unique `Condition`.
 
-For the sake of simplicity, you can model your readout as a linear combination
-of fixed effects and clustering effects for genes and genes 
-nested in a condition:
-
-$$y_{cgp} = x_c \beta + \gamma_g  + \delta_{cg} + \dots + \epsilon_{cgp}$$
-
-where $y_{cgp}$ is the phenotype for a condition $c$, gene $g$ and 
-perturbation $p$. This would correspond to the `formula`
-
-```{r, eval=FALSE, include=TRUE, warning=FALSE, message=FALSE}
-  Readout ~ Condition + (1|GeneSymbol) + (1|Condition:GeneSymbol)
+First, let's have a rough look at the data set that we are using:
+```{r, eval=TRUE, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
+  plot(rnaiscreen)
 ```
 
-which is the default argument. You can see that we model the gene effect using 
-different intercepts for each gene. To use the hierarchical model with the 
-above formula, call:
+We have roughly the same number of replicates per gene, but the HCV screen has less genes
+than the SARS data set. That is no problem however, because we automatically filter such that the genes are same.
+We also automatically remove positive controls for obvious reasons.
 
-```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
-  data(rnaiscreen)
-  res <- hm(rnaiscreen, effect.size=0.01)
+Next we rank the genes using a hierarchical model which requires explicitely modelling the readout of our data set using an
+R `formula`. Let's look at the data in more detail first:
+
+```{r}
+  dataSet(rnaiscreen) %>% str()
 ```
 
-Depending on your data set different clustering effects might be present of 
-course. So let's have a look at our data again:
+Here, variables like `Replicate`, `Plate`, `RowIdx/ColIdx` should not be associated with a change in the response `Readout` as we normalized the data and corrected for batch effects.
+However, the `Readout`s should definitely have been different between `ScreenType`s:
 
-```{r, include=TRUE, size="tiny"}
-  dataSet(rnaiscreen)
+```{r}
+  dataSet(rnaiscreen) %>% pull(ScreenType) %>% unique()
 ```
 
-For viral perturbation screens, as simulated by our example data set, we know 
+where `E/R` represents that the screen has measured the effect of a gene knockdown during the *entry and replication* stages of the viral 
+lifecycle while `A/R` repesents the gene knockdown's effect having been measures during the *assembly and release* stages of the lifecycle.
+In the life cycle of positive-sense RNA viruses (group IV in Baltimore classification) we know 
 that viruses make use of different host factors during their life cycle. 
 That means while some genes are required during *entry and replication*, 
 others might play a role in *assembly and release* of the virions. 
 So we have reason to believe that the stage of the infection also introduces 
 a clustering effect. In that case we would need to add a random effect 
-for the stage of the infection. We estimated the effects using `lme4` 
-[@bates2014lme4].
+for the stage of the infection.
+
+A model selection using the Bayesian information criterion indeed suggests the following hierarchical random intercept model:
+
+$$y_{cgtp} \mid\gamma_g, \delta_{cg}, \zeta_t , \xi_{ct} \sim \mathcal{N}(x_c \beta + \gamma_g  + \delta_{cg} + \zeta_t + \xi_{ct},  \sigma^2),$$
+where $y_{cgtp}$ is the readout of virus $c$, gene $g$, stage of the viral lifecycle $t$ (`E/R` vs `A/R`) and $p$ is the perturbation (siRNA) used for gene $g$.
+We estimate the parameters of the model using `lme4` [@bates2014lme4]:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   frm <- Readout ~ Condition +
                    (1|GeneSymbol) + (1|Condition:GeneSymbol) +
                    (1|ScreenType) + (1|Condition:ScreenType)
-  res <- hm(rnaiscreen, formula = frm, effect.size=0.01)
+  res.hm <- hm(rnaiscreen, formula = frm)
 ```
 
 **Note that for your own data different effects might be visible. Thus,** 
 **before modelling you need to exploratorily detect possible effects.**
 
 Let's take the last result and plot them. This yields a list of multiple
-plots. The most informative one that shows the top 25 genes:
+plots. The first plot shows the first 25 strongest gene effects ranked by their
+absolute effect sizes. Most of the genes are colored in blue which represents that a
+gene knockdown leads to an inhibition of viral growth on a **pan-viral** level. 
+Bars colored in red represent genes for which a knockdown results in increased viral viability.
+If you are interested in the complete ranking of genes, use `geneEffects(res.hm)`.
+
+```{r, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
+  pl <- plot(res.hm)
+  pl[[1]]
+```
+
+The second plots shows the *nested gene effects*, i.e. the estimated effects of
+a gene knockdown for a **single** virus. The genes shown here are the same as in the first plot,
+so it might be possible that there are *nested gene effects* that are stronger which are just not plotted.
+You can get all nested gene effects using `nestedGeneEffects(res.hm)`.
 
 ```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
-  pl <- plot(res)
-  pl[[1]]
+  pl[[2]]
 ```
 
 Next we might want to *smooth* the effect from the hierarchical model using 
 network diffusion, by that possibly reduce the number of some false negatives.
-For that we need a graph file and call the `diffuse` function. If we plot the
-results we get a list of reranked genes:
+For that we need to supply a graph as a `data.frame` and call the `diffuse` function:
 
 ```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
-  graph.file <- system.file("extdata", "graph_file.tsv",
-                            package = "perturbatr")
-  diffu      <- diffuse(res, path=graph.file, r=0.1)
+  graph <- readRDS(
+    system.file("extdata", "graph_full.rds",package = "perturbatr"))
+  diffu <- diffuse(res.hm, graph=graph, r=0.3)
+```
+
+If we plot the results we get a list of reranked genes. Note that the ranking uses the network diffusion computes a stationary distribution
+of a Markov random walk with restarts.
+```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   plot(diffu)
 ```
 

@@ -32,6 +32,7 @@
 #'
 #' @param x  the object to be plotted
 #' @param size  size of letters
+#' @param main  title of the plot
 #' @param ...  additional parameters
 #'
 #' @return returns a list of plots
@@ -102,7 +103,6 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
     ggplot2::theme_minimal() +
     ggplot2::theme(text=ggplot2::element_text(size = size,
                                               family = "Helvetica"),
-                   legend.position = "bottom",
                    aspect.ratio = 2,
                    axis.text.x  = ggplot2::element_text(angle=0,
                                                         hjust = 1,
@@ -143,6 +143,7 @@ plot.HMAnalysedPerturbationData <- function(x, size=10, main="", ...)
                                                        family = "Helvetica"),
                    axis.title.x = ggplot2::element_blank(),
                    axis.title.y = ggplot2::element_blank(),
+                   legend.position = "bottom",
                    axis.ticks   = ggplot2::element_blank(),
                    panel.grid.major = ggplot2::element_blank(),
                    text = ggplot2::element_text(size = size,

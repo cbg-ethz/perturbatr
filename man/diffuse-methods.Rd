@@ -6,20 +6,21 @@
 \alias{diffuse,HMAnalysedPerturbationData-method}
 \title{Network diffusion}
 \usage{
-diffuse(obj, path = NULL, graph = NULL, r = 0.5,
+diffuse(obj, graph = NULL, r = 0.5, delete.nodes.on.degree = 0,
+  do.bootstrap = FALSE, take.largest.component = TRUE)
+
+\S4method{diffuse}{HMAnalysedPerturbationData}(obj, graph = NULL, r = 0.5,
   delete.nodes.on.degree = 0, do.bootstrap = FALSE,
   take.largest.component = TRUE)
-
-\S4method{diffuse}{HMAnalysedPerturbationData}(obj, path = NULL,
-  graph = NULL, r = 0.5, delete.nodes.on.degree = 0,
-  do.bootstrap = FALSE, take.largest.component = TRUE)
 }
 \arguments{
 \item{obj}{\code{HMAnalysedPerturbationData} object}
 
-\item{path}{path to the network file (if \code{graph} is \code{NULL})}
-
-\item{graph}{an weighted adjacency matrix (if \code{path} is \code{NULL})}
+\item{graph}{a \code{data.frame} or \code{tibble} with three columns
+representing a symbolic edge list.
+The first two columns contain node ids. The third column has to be called
+\emph{weight} and is the \emph{non-negative} weight of the edge between
+the two nodes.}
 
 \item{r}{restart probability of the random walk}
 
@@ -48,9 +49,10 @@ Propagate the estimated gene effects from a previous analysis
 }
 \examples{
  data(rnaiscreen)
- res        <- hm(rnaiscreen, effect.size=0.01)
- graph.file <- system.file("extdata", "graph_file.tsv",
-                            package = "perturbatr")
- diffu      <- diffuse(res, path=graph.file, r=1)
+ hm.fit <- hm(rnaiscreen)
+
+ graph <- readRDS(system.file(
+   "extdata", "graph_small.rds", package = "perturbatr"))
+ res <- diffuse(hm.fit, graph=graph, r=1)
 
 }

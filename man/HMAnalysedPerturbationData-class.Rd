@@ -26,6 +26,6 @@ viral level}
 
 \examples{
  data(rnaiscreen)
- res <- hm(rnaiscreen, effect.size=0.01)
+ res <- hm(rnaiscreen)
  class(res)
 }

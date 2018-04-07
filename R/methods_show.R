@@ -55,7 +55,8 @@ setMethod(
     ges <- geneEffects(object) %>%
       dplyr::select(.data$GeneSymbol, .data$Effect, .data$Qval)
     mer <- dplyr::left_join(ges, gps, by="GeneSymbol")
-    print(base::as.data.frame(mer))
+
+    print(utils::head(base::as.data.frame(mer)))
   }
 )
 
@@ -74,6 +75,7 @@ setMethod(
     gps <- geneEffects(object) %>%
       dplyr::select(.data$GeneSymbol, .data$Effect, .data$DiffusionEffect)
     gps <- gps[order(-gps$DiffusionEffect),]
-    print(base::as.data.frame(gps))
+
+    print(utils::head(base::as.data.frame(gps)))
   }
 )

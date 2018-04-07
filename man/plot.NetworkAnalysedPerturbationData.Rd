@@ -4,12 +4,14 @@
 \alias{plot.NetworkAnalysedPerturbationData}
 \title{Plot a \code{NetworkAnalysedPerturbationData} object}
 \usage{
-\method{plot}{NetworkAnalysedPerturbationData}(x, cnt = 10, ...)
+\method{plot}{NetworkAnalysedPerturbationData}(x, size = 10, main = "", ...)
 }
 \arguments{
 \item{x}{a \code{NetworkAnalysedPerturbationData} object}
 
-\item{cnt}{number of genes to be shown}
+\item{size}{size of letters}
+
+\item{main}{title of the plot}
 
 \item{...}{additional parameters}
 }

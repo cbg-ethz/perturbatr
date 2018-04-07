@@ -59,7 +59,7 @@
 #'
 #' @examples
 #'  data(rnaiscreen)
-#'  res        <- hm(rnaiscreen)
+#'  hm.fit <- hm(rnaiscreen)
 #'
 #'  graph <- readRDS(system.file(
 #'    "extdata", "graph_small.rds", package = "perturbatr"))
@@ -152,8 +152,7 @@ setMethod(
 
 
 #' @noRd
-#' @importFrom igraph is.directed components delete.vertices
-#' @importFrom igraph V degree
+#' @importFrom igraph components delete.vertices V degree
 .get.graph <- function(graph,delete.nodes.on.degree, take.largest.component)
 {
   graph <- read.graph(graph)

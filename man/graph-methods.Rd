@@ -22,9 +22,11 @@ Returns the graph that has been used for analysis using network
 }
 \examples{
  data(rnaiscreen)
- graph.file <- system.file("extdata", "graph_file.tsv",
-                            package = "perturbatr")
- ft <- hm(rnaiscreen, effect.size=0.01)
- diffu <- diffuse(ft, path=graph.file, r=1)
- graph(diffu)
+ ft <- hm(rnaiscreen)
+
+ gr <- readRDS(system.file(
+   "extdata", "graph_small.rds", package = "perturbatr"))
+ diffu <- diffuse(ft, gr, r=1)
+
+ graph(gr)
 }

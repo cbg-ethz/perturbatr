@@ -1,7 +1,7 @@
 Package: perturbatr
 Type: Package
 Title: Statistical Analysis of High-Throughput Genetic Perturbation Screens
-Version: 0.99.15
+Version: 0.99.16
 Date: 2018-03-19
 Authors@R: person("Simon", "Dirmeier",
 	email = "simon.dirmeier@web.de", role = c("aut", "cre"))
@@ -39,7 +39,6 @@ Imports:
     utils,
     graphics,
     scales,
-    gridExtra,
     magrittr,
     formula.tools,
     rlang

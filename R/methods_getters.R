@@ -161,7 +161,9 @@ setGeneric("modelFit", function(obj) standardGeneric("modelFit"))
 #'  data(rnaiscreen)
 #'  ft <- hm(rnaiscreen)
 #'
-#'  graph <- readRDS(system.file(
+#'  gr <- readRDS(system.file(
 #'    "extdata", "graph_small.rds", package = "perturbatr"))
-#'  graph(diffu)
+#'  diffu <- diffuse(ft, gr, r=1)
+#'
+#'  graph(gr)
 setGeneric("graph", function(obj) standardGeneric("graph"))

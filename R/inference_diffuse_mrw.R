@@ -77,8 +77,6 @@ mrw <- function(hits,
                                          graph=as.matrix(diffuse.data$adjm),
                                          r=r)
     diffuse.data$frame$DiffusionEffect <- mrw
-    dplyr::arrange(diffuse.data$frame, -DiffusionEffect)
-
     diffuse.data
 }
 

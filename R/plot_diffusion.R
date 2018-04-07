@@ -33,21 +33,47 @@
 #' @import tibble
 #' @import grid
 #' @importFrom rlang .data
-#' @importFrom gridExtra tableGrob ttheme_minimal grid.table
 #'
 #' @param x  a \code{NetworkAnalysedPerturbationData} object
-#' @param cnt  number of genes to be shown
+#' @param size  size of letters
+#' @param main  title of the plot
 #' @param ...  additional parameters
 #'
 #' @return returns a table if the first \code{cnt} highest ranked genes
 #'
-plot.NetworkAnalysedPerturbationData <- function(x, cnt=10, ...)
+plot.NetworkAnalysedPerturbationData <- function(x, size=10, main="", ...)
 {
-  tt <- gridExtra::ttheme_minimal(
-    base_family="Helvetica",
-    core=list(bg_params = list(fill="white")))
-
   geef <- geneEffects(x)
-  geef <- geef[order(-geef$DiffusionEffect),][seq(cnt),]
-  gridExtra::grid.table(geef, theme=tt)
+  geef <- geef[order(-geef$DiffusionEffect), ]
+  .plot.bars.diff(geef, size, main)
 }
+
+#' @noRd
+#' @importFrom rlang .data
+.plot.bars.diff <- function(x, size, main)
+{
+  x$GeneSymbol <- base::factor(x$GeneSymbol, levels=rev(unique(x$GeneSymbol)))
+  pl <-
+    ggplot2::ggplot(x) +
+    ggplot2::geom_bar(
+      ggplot2::aes(x$GeneSymbol, abs(x$DiffusionEffect)), fill="darkgrey",
+      stat="identity") +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.y = ggplot2::element_text(size = size - 2,
+                                                       family = "Helvetica"),
+                   axis.title.x = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank(),
+                   legend.position = "bottom",
+                   axis.ticks   = ggplot2::element_blank(),
+                   panel.grid.major = ggplot2::element_blank(),
+                   text = ggplot2::element_text(size = size,
+                                                family = "Helvetica"),
+                   axis.text.x = ggplot2::element_text(
+                     size = size - 2,
+                     family = "Helvetica")) +
+    ggplot2::coord_flip() +
+    ggplot2::ggtitle(main)
+
+  pl
+}
+

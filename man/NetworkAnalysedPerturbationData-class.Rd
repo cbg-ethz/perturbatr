@@ -25,8 +25,9 @@ exposes getters for its members of the same name,
 
 \examples{
  data(rnaiscreen)
- hm.fit <- hm(rnaiscreen, effect.size=0.01)
- graph.file <- system.file("extdata", "graph_file.tsv",
-                                       package = "perturbatr")
- res <- diffuse(hm.fit, path=graph.file, r=1)
+ hm.fit <- hm(rnaiscreen)
+
+ graph <- readRDS(system.file(
+   "extdata", "graph_small.rds", package = "perturbatr"))
+ res <- diffuse(hm.fit, graph=graph, r=1)
 }
