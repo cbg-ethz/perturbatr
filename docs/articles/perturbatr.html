@@ -138,11 +138,11 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  rnaiscreen</code></pre></div>
 <pre><code>## A perturbation data set
 ## 
-##   Condition GeneSymbol    Readout
-## 1       HCV      chd1l -0.8924058
-## 2       HCV      kif1a -0.3345313
-## 3      SARS       nek1  0.4360354
-## 4      SARS     map3k5 -0.1199976</code></pre>
+##   Condition GeneSymbol     Readout
+## 1       HCV   slc25a13 -0.41351367
+## 2       HCV      dock2 -4.96954675
+## 3      SARS  scrambled -0.48440225
+## 4      SARS     akap13  0.06738457</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw"><a href="../reference/dataSet-methods.html">dataSet</a></span>(rnaiscreen)</code></pre></div>
 <pre><code>## # A tibble: 215,427 x 9
 ##    Condition Replicate GeneSymbol Perturbation      Readout Control Design
@@ -164,29 +164,29 @@ document.addEventListener("DOMContentLoaded", function() {
 <pre><code>## A perturbation data set
 ## 
 ##   Condition GeneSymbol   Readout
-## 1       HCV        il7 0.6309238
-## 2       HCV       abl2 0.3700160
-## 3      SARS      phkg2 0.4594985
-## 4      SARS      itpkb 0.1823974</code></pre>
+## 1       HCV        mvk 2.5071446
+## 2       HCV   flj20531 1.0518232
+## 3      SARS      scap1 0.4042943
+## 4      SARS    map3k14 0.6082179</code></pre>
 <p>Filtering on multiple rows works by just adding predicates:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(rnaiscreen, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, Replicate <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)</code></pre></div>
 <pre><code>## A perturbation data set
 ## 
 ##   Condition GeneSymbol    Readout
-## 1       HCV       irf6 1.42623968
-## 2       HCV     dnaja3 1.44459838
-## 3      SARS       insr 0.05056935
-## 4      SARS      cdkn3 0.83928484</code></pre>
+## 1       HCV       gdi1 0.03404644
+## 2       HCV       osmr 1.57912611
+## 3      SARS     map3k3 0.11734486
+## 4      SARS       pgk1 0.02299858</code></pre>
 <p>If you want to combine data sets you can call <code>rbind</code>, which will automatically dispatch on <code>PerturbationData</code> object:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  dh &lt;-<span class="st"> </span>perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(rnaiscreen, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, Replicate <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)
   <span class="kw">rbind</span>(dh, dh)</code></pre></div>
 <pre><code>## A perturbation data set
 ## 
-##   Condition GeneSymbol    Readout
-## 1       HCV  scrambled 0.42505971
-## 2       HCV     kcna10 0.08387731
-## 3      SARS      rock2 0.45017895
-## 4      SARS    prkwnk2 0.01069470</code></pre>
+##   Condition GeneSymbol   Readout
+## 1       HCV   mgc14793 0.2155010
+## 2       HCV      egfl3 1.2674543
+## 3      SARS       ptk2 0.4158365
+## 4      SARS      mapk9 1.3630661</code></pre>
 </div>
 <div id="data-analysis-using-a-hierarchical-model-and-network-diffusion" class="section level2">
 <h2 class="hasAnchor">
@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <pre><code>## [1] "E/R" "A/R"</code></pre>
 <p>where <code>E/R</code> represents that the screen has measured the effect of a gene knockdown during the <em>entry and replication</em> stages of the viral lifecycle while <code>A/R</code> repesents the gene knockdown’s effect having been measures during the <em>assembly and release</em> stages of the lifecycle. In the life cycle of positive-sense RNA viruses we know that viruses make use of different host factors during their life cycle. That means while some genes are required during <em>entry and replication</em>, others might play a role in <em>assembly and release</em> of the virions. So we have reason to believe that the stage of the infection also introduces a clustering effect. In that case we would need to add a random effect for the stage of the infection.</p>
 <p>A model selection using the Bayesian information criterion indeed suggests the following hierarchical random intercept model:</p>
-<p><span class="math display">\[y_{cgtp} \mid\gamma_g, \delta_{cg}, \zeta_t , \xi_{ct} \sim \mathcal{N}(x_c \beta + \gamma_g  + \delta_{cg} + \zeta_t + \xi_{ct},  \sigma^2),\]</span> where <span class="math inline">\(y_{cgtp}\)</span> is the readout of virus <span class="math inline">\(c\)</span>, gene <span class="math inline">\(g\)</span>, stage of the viral lifecycle <span class="math inline">\(t\)</span> (<code>E/R</code> vs <code>A/R</code>) and <span class="math inline">\(p\)</span> is the perturbation (siRNA) used for gene <span class="math inline">\(g\)</span>. We estimate the parameters of the model using <code>lme4</code> <span class="citation">(Bates et al. 2014)</span>:</p>
+<p><span class="math display">\[y_{cgtp} \mid\gamma_g, \delta_{cg}, \zeta_t , \xi_{ct} \sim \mathcal{N}(x_c \beta + \gamma_g  + \delta_{cg} + \zeta_t + \xi_{ct},  \sigma^2),\]</span> where <span class="math inline">\(y_{cgtp}\)</span> is the readout of virus <span class="math inline">\(c\)</span>, gene <span class="math inline">\(g\)</span>, stage of the viral lifecycle <span class="math inline">\(t\)</span> (<code>E/R</code> vs <code>A/R</code>) and <span class="math inline">\(p\)</span> is the perturbation (siRNA) used for gene <span class="math inline">\(g\)</span>. We estimate the parameters of the model using <code>lme4</code> <span class="citation">(Bates et al. 2015)</span>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  frm &lt;-<span class="st"> </span>Readout <span class="op">~</span><span class="st"> </span>Condition <span class="op">+</span>
 <span class="st">                   </span>(<span class="dv">1</span><span class="op">|</span>GeneSymbol) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>Condition<span class="op">:</span>GeneSymbol) <span class="op">+</span>
 <span class="st">                   </span>(<span class="dv">1</span><span class="op">|</span>ScreenType) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>Condition<span class="op">:</span>ScreenType)
@@ -286,10 +286,10 @@ document.addEventListener("DOMContentLoaded", function() {
 <a href="#references" class="anchor"></a>References</h2>
 <div id="refs" class="references">
 <div id="ref-bates2014lme4">
-<p>Bates, Douglas, Martin Maechler, Ben Bolker, Steven Walker, and others. 2014. “Lme4: Linear Mixed-Effects Models Using Eigen and S4.” <em>R Package Version</em> 1 (7): 1–23.</p>
+<p>Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015. “Fitting Linear Mixed-Effects Models Using lme4.” <em>Journal of Statistical Software</em> 67 (1): 1–48. doi:<a href="https://doi.org/10.18637/jss.v067.i01">10.18637/jss.v067.i01</a>.</p>
 </div>
 <div id="ref-reiss2011recruitment">
-<p>Reiss, Simon, Ilka Rebhan, Perdita Backes, Ines Romero-Brey, Holger Erfle, Petr Matula, Lars Kaderali, et al. 2011. “Recruitment and Activation of a Lipid Kinase by Hepatitis c Virus Ns5a Is Essential for Integrity of the Membranous Replication Compartment.” <em>Cell Host &amp; Microbe</em> 9 (1). Elsevier: 32–45.</p>
+<p>Reiss, Simon, Ilka Rebhan, Perdita Backes, Ines Romero-Brey, Holger Erfle, Petr Matula, Lars Kaderali, et al. 2011. “Recruitment and activation of a lipid kinase by hepatitis C virus NS5A is essential for integrity of the membranous replication compartment.” <em>Cell Host &amp; Microbe</em> 9 (1). Elsevier: 32–45.</p>
 </div>
 <div id="ref-de2015kinome">
 <p>Wilde, Adriaan H de, Kazimier F Wannee, Florine EM Scholte, Jelle J Goeman, Peter ten Dijke, Eric J Snijder, Marjolein Kikkert, and Martijn J van Hemert. 2015. “A Kinome-Wide Small Interfering Rna Screen Identifies Proviral and Antiviral Host Factors in Severe Acute Respiratory Syndrome Coronavirus Replication, Including Double-Stranded Rna-Activated Protein Kinase and Early Secretory Pathway Proteins.” <em>Journal of Virology</em> 89 (16). Am Soc Microbiol: 8318–33.</p>

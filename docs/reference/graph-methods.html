@@ -136,9 +136,9 @@
  <span class='no'>gr</span> <span class='kw'>&lt;-</span> <span class='fu'>readRDS</span>(<span class='fu'>system.file</span>(
    <span class='st'>"extdata"</span>, <span class='st'>"graph_small.rds"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"perturbatr"</span>))
  <span class='no'>diffu</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='diffuse-methods.html'>diffuse</a></span>(<span class='no'>ft</span>, <span class='no'>gr</span>, <span class='kw'>r</span><span class='kw'>=</span><span class='fl'>1</span>)</div><div class='output co'>#&gt; <span class='message'>Only taking largest connected component to ensure ergodicity.</span></div><div class='output co'>#&gt; <span class='message'>Diffusion using Markov random walks.</span></div><div class='output co'>#&gt; <span class='message'>normalizing vector!</span></div><div class='output co'>#&gt; <span class='message'>normalizing column vectors!</span></div><div class='input'>
- <span class='fu'>graph</span>(<span class='no'>diffu</span>)</div><div class='output co'>#&gt; IGRAPH 2fd690b UNW- 549 5202 -- 
+ <span class='fu'>graph</span>(<span class='no'>diffu</span>)</div><div class='output co'>#&gt; IGRAPH 44a27e2 UNW- 549 5202 -- 
 #&gt; + attr: name (v/c), weight (e/n)
-#&gt; + edges from 2fd690b (vertex names):
+#&gt; + edges from 44a27e2 (vertex names):
 #&gt;  [1] abi1  --abl1   abi1  --abl2   acvr1 --acvr1b acvr1 --acvr1c acvr1 --acvr2b
 #&gt;  [6] acvr1b--acvr2b acvr1c--acvr2b acvr1b--acvrl1 acvr1c--acvrl1 acvr2b--acvrl1
 #&gt; [11] acvrl1--adrbk1 adra1a--adrbk1 adra1b--adrbk1 adrb2 --adrbk1 adra1a--adrbk2
