@@ -45,7 +45,7 @@ plot.NetworkAnalysedPerturbationData <- function(x, size=10, main="", ...)
 {
   geef <- geneEffects(x)
   geef <- geef[order(-geef$DiffusionEffect), ]
-  geed <- geef[1:25,]
+  geef <- geef[1:25,]
   .plot.bars.diff(geef, size, main)
 }
 

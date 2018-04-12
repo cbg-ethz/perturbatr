@@ -18,6 +18,8 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -25,6 +27,12 @@
 <script src="../pkgdown.js"></script>
   <link href="../extra.css" rel="stylesheet">
   
+<meta property="og:title" content="Create a bootstrap sample from a data-set — bootstrap" />
+
+<meta property="og:description" content="Create a bootstrap sample from a data-set" />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -32,6 +40,8 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -47,8 +57,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">perturbatr</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">perturbatr</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.17</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -75,13 +89,8 @@
      
   </a>
 </li>
-<li>
-  <a href="http://twitter.com/simon_dirmeier/">
-    <span class="http://www.simon http://www.simon-dirmeier.net/static/_fig/cbg.png"></span>
-     
-  </a>
-</li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -89,10 +98,11 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create a bootstrap sample from a data-set</h1>
+    <small>Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/util_sampler.R'><code>R/util_sampler.R</code></a></small>
     </div>
 
     
@@ -101,7 +111,7 @@
 
     <pre class="usage"><span class='fu'>bootstrap</span>(<span class='no'>obj</span>, <span class='no'>...</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -130,17 +140,17 @@ every of those groups. Afterwards genes are aggregated</p></td>
     <pre class="examples"><div class='input'>  <span class='fu'>data</span>(<span class='no'>rnaiscreen</span>)
   <span class='fu'>bootstrap</span>(<span class='no'>rnaiscreen</span>)</div><div class='output co'>#&gt; A perturbation data set
 #&gt; 
-#&gt;   Condition GeneSymbol   Readout
-#&gt; 1        V1      rab3d 2504.9585
-#&gt; 2        V1     nkx6-1  520.6275
-#&gt; 3        V2       ncs1 1093.2297
-#&gt; 4        V2       hagh 1283.1811</div><div class='input'>  <span class='fu'>bootstrap</span>(<span class='no'>rnaiscreen</span>, <span class='no'>Condition</span>, <span class='no'>Perturbation</span>)</div><div class='output co'>#&gt; A perturbation data set
+#&gt;   Condition GeneSymbol     Readout
+#&gt; 1       HCV     abcc11 -0.01884067
+#&gt; 2       HCV    rtn4rl1 -2.96218384
+#&gt; 3      SARS     pfkfb2  1.65667727
+#&gt; 4      SARS     angpt4  1.66402311</div><div class='input'>  <span class='fu'>bootstrap</span>(<span class='no'>rnaiscreen</span>, <span class='no'>Condition</span>, <span class='no'>Perturbation</span>)</div><div class='output co'>#&gt; A perturbation data set
 #&gt; 
-#&gt;   Condition GeneSymbol   Readout
-#&gt; 1        V1    dnajc5b 2866.8588
-#&gt; 2        V1      rragd  903.3805
-#&gt; 3        V2       elf1 2635.3916
-#&gt; 4        V2     znf860 1577.3319</div></pre>
+#&gt;   Condition GeneSymbol     Readout
+#&gt; 1       HCV      ptpn1 0.530547039
+#&gt; 2       HCV   flj11183 0.352684258
+#&gt; 3      SARS    pik3c2b 1.439283326
+#&gt; 4      SARS       ksr2 0.003154828</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -161,11 +171,14 @@ every of those groups. Afterwards genes are aggregated</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

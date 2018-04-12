@@ -1,6 +1,7 @@
-## Version 0.99.0
-  - Writing of vignette
-  - Setup of routines for plotting, analysis, preprocessing
-  - Basic setup of all required files, like code of conduct, README, etc.
-  - Packaging
-  - Registration to travis, etc.
+## Version 1.0
+
+* Implementation of core routines
+* Writing of vignette
+* Basic setup of all required files, like code of conduct, README, etc.
+* Packaging
+* Registration to travis, etc.

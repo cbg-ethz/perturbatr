@@ -8,15 +8,18 @@
 <title>perturbatr cookbook • perturbatr</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/lumen/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="perturbatr cookbook">
+<meta property="og:description" content="">
+<meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -25,8 +28,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">perturbatr</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">perturbatr</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.17</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -52,12 +59,6 @@
      
   </a>
 </li>
-<li>
-  <a href="http://twitter.com/simon_dirmeier/">
-    <span class="http://www.simon http://www.simon-dirmeier.net/static/_fig/cbg.png"></span>
-     
-  </a>
-</li>
       </ul>
 </div>
 <!--/.nav-collapse -->
@@ -68,17 +69,19 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>perturbatr cookbook</h1>
                         <h4 class="author">Simon Dirmeier</h4>
             
-            <h4 class="date">2018-03-22</h4>
-          </div>
+            <h4 class="date">2018-04-12</h4>
+      
+      <small>Source: <a href="https://github.com/cbg-ethz/perturbatr/blob/master/vignettes/perturbatr.Rmd"><code>vignettes/perturbatr.Rmd</code></a></small>
+
+    </div>
 
     
     
-<div class="contents">
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function() {
   document.querySelector("h1").className = "title";
@@ -94,25 +97,29 @@ document.addEventListener("DOMContentLoaded", function() {
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <p><code>perturbatr</code> does stage-wise analysis of large-scale genetic perturbation screens for integrated data sets consisting of multiple screens. For multiple integrated perturbation screens a hierarchical model that considers the variance between different biological conditions is fitted. That means that we first estimate relative effect sizes for all genes. The resulting hit lists is then further extended using a network propagation algorithm to correct for false negatives.</p>
+<p>Here we show an example data analysis using a pan-pathogenic data set of three RNAi screening studies. The data set consists of two kinome and a druggable genome wide RNAi screen and have been published in <span class="citation">Reiss et al. (2011)</span> (HCV) and <span class="citation">Wilde et al. (2015)</span> (SARS).</p>
 </div>
-<div id="tutorial" class="section level1">
+<div id="data-analysis-tutorial" class="section level1">
 <h1 class="hasAnchor">
-<a href="#tutorial" class="anchor"></a>Tutorial</h1>
-<p>This tutorial walks you to the basic functionality of <code>perturbatr</code> using a pan-pathogenic data set of several RNAi screening studies.</p>
+<a href="#data-analysis-tutorial" class="anchor"></a>Data analysis tutorial</h1>
+<p>This tutorial walks you to the basic functionality of <code>perturbatr</code>.</p>
 <div id="creating-a-perturbationdata-object" class="section level2">
 <h2 class="hasAnchor">
 <a href="#creating-a-perturbationdata-object" class="anchor"></a>Creating a <code>PerturbationData</code> object</h2>
-<p>You supposedly start with something like a <code>data.frame</code> or <code>data.table</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">head</span>(my.data)</code></pre></div>
-<pre><code>##   Condition Replicate   GeneSymbol Perturbation   Readout Control
-## 1        V1         1         c1qb        fe584  885.5270       0
-## 2        V1         1        ifnb1        8b2ec -246.3333       0
-## 3        V1         1        ifna7        1c025 1136.2613       0
-## 4        V1         1 dkfzp781d102        802b1 1200.0767       0
-## 5        V1         1        lpar4        13651 2864.4256       0
-## 6        V1         1         rfx4        f9386 1213.2341       0</code></pre>
-<p>In order to create a perturbation data set you only need to call the <code>as</code> method:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  my.perturbation.data &lt;-<span class="st"> </span>methods<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/methods/topics/as">as</a></span>(my.data, <span class="st">"PerturbationData"</span>)</code></pre></div>
+<p>You supposedly start with something like a <code>data.frame</code> or <code>tibble</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">head</span>(rnaiscreen)</code></pre></div>
+<pre><code>## # A tibble: 6 x 9
+##   Condition Replicate GeneSymbol Perturbation       Readout Control Design
+##   &lt;chr&gt;         &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;                &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt; 
+## 1 SARS              1 aak1       D-005300-01,D-005…   0.699       0 pooled
+## 2 SARS              1 aatk       D-005301-02,D-005…   0.713       0 pooled
+## 3 SARS              1 cerk       D-004061-01,D-004…  -0.446       0 pooled
+## 4 SARS              1 rapgef4    D-009511-01,D-009…  -0.398       0 pooled
+## 5 SARS              1 chek1      D-003255-06,D-003…   0.670       0 pooled
+## 6 SARS              1 chek2      D-003256-05,D-003…   1.12        0 pooled
+## # ... with 2 more variables: ScreenType &lt;chr&gt;, Screen &lt;chr&gt;</code></pre>
+<p>In order to start your analysis you need to create a perturbation data set first. For this you only need to call the <code>as</code> method on your <code>data.frame</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  rnaiscreen &lt;-<span class="st"> </span>methods<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/methods/topics/as">as</a></span>(rnaiscreen, <span class="st">"PerturbationData"</span>)</code></pre></div>
 <p>Coercing your <code>data.frame</code> to <code>PerturbationData</code> will automatically warn you if your table is formatted wrongly. You need at least the following column names order to be able to do analysis of perturbation screens using <code>perturbatr</code>:</p>
 <ul>
 <li>Condition: an identifier that best describes the respective screen. For instance this can be the name of a virus for pathogen screens, the name of a cell line, organoid or the like. The <em>condition</em> describes a single data set, i.e. if you want to integrate multiple different data sets, make sure to give each a different condition.</li>
@@ -128,126 +135,111 @@ document.addEventListener("DOMContentLoaded", function() {
 <h2 class="hasAnchor">
 <a href="#working-with-perturbationdata-s4-objects" class="anchor"></a>Working with <code>PerturbationData</code> S4 objects</h2>
 <p>A <code>PerturbationData</code> object consists of a single slot that stores your data. We bundled your data into an <code>S4</code> object such that dispatch is easier to handle and to make sure that your data set has the correct columns:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  my.perturbation.data</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  rnaiscreen</code></pre></div>
 <pre><code>## A perturbation data set
 ## 
-## # A tibble: 4 x 3
-## # Groups:   Condition [2]
-##   Condition GeneSymbol Readout
-##   &lt;chr&gt;     &lt;chr&gt;        &lt;dbl&gt;
-## 1 V1        vps25        1853.
-## 2 V1        rac3         -497.
-## 3 V2        cep131       -445.
-## 4 V2        eif3g         868.</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw"><a href="../reference/dataSet-methods.html">dataSet</a></span>(my.perturbation.data)</code></pre></div>
-<pre><code>## # A tibble: 23,040 x 6
-##    Condition Replicate GeneSymbol   Perturbation Readout Control
-##    &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;          &lt;dbl&gt;   &lt;int&gt;
-##  1 V1               1. c1qb         fe584           886.       0
-##  2 V1               1. ifnb1        8b2ec          -246.       0
-##  3 V1               1. ifna7        1c025          1136.       0
-##  4 V1               1. dkfzp781d102 802b1          1200.       0
-##  5 V1               1. lpar4        13651          2864.       0
-##  6 V1               1. rfx4         f9386          1213.       0
-##  7 V1               1. cadm1        0e930          2885.       0
-##  8 V1               1. lgr6         828d9          -259.       0
-##  9 V1               1. tfap2c       433b6           835.       0
-## 10 V1               1. adh6         b7829          -717.       0
-## # ... with 23,030 more rows</code></pre>
+##   Condition GeneSymbol    Readout
+## 1       HCV      chd1l -0.8924058
+## 2       HCV      kif1a -0.3345313
+## 3      SARS       nek1  0.4360354
+## 4      SARS     map3k5 -0.1199976</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw"><a href="../reference/dataSet-methods.html">dataSet</a></span>(rnaiscreen)</code></pre></div>
+<pre><code>## # A tibble: 215,427 x 9
+##    Condition Replicate GeneSymbol Perturbation      Readout Control Design
+##    &lt;chr&gt;         &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;               &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt; 
+##  1 SARS              1 aak1       D-005300-01,D-00…   0.699       0 pooled
+##  2 SARS              1 aatk       D-005301-02,D-00…   0.713       0 pooled
+##  3 SARS              1 cerk       D-004061-01,D-00…  -0.446       0 pooled
+##  4 SARS              1 rapgef4    D-009511-01,D-00…  -0.398       0 pooled
+##  5 SARS              1 chek1      D-003255-06,D-00…   0.670       0 pooled
+##  6 SARS              1 chek2      D-003256-05,D-00…   1.12        0 pooled
+##  7 SARS              1 chka       D-006704-01,D-00…   1.76        0 pooled
+##  8 SARS              1 chkb       D-006705-01,D-00…  -0.343       0 pooled
+##  9 SARS              1 chrm1      D-005462-01,D-00…   0.878       0 pooled
+## 10 SARS              1 chuk       D-003473-03,D-00…  -0.511       0 pooled
+## # ... with 215,417 more rows, and 2 more variables: ScreenType &lt;chr&gt;,
+## #   Screen &lt;chr&gt;</code></pre>
 <p><code>PerturbationData</code> has some basic <code>filter</code> and <code>rbind</code> functionality. Similar to <code><a href="http://dplyr.tidyverse.org/reference/filter.html">dplyr::filter</a></code> you can select rows by some predicate(s). In the example below we extract all rows from the data set that have a positive readout.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(my.perturbation.data, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(rnaiscreen, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>)</code></pre></div>
 <pre><code>## A perturbation data set
 ## 
-## # A tibble: 4 x 3
-## # Groups:   Condition [2]
-##   Condition GeneSymbol Readout
-##   &lt;chr&gt;     &lt;chr&gt;        &lt;dbl&gt;
-## 1 V1        v5-1         1801.
-## 2 V1        ethe1        1440.
-## 3 V2        camlg        2263.
-## 4 V2        ino80c        919.</code></pre>
+##   Condition GeneSymbol   Readout
+## 1       HCV        il7 0.6309238
+## 2       HCV       abl2 0.3700160
+## 3      SARS      phkg2 0.4594985
+## 4      SARS      itpkb 0.1823974</code></pre>
 <p>Filtering on multiple rows works by just adding predicates:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(my.perturbation.data, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, Replicate <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(rnaiscreen, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, Replicate <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)</code></pre></div>
 <pre><code>## A perturbation data set
 ## 
-## # A tibble: 4 x 3
-## # Groups:   Condition [2]
-##   Condition GeneSymbol Readout
-##   &lt;chr&gt;     &lt;chr&gt;        &lt;dbl&gt;
-## 1 V1        elovl4        99.5
-## 2 V1        dgkq        1042. 
-## 3 V2        or2m2        417. 
-## 4 V2        dyrk1b       344.</code></pre>
+##   Condition GeneSymbol    Readout
+## 1       HCV       irf6 1.42623968
+## 2       HCV     dnaja3 1.44459838
+## 3      SARS       insr 0.05056935
+## 4      SARS      cdkn3 0.83928484</code></pre>
 <p>If you want to combine data sets you can call <code>rbind</code>, which will automatically dispatch on <code>PerturbationData</code> object:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  dh &lt;-<span class="st"> </span>perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(my.perturbation.data, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, Replicate <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  dh &lt;-<span class="st"> </span>perturbatr<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/perturbatr/topics/filter-methods">filter</a></span>(rnaiscreen, Readout <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, Replicate <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)
   <span class="kw">rbind</span>(dh, dh)</code></pre></div>
 <pre><code>## A perturbation data set
 ## 
-## # A tibble: 4 x 3
-## # Groups:   Condition [2]
-##   Condition GeneSymbol Readout
-##   &lt;chr&gt;     &lt;chr&gt;        &lt;dbl&gt;
-## 1 V1        rps4x        1166.
-## 2 V1        scnn1d        496.
-## 3 V2        csf2rb       1708.
-## 4 V2        smyd2         885.</code></pre>
+##   Condition GeneSymbol    Readout
+## 1       HCV  scrambled 0.42505971
+## 2       HCV     kcna10 0.08387731
+## 3      SARS      rock2 0.45017895
+## 4      SARS    prkwnk2 0.01069470</code></pre>
 </div>
 <div id="data-analysis-using-a-hierarchical-model-and-network-diffusion" class="section level2">
 <h2 class="hasAnchor">
 <a href="#data-analysis-using-a-hierarchical-model-and-network-diffusion" class="anchor"></a>Data analysis using a hierarchical model and network diffusion</h2>
-<p>Finally, after having set up the data set, we analyse it using a hierarchical model and network diffusion. We <strong>expect you already normalized the data sets accordingly</strong>. As noted above, if you want to analyse multiple data sets, make sure that every data set corresponds to a unique <code>Condition</code>.</p>
-<p>For the sake of simplicity, you can model your readout as a linear combination of fixed effects and clustering effects for genes and genes nested in a condition:</p>
-<p><span class="math display">\[y_{cgp} = x_c \beta + \gamma_g  + \delta_{cg} + \dots + y_{cgp}\]</span></p>
-<p>where <span class="math inline">\(y_{cgpt}\)</span> is the phenotype for a condition <span class="math inline">\(c\)</span>, gene <span class="math inline">\(g\)</span> and perturbation <span class="math inline">\(p\)</span>. This would correspond to the <code>formula</code></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  Readout <span class="op">~</span><span class="st"> </span>Condition <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>GeneSymbol) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>Condition<span class="op">:</span>GeneSymbol)</code></pre></div>
-<p>which is the default argument. You can see that we model the gene effect using different intercepts for each gene. To use the hierarchical model with the above formula, call:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">data</span>(rnaiscreen)
-  res &lt;-<span class="st"> </span><span class="kw"><a href="../reference/hm-methods.html">hm</a></span>(rnaiscreen, <span class="dt">effect.size=</span><span class="fl">0.01</span>)</code></pre></div>
-<p>Depending on your data set different clustering effects might be present of course. So let’s have a look at our data again:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw"><a href="../reference/dataSet-methods.html">dataSet</a></span>(rnaiscreen)</code></pre></div>
-<pre><code>## # A tibble: 23,040 x 18
-##    Condition Replicate Plate RowIdx ColIdx GeneSymbol ReadoutClass Readout
-##    &lt;chr&gt;         &lt;dbl&gt; &lt;int&gt;  &lt;int&gt;  &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
-##  1 V1               1.     1      1      1 c1qb       Readout         886.
-##  2 V1               1.     1      1      2 ifnb1      Readout        -246.
-##  3 V1               1.     1      1      3 ifna7      Readout        1136.
-##  4 V1               1.     1      1      4 dkfzp781d… Readout        1200.
-##  5 V1               1.     1      1      5 lpar4      Readout        2864.
-##  6 V1               1.     1      1      6 rfx4       Readout        1213.
-##  7 V1               1.     1      1      7 cadm1      Readout        2885.
-##  8 V1               1.     1      1      8 lgr6       Readout        -259.
-##  9 V1               1.     1      1      9 tfap2c     Readout         835.
-## 10 V1               1.     1      1     10 adh6       Readout        -717.
-## # ... with 23,030 more rows, and 10 more variables: ReadoutType &lt;chr&gt;,
-## #   Control &lt;int&gt;, Library &lt;chr&gt;, Perturbation &lt;chr&gt;, Screen &lt;chr&gt;,
-## #   Cell &lt;chr&gt;, ScreenType &lt;chr&gt;, NumCells &lt;int&gt;, Design &lt;chr&gt;,
-## #   Entrez &lt;int&gt;</code></pre>
-<p>For viral perturbation screens, as simulated by our example data set, we know that viruses make use of different host factors during their life cycle. That means while some genes are required during <em>entry and replication</em>, others might play a role in <em>assembly and release</em> of the virions. So we have reason to believe that the stage of the infection also introduces a clustering effect. In that case we would need to add a random effect for the stage of the infection. We estimated the effects using <code>lme4</code> <span class="citation">(Bates et al. 2014)</span>.</p>
+<p>Finally, after having set up the data set, we analyse it using a hierarchical model and network diffusion.</p>
+<p>We <strong>expect you already normalized the data sets accordingly</strong>. As noted above, if you want to analyse multiple data sets, make sure that every data set corresponds to a unique <code>Condition</code>.</p>
+<p>First, let’s have a rough look at the data set that we are using:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">plot</span>(rnaiscreen)</code></pre></div>
+<p><img src="perturbatr_files/figure-html/unnamed-chunk-7-1.png" width="384" style="display: block; margin: auto;"></p>
+<p>We have roughly the same number of replicates per gene, but the HCV screen has less genes than the SARS data set. That is no problem however, because we automatically filter such that the genes are same. We also automatically remove positive controls for obvious reasons.</p>
+<p>Next we rank the genes using a hierarchical model which requires explicitely modelling the readout of our data set using an R <code>formula</code>. Let’s look at the data in more detail first:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw"><a href="../reference/dataSet-methods.html">dataSet</a></span>(rnaiscreen) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">str</span>()</code></pre></div>
+<pre><code>## Classes 'tbl_df', 'tbl' and 'data.frame':    215427 obs. of  9 variables:
+##  $ Condition   : chr  "SARS" "SARS" "SARS" "SARS" ...
+##  $ Replicate   : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ GeneSymbol  : chr  "aak1" "aatk" "cerk" "rapgef4" ...
+##  $ Perturbation: chr  "D-005300-01,D-005300-02,D-005300-03,D-005300-04" "D-005301-02,D-005301-03,D-005301-04,D-005301-05" "D-004061-01,D-004061-02,D-004061-03,D-004061-04" "D-009511-01,D-009511-02,D-009511-03,D-009511-04" ...
+##  $ Readout     : num  0.699 0.713 -0.446 -0.398 0.67 ...
+##  $ Control     : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Design      : chr  "pooled" "pooled" "pooled" "pooled" ...
+##  $ ScreenType  : chr  "E/R" "E/R" "E/R" "E/R" ...
+##  $ Screen      : chr  "Kinome" "Kinome" "Kinome" "Kinome" ...</code></pre>
+<p>Here, variables like <code>Replicate</code>, <code>Plate</code>, <code>RowIdx/ColIdx</code> should not be associated with a change in the response <code>Readout</code> as we normalized the data and corrected for batch effects. However, the <code>Readout</code>s should definitely have been different between <code>ScreenType</code>s:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw"><a href="../reference/dataSet-methods.html">dataSet</a></span>(rnaiscreen) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(ScreenType) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unique</span>()</code></pre></div>
+<pre><code>## [1] "E/R" "A/R"</code></pre>
+<p>where <code>E/R</code> represents that the screen has measured the effect of a gene knockdown during the <em>entry and replication</em> stages of the viral lifecycle while <code>A/R</code> repesents the gene knockdown’s effect having been measures during the <em>assembly and release</em> stages of the lifecycle. In the life cycle of positive-sense RNA viruses we know that viruses make use of different host factors during their life cycle. That means while some genes are required during <em>entry and replication</em>, others might play a role in <em>assembly and release</em> of the virions. So we have reason to believe that the stage of the infection also introduces a clustering effect. In that case we would need to add a random effect for the stage of the infection.</p>
+<p>A model selection using the Bayesian information criterion indeed suggests the following hierarchical random intercept model:</p>
+<p><span class="math display">\[y_{cgtp} \mid\gamma_g, \delta_{cg}, \zeta_t , \xi_{ct} \sim \mathcal{N}(x_c \beta + \gamma_g  + \delta_{cg} + \zeta_t + \xi_{ct},  \sigma^2),\]</span> where <span class="math inline">\(y_{cgtp}\)</span> is the readout of virus <span class="math inline">\(c\)</span>, gene <span class="math inline">\(g\)</span>, stage of the viral lifecycle <span class="math inline">\(t\)</span> (<code>E/R</code> vs <code>A/R</code>) and <span class="math inline">\(p\)</span> is the perturbation (siRNA) used for gene <span class="math inline">\(g\)</span>. We estimate the parameters of the model using <code>lme4</code> <span class="citation">(Bates et al. 2014)</span>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  frm &lt;-<span class="st"> </span>Readout <span class="op">~</span><span class="st"> </span>Condition <span class="op">+</span>
 <span class="st">                   </span>(<span class="dv">1</span><span class="op">|</span>GeneSymbol) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>Condition<span class="op">:</span>GeneSymbol) <span class="op">+</span>
 <span class="st">                   </span>(<span class="dv">1</span><span class="op">|</span>ScreenType) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>Condition<span class="op">:</span>ScreenType)
-  res &lt;-<span class="st"> </span><span class="kw"><a href="../reference/hm-methods.html">hm</a></span>(rnaiscreen, <span class="dt">formula =</span> frm, <span class="dt">effect.size=</span><span class="fl">0.01</span>)</code></pre></div>
+  res.hm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/hm-methods.html">hm</a></span>(rnaiscreen, <span class="dt">formula =</span> frm)</code></pre></div>
 <p><strong>Note that for your own data different effects might be visible. Thus,</strong> <strong>before modelling you need to exploratorily detect possible effects.</strong></p>
-<p>Let’s take the last result and plot them. This yields a list of multiple plots. The most informative one that shows the top 25 genes:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  pl &lt;-<span class="st"> </span><span class="kw">plot</span>(res)
+<p>Let’s take the last result and plot them. This yields a list of multiple plots. The first plot shows the first 25 strongest gene effects ranked by their absolute effect sizes. Most of the genes are colored in blue which represents that a gene knockdown leads to an inhibition of viral growth on a <strong>pan-viral</strong> level. Bars colored in red represent genes for which a knockdown results in increased viral viability. If you are interested in the complete ranking of genes, use <code><a href="../reference/geneEffects-methods.html">geneEffects(res.hm)</a></code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  pl &lt;-<span class="st"> </span><span class="kw">plot</span>(res.hm)
   pl[[<span class="dv">1</span>]]</code></pre></div>
-<pre><code>## [1] "Error in filter_impl(.data, quo) : \n  Evaluation error: argument \"x\" is missing, with no default.\n"
-## attr(,"class")
-## [1] "try-error"
-## attr(,"condition")
-## &lt;Rcpp::eval_error in filter_impl(.data, quo): Evaluation error: argument "x" is missing, with no default.&gt;</code></pre>
-<p>Next we might want to <em>smooth</em> the effect from the hierarchical model using network diffusion, by that possibly reduce the number of some false negatives. For that we need a graph file and call the <code>diffuse</code> function. If we plot the results we get a list of reranked genes:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  graph.file &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">"extdata"</span>, <span class="st">"graph_file.tsv"</span>,
-                            <span class="dt">package =</span> <span class="st">"perturbatr"</span>)
-  diffu      &lt;-<span class="st"> </span><span class="kw"><a href="../reference/diffuse-methods.html">diffuse</a></span>(res, <span class="dt">path=</span>graph.file, <span class="dt">r=</span><span class="fl">0.1</span>)
-  <span class="kw">plot</span>(diffu)</code></pre></div>
+<p><img src="perturbatr_files/figure-html/unnamed-chunk-11-1.png" width="384" style="display: block; margin: auto;"></p>
+<p>The second plots shows the <em>nested gene effects</em>, i.e. the estimated effects of a gene knockdown for a <strong>single</strong> virus. The genes shown here are the same as in the first plot, so it might be possible that there are <em>nested gene effects</em> that are stronger which are just not plotted. You can get all nested gene effects using <code><a href="../reference/nestedGeneEffects-methods.html">nestedGeneEffects(res.hm)</a></code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  pl[[<span class="dv">2</span>]]</code></pre></div>
 <p><img src="perturbatr_files/figure-html/unnamed-chunk-12-1.png" width="384" style="display: block; margin: auto;"></p>
+<p>Next we might want to <em>smooth</em> the effect from the hierarchical model using network diffusion, by that possibly reduce the number of some false negatives. For that we need to supply a graph as a <code>data.frame</code> and call the <code>diffuse</code> function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  graph &lt;-<span class="st"> </span><span class="kw">readRDS</span>(
+    <span class="kw">system.file</span>(<span class="st">"extdata"</span>, <span class="st">"graph_small.rds"</span>,<span class="dt">package =</span> <span class="st">"perturbatr"</span>))
+  diffu &lt;-<span class="st"> </span><span class="kw"><a href="../reference/diffuse-methods.html">diffuse</a></span>(res.hm, <span class="dt">graph=</span>graph, <span class="dt">r=</span><span class="fl">0.3</span>)</code></pre></div>
+<p>If we plot the results we get a list of reranked genes. Note that the ranking uses the network diffusion computes a stationary distribution of a Markov random walk with restarts.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">plot</span>(diffu)</code></pre></div>
+<p><img src="perturbatr_files/figure-html/unnamed-chunk-14-1.png" width="384" style="display: block; margin: auto;"> Further note that we used a very small network here. You might want to redo this analysis with the full graph which is located in <code>system.file("extdata", "graph_full.rds",package = "perturbatr")</code>.</p>
 </div>
 <div id="session-info" class="section level2">
 <h2 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">sessionInfo</span>()</code></pre></div>
-<pre><code>## R version 3.4.3 (2017-11-30)
+<pre><code>## R version 3.4.4 (2018-03-15)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS High Sierra 10.13.3
 ## 
@@ -262,28 +254,32 @@ document.addEventListener("DOMContentLoaded", function() {
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] bindrcpp_0.2       perturbatr_0.99.13 dplyr_0.7.4       
-## [4] BiocStyle_2.6.1   
+## [1] bindrcpp_0.2.2     perturbatr_0.99.17 tibble_1.4.2      
+## [4] dplyr_0.7.4        BiocStyle_2.6.1   
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.16         nloptr_1.0.4         pillar_1.2.1        
-##  [4] compiler_3.4.3       plyr_1.8.4           bindr_0.1           
-##  [7] iterators_1.0.9      tools_3.4.3          lme4_1.1-15         
-## [10] digest_0.6.15        nlme_3.1-131         lattice_0.20-35     
-## [13] evaluate_0.10.1      tibble_1.4.2         gtable_0.2.0        
-## [16] pkgconfig_2.0.1      rlang_0.2.0.9000     Matrix_1.2-12       
-## [19] foreach_1.4.4        igraph_1.1.2         cli_1.0.0           
-## [22] yaml_2.1.16          parallel_3.4.3       gridExtra_2.3       
-## [25] stringr_1.3.0        knitr_1.18           tidyselect_0.2.3    
-## [28] rprojroot_1.3-2      grid_3.4.3           glue_1.2.0          
-## [31] R6_2.2.2             rmarkdown_1.8        minqa_1.2.4         
-## [34] purrr_0.2.4          tidyr_0.8.0          ggplot2_2.2.1.9000  
-## [37] diffusr_0.1.2        magrittr_1.5         MASS_7.3-48         
-## [40] splines_3.4.3        backports_1.1.2      scales_0.5.0.9000   
-## [43] codetools_0.2-15     operator.tools_1.6.3 htmltools_0.3.6     
-## [46] formula.tools_1.7.1  assertthat_0.2.0     colorspace_1.4-0    
-## [49] utf8_1.1.3           stringi_1.1.6        lazyeval_0.2.1      
-## [52] doParallel_1.0.11    munsell_0.4.3        crayon_1.3.4</code></pre>
+##  [1] tidyselect_0.2.4     xfun_0.1             reshape2_1.4.3      
+##  [4] purrr_0.2.4          operator.tools_1.6.3 splines_3.4.4       
+##  [7] lattice_0.20-35      colorspace_1.4-0     htmltools_0.3.6     
+## [10] yaml_2.1.18          utf8_1.1.3           rlang_0.2.0.9001    
+## [13] nloptr_1.0.4         pkgdown_0.1.0.9000   pillar_1.2.1        
+## [16] glue_1.2.0           foreach_1.4.4        bindr_0.1.1         
+## [19] plyr_1.8.4           stringr_1.3.0        munsell_0.4.3       
+## [22] commonmark_1.4       gtable_0.2.0         codetools_0.2-15    
+## [25] memoise_1.1.0        evaluate_0.10.1      labeling_0.3        
+## [28] knitr_1.20           doParallel_1.0.11    parallel_3.4.4      
+## [31] Rcpp_0.12.16         backports_1.1.2      scales_0.5.0.9000   
+## [34] desc_1.1.1           fs_1.2.2             lme4_1.1-16         
+## [37] ggplot2_2.2.1.9000   digest_0.6.15        stringi_1.1.7       
+## [40] formula.tools_1.7.1  bookdown_0.7         rprojroot_1.3-2     
+## [43] grid_3.4.4           cli_1.0.0            tools_3.4.4         
+## [46] magrittr_1.5         diffusr_0.1.0        lazyeval_0.2.1      
+## [49] tidyr_0.8.0          crayon_1.3.4         pkgconfig_2.0.1     
+## [52] MASS_7.3-49          Matrix_1.2-12        xml2_1.2.0          
+## [55] minqa_1.2.4          assertthat_0.2.0     rmarkdown_1.9       
+## [58] roxygen2_6.0.1       rstudioapi_0.7       iterators_1.0.9     
+## [61] R6_2.2.2             igraph_1.2.1         nlme_3.1-131.1      
+## [64] compiler_3.4.4</code></pre>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">
@@ -292,6 +288,11 @@ document.addEventListener("DOMContentLoaded", function() {
 <div id="ref-bates2014lme4">
 <p>Bates, Douglas, Martin Maechler, Ben Bolker, Steven Walker, and others. 2014. “Lme4: Linear Mixed-Effects Models Using Eigen and S4.” <em>R Package Version</em> 1 (7): 1–23.</p>
 </div>
+<div id="ref-reiss2011recruitment">
+<p>Reiss, Simon, Ilka Rebhan, Perdita Backes, Ines Romero-Brey, Holger Erfle, Petr Matula, Lars Kaderali, et al. 2011. “Recruitment and Activation of a Lipid Kinase by Hepatitis c Virus Ns5a Is Essential for Integrity of the Membranous Replication Compartment.” <em>Cell Host &amp; Microbe</em> 9 (1). Elsevier: 32–45.</p>
+</div>
+<div id="ref-de2015kinome">
+<p>Wilde, Adriaan H de, Kazimier F Wannee, Florine EM Scholte, Jelle J Goeman, Peter ten Dijke, Eric J Snijder, Marjolein Kikkert, and Martijn J van Hemert. 2015. “A Kinome-Wide Small Interfering Rna Screen Identifies Proviral and Antiviral Host Factors in Severe Acute Respiratory Syndrome Coronavirus Replication, Including Double-Stranded Rna-Activated Protein Kinase and Early Secretory Pathway Proteins.” <em>Journal of Virology</em> 89 (16). Am Soc Microbiol: 8318–33.</p>
 </div>
 </div>
 </div>
@@ -305,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function() {
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#introduction">Introduction</a></li>
       <li>
-<a href="#tutorial">Tutorial</a><ul class="nav nav-pills nav-stacked">
+<a href="#data-analysis-tutorial">Data analysis tutorial</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#creating-a-perturbationdata-object">Creating a <code>PerturbationData</code> object</a></li>
       <li><a href="#working-with-perturbationdata-s4-objects">Working with <code>PerturbationData</code> S4 objects</a></li>
       <li><a href="#data-analysis-using-a-hierarchical-model-and-network-diffusion">Data analysis using a hierarchical model and network diffusion</a></li>
@@ -325,11 +326,13 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
 </div>
+
+  
 
   </body>
 </html>

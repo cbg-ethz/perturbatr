@@ -19,6 +19,8 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -26,6 +28,17 @@
 <script src="../pkgdown.js"></script>
   <link href="../extra.css" rel="stylesheet">
   
+<meta property="og:title" content="Jointly analyse multiple genetic perturbation screens using a
+ hierarchical model — hm" />
+
+<meta property="og:description" content="Analyse multiple different genetic perturbation screens at once
+ using a hierarchical model. The model estimates general relative effect
+ sizes for genes across all experiments. This could for instance be a
+ pan-pathogenic host factor, i.e. a gene that decisively impacts the
+ life-cycle of multiple pathogens." />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -33,6 +46,8 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -48,8 +63,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">perturbatr</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">perturbatr</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.17</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -76,13 +95,8 @@
      
   </a>
 </li>
-<li>
-  <a href="http://twitter.com/simon_dirmeier/">
-    <span class="http://www.simon http://www.simon-dirmeier.net/static/_fig/cbg.png"></span>
-     
-  </a>
-</li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -90,11 +104,12 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Jointly analyse multiple genetic perturbation screens using a
  hierarchical model</h1>
+    <small>Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/inference_lmm.R'><code>R/inference_lmm.R</code></a></small>
     </div>
 
     
@@ -106,15 +121,14 @@
     
 
     <pre class="usage"><span class='fu'>hm</span>(<span class='no'>obj</span>, <span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>Readout</span> ~ <span class='no'>Condition</span> + (<span class='fl'>1</span> <span class='kw'>|</span> <span class='no'>GeneSymbol</span>) + (<span class='fl'>1</span> <span class='kw'>|</span>
-  <span class='no'>Condition</span>:<span class='no'>GeneSymbol</span>), <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bootstrap.cnt</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>effect.size</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>qval.threshold</span> <span class='kw'>=</span> <span class='fl'>0.2</span>)
+  <span class='no'>Condition</span>:<span class='no'>GeneSymbol</span>), <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bootstrap.cnt</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 
 <span class='co'># S4 method for PerturbationData</span>
 <span class='fu'>hm</span>(<span class='no'>obj</span>, <span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>Readout</span> ~ <span class='no'>Condition</span> + (<span class='fl'>1</span> <span class='kw'>|</span>
   <span class='no'>GeneSymbol</span>) + (<span class='fl'>1</span> <span class='kw'>|</span> <span class='no'>Condition</span>:<span class='no'>GeneSymbol</span>), <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>bootstrap.cnt</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>effect.size</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>qval.threshold</span> <span class='kw'>=</span> <span class='fl'>0.2</span>)</pre>
+  <span class='kw'>bootstrap.cnt</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -144,16 +158,6 @@ perturbations</p></td>
       <td><p>the number of bootstrap runs you want to do in order
 to estimate a significance level for the gene effects</p></td>
     </tr>
-    <tr>
-      <th>effect.size</th>
-      <td><p>the absolute, relative effect size used for
-hit prioritization</p></td>
-    </tr>
-    <tr>
-      <th>qval.threshold</th>
-      <td><p>the q-value threshold used for hit prioritization
-if <code>bootstrap.cnt</code> is set</p></td>
-    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -163,7 +167,7 @@ if <code>bootstrap.cnt</code> is set</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'> <span class='fu'>data</span>(<span class='no'>rnaiscreen</span>)
- <span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>hm</span>(<span class='no'>rnaiscreen</span>, <span class='kw'>effect.size</span><span class='kw'>=</span><span class='fl'>0.01</span>)</div><div class='output co'>#&gt; <span class='message'>Fitting hierarchical model</span></div></pre>
+ <span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>hm</span>(<span class='no'>rnaiscreen</span>)</div><div class='output co'>#&gt; <span class='message'>Fitting hierarchical model</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -184,11 +188,14 @@ if <code>bootstrap.cnt</code> is set</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+
