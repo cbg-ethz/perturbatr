@@ -34,15 +34,17 @@ mrw <- function(hits,
                 adjm,
                 graph,
                 do.bootstrap,
-                take.largest.component)
+                take.largest.component,
+                correct.for.hubs)
 {
   message("Diffusion using Markov random walks.")
-  diffuse.data <- .do.mrw(hits, adjm, r)
+  diffuse.data <- .do.mrw(hits, adjm, r, correct.for.hubs)
   res          <- diffuse.data$frame
 
   is.boot <- if (!is.null(bootstrap.hits) && do.bootstrap)
   {
-      boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r)
+      boot.intrvls <- .significance.mrw(bootstrap.hits, adjm, r,
+                                        correct.for.hubs)
       res          <- dplyr::left_join(diffuse.data$frame,
                                        boot.intrvls,
                                        by="GeneSymbol")
@@ -54,7 +56,8 @@ mrw <- function(hits,
            params          = list(
              restart.probability    = r,
              delete.nodes.on.degree = delete.nodes.on.degree,
-             take.largest.component = take.largest.component),
+             take.largest.component = take.largest.component,
+             correct.for.hubs       = correct.for.hubs),
            dataSet        = hits,
            geneEffects    = res,
            isBootstrapped = is.boot)
@@ -66,7 +69,7 @@ mrw <- function(hits,
 #' @noRd
 #' @importFrom diffusr random.walk
 #' @importFrom assertthat assert_that
-.do.mrw <- function(hits, adjm, r)
+.do.mrw <- function(hits, adjm, r, correct.for.hubs)
 {
     diffuse.data <- .init.starting.distribution(hits, adjm)
     assertthat::assert_that(
@@ -75,8 +78,9 @@ mrw <- function(hits,
 
     mrw          <- diffusr::random.walk(p0=abs(diffuse.data$frame$Effect),
                                          graph=as.matrix(diffuse.data$adjm),
-                                         r=r)
-    diffuse.data$frame$DiffusionEffect <- mrw
+                                         r=r,
+                                         correct.for.hubs=correct.for.hubs)
+    diffuse.data$frame$DiffusionEffect <- mrw$p.inf
     diffuse.data
 }
 
@@ -102,7 +106,7 @@ mrw <- function(hits,
 #' @import parallel
 #' @import doParallel
 #' @importFrom rlang .data
-.significance.mrw <- function(bootstrap.hits, adjm, r)
+.significance.mrw <- function(bootstrap.hits, adjm, r, correct.for.hubs)
 {
     boot.g <- tidyr::gather(bootstrap.hits, "Boot", "Effect",
                             -.data$GeneSymbol)
@@ -116,7 +120,7 @@ mrw <- function(hits,
     {
       hits  <- dplyr::filter(boot.g, .data$Boot == lo)
       hits  <- dplyr::select(hits, -.data$Boot)
-      dd.lo <- .do.mrw(hits, adjm, r)
+      dd.lo <- .do.mrw(hits, adjm, r, correct.for.hubs)
       dd.lo$frame$boot <- lo
       dd.lo$frame
     }

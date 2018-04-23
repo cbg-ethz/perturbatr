@@ -28,8 +28,8 @@
 #' @description Propagate the estimated gene effects from a previous analysis
 #'  over a network using network diffusion. First the estimated effects are
 #'  normalized and mapped to a given genetic network, for instance a PPI or
-#'  co-expression network. Then the normalized effects are propagated across the
-#'  edges of the network using a Markov random walk with restarts.
+#'  co-expression network. Then the normalized effects are propagated across
+#'  the edges of the network using a Markov random walk with restarts.
 #'  By that the initial ranking of genes
 #'  (as given by their absolute effect sizes) is re-evaluated and the genes are
 #'  reordered. Thus network diffusion potentially reduced false negative hits.
@@ -54,6 +54,8 @@
 #' @param take.largest.component  if \code{true} takes only the largest
 #'  connected component of the graph and discards all nodes that are not in
 #'  the largest component. If \code{false} takes the compete graph.
+#' @param correct.for.hubs if true corrects for the fact that the stationary
+#' distribution of the random walk is biased towards hubs.
 #'
 #' @return returns a \code{NetworkAnalysedPerturbationData} object
 #'
@@ -72,7 +74,8 @@ setGeneric(
            r=0.5,
            delete.nodes.on.degree=0,
            do.bootstrap=FALSE,
-           take.largest.component=TRUE)
+           take.largest.component=TRUE,
+           correct.for.hubs=TRUE)
   {
       standardGeneric("diffuse")
   }
@@ -92,7 +95,8 @@ setMethod(
            r=0.5,
            delete.nodes.on.degree=0,
            do.bootstrap=FALSE,
-           take.largest.component=TRUE)
+           take.largest.component=TRUE,
+           correct.for.hubs=TRUE)
   {
     hits <- dplyr::select(geneEffects(obj), .data$GeneSymbol, .data$Effect)
     hits <- dplyr::mutate(hits, "Effect" = abs(.data$Effect))
@@ -117,7 +121,8 @@ setMethod(
                     r=r,
                     delete.nodes.on.degree=delete.nodes.on.degree,
                     do.bootstrap=do.bootstrap,
-                    take.largest.component=take.largest.component)
+                    take.largest.component=take.largest.component,
+                    correct.for.hubs=correct.for.hubs)
     ret
   }
 )
@@ -132,10 +137,11 @@ setMethod(
                      r,
                      delete.nodes.on.degree,
                      do.bootstrap,
-                     take.largest.component)
+                     take.largest.component,
+                     correct.for.hubs)
 {
   graph <- .get.graph(graph, delete.nodes.on.degree, take.largest.component)
-  adjm  <- igraph::get.adjacency(graph, attr="weight")
+  adjm  <- as.matrix(igraph::get.adjacency(graph, attr="weight"))
 
   l <- mrw(hits=hits,
            delete.nodes.on.degree=delete.nodes.on.degree,
@@ -145,7 +151,8 @@ setMethod(
            r=r,
            graph=graph,
            do.bootstrap=do.bootstrap,
-           take.largest.component=take.largest.component)
+           take.largest.component=take.largest.component,
+           correct.for.hubs=correct.for.hubs)
 
   l
 }

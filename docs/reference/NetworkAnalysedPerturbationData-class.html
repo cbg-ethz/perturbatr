@@ -21,6 +21,8 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
@@ -67,7 +69,7 @@ exposes getters for its members of the same name,
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">perturbatr</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.17</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.19</span>
       </span>
     </div>
 
@@ -110,9 +112,11 @@ exposes getters for its members of the same name,
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Data wrapper for analysed perturbation data using network diffusion</h1>
-    <small>Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/class_analysed.R'><code>R/class_analysed.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/class_analysed.R'><code>R/class_analysed.R</code></a></small>
+    <div class="hidden name"><code>NetworkAnalysedPerturbationData-class.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Class <code>NetworkAnalysedPerturbationData</code> is a wrapper for
  various objects of an analysis of a perturbation experiment done
@@ -124,6 +128,7 @@ exposes getters for its members of the same name,
  constructed manually but are returned from calling <code><a href='diffuse-methods.html'>diffuse</a></code>
  (see the examples).</p>
     
+    </div>
 
         
     <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
@@ -140,7 +145,7 @@ exposes getters for its members of the same name,
  <span class='no'>hm.fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='hm-methods.html'>hm</a></span>(<span class='no'>rnaiscreen</span>)</div><div class='output co'>#&gt; <span class='message'>Fitting hierarchical model</span></div><div class='input'>
  <span class='no'>graph</span> <span class='kw'>&lt;-</span> <span class='fu'>readRDS</span>(<span class='fu'>system.file</span>(
    <span class='st'>"extdata"</span>, <span class='st'>"graph_small.rds"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"perturbatr"</span>))
- <span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='diffuse-methods.html'>diffuse</a></span>(<span class='no'>hm.fit</span>, <span class='kw'>graph</span><span class='kw'>=</span><span class='no'>graph</span>, <span class='kw'>r</span><span class='kw'>=</span><span class='fl'>1</span>)</div><div class='output co'>#&gt; <span class='message'>Only taking largest connected component to ensure ergodicity.</span></div><div class='output co'>#&gt; <span class='message'>Diffusion using Markov random walks.</span></div><div class='output co'>#&gt; <span class='message'>normalizing vector!</span></div><div class='output co'>#&gt; <span class='message'>normalizing column vectors!</span></div></pre>
+ <span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='diffuse-methods.html'>diffuse</a></span>(<span class='no'>hm.fit</span>, <span class='kw'>graph</span><span class='kw'>=</span><span class='no'>graph</span>, <span class='kw'>r</span><span class='kw'>=</span><span class='fl'>1</span>)</div><div class='output co'>#&gt; <span class='message'>Only taking largest connected component to ensure ergodicity.</span></div><div class='output co'>#&gt; <span class='message'>Diffusion using Markov random walks.</span></div><div class='output co'>#&gt; <span class='message'>Correcting for hub degrees.</span></div><div class='output co'>#&gt; <span class='message'>normalizing column vectors!</span></div><div class='output co'>#&gt; <span class='message'>normalizing column vectors!</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

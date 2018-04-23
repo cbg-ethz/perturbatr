@@ -21,6 +21,8 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
@@ -32,8 +34,8 @@
 <meta property="og:description" content="Propagate the estimated gene effects from a previous analysis
  over a network using network diffusion. First the estimated effects are
  normalized and mapped to a given genetic network, for instance a PPI or
- co-expression network. Then the normalized effects are propagated across the
- edges of the network using a Markov random walk with restarts.
+ co-expression network. Then the normalized effects are propagated across
+ the edges of the network using a Markov random walk with restarts.
  By that the initial ranking of genes
  (as given by their absolute effect sizes) is re-evaluated and the genes are
  reordered. Thus network diffusion potentially reduced false negative hits." />
@@ -66,7 +68,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">perturbatr</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.17</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.19</span>
       </span>
     </div>
 
@@ -109,27 +111,31 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Network diffusion</h1>
-    <small>Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/inference_diffuse.R'><code>R/inference_diffuse.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/inference_diffuse.R'><code>R/inference_diffuse.R</code></a></small>
+    <div class="hidden name"><code>diffuse-methods.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Propagate the estimated gene effects from a previous analysis
  over a network using network diffusion. First the estimated effects are
  normalized and mapped to a given genetic network, for instance a PPI or
- co-expression network. Then the normalized effects are propagated across the
- edges of the network using a Markov random walk with restarts.
+ co-expression network. Then the normalized effects are propagated across
+ the edges of the network using a Markov random walk with restarts.
  By that the initial ranking of genes
  (as given by their absolute effect sizes) is re-evaluated and the genes are
  reordered. Thus network diffusion potentially reduced false negative hits.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>diffuse</span>(<span class='no'>obj</span>, <span class='kw'>graph</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>r</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>delete.nodes.on.degree</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>do.bootstrap</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>take.largest.component</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+  <span class='kw'>do.bootstrap</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>take.largest.component</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>correct.for.hubs</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='co'># S4 method for HMAnalysedPerturbationData</span>
 <span class='fu'>diffuse</span>(<span class='no'>obj</span>, <span class='kw'>graph</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>r</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
   <span class='kw'>delete.nodes.on.degree</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>do.bootstrap</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>take.largest.component</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>take.largest.component</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>correct.for.hubs</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -166,6 +172,11 @@ bootstrap samples are available</p></td>
 connected component of the graph and discards all nodes that are not in
 the largest component. If <code>false</code> takes the compete graph.</p></td>
     </tr>
+    <tr>
+      <th>correct.for.hubs</th>
+      <td><p>if true corrects for the fact that the stationary
+distribution of the random walk is biased towards hubs.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -178,7 +189,7 @@ the largest component. If <code>false</code> takes the compete graph.</p></td>
  <span class='no'>hm.fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='hm-methods.html'>hm</a></span>(<span class='no'>rnaiscreen</span>)</div><div class='output co'>#&gt; <span class='message'>Fitting hierarchical model</span></div><div class='input'>
  <span class='no'>graph</span> <span class='kw'>&lt;-</span> <span class='fu'>readRDS</span>(<span class='fu'>system.file</span>(
    <span class='st'>"extdata"</span>, <span class='st'>"graph_small.rds"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"perturbatr"</span>))
- <span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>diffuse</span>(<span class='no'>hm.fit</span>, <span class='kw'>graph</span><span class='kw'>=</span><span class='no'>graph</span>, <span class='kw'>r</span><span class='kw'>=</span><span class='fl'>1</span>)</div><div class='output co'>#&gt; <span class='message'>Only taking largest connected component to ensure ergodicity.</span></div><div class='output co'>#&gt; <span class='message'>Diffusion using Markov random walks.</span></div><div class='output co'>#&gt; <span class='message'>normalizing vector!</span></div><div class='output co'>#&gt; <span class='message'>normalizing column vectors!</span></div><div class='input'>
+ <span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>diffuse</span>(<span class='no'>hm.fit</span>, <span class='kw'>graph</span><span class='kw'>=</span><span class='no'>graph</span>, <span class='kw'>r</span><span class='kw'>=</span><span class='fl'>1</span>)</div><div class='output co'>#&gt; <span class='message'>Only taking largest connected component to ensure ergodicity.</span></div><div class='output co'>#&gt; <span class='message'>Diffusion using Markov random walks.</span></div><div class='output co'>#&gt; <span class='message'>Correcting for hub degrees.</span></div><div class='output co'>#&gt; <span class='message'>normalizing column vectors!</span></div><div class='output co'>#&gt; <span class='message'>normalizing column vectors!</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

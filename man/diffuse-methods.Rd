@@ -7,11 +7,12 @@
 \title{Network diffusion}
 \usage{
 diffuse(obj, graph = NULL, r = 0.5, delete.nodes.on.degree = 0,
-  do.bootstrap = FALSE, take.largest.component = TRUE)
+  do.bootstrap = FALSE, take.largest.component = TRUE,
+  correct.for.hubs = TRUE)
 
 \S4method{diffuse}{HMAnalysedPerturbationData}(obj, graph = NULL, r = 0.5,
   delete.nodes.on.degree = 0, do.bootstrap = FALSE,
-  take.largest.component = TRUE)
+  take.largest.component = TRUE, correct.for.hubs = TRUE)
 }
 \arguments{
 \item{obj}{\code{HMAnalysedPerturbationData} object}
@@ -33,6 +34,9 @@ bootstrap samples are available}
 \item{take.largest.component}{if \code{true} takes only the largest
 connected component of the graph and discards all nodes that are not in
 the largest component. If \code{false} takes the compete graph.}
+
+\item{correct.for.hubs}{if true corrects for the fact that the stationary
+distribution of the random walk is biased towards hubs.}
 }
 \value{
 returns a \code{NetworkAnalysedPerturbationData} object
@@ -41,8 +45,8 @@ returns a \code{NetworkAnalysedPerturbationData} object
 Propagate the estimated gene effects from a previous analysis
  over a network using network diffusion. First the estimated effects are
  normalized and mapped to a given genetic network, for instance a PPI or
- co-expression network. Then the normalized effects are propagated across the
- edges of the network using a Markov random walk with restarts.
+ co-expression network. Then the normalized effects are propagated across
+ the edges of the network using a Markov random walk with restarts.
  By that the initial ranking of genes
  (as given by their absolute effect sizes) is re-evaluated and the genes are
  reordered. Thus network diffusion potentially reduced false negative hits.

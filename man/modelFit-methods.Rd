@@ -22,6 +22,6 @@ Returns the mixed effects model fit from the analysis using a
 }
 \examples{
  data(rnaiscreen)
- ft <- hm(rnaiscreen)
- modelFit(ft)
+ hm.fit <- hm(rnaiscreen)
+ ft <- modelFit(hm.fit)
 }

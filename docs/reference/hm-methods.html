@@ -22,6 +22,8 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
@@ -65,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">perturbatr</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.17</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.99.19</span>
       </span>
     </div>
 
@@ -109,9 +111,11 @@
     <div class="page-header">
     <h1>Jointly analyse multiple genetic perturbation screens using a
  hierarchical model</h1>
-    <small>Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/inference_lmm.R'><code>R/inference_lmm.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/cbg-ethz/perturbatr/blob/master/R/inference_lmm.R'><code>R/inference_lmm.R</code></a></small>
+    <div class="hidden name"><code>hm-methods.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Analyse multiple different genetic perturbation screens at once
  using a hierarchical model. The model estimates general relative effect
@@ -119,6 +123,7 @@
  pan-pathogenic host factor, i.e. a gene that decisively impacts the
  life-cycle of multiple pathogens.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>hm</span>(<span class='no'>obj</span>, <span class='kw'>formula</span> <span class='kw'>=</span> <span class='no'>Readout</span> ~ <span class='no'>Condition</span> + (<span class='fl'>1</span> <span class='kw'>|</span> <span class='no'>GeneSymbol</span>) + (<span class='fl'>1</span> <span class='kw'>|</span>
   <span class='no'>Condition</span>:<span class='no'>GeneSymbol</span>), <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bootstrap.cnt</span> <span class='kw'>=</span> <span class='fl'>0</span>)

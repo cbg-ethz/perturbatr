@@ -60,8 +60,8 @@ You supposedly start with something like a `data.frame` or `tibble`:
   head(rnaiscreen)
 ```
 
-In order to start your analysis you need to create a perturbation data set first.
-For this you only need to call the `as` method on your `data.frame`:
+In order to start your analysis you need to create a perturbation data set 
+first.For this you only need to call the `as` method on your `data.frame`:
 
 ```{r, include=TRUE, eval=TRUE}
   rnaiscreen <- methods::as(rnaiscreen, "PerturbationData")
