@@ -10,8 +10,8 @@ diffuse(obj, graph = NULL, r = 0.5, delete.nodes.on.degree = 0,
   do.bootstrap = FALSE, take.largest.component = TRUE,
   correct.for.hubs = TRUE)
 
-\S4method{diffuse}{HMAnalysedPerturbationData}(obj, graph = NULL, r = 0.5,
-  delete.nodes.on.degree = 0, do.bootstrap = FALSE,
+\S4method{diffuse}{HMAnalysedPerturbationData}(obj, graph = NULL,
+  r = 0.5, delete.nodes.on.degree = 0, do.bootstrap = FALSE,
   take.largest.component = TRUE, correct.for.hubs = TRUE)
 }
 \arguments{

@@ -16,7 +16,7 @@ Description: perturbatr does stage-wise analysis of large-scale genetic
  propagation algorithm to correct for false negatives.
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Depends:
   R (>= 3.5),
   methods,

@@ -4,7 +4,8 @@
 \alias{plot.NetworkAnalysedPerturbationData}
 \title{Plot a \code{NetworkAnalysedPerturbationData} object}
 \usage{
-\method{plot}{NetworkAnalysedPerturbationData}(x, size = 10, main = "", ...)
+\method{plot}{NetworkAnalysedPerturbationData}(x, size = 10, main = "",
+  ...)
 }
 \arguments{
 \item{x}{a \code{NetworkAnalysedPerturbationData} object}

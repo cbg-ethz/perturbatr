@@ -34,11 +34,27 @@ plot(diffu)
 
 ## Installation
 
-Download the latest `perturbatr` release and install the package using:
+You can install and use `perturbatr` either as an `R` library from [Bioconductor](https://doi.org/doi:10.18129/B9.bioc.perturbatr),
+or by downloading the [tarball](https://github.com/cbg-ethz/perturbatr/releases).
+
+If you want to use the **recommended** way using Bioconductor just call:
+
+```r
+if (!requireNamespace("BiocManager", quietly=TRUE))
+  install.packages("BiocManager")
+BiocManager::install("perturbatr")
+  
+library(perturbatr)
+```
+
+from the R-console.
+
+Installing the package using the downloaded tarball works like this:
 
 ```bash
   R CMD install <perturbatr.tar.gz>
 ```
+
 where `perturbatr.tar.gz` is the downloaded tarball.
 
 ## Documentation

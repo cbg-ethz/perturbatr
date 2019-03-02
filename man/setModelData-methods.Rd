@@ -8,7 +8,8 @@
 \usage{
 setModelData(obj, drop = TRUE, weights = 1)
 
-\S4method{setModelData}{PerturbationData}(obj, drop = TRUE, weights = 1)
+\S4method{setModelData}{PerturbationData}(obj, drop = TRUE,
+  weights = 1)
 }
 \arguments{
 \item{obj}{an data set}
