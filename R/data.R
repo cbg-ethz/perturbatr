@@ -18,27 +18,29 @@
 # along with perturbatr If not, see <http://www.gnu.org/licenses/>.
 
 
-#' A sample pan-pathogenic perturbation dataset
+#' A pan-viral perturbation dataset
 #'
-#' Example \code{PerturbationData} object of two integrated viral
-#' RNAi screens that consists of a HCV kinome screen and a SARS kinome screen
-#' (see references).
+#' Example \code{PerturbationData} object consisting of several integrated viral
+#' RNAi screens.
 #'
 #' @references
-#'  de Wilde, Adriaan H., et al. (2015),
+#'  de Wilde, Adriaan H, et al. (2015),
 #'  A kinome-wide small interfering RNA screen identifies proviral and
 #'  antiviral host factors in severe acute respiratory syndrome coronavirus
 #'  replication, including double-stranded RNA-activated protein kinase and
 #'  early secretory pathway proteins. \cr
-#'  \emph{Journal of virology} \cr \cr
+#'  \emph{Journal of Virology} \cr \cr
 #'  Reiss, Simon, et al. (2011),
 #'  Recruitment and activation of a lipid kinase by hepatitis C virus NS5A is
 #'  essential for integrity of the membranous replication compartment.\cr
 #'  \emph{Cell Host & Microbe} \cr \cr
-#'
-#'  Friedman J., Hastie T., Hoefling H. and Tibshirani R. (2007),
-#'  Pathwise coordinate optimization.\cr
-#'  \emph{The Annals of Applied Statistics}\cr \cr
+#'  Poenisch, Marion, et al. (2015),
+#'  Identification of HNRNPK as Regulator of Hepatitis C Virus Particle Production.\cr
+#'  \emph{PLoS Pathogens} \cr \cr
+#'  Cortese, Mirko, et al. (2019),
+#'  Reciprocal Effects of Fibroblast Growth Factor Receptor Signaling on Dengue
+#'  Virus Replication and Virion Production.\cr
+#'  \emph{Cell Reports} \cr \cr
 #'
 #' \itemize{
 #'     \item Condition  \code{character} names of the viruses
@@ -63,20 +65,14 @@
 #'     \item Design  \code{character} design of the library, e.g. `pooled`
 #'     \item Readout  \code{numeric} readout value, e.g. GFP measurement or read
 #'        count
-#'     \item ReadoutClass  \code{character} class of the readout, such as
-#'       `Readout` or `Viability`
-#'     \item NumCells  \code{integer} number of measured cells per well
 #'  }
 #
-#' @author Simon Dirmeier | Computational Biology Group, ETH ZURICH |
-#'  \email{simon.dirmeier@@web.de}
-#'
 #' @name rnaiscreen
 #'
 #' @docType data
 #' @keywords datasets data
 #' @usage data(rnaiscreen)
-#' @format A \code{PerturbationData} object containing a \code{tibble} with 18
+#' @format A \code{PerturbationData} object containing a \code{tibble} with 16
 #'  columns, each describing a feature.
 #'
 #' @examples

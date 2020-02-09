@@ -1,5 +1,5 @@
 ---
-title: "perturbatr cookbook"
+title: "perturbatr tutorial"
 author: "Simon Dirmeier"
 date: "`r Sys.Date()`"
 output:
@@ -42,11 +42,8 @@ vignette: >
  The resulting hit lists is then further extended using a network
  propagation algorithm to correct for false negatives.
 
-Here we show an example data analysis using a pan-pathogenic data set of 
+Here we show an example data analysis using a pan-viral data set of 
 three RNAi screening studies.
-The data set consists of two kinome and a druggable genome wide RNAi screen 
-and have been 
-published in @reiss2011recruitment (HCV) and @de2015kinome (SARS).
 
 # Data analysis tutorial
 
@@ -60,8 +57,7 @@ You supposedly start with something like a `data.frame` or `tibble`:
   head(rnaiscreen)
 ```
 
-In order to start your analysis you need to create a perturbation data set 
-first.For this you only need to call the `as` method on your `data.frame`:
+To analyse a data set, we first need to create a perturbation data set:
 
 ```{r, include=TRUE, eval=TRUE}
   rnaiscreen <- methods::as(rnaiscreen, "PerturbationData")
@@ -175,11 +171,10 @@ for the stage of the infection.
 A model selection using the Bayesian information criterion indeed suggests 
 the following hierarchical random intercept model:
 
-$$y_{cgtp} \mid\gamma_g, \delta_{cg}, \zeta_t , \xi_{ct} \sim \mathcal{N}(x_c \beta + \gamma_g  + \delta_{cg} + \zeta_t + \xi_{ct},  \sigma^2),$$
-where $y_{cgtp}$ is the readout of virus $c$, gene $g$, stage of the viral
+$$y_{gctp} \mid\gamma_g, \delta_{gc}, \zeta_t , \xi_{ct} \sim \mathcal{N}(x_c \beta + \gamma_g  + \delta_{cg} + \zeta_t + \xi_{ct},  \sigma^2),$$
+where $y_{gctp}$ is the readout for gene $g$, virus $c$, stage of the viral
 lifecycle $t$ (`E/R` vs `A/R`) and $p$ is the perturbation (siRNA) used for
-gene $g$.
-We estimate the parameters of the model using `lme4` [@bates2014lme4]:
+gene $g$. We estimate the parameters of the model using `lme4` [@bates2014lme4]:
 
 ```{r, eval=TRUE, include=TRUE, warning=FALSE, message=FALSE}
   frm <- Readout ~ Condition +
@@ -194,11 +189,9 @@ We estimate the parameters of the model using `lme4` [@bates2014lme4]:
 Let's take the last result and plot them. This yields a list of multiple
 plots. The first plot shows the first 25 strongest gene effects ranked by their
 absolute effect sizes. Most of the genes are colored in blue which represents
-that a
-gene knockdown leads to an inhibition of viral growth on a **pan-viral** level. 
+that a gene knockdown leads to an inhibition of viral growth on a **pan-viral** level. 
 Bars colored in red represent genes for which a knockdown results in increased 
-viral viability.
-If you are interested in the complete ranking of genes, use 
+viral viability. If you are interested in the complete ranking of genes, use 
 `geneEffects(res.hm)`.
 
 ```{r, include=TRUE, fig.align="center", fig.width=4, message=FALSE}
@@ -225,7 +218,9 @@ function:
 ```{r include=TRUE, fig.align="center", fig.width=4, message=FALSE}
   graph <- readRDS(
     system.file("extdata", "graph_small.rds",package = "perturbatr"))
-  diffu <- diffuse(res.hm, graph=graph, r=0.3)
+  diffu <- perturbatr::diffuse(
+        res.hm, graph=graph, delete.nodes.on.degree=1, r=0.35,
+        take.largest.component=TRUE, correct.for.hubs=FALSE)
 ```
 
 If we plot the results we get a list of reranked genes. Note that the
